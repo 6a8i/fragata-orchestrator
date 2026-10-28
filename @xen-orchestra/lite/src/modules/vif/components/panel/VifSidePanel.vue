@@ -13,7 +13,11 @@
             <template #key>
               {{ t('network') }}
             </template>
-            <template #value>{{ network?.name_label }}</template>
+            <template #value>
+              <UiLink v-if="network" size="medium" :to="networkTo" icon="object:network">
+                {{ network.name_label }}
+              </UiLink>
+            </template>
             <template v-if="network?.name_label" #addons>
               <VtsCopyButton :value="network.name_label" />
             </template>
@@ -108,8 +112,10 @@
 
 <script setup lang="ts">
 import type { XenApiVif } from '@/libs/xen-api/xen-api.types.ts'
+import { getPoolNetworkRoute } from '@/modules/network/utils/network.util.ts'
 import VifConnectionToggleButton from '@/modules/vif/components/actions/connection/VifConnectionToggleButton.vue'
 import { useNetworkStore } from '@/stores/xen-api/network.store.ts'
+import { usePoolStore } from '@/stores/xen-api/pool.store.ts'
 import { useVmGuestMetricsStore } from '@/stores/xen-api/vm-guest-metrics.store.ts'
 import { useVmStore } from '@/stores/xen-api/vm.store.ts'
 import VtsCardRowKeyValue from '@core/components/card/VtsCardRowKeyValue.vue'
@@ -117,6 +123,7 @@ import VtsCopyAllMenuItem from '@core/components/copy-all-menu-item/VtsCopyAllMe
 import VtsCopyButton from '@core/components/copy-button/VtsCopyButton.vue'
 import VtsSidePanel from '@core/components/panel/VtsSidePanel.vue'
 import VtsStatus from '@core/components/status/VtsStatus.vue'
+import UiLink from '@core/components/ui/link/UiLink.vue'
 import UiPanelCard from '@core/components/ui/panel-card/UiPanelCard.vue'
 import UiPanelCardTitle from '@core/components/ui/panel-card-title/UiPanelCardTitle.vue'
 import { getUniqueIpAddressesForDevice } from '@core/utils/ip-address.utils.ts'
@@ -153,6 +160,12 @@ const ipAddresses = computed(() => {
 })
 
 const network = computed(() => (vif !== undefined ? getNetworkByOpaqueRef(vif.network) : undefined))
+
+const { pool } = usePoolStore().subscribe()
+
+const networkTo = computed(() =>
+  pool.value && network.value ? getPoolNetworkRoute(pool.value.uuid, network.value.uuid) : undefined
+)
 
 const status = computed(() => (vif?.currently_attached ? 'connected' : 'disconnected'))
 </script>

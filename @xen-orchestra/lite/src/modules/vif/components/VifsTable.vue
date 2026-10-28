@@ -24,8 +24,10 @@
 
 <script lang="ts" setup>
 import type { XenApiNetwork, XenApiVif, XenApiVm } from '@/libs/xen-api/xen-api.types.ts'
+import { getPoolNetworkRoute } from '@/modules/network/utils/network.util.ts'
 import { useVifConnection } from '@/modules/vif/composables/use-vif-connection.composable.ts'
 import { useNetworkStore } from '@/stores/xen-api/network.store.ts'
+import { usePoolStore } from '@/stores/xen-api/pool.store.ts'
 import { useVifStore } from '@/stores/xen-api/vif.store.ts'
 import { useVmGuestMetricsStore } from '@/stores/xen-api/vm-guest-metrics.store.ts'
 import VtsRow from '@core/components/table/VtsRow.vue'
@@ -35,9 +37,11 @@ import UiTitle from '@core/components/ui/title/UiTitle.vue'
 import { usePagination } from '@core/composables/pagination.composable.ts'
 import { useRouteQuery } from '@core/composables/route-query.composable.ts'
 import { useTableState } from '@core/composables/table-state.composable.ts'
+import { icon } from '@core/icons'
 import { useMapper } from '@core/packages/mapper'
 import { type ActionItem } from '@core/tables/column-definitions/action-column.ts'
 import { useVifColumns } from '@core/tables/column-sets/vif-columns.ts'
+import { renderBodyCell } from '@core/tables/helpers/render-body-cell.ts'
 import { CONNECTION_ACTION } from '@core/types/connection.ts'
 import { getUniqueIpAddressesForDevice } from '@core/utils/ip-address.utils.ts'
 import { logicNot } from '@vueuse/math'
@@ -56,6 +60,7 @@ defineSlots<{
 const { isReady, hasError } = useVifStore().subscribe()
 const { getByOpaqueRef: getNetworkByOpaqueRef } = useNetworkStore().subscribe()
 const { getByOpaqueRef: getGuestMetricsByOpaqueRef } = useVmGuestMetricsStore().subscribe()
+const { pool } = usePoolStore().subscribe()
 
 const { t } = useI18n()
 
@@ -96,7 +101,12 @@ const { pageRecords: paginatedVifs, paginationBindings } = usePagination('vifs',
 
 const { HeadCells, BodyCells } = useVifColumns({
   body: (vif: XenApiVif) => {
-    const name = computed(() => getNetworkName(vif.network))
+    const network = computed(() => getNetworkByOpaqueRef(vif.network))
+
+    const poolNetworkRoute = computed(() =>
+      pool.value && network.value ? getPoolNetworkRoute(pool.value.uuid, network.value.uuid) : undefined
+    )
+
     const ipAddresses = computed(() => getIpAddresses(vif))
 
     const {
@@ -137,7 +147,14 @@ const { HeadCells, BodyCells } = useVifColumns({
     )
 
     return {
-      network: r => r({ label: name.value }),
+      network: r =>
+        network.value
+          ? r({
+              label: network.value.name_label,
+              to: poolNetworkRoute.value,
+              icon: icon('object:network'),
+            })
+          : renderBodyCell(),
       device: r => r(t('vif-device', { device: vif.device })),
       status: r => r(vif.currently_attached ? 'connected' : 'disconnected'),
       ipsAddresses: r => r(ipAddresses.value),
