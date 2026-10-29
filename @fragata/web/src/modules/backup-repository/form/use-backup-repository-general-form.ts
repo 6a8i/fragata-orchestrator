@@ -28,7 +28,7 @@ export type BackupRepositoryGeneralFormOptions = {
 export const ENCRYPTION_KEY_LENGTH = 32
 export const ENCRYPTION_KEY_REGEX = new RegExp(`^[0-9a-f]{${ENCRYPTION_KEY_LENGTH}}$`, 'i')
 
-const BACKUP_FORMAT_DOC_URL = 'https://docs.xen-orchestra.com/xo5/incremental_backups'
+const BACKUP_FORMAT_DOC_URL = 'https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/backups-and-dr/backup-types/incremental_backups.md'
 
 const MIXED_OPTION_ID = '__MIXED__'
 

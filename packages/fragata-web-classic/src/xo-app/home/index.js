@@ -375,7 +375,7 @@ class NoObjectsWithoutServers extends Component {
               <Row>
                 <Col mediumSize={6}>
                   <a
-                    href='https://docs.xen-orchestra.com/'
+                    href='https://github.com/6a8i/fragata-orchestrator/tree/main/docs/docs'
                     rel='noopener noreferrer'
                     target='_blank'
                     className='btn btn-link'
@@ -386,13 +386,13 @@ class NoObjectsWithoutServers extends Component {
                 </Col>
                 <Col mediumSize={6}>
                   <a
-                    href='https://xen-orchestra.com/#!/member/support'
+                    href='https://github.com/6a8i/fragata-orchestrator/discussions'
                     rel='noopener noreferrer'
                     target='_blank'
                     className='btn btn-link'
                   >
                     <Icon icon='menu-settings-users' size={4} />
-                    <h4>{_('homeProSupport')}</h4>
+                    <h4>{_('community')}</h4>
                   </a>
                 </Col>
               </Row>
@@ -1028,7 +1028,7 @@ export default class Home extends Component {
               <Tooltip content={_('filterSyntaxLinkTooltip')}>
                 <a
                   className='input-group-addon'
-                  href='https://docs.xen-orchestra.com/xo5/manage_infrastructure#live-filter-search'
+                  href='https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/manage-your-infrastructure/manage_infrastructure.md#live-filter-search'
                   rel='noopener noreferrer'
                   target='_blank'
                 >

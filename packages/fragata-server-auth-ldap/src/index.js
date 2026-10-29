@@ -54,7 +54,7 @@ If not specified, it will use a default set of well-known CAs.
 const DN_DESCRIPTION = `
 Full distinguished name of the user permitted to search the LDAP directory for the user to authenticate.
 
-Example: uid=xoa-auth,ou=people,dc=company,dc=net
+Example: uid=fragata-auth,ou=people,dc=company,dc=net
 
 For Microsoft Active Directory, it can also be \`<user>@<domain>\`.
 `.trim()

@@ -1983,8 +1983,8 @@ export default {
   // Original text: "Ready for trial?"
   trialReadyModal: '准备试用？',
 
-  // Original text: "During the trial period, XOA need to have a working internet connection. This limitation does not apply for our paid plans!"
-  trialReadyModalText: '在试用期内，XOA需要Internet连接才能正常使用，如果您正式付费将不受此限制',
+  // Original text: "During the trial period, Fragata need to have a working internet connection. This limitation does not apply for our paid plans!"
+  trialReadyModalText: '在试用期内，Fragata需要Internet连接才能正常使用，如果您正式付费将不受此限制',
 
   // Original text: "Host"
   serverHost: '主机',
@@ -2175,8 +2175,8 @@ export default {
   // Original text: "Your trial has been ended. Contact us or downgrade to Free version"
   trialConsumed: '你的使用已经结束，联系我们或下载免费版本',
 
-  // Original text: "Your xoa-updater service appears to be down. Your XOA cannot run fully without reaching this service."
-  trialLocked: '你的xoa-更新服务已停止。没有此服务你的XOA不能完全正常运行',
+  // Original text: "Your xoa-updater service appears to be down. Your Fragata cannot run fully without reaching this service."
+  trialLocked: '你的xoa-更新服务已停止。没有此服务你的Fragata不能完全正常运行',
 
   // Original text: "No update information available"
   noUpdateInfo: '没有更新信息可用',
@@ -2184,14 +2184,14 @@ export default {
   // Original text: "Update information may be available"
   waitingUpdateInfo: '更新信息可能可用',
 
-  // Original text: "Your XOA is up-to-date"
-  upToDate: '你的XOA是最新的',
+  // Original text: "Your Fragata is up-to-date"
+  upToDate: '你的Fragata是最新的',
 
-  // Original text: "You need to update your XOA (new version is available)"
-  mustUpgrade: '你需要更新你的XOA（有新版本可用）',
+  // Original text: "You need to update your Fragata (new version is available)"
+  mustUpgrade: '你需要更新你的Fragata（有新版本可用）',
 
-  // Original text: "Your XOA is not registered for updates"
-  registerNeeded: '你的XOA没有注册更新',
+  // Original text: "Your Fragata is not registered for updates"
+  registerNeeded: '你的Fragata没有注册更新',
 
   // Original text: "Can't fetch update information"
   updaterError: '不能获取更新信息',
@@ -2199,8 +2199,8 @@ export default {
   // Original text: "Upgrade successful"
   promptUpgradeReloadTitle: '更新成功',
 
-  // Original text: "Your XOA has successfully upgraded, and your browser must reload the application. Do you want to reload now ?"
-  promptUpgradeReloadMessage: '你的XOA已经成功更新，你的浏览器必须重新加载，你要现在重新加载吗？',
+  // Original text: "Your Fragata has successfully upgraded, and your browser must reload the application. Do you want to reload now ?"
+  promptUpgradeReloadMessage: '你的Fragata已经成功更新，你的浏览器必须重新加载，你要现在重新加载吗？',
 
   // Original text: "Fragata from the sources"
   disclaimerTitle: 'Fragata 源码版',

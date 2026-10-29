@@ -1,24 +1,24 @@
 import { SUPPORTED_VDI_EXPORT_FORMAT } from '@fragata/types'
 
-export const XOA_NAME = 'Fragata Appliance'
-export const IS_XOA_BUILD = import.meta.env.VITE_XOA_BUILD === 'true'
+export const ORCHESTRATOR_NAME = 'Fragata'
 
-export const XO_LINKS = {
-  BLOG: 'https://xen-orchestra.com/blog/',
-  COMMUNITY: 'https://xcp-ng.org/forum/category/12/xen-orchestra',
-  DOC: 'https://docs.xen-orchestra.com',
-  DOC_SDN_CONTROLLER_MIGRATION:
-    'https://docs.xen-orchestra.com/manage-your-infrastructure/sdn_controller#migration-path',
-  DOC_SDN_CONTROLLER_XAPI_PLUGIN:
-    'https://docs.xen-orchestra.com/manage-your-infrastructure/sdn_controller#xapi-plugin',
-  TRANSLATION: 'https://translate.vates.tech/engage/xen-orchestra/',
+const ORCHESTRATOR_REPO = 'https://github.com/6a8i/fragata-orchestrator'
+const HOST_REPO = 'https://github.com/6a8i/fragata-host'
+
+export const FRAGATA_LINKS = {
+  NEWS: `${ORCHESTRATOR_REPO}/releases`,
+  COMMUNITY: `${ORCHESTRATOR_REPO}/discussions`,
+  DOC: `${ORCHESTRATOR_REPO}/tree/main/docs/docs`,
+  DOC_SDN_CONTROLLER_MIGRATION: `${ORCHESTRATOR_REPO}/blob/main/docs/docs/manage-your-infrastructure/sdn_controller.md#migration-path`,
+  DOC_SDN_CONTROLLER_XAPI_PLUGIN: `${ORCHESTRATOR_REPO}/blob/main/docs/docs/manage-your-infrastructure/sdn_controller.md#xapi-plugin`,
+  TRANSLATION: `${ORCHESTRATOR_REPO}/tree/main/%40fragata/web-core/lib/locales`,
 }
 
-export const XCP_LINKS = {
-  BLOG: 'https://xcp-ng.org/blog/',
-  COMMUNITY: 'https://xcp-ng.org/forum',
-  DOC: 'https://xcp-ng.org/docs/',
-  SUPPORT: 'https://vates.tech/pricing-and-support?utm_campaign=xo6&utm_term=pricing',
+export const FRAGATA_HOST_LINKS = {
+  NEWS: `${HOST_REPO}/releases`,
+  COMMUNITY: `${HOST_REPO}/discussions`,
+  DOC: `${HOST_REPO}#readme`,
+  // technical reference inherited from the XCP-ng project until Fragata Host has its own docs
   GUEST_TOOLS: 'https://docs.xcp-ng.org/vms/#guest-tools',
 }
 

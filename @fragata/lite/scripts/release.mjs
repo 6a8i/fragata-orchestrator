@@ -7,15 +7,14 @@ import { $, cd, chalk, fs, path, question, within } from 'zx'
 
 $.verbose = false
 
-const DEPLOY_SERVER = 'www-xo.gpn.vates.fr'
+const GITHUB_REPO = '6a8i/fragata-orchestrator'
 
 const { version: pkgVersion } = await fs.readJson('./package.json')
 
 const opts = argv(process.argv, {
-  boolean: ['help', 'build', 'deploy', 'ghRelease', 'tarball'],
-  string: ['base', 'dist', 'ghToken', 'tarballDest', 'tarballName', 'username', 'version'],
+  boolean: ['help', 'build', 'ghRelease', 'tarball'],
+  string: ['base', 'dist', 'ghToken', 'tarballDest', 'tarballName', 'version'],
   alias: {
-    u: 'username',
     h: 'help',
     'gh-release': 'ghRelease',
     'gh-token': 'ghToken',
@@ -28,7 +27,7 @@ const opts = argv(process.argv, {
   },
 })
 
-let { base, build, deploy, dist, ghRelease, ghToken, help, tarball, tarballDest, tarballName, username, version } = opts
+let { base, build, dist, ghRelease, ghToken, help, tarball, tarballDest, tarballName, version } = opts
 
 const usage = () => {
   console.log(
@@ -40,23 +39,18 @@ const usage = () => {
 
     [
       --build - whether to build Fragata Deck or not
-      [--base url - base URL for assets - default: "/" or "lite.xen-orchestra.com/dist" if --deploy is passed]
+      [--base url - base URL for assets - default: "/"]
     ]
 
     [
       --tarball - whether to generate a tarball or not
       [--tarball-dest /path/to/folder - tarball destination folder]
-      [--tarball-name file.tar.gz - tarball file name - default xo-lite-X.Y.Z.tar.gz]
+      [--tarball-name file.tar.gz - tarball file name - default fragata-deck-X.Y.Z.tar.gz]
     ]
 
     [
       --gh-release - whether to release on GitHub or not
       [--gh-token token - GitHub API token with "Contents" write permissions]
-    ]
-
-    [
-      --deploy - whether to deploy to xen-orchestra.com or not
-      --username|-u <LDAP username>
     ]
 `
   )
@@ -92,7 +86,7 @@ const ghApiCall = async (path, method = 'GET', data) => {
     opts.body = typeof data === 'object' ? JSON.stringify(data) : data
   }
 
-  const res = await fetch('https://api.github.com/repos/vatesfr/xen-orchestra' + path, opts)
+  const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}` + path, opts)
 
   if (res.status === 404 || res.status === 422) {
     return
@@ -124,7 +118,7 @@ const ghApiUploadReleaseAsset = async (releaseId, assetName, file) => {
   }
 
   const res = await fetch(
-    `https://uploads.github.com/repos/vatesfr/xen-orchestra/releases/${releaseId}/assets?name=${encodeURIComponent(
+    `https://uploads.github.com/repos/${GITHUB_REPO}/releases/${releaseId}/assets?name=${encodeURIComponent(
       assetName
     )}`,
     opts
@@ -153,17 +147,9 @@ const getChangelogForVersion = async (version, changelogPath = './CHANGELOG.md')
 
 const headSha = (await $`git rev-parse HEAD`).stdout.trim()
 
-if (!build && !deploy && !tarball && !ghRelease) {
-  console.log(chalk.yellow('Nothing to do! Use --build, --deploy, --tarball and/or --gh-release'))
+if (!build && !tarball && !ghRelease) {
+  console.log(chalk.yellow('Nothing to do! Use --build, --tarball and/or --gh-release'))
   process.exit(0)
-}
-
-if (deploy && ghRelease) {
-  throw new Error('--deploy and --gh-release cannot be used together')
-}
-
-if (deploy && username === undefined) {
-  throw new Error('--username is required when --deploy is used')
 }
 
 if (ghRelease && ghToken === undefined) {
@@ -171,16 +157,16 @@ if (ghRelease && ghToken === undefined) {
 }
 
 if (base === undefined) {
-  base = deploy ? 'https://lite.xen-orchestra.com/dist/' : '/'
+  base = '/'
 }
 
 if (tarball) {
   if (tarballDest === undefined) {
-    tarballDest = path.join(tmpdir(), `xo-lite-${new Date().toISOString()}`)
+    tarballDest = path.join(tmpdir(), `fragata-deck-${new Date().toISOString()}`)
   }
 
   if (tarballName === undefined) {
-    tarballName = `xo-lite-${version}.tar.gz`
+    tarballName = `fragata-deck-${version}.tar.gz`
   }
 }
 
@@ -220,7 +206,7 @@ if (tarball && tarballExists) {
   }
 }
 
-const tag = `xo-lite-v${version}`
+const tag = `fragata-deck-v${version}`
 if (ghRelease) {
   const remoteTag = await ghApiCall(`/git/ref/tags/${encodeURIComponent(tag)}`)
 
@@ -291,46 +277,20 @@ if (
   stop()
 }
 
-// License and index.js --------------------------------------------------------
+// License and loader ----------------------------------------------------------
 
-if (ghRelease || deploy) {
+if (ghRelease) {
   step('Prepare dist')
 
-  if (ghRelease) {
-    console.log(`Adding LICENSE file to ${dist}`)
-    await fs.copy(fileURLToPath(new URL('agpl-3.0.txt', import.meta.url)), path.join(dist, 'LICENSE'))
+  console.log(`Adding LICENSE file to ${dist}`)
+  await fs.copy(fileURLToPath(new URL('agpl-3.0.txt', import.meta.url)), path.join(dist, 'LICENSE'))
 
-    console.log(`Adding CHANGELOG.md file to ${dist}`)
-    await fs.copy(fileURLToPath(new URL('../CHANGELOG.md', import.meta.url)), path.join(dist, 'CHANGELOG.md'))
+  console.log(`Adding CHANGELOG.md file to ${dist}`)
+  await fs.copy(fileURLToPath(new URL('../CHANGELOG.md', import.meta.url)), path.join(dist, 'CHANGELOG.md'))
 
-    console.log(`Adding xolite-loader.html to ${dist}`)
-    await fs.copy(path.join(dist, 'index.html'), path.join(dist, 'xolite.html'))
-    await fs.copy(fileURLToPath(new URL('xolite-loader.html', import.meta.url)), path.join(dist, 'index.html'))
-  }
-
-  if (deploy) {
-    console.log(`Adding index.js file to ${dist}`)
-
-    // Concatenate a URL (absolute or relative) and paths
-    // e.g.: joinUrl('http://example.com/', 'foo/bar') => 'http://example.com/foo/bar
-    // `path.join` isn't made for URLs and deduplicates the slashes in URL
-    // schemes (http:// becomes http:/). `.replace()` reverts this.
-    const joinUrl = (...parts) => path.join(...parts).replace(/^(https?:\/)/, '$1/')
-
-    // Use of document.write is discouraged but seems to work consistently.
-    // https://html.spec.whatwg.org/multipage/dynamic-markup-insertion.html#document.write()
-    await fs.writeFile(
-      path.join(dist, 'index.js'),
-      `(async () => {
-  document.open();
-  document.write(
-    await (await fetch("${joinUrl(base, 'index.html')}")).text()
-  );
-  document.close();
-})();
-`
-    )
-  }
+  console.log(`Adding xolite-loader.html to ${dist}`)
+  await fs.copy(path.join(dist, 'index.html'), path.join(dist, 'xolite.html'))
+  await fs.copy(fileURLToPath(new URL('xolite-loader.html', import.meta.url)), path.join(dist, 'index.html'))
 }
 
 // Tarball ---------------------------------------------------------------------
@@ -342,15 +302,14 @@ if (tarball) {
 
   await fs.mkdirp(tarballDest)
 
-  // The file is called xo-lite-X.Y.Z.tar.gz by default
+  // The file is called fragata-deck-X.Y.Z.tar.gz by default
   // The archive contains the following tree:
-  // xo-lite-X.Y.Z/
+  // fragata-deck-X.Y.Z/
   // ├ LICENSE
-  // ├ index.js
   // ├ index.html
   // ├ assets/
   // └ ...
-  await $`tar -c -z -f ${tarballPath} --transform='s|^${dist}|xo-lite-${version}|' ${dist}`
+  await $`tar -c -z -f ${tarballPath} --transform='s|^${dist}|fragata-deck-${version}|' ${dist}`
 }
 
 // Create GitHub release -------------------------------------------------------
@@ -413,27 +372,4 @@ if (ghRelease) {
       )
     )
   }
-}
-
-// Deploy ----------------------------------------------------------------------
-
-if (deploy) {
-  step('Deploy')
-
-  console.log(`Deploying Fragata Deck from ${dist} to ${DEPLOY_SERVER}`)
-
-  await $`rsync -r --delete ${dist}/ ${username}@${DEPLOY_SERVER}:xo-lite`
-
-  console.log(`
-  Fragata Deck files sent to server
-
-  → Connect to the server using:
-  \tssh ${username}@${DEPLOY_SERVER}
-
-  → Log in as xo-lite using
-  \tsudo -su xo-lite
-
-  → Then run the following command to move the files to the \`latest\` folder:
-  \trsync -r --delete /home/${username}/xo-lite/ /home/xo-lite/public/latest
-  `)
 }

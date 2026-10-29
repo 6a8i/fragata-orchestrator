@@ -40,7 +40,7 @@ export const configurationSchema = {
     baseUrl: {
       type: 'string',
       title: 'Fragata URL',
-      description: 'URL used in alert messages to quickly get to the VMs (ex: https://xoa.company.tld/ )',
+      description: 'URL used in alert messages to quickly get to the VMs (ex: https://fragata.company.tld/ )',
     },
     hostMonitors: {
       type: 'array',

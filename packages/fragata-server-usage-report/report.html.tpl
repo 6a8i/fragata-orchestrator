@@ -127,7 +127,7 @@
 
     <div id="pageHeader">
       <div class="logo">
-        <img src="{{style.imgXo}}" alt= "Xo Logo"> <label>XOA</label>
+        <img src="{{style.imgXo}}" alt= "Xo Logo"> <label>Fragata</label>
       </div>
       <div class="date">
           <span>{{#if style.prevDate}} {{style.prevDate}} {{else}} 0000-00-00 {{/if}}</span> - <span>{{style.currDate}}</span>

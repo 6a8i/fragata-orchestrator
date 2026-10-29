@@ -6,7 +6,7 @@ import { alert } from 'modal'
 
 export const LICENSE_WARNING_BODY = (
   <span>
-    <a href='https://xcp-ng.com/pricing.html#xcpngvsxenserver' rel='noopener noreferrer' target='_blank'>
+    <a href='https://github.com/6a8i/fragata-host#readme' rel='noopener noreferrer' target='_blank'>
       {_('actionsRestricted')}
     </a>{' '}
     {_('counterRestrictionsOptions')}

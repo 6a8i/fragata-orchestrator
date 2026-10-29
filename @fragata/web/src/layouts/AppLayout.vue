@@ -18,7 +18,6 @@
     </template>
     <template #header-end>
       <UiLink :href="xo5Route" size="medium">{{ t('xo-5') }}</UiLink>
-      <ThirdParties />
       <QuickTaskButton />
       <AccountMenu />
     </template>
@@ -46,7 +45,6 @@
 import AccountMenu from '@/modules/account/components/menu/AccountMenu.vue'
 import AppNavigationSidebar from '@/modules/navigation/components/AppNavigationSidebar.vue'
 import QuickTaskButton from '@/modules/task/components/QuickTaskButton.vue'
-import ThirdParties from '@/modules/third-parties/components/ThirdParties.vue'
 import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import VtsStateHero from '@core/components/state-hero/VtsStateHero.vue'
 import UiButtonIcon from '@core/components/ui/button-icon/UiButtonIcon.vue'

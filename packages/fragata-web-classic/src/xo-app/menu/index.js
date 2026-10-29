@@ -1,22 +1,16 @@
 import _ from 'intl'
 import classNames from 'classnames'
 import Component from 'base-component'
-import Icon, { StackedIcons } from 'icon'
+import Icon from 'icon'
 import Link from 'link'
 import React from 'react'
 import Tooltip from 'tooltip'
-import { injectState } from 'reaclette'
-import { UpdateTag } from '../xoa/update'
-import { NotificationTag } from '../xoa/notifications'
-import { addSubscriptions, connectStore, getXoaPlan, noop } from 'utils'
+import { addSubscriptions, connectStore, noop } from 'utils'
 import {
   connect,
   signOut,
   subscribeHostMissingPatches,
-  subscribeNotifications,
   subscribePermissions,
-  subscribeProxies,
-  subscribeProxyApplianceUpdaterState,
   subscribeResourceSets,
   subscribeSrsUnhealthyVdiChainsLength,
   VDIS_TO_COALESCE_LIMIT,
@@ -29,16 +23,11 @@ import {
   getResolvedPendingTasks,
   getStatus,
   getUser,
-  getXoaState,
   isAdmin,
 } from 'selectors'
-import { countBy, every, forEach, identity, isEmpty, isEqual, map, pick, size, some } from 'lodash'
+import { forEach, identity, isEmpty, isEqual, map, pick, size, some } from 'lodash'
 
 import styles from './index.css'
-
-const LINK_STYLE = {
-  display: 'flex',
-}
 
 const returnTrue = () => true
 
@@ -56,7 +45,6 @@ const returnTrue = () => true
       srs: createGetObjectsOfType('SR')(state, props),
       status: getStatus(state, props),
       user: getUser(state, props),
-      xoaState: getXoaState(state, props),
     })
   },
   {
@@ -64,16 +52,10 @@ const returnTrue = () => true
   }
 )
 @addSubscriptions({
-  notifications: subscribeNotifications,
   permissions: subscribePermissions,
-  proxyIds: cb =>
-    subscribeProxies(proxies => {
-      cb(map(proxies, 'id').sort())
-    }),
   resourceSets: subscribeResourceSets,
   unhealthyVdiChainsLength: subscribeSrsUnhealthyVdiChainsLength,
 })
-@injectState
 export default class Menu extends Component {
   componentWillMount() {
     const updateCollapsed = () => {
@@ -88,34 +70,20 @@ export default class Menu extends Component {
     }
 
     this._updateMissingPatchesSubscriptions()
-    this._updateProxiesSubscriptions()
     this._fetchGuiRoutes()
   }
 
   componentWillUnmount() {
     this._removeListener()
     this._unsubscribeMissingPatches()
-    this._unsubscribeProxiesApplianceUpdaterState()
   }
 
   componentDidUpdate(prevProps) {
     if (!isEqual(Object.keys(prevProps.hosts).sort(), Object.keys(this.props.hosts).sort())) {
       this._updateMissingPatchesSubscriptions()
     }
-
-    if (!isEqual(prevProps.proxyIds, this.props.proxyIds)) {
-      this._updateProxiesSubscriptions()
-    }
   }
 
-  _areProxiesOutOfDate = createSelector(
-    () => this.state.proxyStates,
-    proxyStates => some(proxyStates, state => state.endsWith('-upgrade-needed'))
-  )
-  _getNProxiesErrors = createSelector(
-    () => this.state.proxyStates,
-    proxyStates => countBy(proxyStates).error
-  )
   _checkPermissions = createSelector(
     () => this.props.isAdmin,
     () => this.props.permissions,
@@ -129,11 +97,6 @@ export default class Menu extends Component {
   )
 
   _getNoResourceSets = createSelector(() => this.props.resourceSets, isEmpty)
-
-  _getNoNotifications = createSelector(
-    () => this.props.notifications,
-    notifications => every(notifications, { read: true })
-  )
 
   get height() {
     return this.refs.content.offsetHeight
@@ -189,29 +152,6 @@ export default class Menu extends Component {
     this._unsubscribeMissingPatches = () => forEach(unsubs, unsub => unsub())
   }
 
-  _updateProxiesSubscriptions = () => {
-    this.setState(({ proxyStates }) => ({
-      proxyStates: pick(proxyStates, this.props.proxyIds),
-    }))
-
-    const unsubs = map(this.props.proxyIds, proxyId =>
-      subscribeProxyApplianceUpdaterState(proxyId, ({ state: proxyState = '' }) => {
-        this.setState(state => ({
-          proxyStates: {
-            ...state.proxyStates,
-            [proxyId]: proxyState,
-          },
-        }))
-      })
-    )
-
-    if (this._unsubscribeProxiesApplianceUpdaterState !== undefined) {
-      this._unsubscribeProxiesApplianceUpdaterState()
-    }
-
-    this._unsubscribeProxiesApplianceUpdaterState = () => forEach(unsubs, unsub => unsub())
-  }
-
   _fetchGuiRoutes = async () => {
     const res = await fetch('./rest/v0/gui-routes')
     if (!res.ok) {
@@ -223,11 +163,9 @@ export default class Menu extends Component {
   }
 
   render() {
-    const { isAdmin, isPoolAdmin, nResolvedTasks, state, status, user, pools, nHosts, srs, xoaState } = this.props
+    const { isAdmin, isPoolAdmin, nResolvedTasks, status, user, pools, nHosts, srs } = this.props
     const noOperatablePools = this._getNoOperatablePools()
     const noResourceSets = this._getNoResourceSets()
-    const noNotifications = this._getNoNotifications()
-    const nProxiesErrors = this._getNProxiesErrors()
 
     const missingPatchesWarning = this._hasMissingPatches() ? (
       <Tooltip content={_('homeMissingPatches')}>
@@ -348,39 +286,6 @@ export default class Menu extends Component {
           },
         ],
       },
-      {
-        to: isAdmin ? 'xoa/update' : 'xoa/notifications',
-        icon: 'menu-xoa',
-        label: 'xoa',
-        extra: [
-          !isAdmin || xoaState === 'upToDate' ? null : <UpdateTag key='update' />,
-          noNotifications ? null : <NotificationTag key='notification' />,
-        ],
-        subMenu: [
-          isAdmin && {
-            to: 'xoa/update',
-            icon: 'menu-update',
-            label: 'updatePage',
-            extra: <UpdateTag />,
-          },
-          isAdmin && {
-            to: 'xoa/licenses',
-            icon: 'menu-license',
-            label: 'licensesPage',
-          },
-          {
-            to: 'xoa/notifications',
-            icon: 'menu-notification',
-            label: 'notificationsPage',
-            extra: <NotificationTag />,
-          },
-          isAdmin && {
-            to: 'xoa/support',
-            icon: 'menu-support',
-            label: 'supportPage',
-          },
-        ],
-      },
       isAdmin && {
         to: '/settings/servers',
         icon: 'menu-settings',
@@ -457,44 +362,6 @@ export default class Menu extends Component {
           },
         ],
       },
-      isAdmin && {
-        to: '/hub/templates',
-        icon: 'menu-hub',
-        label: 'hubPage',
-        subMenu: [
-          {
-            to: '/hub/templates',
-            icon: 'hub-template',
-            label: 'templatesLabel',
-          },
-          {
-            to: '/hub/recipes',
-            icon: 'hub-recipe',
-            label: 'recipesLabel',
-          },
-        ],
-      },
-      isAdmin && {
-        to: '/proxies',
-        icon: 'proxy',
-        label: 'proxies',
-        extra: [
-          this._areProxiesOutOfDate() ? (
-            <Tooltip content={_('proxiesNeedUpgrade')}>
-              <StackedIcons
-                icons={[
-                  { color: 'text-success', icon: 'circle', size: 2 },
-                  { icon: 'menu-update', size: 1 },
-                ]}
-              />
-            </Tooltip>
-          ) : nProxiesErrors > 0 ? (
-            <Tooltip content={_('someProxiesHaveErrors', { n: nProxiesErrors })}>
-              <span className='tag tag-pill tag-danger'>{nProxiesErrors}</span>
-            </Tooltip>
-          ) : null,
-        ],
-      },
       isAdmin && { to: '/about', icon: 'menu-about', label: 'aboutPage' },
       {
         to: '/tasks',
@@ -534,7 +401,7 @@ export default class Menu extends Component {
         icon: 'menu-new',
         label: 'newMenu',
         subMenu: [
-          (isAdmin || (isPoolAdmin && process.env.XOA_PLAN > 3) || !noResourceSets) && {
+          (isAdmin || isPoolAdmin || !noResourceSets) && {
             to: '/vms/new',
             icon: 'menu-new-vm',
             label: 'newVmPage',
@@ -561,7 +428,7 @@ export default class Menu extends Component {
           <li>
             <span>
               <a className={styles.brand} href='#'>
-                <span className={styles.hiddenUncollapsed}>XO</span>
+                <span className={styles.hiddenUncollapsed}>F</span>
                 <span className={styles.hiddenCollapsed}>Fragata</span>
               </a>
             </span>
@@ -573,74 +440,25 @@ export default class Menu extends Component {
           </li>
           {map(items, (item, index) => item && <MenuLinkItem key={index} item={item} />)}
           <li className='nav-item xo-menu-item'>
-            <a className='nav-link' target="_blank" href="/rest/v0/docs/"> 
-              
+            <a className='nav-link' target='_blank' href='/rest/v0/docs/'>
               <span className={classNames(styles.hiddenCollapsed)}>
-                  <Icon icon='rest-api' size='lg' fixedWidth /> {_('restApiDoc')} 
+                <Icon icon='rest-api' size='lg' fixedWidth /> {_('restApiDoc')}
               </span>
               <span className={classNames(styles.hiddenUncollapsed)}>
-                <Icon icon="rest-api"  size='lg' fixedWidth/>
+                <Icon icon='rest-api' size='lg' fixedWidth />
               </span>
-                
             </a>
           </li>
-          {isAdmin && this.state.guiRoutes?.xo6 !== undefined && <li className='nav-item xo-menu-item'>
-            <a className='nav-link' target='_blank' rel='noreferrer' href={this.state.guiRoutes.xo6}>
-              <span className={classNames(styles.hiddenCollapsed)}>
-                <Icon icon='announcement' size='lg' fixedWidth /> {_('tryXo6')} <Icon icon='external-link' />
-              </span>
-              <span className={classNames(styles.hiddenUncollapsed)}>
-                <Icon icon="announcement"  size='lg' fixedWidth/>
-              </span>
-
-            </a>
-          </li>}
-          <li>&nbsp;</li>
-          <li>&nbsp;</li>
-          {!state.isXoaStatusOk && (
+          {isAdmin && this.state.guiRoutes?.xo6 !== undefined && (
             <li className='nav-item xo-menu-item'>
-              <Link className='nav-link' style={LINK_STYLE} to='/xoa/support'>
-                <span className={classNames(styles.hiddenCollapsed, 'text-warning')}>
-                  <Icon icon='diagnosis' size='lg' fixedWidth /> {_('checkXoa')}
+              <a className='nav-link' target='_blank' rel='noreferrer' href={this.state.guiRoutes.xo6}>
+                <span className={classNames(styles.hiddenCollapsed)}>
+                  <Icon icon='announcement' size='lg' fixedWidth /> {_('tryXo6')} <Icon icon='external-link' />
                 </span>
-                <span className={classNames(styles.hiddenUncollapsed, 'text-warning')}>
-                  <Icon icon='diagnosis' size='lg' fixedWidth />
+                <span className={classNames(styles.hiddenUncollapsed)}>
+                  <Icon icon='announcement' size='lg' fixedWidth />
                 </span>
-              </Link>
-            </li>
-          )}
-          {(isAdmin || +process.env.XOA_PLAN === 5) && (
-            <li className='nav-item xo-menu-item'>
-              <Link className='nav-link' style={{ display: 'flex' }} to='/about'>
-                {+process.env.XOA_PLAN === 5 ? (
-                  <span>
-                    <span className={classNames(styles.hiddenCollapsed, 'text-warning')}>
-                      <Icon icon='alarm' size='lg' fixedWidth /> {_('noSupport')}
-                    </span>
-                    <span className={classNames(styles.hiddenUncollapsed, 'text-warning')}>
-                      <Icon icon='alarm' size='lg' fixedWidth />
-                    </span>
-                  </span>
-                ) : +process.env.XOA_PLAN === 1 ? (
-                  <span>
-                    <span className={classNames(styles.hiddenCollapsed, 'text-warning')}>
-                      <Icon icon='info' size='lg' fixedWidth /> {_('freeUpgrade')}
-                    </span>
-                    <span className={classNames(styles.hiddenUncollapsed, 'text-warning')}>
-                      <Icon icon='info' size='lg' fixedWidth />
-                    </span>
-                  </span>
-                ) : (
-                  <span>
-                    <span className={classNames(styles.hiddenCollapsed, 'text-success')}>
-                      <Icon icon='info' size='lg' fixedWidth /> {getXoaPlan()}
-                    </span>
-                    <span className={classNames(styles.hiddenUncollapsed, 'text-success')}>
-                      <Icon icon='info' size='lg' fixedWidth />
-                    </span>
-                  </span>
-                )}
-              </Link>
+              </a>
             </li>
           )}
           <li>&nbsp;</li>

@@ -6,50 +6,18 @@ body:
     attributes:
       value: |
         1. ⚠️ **If you don't follow this template, the issue will be closed**.
-        2. ⚠️ **If your issue can't be easily reproduced, please report it [on the forum first](https://xcp-ng.org/forum/category/12/xen-orchestra)**.
+        2. ⚠️ **If your issue can't be easily reproduced, please start a [discussion](https://github.com/6a8i/fragata-orchestrator/discussions) first**.
   - type: markdown
     attributes:
-      value: '## Are you using XOA or XO from the sources?'
-  - type: dropdown
-    id: xo-origin
-    attributes:
-      label: Are you using XOA or XO from the sources?
-      options:
-        - XOA
-        - XO from the sources
-        - both
-    validations:
-      required: false
-  - type: markdown
-    attributes:
-      value: '### If XOA:'
-  - type: dropdown
-    id: xoa-channel
-    attributes:
-      label: Which release channel?
-      description: please consider creating a support ticket in [your dedicated support area](https://xen-orchestra.com/#!/member/support)
-      options:
-        - stable
-        - latest
-        - both
-    validations:
-      required: false
-  - type: markdown
-    attributes:
-      value: '### If XO from the sources:'
-  - type: markdown
-    attributes:
-      value: |
-        - Don't forget to [read this first](https://docs.xen-orchestra.com/community)
-        - As well as follow [this guide](https://docs.xen-orchestra.com/community#report-a-bug)
+      value: '## Your Fragata build'
   - type: input
-    id: xo-sources-commit-number
+    id: fragata-commit
     attributes:
       label: Provide your commit number
-      description: If it's older than a week, we won't investigate
+      description: Shown on the About page. If it's older than a week, please update before reporting.
       placeholder: e.g. 579f0
     validations:
-      required: false
+      required: true
   - type: markdown
     attributes:
       value: '## Bug description:'
@@ -100,14 +68,14 @@ body:
     id: node-version
     attributes:
       label: Node
-      placeholder: e.g. 16.12.1
+      placeholder: e.g. 24.11.0
     validations:
       required: true
   - type: input
     id: hypervisor-version
     attributes:
       label: Hypervisor
-      placeholder: e.g. XCP-ng 8.2.0
+      placeholder: e.g. Fragata Host 8.3 / XCP-ng 8.3
     validations:
       required: true
   - type: textarea

@@ -737,7 +737,7 @@ export default {
   // Original text: "Local remote selected"
   localRemoteWarningTitle: 'Emplacement local sélectionné',
 
-  // Original text: "Warning: local remotes will use limited XOA disk space. Only for advanced users."
+  // Original text: "Warning: local remotes will use limited Fragata disk space. Only for advanced users."
   localRemoteWarningMessage:
     "Attention : utiliser un emplacement local limite l'espace pour XO. Restreignez ceci aux utilisateurs avancés.",
 
@@ -3065,14 +3065,14 @@ export default {
 
   // Original text: "Your XO appliance is already registered to {email}, do you want to forget and replace this registration ?"
   alreadyRegisteredModalText:
-    'Votre instance XOA est déjà enregistrée pour {email}, voulez-vous remplacer cet enregistrement ?',
+    'Votre instance Fragata est déjà enregistrée pour {email}, voulez-vous remplacer cet enregistrement ?',
 
   // Original text: "Ready for trial?"
   trialReadyModal: "Prêt pour l'essai ?",
 
-  // Original text: "During the trial period, XOA need to have a working internet connection. This limitation does not apply for our paid plans!"
+  // Original text: "During the trial period, Fragata need to have a working internet connection. This limitation does not apply for our paid plans!"
   trialReadyModalText:
-    "Durant la période de démonstration, XOA nécessite une connexion internet fonctionnelle. Cette limitation disparaît avec la souscription d'une de nos formules.",
+    "Durant la période de démonstration, Fragata nécessite une connexion internet fonctionnelle. Cette limitation disparaît avec la souscription d'une de nos formules.",
 
   // Original text: "Label"
   serverLabel: 'Nom',
@@ -3394,14 +3394,14 @@ export default {
 
   // Original text: "You can use a trial version until {date, date, medium}. Upgrade your appliance to get it."
   trialAvailableUntil:
-    "Vous pouvez utiliser une version d'essai jusqu'au {date, date, medium}. Mettez à jour votre XOA pour en profiter.",
+    "Vous pouvez utiliser une version d'essai jusqu'au {date, date, medium}. Mettez à jour votre Fragata pour en profiter.",
 
   // Original text: "Your trial has been ended. Contact us or downgrade to Free version"
   trialConsumed: "Votre période d'essai est terminé. Contactez-nous, ou régressez sur l'édition gratuite.",
 
-  // Original text: "Your xoa-updater service appears to be down. Your XOA cannot run fully without reaching this service."
+  // Original text: "Your xoa-updater service appears to be down. Your Fragata cannot run fully without reaching this service."
   trialLocked:
-    'Votre service xoa-update semble inaccessible. Votre XOA ne peut pas fonctionner pleinement si elle ne peut pas joindre ce service.',
+    'Votre service xoa-update semble inaccessible. Votre Fragata ne peut pas fonctionner pleinement si elle ne peut pas joindre ce service.',
 
   // Original text: "No update information available"
   noUpdateInfo: "Pas d'informations de mises à jour disponible",
@@ -3409,14 +3409,14 @@ export default {
   // Original text: "Update information may be available"
   waitingUpdateInfo: 'Des informations de mises à jour sont peut-être disponibles',
 
-  // Original text: "Your XOA is up-to-date"
-  upToDate: 'Votre XOA est à jour',
+  // Original text: "Your Fragata is up-to-date"
+  upToDate: 'Votre Fragata est à jour',
 
-  // Original text: "You need to update your XOA (new version is available)"
-  mustUpgrade: 'Vous devez mettre à jour votre XOA (une nouvelle version est disponible)',
+  // Original text: "You need to update your Fragata (new version is available)"
+  mustUpgrade: 'Vous devez mettre à jour votre Fragata (une nouvelle version est disponible)',
 
-  // Original text: "Your XOA is not registered for updates"
-  registerNeeded: "Votre XOA n'est pas enregistrée pour les mises à jour",
+  // Original text: "Your Fragata is not registered for updates"
+  registerNeeded: "Votre Fragata n'est pas enregistrée pour les mises à jour",
 
   // Original text: "Can't fetch update information"
   updaterError: 'Impossible de récupérer les informations de mise à jour.',
@@ -3424,9 +3424,9 @@ export default {
   // Original text: "Upgrade successful"
   promptUpgradeReloadTitle: 'Mise à jour réussie',
 
-  // Original text: "Your XOA has successfully upgraded, and your browser must reload the application. Do you want to reload now ?"
+  // Original text: "Your Fragata has successfully upgraded, and your browser must reload the application. Do you want to reload now ?"
   promptUpgradeReloadMessage:
-    "Votre XOA à été mise à jour avec brio, et votre navigateur doit rafraîchir l'application pour en profiter. Voulez-vous rafraîchir dès maintenant ?",
+    "Votre Fragata à été mise à jour avec brio, et votre navigateur doit rafraîchir l'application pour en profiter. Voulez-vous rafraîchir dès maintenant ?",
 
   // Original text: "Fragata from the sources"
   disclaimerTitle: 'Fragata depuis les sources',

@@ -15,7 +15,7 @@ const ScheduleHealthCheck = ({ schedule, toggleHealthCheck, setHealthCheckTags, 
         <a
           className='text-info'
           rel='noreferrer'
-          href='https://docs.xen-orchestra.com/backups#backup-health-check'
+          href='https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/backups-and-dr/backup-features-and-settings.md#backup-health-check'
           target='_blank'
         >
           <Icon icon='info' />

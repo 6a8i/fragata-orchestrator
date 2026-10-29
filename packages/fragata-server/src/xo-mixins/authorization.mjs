@@ -11,7 +11,7 @@ const STARTER = 2
 const ENTERPRISE = 3
 const PREMIUM = 4
 
-// https://git.vates.tech/vates/www-xo/src/branch/main/src/productNames.js#L230
+// bundle identifiers inherited from the upstream licensing model
 const BUNDLE_ESSENTIAL = 'bundle-essential'
 const BUNDLE_ESSENTIAL_PLUS = 'bundle-essential-plus'
 const BUNDLE_ENTERPRISE = 'bundle-enterprise'
@@ -67,7 +67,7 @@ const AUTHORIZATIONS = {
   },
 }
 
-// features: https://vates.tech/en/pricing-and-support/
+// bundle feature matrix inherited from the upstream licensing model
 const BUNDLE_AUTHORIZATIONS = {
   RBAC: [BUNDLE_ESSENTIAL_PLUS, BUNDLE_PRO, BUNDLE_ENTERPRISE],
   SMART_REBOOT: [BUNDLE_ESSENTIAL_PLUS, BUNDLE_ENTERPRISE],

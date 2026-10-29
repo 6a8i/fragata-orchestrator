@@ -601,8 +601,6 @@ export default class Xapi extends XapiBase {
         // We need to explicitly test VDI.is_a_snapshot because there is a problem with XAPI itself (observed on
         // an XCP-ng 8.1 host, might be related to CBT), where some non-snapshot VDIs have a snapshot_of
         // property not equal to OpaqueRef:NULL as expected but containing a reference to an existing VDI.
-        //
-        // https://team.vates.fr/vates/pl/9m4u5rsr7tfcdroykwq6i6mcmo
         if (vdi.is_a_snapshot && vdi.$snapshot_of !== undefined) {
           continue
         }
@@ -1613,7 +1611,7 @@ export default class Xapi extends XapiBase {
   async assertConsistentHostServerTime(hostRef) {
     if (!(await this.isHostServerTimeConsistent(hostRef))) {
       throw new Error(
-        `host server time and XOA date are not consistent with each other (${ms(
+        `host server time and Fragata server date are not consistent with each other (${ms(
           await this._getHostServerTimeShift(hostRef)
         )})`
       )

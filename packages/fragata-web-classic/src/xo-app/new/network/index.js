@@ -330,7 +330,7 @@ const NewNetwork = decorate([
                       <em>
                         <Icon icon='info' />{' '}
                         <a
-                          href='https://docs.xen-orchestra.com/sdn_controller#requirements'
+                          href='https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/manage-your-infrastructure/sdn_controller.md#requirements'
                           target='_blank'
                           rel='noreferrer'
                         >

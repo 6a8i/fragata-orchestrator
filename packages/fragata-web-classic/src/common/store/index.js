@@ -11,8 +11,4 @@ const store = createStore(combineReducers(reducer), applyMiddleware(reduxThunk))
 
 connectXo(store)
 
-if (process.env.XOA_PLAN < 5) {
-  require('xoa-updater').connectStore(store)
-}
-
 export default store

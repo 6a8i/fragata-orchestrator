@@ -78,12 +78,12 @@ claude mcp add xo \
 
 To connect several XO servers at once, add one entry per instance with a different name (e.g., `xo-production`, `xo-staging`). Each entry runs its own process with its own credentials.
 
-See the [full documentation](https://docs.xen-orchestra.com/mcp) for configuration examples.
+See the [full documentation](https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/automation/mcp.md) for configuration examples.
 
 ### Prerequisites
 
 - **Node.js** >= 20
-- **Fragata** 6.5 or later, with the [REST API](https://docs.xen-orchestra.com/restapi) enabled
+- **Fragata** 6.5 or later, with the [REST API](https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/automation/restapi.md) enabled
 - An **AI assistant** that supports MCP (Claude Desktop, Claude Code, etc.)
 
 > **Note:** this MCP server requires **Fragata 6.5 or later**. On an older XO it stops at startup with an error such as `Unable to verify MCP status (HTTP 404)` — upgrade your Fragata to use it.
@@ -104,15 +104,15 @@ To generate a token, go to the XO user page (`/user`) or run `fragata-cli create
 
 ### Behind a corporate proxy
 
-The MCP server respects `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY`. Set them when your AI assistant uses an outbound proxy but your XOA is on the internal network.
+The MCP server respects `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY`. Set them when your AI assistant uses an outbound proxy but your Fragata server is on the internal network.
 
 | Variable      | Effect                                                                                                                                                                                                                                                                                                                                                              |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `HTTP_PROXY`  | Proxy URL for plain HTTP requests, e.g. `http://proxy.corp.example:3128`. Credentials are supported: `http://user:pass@proxy:3128` (Basic auth only — NTLM/Kerberos proxies need a sidecar like cntlm).                                                                                                                                                             |
 | `HTTPS_PROXY` | Proxy URL for HTTPS requests. Same format as `HTTP_PROXY`. The proxy itself is contacted over HTTP; `https://` schemes are unusual.                                                                                                                                                                                                                                 |
-| `NO_PROXY`    | Comma-separated list of hostnames that bypass the proxy. Three forms: exact host (`xoa.internal.example.com`), suffix wildcard (`.example.com` or `*.example.com` — matches subdomains, **not** the bare domain — list both if needed), or `*` alone to bypass everything. CIDR ranges are not supported by the underlying library. Lowercase `no_proxy` works too. |
+| `NO_PROXY`    | Comma-separated list of hostnames that bypass the proxy. Three forms: exact host (`fragata.internal.example.com`), suffix wildcard (`.example.com` or `*.example.com` — matches subdomains, **not** the bare domain — list both if needed), or `*` alone to bypass everything. CIDR ranges are not supported by the underlying library. Lowercase `no_proxy` works too. |
 
-Example for Claude Desktop, with a corporate proxy and a XOA on the internal network:
+Example for Claude Desktop, with a corporate proxy and a Fragata server on the internal network:
 
 ```json
 {
@@ -121,10 +121,10 @@ Example for Claude Desktop, with a corporate proxy and a XOA on the internal net
       "command": "npx",
       "args": ["@fragata/mcp"],
       "env": {
-        "XO_URL": "https://xoa.internal.example.com",
+        "XO_URL": "https://fragata.internal.example.com",
         "XO_TOKEN": "your-token",
         "HTTPS_PROXY": "http://proxy.corp.example:3128",
-        "NO_PROXY": "xoa.internal.example.com"
+        "NO_PROXY": "fragata.internal.example.com"
       }
     }
   }
@@ -181,7 +181,7 @@ In short, `x-mcp-exposure` (and the `mcp/require-mcp-expose` lint rule that enfo
 
 An fragata-server admin can globally block MCP by setting `[mcp] enabled = false` in the server config. With that flag set, the binary exits at startup with `MCP disabled by admin` on stderr and any active client receives `503 { "error": "mcp_disabled" }` on its next request. It's not a bug — re-enable MCP in fragata-server's config to recover.
 
-Full documentation with tool parameters, examples, and troubleshooting: [docs.xen-orchestra.com/mcp](https://docs.xen-orchestra.com/mcp)
+Full documentation with tool parameters, examples, and troubleshooting: [docs/automation/mcp.md](https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/automation/mcp.md)
 
 ## Contributions
 

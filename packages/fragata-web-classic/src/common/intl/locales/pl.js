@@ -608,8 +608,8 @@ export default {
   // Original text: "Local remote selected"
   localRemoteWarningTitle: 'Local remote selected',
 
-  // Original text: "Warning: local remotes will use limited XOA disk space. Only for advanced users."
-  localRemoteWarningMessage: 'Warning: local remotes will use limited XOA disk space. Only for advanced users.',
+  // Original text: "Warning: local remotes will use limited Fragata disk space. Only for advanced users."
+  localRemoteWarningMessage: 'Warning: local remotes will use limited Fragata disk space. Only for advanced users.',
 
   // Original text: "VMs"
   editBackupVmsTitle: 'VMs',
@@ -2600,9 +2600,9 @@ export default {
   // Original text: "Ready for trial?"
   trialReadyModal: 'Ready for trial?',
 
-  // Original text: "During the trial period, XOA need to have a working internet connection. This limitation does not apply for our paid plans!"
+  // Original text: "During the trial period, Fragata need to have a working internet connection. This limitation does not apply for our paid plans!"
   trialReadyModalText:
-    'During the trial period, XOA need to have a working internet connection. This limitation does not apply for our paid plans!',
+    'During the trial period, Fragata need to have a working internet connection. This limitation does not apply for our paid plans!',
 
   // Original text: "Host"
   serverHost: 'Host',
@@ -2873,8 +2873,8 @@ export default {
   // Original text: "Your trial has been ended. Contact us or downgrade to Free version"
   trialConsumed: 'Twoja wersja demonstracyjna właśnie się zakończyła. Skontaktuj się z nami żeby pobrać darmową wersję',
 
-  // Original text: "Your xoa-updater service appears to be down. Your XOA cannot run fully without reaching this service."
-  trialLocked: 'Your xoa-updater service appears to be down. Your XOA cannot run fully without reaching this service.',
+  // Original text: "Your xoa-updater service appears to be down. Your Fragata cannot run fully without reaching this service."
+  trialLocked: 'Your xoa-updater service appears to be down. Your Fragata cannot run fully without reaching this service.',
 
   // Original text: "No update information available"
   noUpdateInfo: 'No update information available',
@@ -2882,14 +2882,14 @@ export default {
   // Original text: "Update information may be available"
   waitingUpdateInfo: 'Update information may be available',
 
-  // Original text: "Your XOA is up-to-date"
-  upToDate: 'Twoje XOA jest aktualne',
+  // Original text: "Your Fragata is up-to-date"
+  upToDate: 'Twoje Fragata jest aktualne',
 
-  // Original text: "You need to update your XOA (new version is available)"
-  mustUpgrade: 'You need to update your XOA (new version is available)',
+  // Original text: "You need to update your Fragata (new version is available)"
+  mustUpgrade: 'You need to update your Fragata (new version is available)',
 
-  // Original text: "Your XOA is not registered for updates"
-  registerNeeded: 'Your XOA is not registered for updates',
+  // Original text: "Your Fragata is not registered for updates"
+  registerNeeded: 'Your Fragata is not registered for updates',
 
   // Original text: "Can't fetch update information"
   updaterError: 'Nie mogę pobrać aktualizacji',
@@ -2897,9 +2897,9 @@ export default {
   // Original text: "Upgrade successful"
   promptUpgradeReloadTitle: 'Aktualizacja zakończona sukcesem',
 
-  // Original text: "Your XOA has successfully upgraded, and your browser must reload the application. Do you want to reload now ?"
+  // Original text: "Your Fragata has successfully upgraded, and your browser must reload the application. Do you want to reload now ?"
   promptUpgradeReloadMessage:
-    'Your XOA has successfully upgraded, and your browser must reload the application. Do you want to reload now ?',
+    'Your Fragata has successfully upgraded, and your browser must reload the application. Do you want to reload now ?',
 
   // Original text: "Fragata from the sources"
   disclaimerTitle: 'Fragata z źródeł',

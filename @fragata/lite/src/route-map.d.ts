@@ -1115,13 +1115,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/xoa-deploy': RouteRecordInfo<
-      '/xoa-deploy',
-      '/xoa-deploy',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
   }
 
   /**
@@ -2068,12 +2061,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/vm/new.vue': {
       routes:
         | '/vm/new'
-      views:
-        | never
-    }
-    'src/pages/xoa-deploy.vue': {
-      routes:
-        | '/xoa-deploy'
       views:
         | never
     }

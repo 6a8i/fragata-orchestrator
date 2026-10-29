@@ -7,7 +7,7 @@
 ## Usage
 
 Like all fragata-server plugins, it can be configured directly via
-the web interface, see [the plugin documentation](https://docs.xen-orchestra.com/advanced#performance-alerts).
+the web interface, see [the plugin documentation](https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/manage-your-infrastructure/advanced.md#performance-alerts).
 
 You can define monitors in the plugin configuration. Monitors let you check storage usage for your SRs, CPU usage or memory usage of your hosts and VMs.
 

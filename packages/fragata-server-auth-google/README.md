@@ -34,7 +34,7 @@ Add OAuth 2.0 credentials:
 ### Add the plugin to XO-Server config
 
 Like all other fragata-server plugins, it can be configured directly via
-the web interface, see [the plugin documentation](https://docs.xen-orchestra.com/architecture#plugins).
+the web interface, see [the plugin documentation](https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/architecture.md#plugins).
 
 ## Contributions
 

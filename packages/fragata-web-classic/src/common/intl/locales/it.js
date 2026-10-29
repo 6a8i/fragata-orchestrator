@@ -59,8 +59,8 @@ export default {
   // Original text: 'SR'
   sr: 'SR',
 
-  // Original text: 'Try XOA for free and deploy it here.'
-  tryXoa: 'Prova XOA gratuitamente e distribuiscilo.',
+  // Original text: 'Try Fragata for free and deploy it here.'
+  tryXoa: 'Prova Fragata gratuitamente e distribuiscilo.',
 
   // Original text: 'Not installed'
   notInstalled: 'Non installato',
@@ -320,8 +320,8 @@ export default {
   // Original text: 'Jobs'
   jobsPage: 'Processi',
 
-  // Original text: 'XOA'
-  xoaPage: 'XOA',
+  // Original text: 'Fragata'
+  xoaPage: 'Fragata',
 
   // Original text: 'Updates'
   updatePage: 'Aggiornamenti',
@@ -464,8 +464,8 @@ export default {
   // Original text: 'User'
   userPage: 'Utente',
 
-  // Original text: 'XOA'
-  xoa: 'XOA',
+  // Original text: 'Fragata'
+  xoa: 'Fragata',
 
   // Original text: 'No support'
   noSupport: 'Senza supporto',
@@ -473,11 +473,11 @@ export default {
   // Original text: 'Free upgrade!'
   freeUpgrade: 'Aggiornamento gratuito!',
 
-  // Original text: 'Check XOA'
-  checkXoa: 'Controlla XOA',
+  // Original text: 'Check Fragata'
+  checkXoa: 'Controlla Fragata',
 
-  // Original text: 'XOA check'
-  xoaCheck: 'Controllo XOA',
+  // Original text: 'Fragata check'
+  xoaCheck: 'Controllo Fragata',
 
   // Original text: 'Close tunnel'
   closeTunnel: 'Chiudi tunnel',
@@ -488,8 +488,8 @@ export default {
   // Original text: 'Open tunnel'
   openTunnel: 'Tunnel aperto',
 
-  // Original text: 'The XOA check and the support tunnel are available in XOA.'
-  supportCommunity: 'Il controllo XOA e il tunnel di supporto sono disponibili in XOA.',
+  // Original text: 'The Fragata check and the support tunnel are available in Fragata.'
+  supportCommunity: 'Il controllo Fragata e il tunnel di supporto sono disponibili in Fragata.',
 
   // Original text: 'Support tunnel'
   supportTunnel: 'Tunnel di supporto',
@@ -698,8 +698,8 @@ export default {
   // Original text: 'Shared {type}'
   srSharedType: 'Condiviso {type}',
 
-  // Original text: 'Host time and XOA time are not consistent with each other'
-  warningHostTimeTooltip: "L'ora dello host e l'ora XOA non sono coerenti tra loro",
+  // Original text: 'Host time and Fragata time are not consistent with each other'
+  warningHostTimeTooltip: "L'ora dello host e l'ora Fragata non sono coerenti tra loro",
 
   // Original text: 'Name'
   snapshotVmsName: 'Nome',
@@ -1360,9 +1360,9 @@ export default {
   // Original text: 'Click for more information about the backup methods.'
   backupNgLinkToDocumentationMessage: 'Fare clic per ulteriori informazioni sui metodi di backup.',
 
-  // Original text: 'Warning: Local remotes will use limited XOA disk space. Only for advanced users.'
+  // Original text: 'Warning: Local remotes will use limited Fragata disk space. Only for advanced users.'
   localRemoteWarningMessage:
-    'Avvertenza: i remoti locali utilizzeranno uno spazio su disco XOA limitato. Solo per utenti esperti.',
+    'Avvertenza: i remoti locali utilizzeranno uno spazio su disco Fragata limitato. Solo per utenti esperti.',
 
   // Original text: 'Warning: This feature works only with XenServer 6.5 or newer.'
   backupVersionWarning: 'Avviso: questa funzione è disponibile solo con XenServer 6.5 o versioni successive.',
@@ -4414,9 +4414,9 @@ export default {
   // Original text: 'Ready for trial?'
   trialReadyModal: 'Pronto per il processo?',
 
-  // Original text: 'During the trial period, XOA need to have a working internet connection. This limitation does not apply for our paid plans!'
+  // Original text: 'During the trial period, Fragata need to have a working internet connection. This limitation does not apply for our paid plans!'
   trialReadyModalText:
-    'Durante il periodo di prova, XOA deve disporre di una connessione Internet funzionante. Questa limitazione non si applica ai nostri piani a pagamento!',
+    'Durante il periodo di prova, Fragata deve disporre di una connessione Internet funzionante. Questa limitazione non si applica ai nostri piani a pagamento!',
 
   // Original text: 'Cancel task{nTasks, plural, one {} other {s}}'
   cancelTasksModalTitle: 'Annulla attività',
@@ -4824,8 +4824,8 @@ export default {
   // Original text: 'Your trial has been ended. Contact us or downgrade to Free version'
   trialConsumed: 'Contattaci o effettua il downgrade alla versione gratuita',
 
-  // Original text: 'Your xoa-updater service appears to be down. Your XOA cannot run fully without reaching this service.'
-  trialLocked: 'Il tuo XOA non può funzionare completamente senza connettersi a questo servizio.',
+  // Original text: 'Your xoa-updater service appears to be down. Your Fragata cannot run fully without reaching this service.'
+  trialLocked: 'Il tuo Fragata non può funzionare completamente senza connettersi a questo servizio.',
 
   // Original text: 'No update information available'
   noUpdateInfo: 'Nessuna informazione di aggiornamento disponibile',
@@ -4833,14 +4833,14 @@ export default {
   // Original text: 'Update information may be available'
   waitingUpdateInfo: "Informazioni sull'aggiornamento potrebbero essere disponibili",
 
-  // Original text: 'Your XOA is up-to-date'
-  upToDate: 'Il tuo XOA è aggiornato',
+  // Original text: 'Your Fragata is up-to-date'
+  upToDate: 'Il tuo Fragata è aggiornato',
 
-  // Original text: 'You need to update your XOA (new version is available)'
-  mustUpgrade: 'Devi aggiornare il tuo XOA (è disponibile una nuova versione)',
+  // Original text: 'You need to update your Fragata (new version is available)'
+  mustUpgrade: 'Devi aggiornare il tuo Fragata (è disponibile una nuova versione)',
 
-  // Original text: 'Your XOA is not registered for updates'
-  registerNeeded: 'Il tuo XOA non è registrato per gli aggiornamenti',
+  // Original text: 'Your Fragata is not registered for updates'
+  registerNeeded: 'Il tuo Fragata non è registrato per gli aggiornamenti',
 
   // Original text: "Can't fetch update information"
   updaterError: 'Impossibile recuperare le informazioni di aggiornamento',
@@ -4848,9 +4848,9 @@ export default {
   // Original text: 'Upgrade successful'
   promptUpgradeReloadTitle: 'Aggiornamento eseguito correttamente',
 
-  // Original text: 'Your XOA has successfully upgraded, and your browser must reload the application. Do you want to reload now ?'
+  // Original text: 'Your Fragata has successfully upgraded, and your browser must reload the application. Do you want to reload now ?'
   promptUpgradeReloadMessage:
-    "Il tuo XOA è stato aggiornato correttamente e il tuo browser deve ricaricare l'applicazione. Vuoi ricaricare ora?",
+    "Il tuo Fragata è stato aggiornato correttamente e il tuo browser deve ricaricare l'applicazione. Vuoi ricaricare ora?",
 
   // Original text: 'Upgrade warning'
   upgradeWarningTitle: 'Avviso di aggiornamento',
@@ -4874,11 +4874,11 @@ export default {
   // Original text: 'Change channel'
   changeChannel: 'Cambia canale',
 
-  // Original text: 'The Web updater, the release channels and the proxy settings are available in XOA.'
-  updaterCommunity: "L'aggiornamento Web, i canali di rilascio e le impostazioni proxy sono disponibili in XOA.",
+  // Original text: 'The Web updater, the release channels and the proxy settings are available in Fragata.'
+  updaterCommunity: "L'aggiornamento Web, i canali di rilascio e le impostazioni proxy sono disponibili in Fragata.",
 
-  // Original text: 'XOA build:'
-  xoaBuild: 'XOA build:',
+  // Original text: 'Fragata build:'
+  xoaBuild: 'Fragata build:',
 
   // Original text: 'Fragata from the sources'
   disclaimerTitle: 'Stai usando XO dai sorgenti!',
@@ -4892,14 +4892,14 @@ export default {
   // Original text: 'This version is not bundled with any support nor updates. Use it with caution.'
   disclaimerText3: 'Questa versione non è fornita con alcun supporto né aggiornamento. Usalo con cautela.',
 
-  // Original text: 'You are not registered. Your XOA may not be up to date.'
-  notRegisteredDisclaimerInfo: 'Non sei registrato Il tuo XOA potrebbe non essere aggiornato.',
+  // Original text: 'You are not registered. Your Fragata may not be up to date.'
+  notRegisteredDisclaimerInfo: 'Non sei registrato Il tuo Fragata potrebbe non essere aggiornato.',
 
   // Original text: 'Click here to create an account.'
   notRegisteredDisclaimerCreateAccount: 'Clicca qui per creare un account.',
 
-  // Original text: 'Click here to register and update your XOA.'
-  notRegisteredDisclaimerRegister: 'Fai clic qui per registrarti e aggiornare il tuo XOA.',
+  // Original text: 'Click here to register and update your Fragata.'
+  notRegisteredDisclaimerRegister: 'Fai clic qui per registrarti e aggiornare il tuo Fragata.',
 
   // Original text: 'Connect PIF'
   connectPif: 'Collega PIF',
@@ -5338,8 +5338,8 @@ export default {
   // Original text: 'Hub'
   hubPage: 'Hub',
 
-  // Original text: 'Hub is available in XOA'
-  hubCommunity: 'Hub è disponibile in XOA',
+  // Original text: 'Hub is available in Fragata'
+  hubCommunity: 'Hub è disponibile in Fragata',
 
   // Original text: 'The selected pool has no default SR'
   noDefaultSr: 'Il pool selezionato non ha SR predefinito',
@@ -5491,11 +5491,11 @@ export default {
   // Original text: 'License has expired.'
   licenseHasExpired: 'La licenza è scaduta.',
 
-  // Original text: 'License bound to another XOA'
-  licenseBoundToOtherXoa: 'Licenza vincolata a un altro XOA',
+  // Original text: 'License bound to another Fragata'
+  licenseBoundToOtherXoa: 'Licenza vincolata a un altro Fragata',
 
-  // Original text: 'This license is active on this XOA'
-  licenseBoundToThisXoa: 'Questa licenza è attiva su questo XOA',
+  // Original text: 'This license is active on this Fragata'
+  licenseBoundToThisXoa: 'Questa licenza è attiva su questo Fragata',
 
   // Original text: 'License expires on {date}.'
   licenseExpiresDate: 'La licenza scade il {date}.',
@@ -5521,7 +5521,7 @@ export default {
   // Original text: 'Activate license'
   bindXoaLicense: 'Attiva la licenza',
 
-  // Original text: 'Are you sure you want to activate this license on your XOA? This action is not reversible!'
+  // Original text: 'Are you sure you want to activate this license on your Fragata? This action is not reversible!'
   bindXoaLicenseConfirm: 'Questa azione non è reversibile!',
 
   // Original text: 'activate {licenseType} license'

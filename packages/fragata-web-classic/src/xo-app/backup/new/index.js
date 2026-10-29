@@ -128,9 +128,9 @@ export const ReportRecipients = decorate([
   ),
 ])
 
-const SR_BACKEND_FAILURE_LINK = 'https://docs.xen-orchestra.com/backups-and-dr/backup_troubleshooting#sr_backend_failure_44'
+const SR_BACKEND_FAILURE_LINK = 'https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/backups-and-dr/backup_troubleshooting.md#sr_backend_failure_44'
 
-export const BACKUP_NG_DOC_LINK = 'https://docs.xen-orchestra.com/backups-and-dr/backup'
+export const BACKUP_NG_DOC_LINK = 'https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/backups-and-dr/backup_howto.md'
 
 const ThinProvisionedTip = ({ label }) => (
   <Tooltip content={_(label)}>
@@ -1168,7 +1168,7 @@ const New = decorate([
                           <Tooltip content={_('clickForMoreInformation')}>
                             <a
                               className='text-info'
-                              href='https://docs.xen-orchestra.com/incremental_backups#key-backup-interval'
+                              href='https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/backups-and-dr/backup-types/incremental_backups.md#key-backup-interval'
                               rel='noopener noreferrer'
                               target='_blank'
                             >

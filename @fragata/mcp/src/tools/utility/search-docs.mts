@@ -6,7 +6,8 @@ import type { XoClient } from '../../xo-client.mjs'
 
 const DOC_FETCH_TIMEOUT_MS = 30_000
 
-const XO_DOCS_BASE_URL = 'https://docs.xen-orchestra.com'
+// The documentation lives in the repository (docs/docs), served as raw Markdown.
+const DOCS_BASE_URL = 'https://raw.githubusercontent.com/6a8i/fragata-orchestrator/main/docs/docs'
 
 const DOC_TOPICS = [
   'installation',
@@ -20,13 +21,25 @@ const DOC_TOPICS = [
   'releases',
 ] as const
 
+const DOC_PATHS: Record<(typeof DOC_TOPICS)[number], string> = {
+  installation: '/getting-started/installation.md',
+  configuration: '/getting-started/configuration.md',
+  backups: '/backups-and-dr/backup_howto.md',
+  restapi: '/automation/restapi.md',
+  manage: '/manage-your-infrastructure/manage_infrastructure.md',
+  users: '/users-and-access/users.md',
+  architecture: '/getting-started/architecture.md',
+  troubleshooting: '/getting-started/troubleshooting.md',
+  releases: '/getting-started/releases.md',
+}
+
 export async function fetchDocumentation(path: string, fetchFn: FetchFn = proxyFetch): Promise<string> {
-  const url = `${XO_DOCS_BASE_URL}${path}`
+  const url = `${DOCS_BASE_URL}${path}`
 
   let response: Response
   try {
     response = await fetchFn(url, {
-      headers: { Accept: 'text/html' },
+      headers: { Accept: 'text/markdown, text/plain, text/html' },
       signal: AbortSignal.timeout(DOC_FETCH_TIMEOUT_MS),
     })
   } catch (cause) {
@@ -39,9 +52,11 @@ export async function fetchDocumentation(path: string, fetchFn: FetchFn = proxyF
     throw new Error(`Failed to fetch documentation: HTTP ${response.status} ${response.statusText}`)
   }
 
-  const html = await response.text()
+  const raw = await response.text()
 
-  let text = html
+  // The source is Markdown; the HTML handling below only matters if a page is
+  // ever served rendered, and is harmless on plain Markdown.
+  let text = raw
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
     .replace(/<nav[^>]*>[\s\S]*?<\/nav>/gi, '')
@@ -60,9 +75,9 @@ export async function fetchDocumentation(path: string, fetchFn: FetchFn = proxyF
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .replace(/&mdash;/g, '\u2014')
-    .replace(/&ndash;/g, '\u2013')
-    .replace(/&hellip;/g, '\u2026')
+    .replace(/&mdash;/g, '—')
+    .replace(/&ndash;/g, '–')
+    .replace(/&hellip;/g, '…')
     .replace(/\n\s*\n\s*\n/g, '\n\n')
     .trim()
 
@@ -73,15 +88,15 @@ export function registerSearchDocs(server: McpServer, getClient: () => XoClient)
   server.registerTool(
     'search_documentation',
     {
-      title: 'Search XO Documentation',
+      title: 'Search Fragata Documentation',
       description:
-        'Search and retrieve Fragata documentation. Use this to help users understand XO features, configuration, and best practices.',
+        'Search and retrieve Fragata documentation. Use this to help users understand Fragata features, configuration, and best practices.',
       inputSchema: {
         topic: z.enum(DOC_TOPICS).describe('Documentation topic to retrieve'),
       },
     },
     async ({ topic }) => {
-      const path = `/${topic}`
+      const path = DOC_PATHS[topic]
 
       try {
         const content = await fetchDocumentation(path, getClient().fetchFn)
@@ -89,7 +104,7 @@ export function registerSearchDocs(server: McpServer, getClient: () => XoClient)
           content: [
             {
               type: 'text',
-              text: `# XO Documentation: ${topic}\n\nSource: ${XO_DOCS_BASE_URL}${path}\n\n${content}`,
+              text: `# Fragata Documentation: ${topic}\n\nSource: ${DOCS_BASE_URL}${path}\n\n${content}`,
             },
           ],
         }

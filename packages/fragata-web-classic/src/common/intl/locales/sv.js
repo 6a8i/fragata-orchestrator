@@ -719,7 +719,7 @@ export default {
   // Original text: 'Local remote selected'
   localRemoteWarningTitle: undefined,
 
-  // Original text: 'Warning: local remotes will use limited XOA disk space. Only for advanced users.'
+  // Original text: 'Warning: local remotes will use limited Fragata disk space. Only for advanced users.'
   localRemoteWarningMessage: undefined,
 
   // Original text: 'Warning: this feature works only with XenServer 6.5 or newer.'
@@ -3003,9 +3003,9 @@ export default {
   // Original text: "Ready for trial?"
   trialReadyModal: 'Redo för testperiod?',
 
-  // Original text: "During the trial period, XOA need to have a working internet connection. This limitation does not apply for our paid plans!"
+  // Original text: "During the trial period, Fragata need to have a working internet connection. This limitation does not apply for our paid plans!"
   trialReadyModalText:
-    'Under testperioden behöver XOA en fungerande internetanslutning. Denna begränsning gäller ej för betalda prenumerationer!',
+    'Under testperioden behöver Fragata en fungerande internetanslutning. Denna begränsning gäller ej för betalda prenumerationer!',
 
   // Original text: 'Label'
   serverLabel: undefined,
@@ -3330,8 +3330,8 @@ export default {
   // Original text: "Your trial has been ended. Contact us or downgrade to Free version"
   trialConsumed: 'Din testperiod har löpt ut. Kontakta oss eller nedgradera till gratisversionen',
 
-  // Original text: "Your xoa-updater service appears to be down. Your XOA cannot run fully without reaching this service."
-  trialLocked: 'Din xoa-uppdaterare verkar vara nere. Din XOA kan inte köra fullt ut utan att nå denna tjänst.',
+  // Original text: "Your xoa-updater service appears to be down. Your Fragata cannot run fully without reaching this service."
+  trialLocked: 'Din xoa-uppdaterare verkar vara nere. Din Fragata kan inte köra fullt ut utan att nå denna tjänst.',
 
   // Original text: "No update information available"
   noUpdateInfo: 'Ingen uppdateringsinformation tillgänglig',
@@ -3339,14 +3339,14 @@ export default {
   // Original text: "Update information may be available"
   waitingUpdateInfo: 'Uppdateringsinformation kan finnas tillgängligt',
 
-  // Original text: "Your XOA is up-to-date"
-  upToDate: 'Din XOA är uppdaterad',
+  // Original text: "Your Fragata is up-to-date"
+  upToDate: 'Din Fragata är uppdaterad',
 
-  // Original text: "You need to update your XOA (new version is available)"
-  mustUpgrade: 'Du behöver uppdatera din XOA (ny version är tillgänglig)',
+  // Original text: "You need to update your Fragata (new version is available)"
+  mustUpgrade: 'Du behöver uppdatera din Fragata (ny version är tillgänglig)',
 
-  // Original text: "Your XOA is not registered for updates"
-  registerNeeded: 'Din XOA är inte registrerad för uppdateringar',
+  // Original text: "Your Fragata is not registered for updates"
+  registerNeeded: 'Din Fragata är inte registrerad för uppdateringar',
 
   // Original text: "Can't fetch update information"
   updaterError: 'Kan inte hämta uppdateringsinformation',
@@ -3354,9 +3354,9 @@ export default {
   // Original text: 'Upgrade successful'
   promptUpgradeReloadTitle: 'Uppgradering lyckades',
 
-  // Original text: 'Your XOA has successfully upgraded, and your browser must reload the application. Do you want to reload now ?'
+  // Original text: 'Your Fragata has successfully upgraded, and your browser must reload the application. Do you want to reload now ?'
   promptUpgradeReloadMessage:
-    'Din XOA uppgradering lyckades. Din webbläsare behöver ladda om applikationen. Vill du ladda om nu?',
+    'Din Fragata uppgradering lyckades. Din webbläsare behöver ladda om applikationen. Vill du ladda om nu?',
 
   // Original text: "Fragata from the sources"
   disclaimerTitle: 'Fragata från källkod',

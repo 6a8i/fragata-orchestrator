@@ -143,8 +143,8 @@ export default {
   // Original text: "Jobs"
   jobsPage: 'İşler',
 
-  // Original text: "XOA"
-  xoaPage: 'XOA',
+  // Original text: "Fragata"
+  xoaPage: 'Fragata',
 
   // Original text: "Updates"
   updatePage: 'Güncellemeler',
@@ -269,8 +269,8 @@ export default {
   // Original text: "User"
   userPage: 'Kullanıcı',
 
-  // Original text: "XOA"
-  xoa: 'XOA',
+  // Original text: "Fragata"
+  xoa: 'Fragata',
 
   // Original text: "No support"
   noSupport: 'Destek yok',
@@ -1075,9 +1075,9 @@ export default {
   // Original text: "Local remote selected"
   localRemoteWarningTitle: 'Yerel hedef seçildi',
 
-  // Original text: "Warning: local remotes will use limited XOA disk space. Only for advanced users."
+  // Original text: "Warning: local remotes will use limited Fragata disk space. Only for advanced users."
   localRemoteWarningMessage:
-    "Uyarı: yerel hedef XOA'nın disk alını ile sınırlıdır. Sadece ileri seviye kullanıcılar içindir.",
+    "Uyarı: yerel hedef Fragata'nın disk alını ile sınırlıdır. Sadece ileri seviye kullanıcılar içindir.",
 
   // Original text: "Warning: this feature works only with XenServer 6.5 or newer."
   backupVersionWarning: 'Uyarı: Bu özellik yalnızca Xenserver 6.5 ve daha yeni sürümlerinde çalışır.',
@@ -3802,9 +3802,9 @@ export default {
   // Original text: "Ready for trial?"
   trialReadyModal: 'Deneme için hazır mısınız?',
 
-  // Original text: "During the trial period, XOA need to have a working internet connection. This limitation does not apply for our paid plans!"
+  // Original text: "During the trial period, Fragata need to have a working internet connection. This limitation does not apply for our paid plans!"
   trialReadyModalText:
-    'Deneme sürecinde XOA bir internet bağlantısı gerektirir. Bu limit satın alınan sürümlerde yoktur!',
+    'Deneme sürecinde Fragata bir internet bağlantısı gerektirir. Bu limit satın alınan sürümlerde yoktur!',
 
   // Original text: "Cancel task{nTasks, plural, one {} other {s}}"
   cancelTasksModalTitle: 'Görev iptel et',
@@ -4156,8 +4156,8 @@ export default {
   // Original text: "Your trial has been ended. Contact us or downgrade to Free version"
   trialConsumed: 'Denemeniz süreniz sona erdi. Bize ulaşın veya Ücretsiz sürüme geçin.',
 
-  // Original text: "Your xoa-updater service appears to be down. Your XOA cannot run fully without reaching this service."
-  trialLocked: "Xoa-updater hizmetiniz çalışmıyor gibi görünüyor. XOA'nız bu servise ulaşmadan tamamen çalışamaz.",
+  // Original text: "Your xoa-updater service appears to be down. Your Fragata cannot run fully without reaching this service."
+  trialLocked: "Xoa-updater hizmetiniz çalışmıyor gibi görünüyor. Fragata'nız bu servise ulaşmadan tamamen çalışamaz.",
 
   // Original text: "No update information available"
   noUpdateInfo: 'Güncelleme bilgisi mevcut değil',
@@ -4165,14 +4165,14 @@ export default {
   // Original text: "Update information may be available"
   waitingUpdateInfo: 'Güncelleme bilgileri mevcut olabilir',
 
-  // Original text: "Your XOA is up-to-date"
-  upToDate: 'XOA güncel',
+  // Original text: "Your Fragata is up-to-date"
+  upToDate: 'Fragata güncel',
 
-  // Original text: "You need to update your XOA (new version is available)"
-  mustUpgrade: 'XOA güncellenmeli (yeni versiyon kullanıma hazır)',
+  // Original text: "You need to update your Fragata (new version is available)"
+  mustUpgrade: 'Fragata güncellenmeli (yeni versiyon kullanıma hazır)',
 
-  // Original text: "Your XOA is not registered for updates"
-  registerNeeded: "XOA'nız güncellemeler için kayıtlı değil",
+  // Original text: "Your Fragata is not registered for updates"
+  registerNeeded: "Fragata'nız güncellemeler için kayıtlı değil",
 
   // Original text: "Can't fetch update information"
   updaterError: 'Güncelleme bilgisi alınamıyor',
@@ -4180,9 +4180,9 @@ export default {
   // Original text: "Upgrade successful"
   promptUpgradeReloadTitle: 'Yükseltme başarılı',
 
-  // Original text: "Your XOA has successfully upgraded, and your browser must reload the application. Do you want to reload now ?"
+  // Original text: "Your Fragata has successfully upgraded, and your browser must reload the application. Do you want to reload now ?"
   promptUpgradeReloadMessage:
-    "XOA'nız başarıyla yükseltildi ve tarayıcınız uygulamayı yeniden yüklemelidir. Şimdi yeniden yüklemek istiyor musunuz?",
+    "Fragata'nız başarıyla yükseltildi ve tarayıcınız uygulamayı yeniden yüklemelidir. Şimdi yeniden yüklemek istiyor musunuz?",
 
   // Original text: "Upgrade warning"
   upgradeWarningTitle: 'Yükseltme uyarısı',

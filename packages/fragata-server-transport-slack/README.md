@@ -7,7 +7,7 @@
 ## Usage
 
 Like all other fragata-server plugins, it can be configured directly via
-the web interface, see [the plugin documentation](https://docs.xen-orchestra.com/architecture#plugins). You can also test the configuration plugin if it works.
+the web interface, see [the plugin documentation](https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/architecture.md#plugins). You can also test the configuration plugin if it works.
 
 ### Slack
 

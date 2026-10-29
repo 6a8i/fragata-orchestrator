@@ -10,7 +10,7 @@
     <UiAlert v-if="showRulesFormatWarning" accent="warning">
       <I18nT keypath="traffic-rules:format-warning" scope="global">
         <template #check-doc>
-          <UiLink size="small" :href="XO_LINKS.DOC_SDN_CONTROLLER_MIGRATION">
+          <UiLink size="small" :href="FRAGATA_LINKS.DOC_SDN_CONTROLLER_MIGRATION">
             {{ t('traffic-rules:format-warning:check-doc') }}
           </UiLink>
         </template>
@@ -19,7 +19,7 @@
     <UiAlert v-if="showXapiPluginRequiredError" accent="danger">
       <I18nT keypath="traffic-rules:error-plugin" scope="global">
         <template #check-doc>
-          <UiLink size="small" :href="XO_LINKS.DOC_SDN_CONTROLLER_XAPI_PLUGIN">
+          <UiLink size="small" :href="FRAGATA_LINKS.DOC_SDN_CONTROLLER_XAPI_PLUGIN">
             {{ t('traffic-rules:error-plugin:check-doc') }}
           </UiLink>
         </template>
@@ -54,7 +54,7 @@ import { useTrafficRuleTarget } from '@/modules/traffic-rules/composables/traffi
 import { useTrafficRuleDelete } from '@/modules/traffic-rules/composables/use-traffic-rule-delete.composable.ts'
 import { useTrafficRuleEdit } from '@/modules/traffic-rules/composables/use-traffic-rule-edit.composable.ts'
 import type { EnrichedTrafficRule } from '@/modules/traffic-rules/types.ts'
-import { XO_LINKS } from '@/shared/constants.ts'
+import { FRAGATA_LINKS } from '@/shared/constants.ts'
 import VtsQueryBuilder from '@core/components/query-builder/VtsQueryBuilder.vue'
 import VtsRow from '@core/components/table/VtsRow.vue'
 import VtsTable from '@core/components/table/VtsTable.vue'

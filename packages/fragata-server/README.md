@@ -12,14 +12,12 @@ It contains all the logic of XO and handles:
 - a JSON-RPC based interface for XO clients (i.e. [XO-Web](https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-web-classic)).
 
 [![Build Status](https://travis-ci.org/vatesfr/xen-orchestra.svg?branch=next-release)](https://travis-ci.org/vatesfr/xen-orchestra)
-[![Dependency Status](https://david-dm.org/vatesfr/xen-orchestra.svg?theme=shields.io)](https://david-dm.org/vatesfr/xen-orchestra)
-[![devDependency Status](https://david-dm.org/vatesfr/xen-orchestra/dev-status.svg?theme=shields.io)](https://david-dm.org/vatesfr/xen-orchestra#info=devDependencies)
 
 ---
 
 ## Installation
 
-Manual install procedure is [available here](https://docs.xen-orchestra.com/installation#from-the-sources).
+Manual install procedure is [available here](https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/install-from-sources.md).
 
 ## Compilation
 

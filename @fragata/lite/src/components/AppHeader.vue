@@ -20,7 +20,7 @@
     <slot />
     <div class="right">
       <PoolOverrideWarning as-tooltip />
-      <XoaButton v-if="!uiStore.isSmall" />
+      <OrchestratorButton v-if="!uiStore.isSmall" />
       <AccountMenu />
     </div>
   </header>
@@ -29,7 +29,7 @@
 <script lang="ts" setup>
 import AccountMenu from '@/components/account-menu/AccountMenu.vue'
 import PoolOverrideWarning from '@/components/PoolOverrideWarning.vue'
-import XoaButton from '@/components/XoaButton.vue'
+import OrchestratorButton from '@/components/OrchestratorButton.vue'
 import { usePoolStore } from '@/stores/xen-api/pool.store.ts'
 import UiButtonIcon from '@core/components/ui/button-icon/UiButtonIcon.vue'
 import UiLogoText from '@core/components/ui/logo-text/UiLogoText.vue'

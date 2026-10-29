@@ -247,7 +247,7 @@ export default class LiveMount extends EventEmitter {
     }
 
     const id = randomBytes(16).toString('hex')
-    const iqn = `iqn.2026-07.tech.vates.xo:live-mount-${id}`
+    const iqn = `iqn.2026-10.io.fragata:live-mount-${id}`
     const chap = createChapCredentials(id)
 
     // the chain must keep its block allocation tables: they tell which blocks

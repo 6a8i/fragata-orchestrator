@@ -4,7 +4,7 @@
 
 [![Package Version](https://badgen.net/npm/v/@fragata/rest-api)](https://npmjs.org/package/@fragata/rest-api) ![License](https://badgen.net/npm/license/@fragata/rest-api) [![PackagePhobia](https://badgen.net/bundlephobia/minzip/@fragata/rest-api)](https://bundlephobia.com/result?p=@fragata/rest-api) [![Node compatibility](https://badgen.net/npm/node/@fragata/rest-api)](https://npmjs.org/package/@fragata/rest-api)
 
-> REST API to manage your XOA
+> REST API to manage your Fragata instance
 
 ## Install
 
@@ -16,9 +16,9 @@ npm install --save @fragata/rest-api
 
 ## Usage
 
-REST API to manage your XOA.
+REST API to manage your Fragata instance.
 
-The user-facing documentation is available at [docs.xen-orchestra.com](https://docs.xen-orchestra.com/rest_api).
+The user-facing documentation is available at [the repository docs](https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/automation/restapi.md).
 
 ## Development guidelines
 

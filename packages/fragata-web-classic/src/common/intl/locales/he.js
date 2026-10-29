@@ -605,7 +605,7 @@ export default {
   // Original text: 'Local remote selected'
   localRemoteWarningTitle: undefined,
 
-  // Original text: 'Warning: local remotes will use limited XOA disk space. Only for advanced users.'
+  // Original text: 'Warning: local remotes will use limited Fragata disk space. Only for advanced users.'
   localRemoteWarningMessage: undefined,
 
   // Original text: 'VMs'
@@ -2588,7 +2588,7 @@ export default {
   // Original text: 'Ready for trial?'
   trialReadyModal: undefined,
 
-  // Original text: 'During the trial period, XOA need to have a working internet connection. This limitation does not apply for our paid plans!'
+  // Original text: 'During the trial period, Fragata need to have a working internet connection. This limitation does not apply for our paid plans!'
   trialReadyModalText: undefined,
 
   // Original text: 'Host'
@@ -2858,7 +2858,7 @@ export default {
   // Original text: 'Your trial has been ended. Contact us or downgrade to Free version'
   trialConsumed: undefined,
 
-  // Original text: 'Your xoa-updater service appears to be down. Your XOA cannot run fully without reaching this service.'
+  // Original text: 'Your xoa-updater service appears to be down. Your Fragata cannot run fully without reaching this service.'
   trialLocked: undefined,
 
   // Original text: 'No update information available'
@@ -2867,13 +2867,13 @@ export default {
   // Original text: 'Update information may be available'
   waitingUpdateInfo: undefined,
 
-  // Original text: 'Your XOA is up-to-date'
+  // Original text: 'Your Fragata is up-to-date'
   upToDate: undefined,
 
-  // Original text: 'You need to update your XOA (new version is available)'
+  // Original text: 'You need to update your Fragata (new version is available)'
   mustUpgrade: undefined,
 
-  // Original text: 'Your XOA is not registered for updates'
+  // Original text: 'Your Fragata is not registered for updates'
   registerNeeded: undefined,
 
   // Original text: "Can't fetch update information"
@@ -2882,7 +2882,7 @@ export default {
   // Original text: 'Upgrade successful'
   promptUpgradeReloadTitle: undefined,
 
-  // Original text: 'Your XOA has successfully upgraded, and your browser must reload the application. Do you want to reload now ?'
+  // Original text: 'Your Fragata has successfully upgraded, and your browser must reload the application. Do you want to reload now ?'
   promptUpgradeReloadMessage: undefined,
 
   // Original text: 'Fragata from the sources'

@@ -142,8 +142,8 @@ export default {
   // Original text: 'Jobs'
   jobsPage: 'کارها',
 
-  // Original text: 'XOA'
-  xoaPage: 'XOA',
+  // Original text: 'Fragata'
+  xoaPage: 'Fragata',
 
   // Original text: 'Updates'
   updatePage: 'به روز رسانی ها',
@@ -271,8 +271,8 @@ export default {
   // Original text: 'User'
   userPage: 'کاربر',
 
-  // Original text: 'XOA'
-  xoa: 'XOA',
+  // Original text: 'Fragata'
+  xoa: 'Fragata',
 
   // Original text: 'No support'
   noSupport: 'بدون پشتیبانی',
@@ -1082,8 +1082,8 @@ export default {
   // Original text: 'Local remote selected'
   localRemoteWarningTitle: 'ریموت محلی انتخاب شده است',
 
-  // Original text: 'Warning: local remotes will use limited XOA disk space. Only for advanced users.'
-  localRemoteWarningMessage: 'هشدار: ریموت‌های محلی از فضای محدود دیسک XOA استفاده می‌کنند. فقط برای کاربران حرفه ای.',
+  // Original text: 'Warning: local remotes will use limited Fragata disk space. Only for advanced users.'
+  localRemoteWarningMessage: 'هشدار: ریموت‌های محلی از فضای محدود دیسک Fragata استفاده می‌کنند. فقط برای کاربران حرفه ای.',
 
   // Original text: 'Warning: this feature works only with XenServer 6.5 or newer.'
   backupVersionWarning: 'هشدار: این ویژگی فقط با XenServer 6.5 یا جدیدتر کار می کند.',
@@ -3875,9 +3875,9 @@ export default {
   // Original text: 'Ready for trial?'
   trialReadyModal: 'آماده برای آزمایش؟',
 
-  // Original text: 'During the trial period, XOA need to have a working internet connection. This limitation does not apply for our paid plans!'
+  // Original text: 'During the trial period, Fragata need to have a working internet connection. This limitation does not apply for our paid plans!'
   trialReadyModalText:
-    'در طول دوره آزمایشی، XOA باید یک اتصال اینترنتی فعال داشته باشد. این محدودیت برای طرح های پولی ما اعمال نمی شود!',
+    'در طول دوره آزمایشی، Fragata باید یک اتصال اینترنتی فعال داشته باشد. این محدودیت برای طرح های پولی ما اعمال نمی شود!',
 
   // Original text: 'Cancel task{nTasks, plural, one {} other {s}}'
   cancelTasksModalTitle: 'لغو کار{nTasks, plural, one {} other {s}}',
@@ -4251,9 +4251,9 @@ export default {
   // Original text: 'Your trial has been ended. Contact us or downgrade to Free version'
   trialConsumed: 'نسخه آزمایشی شما به پایان رسیده است. با ما تماس بگیرید یا به نسخه رایگان برگردید',
 
-  // Original text: 'Your xoa-updater service appears to be down. Your XOA cannot run fully without reaching this service.'
+  // Original text: 'Your xoa-updater service appears to be down. Your Fragata cannot run fully without reaching this service.'
   trialLocked:
-    'به نظر می رسد سرویس xoa-updater شما از کار افتاده است. XOA شما بدون دسترسی به این سرویس نمی تواند به طور کامل اجرا شود.',
+    'به نظر می رسد سرویس xoa-updater شما از کار افتاده است. Fragata شما بدون دسترسی به این سرویس نمی تواند به طور کامل اجرا شود.',
 
   // Original text: 'No update information available'
   noUpdateInfo: 'اطلاعات به روز رسانی در دسترس نیست',
@@ -4261,14 +4261,14 @@ export default {
   // Original text: 'Update information may be available'
   waitingUpdateInfo: 'اطلاعات به روز رسانی ممکن است در دسترس باشد',
 
-  // Original text: 'Your XOA is up-to-date'
-  upToDate: 'XOA شما به روز است',
+  // Original text: 'Your Fragata is up-to-date'
+  upToDate: 'Fragata شما به روز است',
 
-  // Original text: 'You need to update your XOA (new version is available)'
-  mustUpgrade: 'شما باید XOA خود را به روز کنید (نسخه جدید در دسترس است)',
+  // Original text: 'You need to update your Fragata (new version is available)'
+  mustUpgrade: 'شما باید Fragata خود را به روز کنید (نسخه جدید در دسترس است)',
 
-  // Original text: 'Your XOA is not registered for updates'
-  registerNeeded: 'XOA شما برای به‌روزرسانی‌ها ثبت نشده است',
+  // Original text: 'Your Fragata is not registered for updates'
+  registerNeeded: 'Fragata شما برای به‌روزرسانی‌ها ثبت نشده است',
 
   // Original text: "Can't fetch update information"
   updaterError: 'نمی توان اطلاعات به روز رسانی را دریافت کرد',
@@ -4276,9 +4276,9 @@ export default {
   // Original text: 'Upgrade successful'
   promptUpgradeReloadTitle: 'ارتقا با موفقیت انجام شد',
 
-  // Original text: 'Your XOA has successfully upgraded, and your browser must reload the application. Do you want to reload now?'
+  // Original text: 'Your Fragata has successfully upgraded, and your browser must reload the application. Do you want to reload now?'
   promptUpgradeReloadMessage:
-    'XOA شما با موفقیت ارتقا یافته است و مرورگر شما باید برنامه را دوباره بارگیری کند. آیا می خواهید اکنون بارگیری مجدد را انجام دهید؟',
+    'Fragata شما با موفقیت ارتقا یافته است و مرورگر شما باید برنامه را دوباره بارگیری کند. آیا می خواهید اکنون بارگیری مجدد را انجام دهید؟',
 
   // Original text: 'Upgrade warning'
   upgradeWarningTitle: 'هشدار ارتقا',

@@ -5,7 +5,6 @@ import copy from 'copy-to-clipboard'
 import fpSortBy from 'lodash/fp/sortBy'
 import React from 'react'
 import semver from 'semver'
-import updater from 'xoa-updater'
 import URL from 'url-parse'
 import Xo from 'fragata-lib'
 import { asyncEach } from '@fragata/async-each'
@@ -31,14 +30,12 @@ import invoke from '../invoke'
 import Icon from '../icon'
 import logError from '../log-error'
 import NewAuthTokenModal from './new-auth-token-modal'
-import RegisterProxyModal from './register-proxy-modal'
 import renderXoItem, { Host, renderXoItemFromId, Vm } from '../render-xo-item'
 import store from 'store'
 import WarmMigrationModal from './warm-migration-modal'
 import { alert, chooseAction, confirm, form } from '../modal'
 import { error, info, success } from '../notification'
 import { getObject, isAdmin } from 'selectors'
-import { getXoaPlan, SOURCES } from '../xoa-plans'
 import { noop, resolveId, resolveIds } from '../utils'
 import {
   connected,
@@ -343,17 +340,6 @@ export const subscribeCurrentUser = createSubscription(() => xo.refreshUser())
 
 export const subscribeAcls = createSubscription(() => _call('acl.get'))
 
-export const subscribeHvSupportedVersions = createSubscription(
-  async () => {
-    try {
-      return await _call('xoa.getHVSupportedVersions')
-    } catch (error) {
-      console.error(error)
-    }
-  },
-  { polling: 1e3 * 60 * 60 } // 1h
-)
-
 export const subscribeJobs = createSubscription(() => _call('job.getAll'))
 
 export const subscribeJobsLogs = createSubscription(() => _call('log.get', { namespace: 'jobs' }))
@@ -407,56 +393,6 @@ export const subscribeGroups = createSubscription(() =>
 export const subscribeRoles = createSubscription(invoke(sortBy('name'), sort => () => _call('role.getAll').then(sort)))
 
 export const subscribeIpPools = createSubscription(() => _call('ipPool.getAll'))
-
-export const subscribeResourceCatalog = createSubscription(() => _call('cloud.getResourceCatalog'))
-
-export const subscribeHubResourceCatalog = createSubscription(() =>
-  _call('cloud.getResourceCatalog', { filters: { hub: true } })
-)
-
-const getNotificationCookie = () => {
-  const notificationCookie = cookies.get(`notifications:${store.getState().user.id}`)
-  return notificationCookie === undefined ? {} : JSON.parse(notificationCookie)
-}
-
-const setNotificationCookie = (id, changes) => {
-  const notifications = getNotificationCookie()
-  notifications[id] = { ...(notifications[id] || {}), ...changes }
-  forEach(notifications[id], (value, key) => {
-    if (value === null) {
-      delete notifications[id][key]
-    }
-  })
-  cookies.set(`notifications:${store.getState().user.id}`, JSON.stringify(notifications), { expires: 9999 })
-}
-
-export const dismissNotification = id => {
-  setNotificationCookie(id, { read: true, date: Date.now() })
-  subscribeNotifications.forceRefresh()
-}
-
-export const subscribeNotifications = createSubscription(async () => {
-  const { user, xoaUpdaterState } = store.getState()
-  if (+process.env.XOA_PLAN === 5 || xoaUpdaterState === 'disconnected' || xoaUpdaterState === 'error') {
-    return []
-  }
-
-  let notifications
-  try {
-    const now = Date.now()
-    notifications = (await updater._call('getMessages')).filter(({ expires }) => expires == null || expires > now)
-  } catch (err) {
-    return []
-  }
-  const notificationCookie = getNotificationCookie()
-  return map(
-    user != null && user.permission === 'admin' ? notifications : filter(notifications, { level: 'warning' }),
-    notification => ({
-      ...notification,
-      read: !!get(notificationCookie, `${notification.id}.read`),
-    })
-  )
-})
 
 const checkSchedulerGranularitySubscriptions = {}
 export const subscribeSchedulerGranularity = (host, cb) => {
@@ -513,35 +449,6 @@ export const subscribeRollingUpdateRecovery = (pool, cb) => {
   }
 
   return rollingUpdateRecoveryByPool[poolId](cb)
-}
-
-const proxiesApplianceUpdaterState = {}
-export const subscribeProxyApplianceUpdaterState = (proxyId, cb) => {
-  if (proxiesApplianceUpdaterState[proxyId] === undefined) {
-    proxiesApplianceUpdaterState[proxyId] = createSubscription(
-      async () => {
-        try {
-          return await getProxyApplianceUpdaterState(proxyId)
-        } catch (error) {
-          console.error(error)
-          return { state: 'error' }
-        }
-      },
-      { polling: 60 * 60 * 1000 }
-    )
-  }
-  return proxiesApplianceUpdaterState[proxyId](cb)
-}
-subscribeProxyApplianceUpdaterState.forceRefresh = proxyId => {
-  if (proxyId === undefined) {
-    forEach(proxiesApplianceUpdaterState, subscription => subscription.forceRefresh())
-    return
-  }
-
-  const subscription = proxiesApplianceUpdaterState[proxyId]
-  if (subscription !== undefined) {
-    subscription.forceRefresh()
-  }
 }
 
 export const subscribeSrsUnhealthyVdiChainsLength = createSubscription(() => {
@@ -711,15 +618,6 @@ export const subscribeXoTasks = (() => {
     })
   }
 })()
-
-export const subscribeCloudXoConfigBackups = createSubscription(
-  () => fetch('./rest/v0/cloud/xo-config/backups?fields=xoaId,createdAt,id,content_href').then(resp => resp.json()),
-  { polling: 6e4 }
-)
-
-export const subscribeCloudXoConfig = createSubscription(() =>
-  fetch('./rest/v0/cloud/xo-config').then(resp => resp.json())
-)
 
 const subscribeSrsXostorHealthCheck = {}
 export const subscribeXostorHealthCheck = sr => {
@@ -2059,10 +1957,6 @@ export const editVmNotes = async vm => {
   // Remove notes if `''` is passed
   await _call('vm.set', { id: resolveId(vm), notes: notes || null })
 }
-
-export const createKubernetesCluster = params => _call('hub.recipe.createKubernetesCluster', params)
-
-export const createEasyVirtVm = params => _call('xoa.recipe.createEasyVirtVm', params)
 
 export const deleteTemplates = templates =>
   confirm({
@@ -4178,19 +4072,6 @@ export const deleteNetworkConfigs = ids => {
 export const editNetworkConfig = (networkConfig, props) =>
   _call('cloudConfig.update', { ...props, id: resolveId(networkConfig) })::tap(subscribeNetworkConfigs.forceRefresh)
 
-// XO-HUB   ---------------------------------------------------------------------
-
-export const getResourceCatalog = ({ filters } = {}) => _call('cloud.getResourceCatalog', { filters })
-
-export const downloadAndInstallResource = ({ namespace, id, version, sr, templateOnly }) =>
-  _call('cloud.downloadAndInstallResource', {
-    namespace,
-    id,
-    version,
-    sr: resolveId(sr),
-    templateOnly,
-  })
-
 // XOSTOR   --------------------------------------------------------------------
 
 export const createXostorSr = params => _call('xostor.create', params)
@@ -4222,216 +4103,12 @@ export const createXostorInterface = async sr => {
 }
 export const setXostor = (sr, params) => _call('xostor.set', { sr: resolveId(sr), ...params })
 
-// Licenses --------------------------------------------------------------------
-
-export const getLicenses = ({ productType } = {}) => _call('xoa.licenses.getAll', { productType })
-
-export const getLicense = (productId, boundObjectId) => _call('xoa.licenses.get', { productId, boundObjectId })
-
-export const bindLicense = (licenseId, boundObjectId) => _call('xoa.licenses.bind', { licenseId, boundObjectId })
-
-export const rebindObjectLicense = (boundObjectId, licenseId, productId) =>
-  _call('xoa.licenses.rebindObject', { boundObjectId, licenseId, productId })
-
-export const bindXcpngLicense = (licenseId, boundObjectId) =>
-  bindLicense(licenseId, boundObjectId)::tap(subscribeXcpngLicenses.forceRefresh)
-
-export const rebindLicense = (licenseType, licenseId, oldBoundObjectId, newBoundObjectId) =>
-  _call('xoa.licenses.rebind', { licenseId, oldBoundObjectId, newBoundObjectId })::tap(() => {
-    if (licenseType === 'xcpng-standard' || licenseType === 'xcpng-enterprise') {
-      return subscribeXcpngLicenses.forceRefresh()
-    }
-  })
-
-export const selfBindLicense = ({ id, plan, oldXoaId }) =>
-  confirm({
-    title: _('bindXoaLicense'),
-    body: _('bindXoaLicenseConfirm'),
-    strongConfirm: {
-      messageId: 'bindXoaLicenseConfirmText',
-      values: { licenseType: plan },
-    },
-    icon: 'unlock',
-  })
-    .then(() => _call('xoa.licenses.bindToSelf', { licenseId: id, oldXoaId }), noop)
-    ::tap(subscribeSelfLicenses.forceRefresh)
-
-export const subscribeSelfLicenses = createSubscription(() =>
-  _call('xoa.licenses.getSelf').then(licenses => {
-    if (!Array.isArray(licenses)) {
-      if (licenses?.state === 'register-needed') {
-        return []
-      }
-
-      throw new Error(licenses?.message || 'Could not fetch licenses')
-    }
-
-    return licenses
-  })
-)
-
-const createLicenseSubscription = productType =>
-  createSubscription(() =>
-    getXoaPlan() !== SOURCES && store.getState().user.permission === 'admin'
-      ? _call('xoa.licenses.getAll', { productType })
-      : undefined
-  )
-
-export const subscribeXcpngLicenses = createLicenseSubscription('xcpng')
-
-export const subscribeXostorLicenses = createLicenseSubscription('xostor')
-
-// Support --------------------------------------------------------------------
-
-export const clearXoaCheckCache = () => _call('xoa.clearCheckCache')
-
-export const checkXoa = () => _call('xoa.check')
-
-export const closeTunnel = () => _call('xoa.supportTunnel.close')::tap(subscribeTunnelState.forceRefresh)
-
-export const openTunnel = () =>
-  _call('xoa.supportTunnel.open')::tap(() => {
-    subscribeTunnelState.forceRefresh()
-    // After 1s, we most likely got the tunnel ID
-    // and we don't want to wait another 5s to show it to the user.
-    setTimeout(subscribeTunnelState.forceRefresh, 1000)
-  })
-
-export const subscribeTunnelState = createSubscription(() => _call('xoa.supportTunnel.getState'))
-
-export const getApplianceInfo = () => _call('xoa.getApplianceInfo')
-
-export const snapshotXoa = () => _call('xo.snapshotBeforeUpgrade')
-
 // `null` when XO does not run in a VM, or cannot tell which one
 export const getXoVmUuid = () => _call('xo.getCurrentVmUuid')
-
-export const getApiApplianceInfo = () => fetch('./rest/v0/appliance').then(resp => resp.json())
-
-export const restartXoServer = async () => {
-  await confirm({
-    icon: 'restart',
-    title: _('restartXoServer'),
-    body: _('restartXoServerConfirm'),
-    strongConfirm: {
-      messageId: 'restartXoServer',
-    },
-  })
-
-  await _call('xoa.restartXoServer')
-}
 
 // Proxy --------------------------------------------------------------------
 
 export const getAllProxies = () => _call('proxy.getAll')
-
-export const createProxyTrialLicense = () => _call('xoa.licenses.createProxyTrial')
-
-export const deployProxyAppliance = (license, sr, { network, proxy, ...props } = {}) =>
-  _call('proxy.deploy', {
-    license: resolveId(license),
-    network: resolveId(network),
-    proxy: resolveId(proxy),
-    sr: resolveId(sr),
-    ...props,
-  })::tap(subscribeProxies.forceRefresh)
-
-export const registerProxy = async () => {
-  const getStringOrUndefined = string => (string.trim() === '' ? undefined : string)
-
-  const { address, authenticationToken, name, vmUuid } = await confirm({
-    body: <RegisterProxyModal />,
-    icon: 'connect',
-    title: _('registerProxy'),
-  })
-
-  const proxyId = await registerProxyApplicance({
-    address: getStringOrUndefined(address),
-    authenticationToken: getStringOrUndefined(authenticationToken),
-    name: getStringOrUndefined(name),
-    vmUuid: getStringOrUndefined(vmUuid),
-  })
-  const _isProxyWorking = await isProxyWorking(proxyId).catch(err => {
-    console.error('isProxyWorking error:', err)
-    return false
-  })
-  if (!_isProxyWorking) {
-    await confirm({
-      body: _('proxyConnectionFailedAfterRegistrationMessage'),
-      title: _('proxyError'),
-    })
-    await forgetProxyAppliances([proxyId])
-  }
-}
-
-export const registerProxyApplicance = proxyInfo =>
-  _call('proxy.register', proxyInfo)::tap(subscribeProxies.forceRefresh)
-
-export const editProxyAppliance = (proxy, { vm, ...props }) =>
-  _call('proxy.update', {
-    id: resolveId(proxy),
-    vm: resolveId(vm),
-    ...props,
-  })::tap(subscribeProxies.forceRefresh)
-
-const _forgetProxyAppliance = proxy => _call('proxy.unregister', { id: resolveId(proxy) })
-export const forgetProxyAppliances = proxies =>
-  confirm({
-    title: _('forgetProxyApplianceTitle', { n: proxies.length }),
-    body: _('forgetProxyApplianceMessage', { n: proxies.length }),
-  }).then(() => Promise.all(map(proxies, _forgetProxyAppliance))::tap(subscribeProxies.forceRefresh))
-
-const _destroyProxyAppliance = proxy => _call('proxy.destroy', { id: resolveId(proxy) })
-export const destroyProxyAppliances = proxies =>
-  confirm({
-    title: _('destroyProxyApplianceTitle', { n: proxies.length }),
-    body: _('destroyProxyApplianceMessage', { n: proxies.length }),
-  }).then(() => Promise.all(map(proxies, _destroyProxyAppliance))::tap(subscribeProxies.forceRefresh))
-
-export const upgradeProxyAppliance = (proxy, props) =>
-  _call('proxy.upgradeAppliance', { id: resolveId(proxy), ...props })
-
-export const openTunnelOnProxy = async proxy => {
-  const result = await _call('proxy.openSupportTunnel', { id: resolveId(proxy) }).catch(err => err.message)
-  await alert(_('supportTunnel'), <pre>{result}</pre>)
-}
-
-export const getProxyApplianceUpdaterState = id => _call('proxy.getApplianceUpdaterState', { id })
-
-export const updateProxyApplianceSettings = (id, props) => _call('proxy.updateApplianceSettings', { id, ...props })
-
-const PROXY_HEALTH_CHECK_COMMON_ERRORS_CODE = new Set([
-  'ECONNREFUSED',
-  'ECONNRESET',
-  'EHOSTUNREACH',
-  'ENOTFOUND',
-  'ETIMEDOUT',
-])
-
-export const checkProxyHealth = async proxy => {
-  const result = await _call('proxy.checkHealth', {
-    id: resolveId(proxy),
-  })
-  return result.success
-    ? success(
-        <span>
-          <Icon icon='success' /> {_('proxyTestSuccess', { name: proxy.name })}
-        </span>,
-        _('proxyTestSuccessMessage')
-      )
-    : error(
-        <span>
-          <Icon icon='error' /> {_('proxyTestFailed', { name: proxy.name })}
-        </span>,
-        <span>
-          {PROXY_HEALTH_CHECK_COMMON_ERRORS_CODE.has(result.error.code)
-            ? _('proxyTestFailedConnectionIssueMessage')
-            : result.error.message}
-        </span>
-      )
-}
-
-export const isProxyWorking = async proxy => (await _call('proxy.checkHealth', { id: resolveId(proxy) })).success
 
 // Audit plugin ---------------------------------------------------------
 
@@ -4519,6 +4196,6 @@ const _callGithubApi = async (endpoint = '') => {
   }
 }
 
-export const getMasterCommit = () => _callGithubApi('/commits/master')
+export const getMasterCommit = () => _callGithubApi('/commits/main')
 
 export const compareCommits = (base, head) => _callGithubApi(`/compare/${base}...${head}`)

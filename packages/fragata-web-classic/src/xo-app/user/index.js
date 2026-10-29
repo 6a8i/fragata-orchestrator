@@ -133,7 +133,7 @@ class XsClientId extends Component {
         <Row>
           <Col smallSize={2}>
             <strong>{_('xsClientId')}</strong>{' '}
-            <a href='https://docs.xen-orchestra.com/updater#xenserver-updates' target='_blank' rel='noreferrer'>
+            <a href='https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/updater.md#xenserver-updates' target='_blank' rel='noreferrer'>
               <Icon icon='info' />
             </a>
           </Col>

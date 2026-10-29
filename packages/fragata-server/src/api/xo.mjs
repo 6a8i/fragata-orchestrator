@@ -122,7 +122,7 @@ export async function snapshotBeforeUpgrade() {
   // created. Older snapshots beyond this limit are rotated out.
   //
   // Defaults to 1 (keep only the latest) when the config entry is missing.
-  const maxSnapshots = Math.max(1, this.config.getOptional('xoa.numberOfUpgradeSnapshots') ?? 1)
+  const maxSnapshots = Math.max(1, this.config.getOptional('fragata.numberOfUpgradeSnapshots') ?? 1)
 
   const vmUuid = await getCurrentVmUuidFromXenStore()
   let vm, xapi
@@ -130,7 +130,7 @@ export async function snapshotBeforeUpgrade() {
     vm = this.getXapiObject(vmUuid, 'VM')
     xapi = vm.$xapi
   } catch (err) {
-    throw new Error(`This VM is not handled by this XOA, maybe it's not connected to the pool running it `, {
+    throw new Error(`This VM is not handled by this Fragata instance, maybe it's not connected to the pool running it `, {
       cause: err,
     })
   }

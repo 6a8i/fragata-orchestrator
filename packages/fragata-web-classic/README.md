@@ -1,16 +1,16 @@
-# Fragata Web [![Chat with us](https://storage.crisp.im/plugins/images/936925df-f37b-4ba8-bab0-70cd2edcb0be/badge.svg)](https://go.crisp.im/chat/embed/?website_id=-JzqzzwddSV7bKGtEyAQ) [![Build Status](https://travis-ci.org/vatesfr/xen-orchestra.png?branch=master)](https://travis-ci.org/vatesfr/xen-orchestra)
+# Fragata Web Classic
 
 ![](http://i.imgur.com/tRffA5y.png)
 
-XO-Web is part of [Fragata](https://github.com/6a8i/fragata-orchestrator), a web interface for XenServer or XAPI enabled hosts.
+Fragata Web Classic is part of [Fragata](https://github.com/6a8i/fragata-orchestrator), a web interface for XenServer or XAPI enabled hosts.
 
-It is a web client for [XO-Server](https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server).
+It is a web client for [fragata-server](https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server).
 
 ---
 
 ## Installation
 
-XOA or manual install procedure is [available here](https://docs.xen-orchestra.com/installation)
+The install procedure is [available here](https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/install-from-sources.md)
 
 ## Compilation
 
@@ -35,21 +35,7 @@ performance.
 
 #### `XOA_PLAN`
 
-- 1: Free
-- 2: Starter
-- 3: Enterprise
-- 4: Premium
-- 5: Sources
-
-```js
-if (process.env.XOA_PLAN < 5) {
-  console.log('included only in XOA')
-}
-
-if (process.env.XOA_PLAN > 3) {
-  console.log('included only in Premium and Sources')
-}
-```
+Inherited from upstream. Fragata has no paid plans: the build always sets it to `5`, which enables every feature. The variable only remains because many components still read it; it goes away together with the plan gating.
 
 ## How to report a bug?
 

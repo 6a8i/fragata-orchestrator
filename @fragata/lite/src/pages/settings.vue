@@ -4,7 +4,7 @@
     <UiTitle>{{ t('about') }}</UiTitle>
     <VtsColumns class="about-columns">
       <VtsTabularKeyValueList>
-        <div class="typo-h5">Fragata Lite</div>
+        <div class="typo-h5">Fragata Deck</div>
         <VtsTabularKeyValueList>
           <VtsTabularKeyValueRow :label="t('version')">
             <template #value>
@@ -14,14 +14,14 @@
           </VtsTabularKeyValueRow>
           <VtsTabularKeyValueRow :label="t('news')">
             <template #value>
-              <UiLink size="medium" href="https://xen-orchestra.com/blog/">
+              <UiLink size="medium" href="https://github.com/6a8i/fragata-orchestrator/releases">
                 {{ t('news-name', { name: 'Fragata' }) }}
               </UiLink>
             </template>
           </VtsTabularKeyValueRow>
           <VtsTabularKeyValueRow :label="t('community')">
             <template #value>
-              <UiLink size="medium" href="https://xcp-ng.org/forum/category/12/xen-orchestra">
+              <UiLink size="medium" href="https://github.com/6a8i/fragata-orchestrator/discussions">
                 {{ t('community-name', { name: 'Fragata' }) }}
               </UiLink>
             </template>
@@ -39,36 +39,29 @@
         </VtsTabularKeyValueList>
       </VtsTabularKeyValueList>
       <VtsTabularKeyValueList>
-        <div class="typo-h5">XCP-ng</div>
+        <div class="typo-h5">Fragata Host</div>
         <VtsTabularKeyValueList>
           <VtsTabularKeyValueRow :label="t('version')">
             <template #value>{{ `v${xcpVersion}` }}</template>
           </VtsTabularKeyValueRow>
           <VtsTabularKeyValueRow :label="t('news')">
             <template #value>
-              <UiLink size="medium" href="https://xcp-ng.org/blog/">
-                {{ t('news-name', { name: 'XCP-ng' }) }}
+              <UiLink size="medium" href="https://github.com/6a8i/fragata-host/releases">
+                {{ t('news-name', { name: 'Fragata Host' }) }}
               </UiLink>
             </template>
           </VtsTabularKeyValueRow>
           <VtsTabularKeyValueRow :label="t('community')">
             <template #value>
-              <UiLink size="medium" href="https://xcp-ng.org/forum">
-                {{ t('community-name', { name: 'XCP-ng' }) }}
+              <UiLink size="medium" href="https://github.com/6a8i/fragata-host/discussions">
+                {{ t('community-name', { name: 'Fragata Host' }) }}
               </UiLink>
             </template>
           </VtsTabularKeyValueRow>
           <VtsTabularKeyValueRow :label="t('documentation')">
             <template #value>
-              <UiLink size="medium" href="https://xcp-ng.org/docs/">
-                {{ t('documentation-name', { name: 'XCP-ng' }) }}
-              </UiLink>
-            </template>
-          </VtsTabularKeyValueRow>
-          <VtsTabularKeyValueRow :label="t('support')">
-            <template #value>
-              <UiLink size="medium" href="https://xcp-ng.com/">
-                {{ t('professional-support') }}
+              <UiLink size="medium" href="https://github.com/6a8i/fragata-host#readme">
+                {{ t('documentation-name', { name: 'Fragata Host' }) }}
               </UiLink>
             </template>
           </VtsTabularKeyValueRow>
@@ -101,7 +94,7 @@
           <VtsSelect :id="localeSelectId" accent="brand" />
         </template>
         <template #value>
-          <UiLink size="medium" href="https://translate.vates.tech/engage/xen-orchestra/">
+          <UiLink size="medium" href="https://github.com/6a8i/fragata-orchestrator/tree/main/%40fragata/web-core/lib/locales">
             {{ t('missing-translations?') }}
           </UiLink>
         </template>

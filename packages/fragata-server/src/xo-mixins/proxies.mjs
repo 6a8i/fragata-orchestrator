@@ -258,7 +258,7 @@ export default class Proxy {
     } else {
       // quick API upgrade
       await this.callProxyMethod(id, 'appliance.updater.upgrade', undefined, {
-        timeout: this._app.config.getDuration('fragata-proxy.xoaUpgradeTimeout'),
+        timeout: this._app.config.getDuration('fragata-proxy.applianceUpgradeTimeout'),
       })
     }
 
@@ -477,10 +477,10 @@ export default class Proxy {
     )
 
     // wait for the appliance to be upgraded
-    const xoaUpgradeTimeout = parseDuration(xoProxyConf.xoaUpgradeTimeout)
+    const applianceUpgradeTimeout = parseDuration(xoProxyConf.applianceUpgradeTimeout)
     await timeout.call(
       xapi._waitObjectState(vm.$id, ({ xenstore_data }) => xenstore_data['vm-data/xoa-updater-channel'] === undefined),
-      xoaUpgradeTimeout
+      applianceUpgradeTimeout
     )
 
     await this.checkProxyHealth(proxyId)

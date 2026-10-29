@@ -1,25 +1,14 @@
 <template>
   <UiButton
-    v-if="xoaFound"
+    v-if="orchestratorFound"
     size="medium"
     accent="brand"
     variant="primary"
     left-icon="fa:arrow-up-right-from-square"
-    class="xoa-button"
-    @click="openXoa()"
+    class="orchestrator-button"
+    @click="openOrchestrator()"
   >
     {{ t('access-xoa') }}
-  </UiButton>
-  <UiButton
-    v-else
-    size="medium"
-    accent="brand"
-    variant="primary"
-    left-icon="fa:download"
-    class="xoa-button"
-    @click="openXoaDeploy()"
-  >
-    {{ t('action:deploy-xoa') }}
   </UiButton>
 </template>
 
@@ -29,13 +18,15 @@ import { usePoolStore } from '@/stores/xen-api/pool.store.ts'
 import UiButton from '@core/components/ui/button/UiButton.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+
+// A Fragata orchestrator that manages this pool leaves its address in the
+// pool's `other_config` (see `poolMarkingPrefix` in the server config). When
+// one is found, offer to open it; nothing is offered otherwise.
 
 const { t } = useI18n()
 
-const router = useRouter()
 const { pool } = usePoolStore().subscribe()
-const XOA_INFO_KEY_PREFIX = 'xo:clientInfo:'
+const CLIENT_INFO_KEY_PREFIX = 'xo:clientInfo:'
 
 interface InterfaceInfo {
   address: string
@@ -52,34 +43,35 @@ interface ClientInfo {
   publicUrl?: string
 }
 
-const xoasInfo = computed(() => {
+const clientsInfo = computed(() => {
   if (pool.value === undefined) {
     return
   }
 
   return Object.fromEntries(
     Object.entries(pool.value.other_config)
-      .filter(([key]) => key.startsWith(XOA_INFO_KEY_PREFIX))
-      .map(([key, json]) => [key.slice(XOA_INFO_KEY_PREFIX.length), JSON.parse(json)])
+      .filter(([key]) => key.startsWith(CLIENT_INFO_KEY_PREFIX))
+      .map(([key, json]) => [key.slice(CLIENT_INFO_KEY_PREFIX.length), JSON.parse(json)])
   ) as Record<string, ClientInfo>
 })
 
-const xoaInfo = computed(() => {
-  if (xoasInfo.value === undefined) {
+const latestClientInfo = computed(() => {
+  if (clientsInfo.value === undefined) {
     return
   }
 
-  return Object.values(xoasInfo.value).reduce((lastXoaInfo, info) =>
-    lastXoaInfo === undefined || info.lastConnected > lastXoaInfo.lastConnected ? info : lastXoaInfo
+  return Object.values(clientsInfo.value).reduce<ClientInfo | undefined>(
+    (latest, info) => (latest === undefined || info.lastConnected > latest.lastConnected ? info : latest),
+    undefined
   )
 })
 
-const xoaAddress = computed(() => {
-  if (xoaInfo.value === undefined) {
+const orchestratorAddress = computed(() => {
+  if (latestClientInfo.value === undefined) {
     return
   }
 
-  const { networkInterfaces, publicUrl } = xoaInfo.value
+  const { networkInterfaces, publicUrl } = latestClientInfo.value
 
   if (publicUrl !== undefined) {
     return publicUrl
@@ -90,13 +82,12 @@ const xoaAddress = computed(() => {
   }
 
   const ifName = 'eth0' in networkInterfaces ? 'eth0' : Object.keys(networkInterfaces)[0]
-  const xoaAddress = networkInterfaces[ifName][0].address
+  const address = networkInterfaces[ifName][0].address
 
-  return `https://${xoaAddress}`
+  return `https://${address}`
 })
 
-const xoaFound = computed(() => xoaAddress.value !== undefined)
+const orchestratorFound = computed(() => orchestratorAddress.value !== undefined)
 
-const openXoaDeploy = () => router.push({ name: '/xoa-deploy' })
-const openXoa = () => window.open(xoaAddress.value, '_blank', 'noopener')
+const openOrchestrator = () => window.open(orchestratorAddress.value, '_blank', 'noopener')
 </script>

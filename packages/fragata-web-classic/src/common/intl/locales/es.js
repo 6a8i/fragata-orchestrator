@@ -719,7 +719,7 @@ export default {
   // Original text: 'Local remote selected'
   localRemoteWarningTitle: undefined,
 
-  // Original text: 'Warning: local remotes will use limited XOA disk space. Only for advanced users.'
+  // Original text: 'Warning: local remotes will use limited Fragata disk space. Only for advanced users.'
   localRemoteWarningMessage: undefined,
 
   // Original text: 'Warning: this feature works only with XenServer 6.5 or newer.'
@@ -2992,14 +2992,14 @@ export default {
   alreadyRegisteredModal: '¿Reemplazar el registro actual?',
 
   // Original text: "Your XO appliance is already registered to {email}, do you want to forget and replace this registration ?"
-  alreadyRegisteredModalText: 'Tu XOA ya está registrado en {email}, ¿quieres olvidar y reemplazar este registro?',
+  alreadyRegisteredModalText: 'Tu Fragata ya está registrado en {email}, ¿quieres olvidar y reemplazar este registro?',
 
   // Original text: "Ready for trial?"
   trialReadyModal: '¿Preparado para el periodo de prueba?',
 
-  // Original text: "During the trial period, XOA need to have a working internet connection. This limitation does not apply for our paid plans!"
+  // Original text: "During the trial period, Fragata need to have a working internet connection. This limitation does not apply for our paid plans!"
   trialReadyModalText:
-    'Durante el periodo de prueba, XOA necesita conexión a Internet. Esta limitación no aplica a los planes de pago',
+    'Durante el periodo de prueba, Fragata necesita conexión a Internet. Esta limitación no aplica a los planes de pago',
 
   // Original text: 'Label'
   serverLabel: undefined,
@@ -3322,9 +3322,9 @@ export default {
   // Original text: "Your trial has been ended. Contact us or downgrade to Free version"
   trialConsumed: 'Tu periodo de prueba ha terminado. Contacta con nosotros o vuelve a la Edición Libre',
 
-  // Original text: "Your xoa-updater service appears to be down. Your XOA cannot run fully without reaching this service."
+  // Original text: "Your xoa-updater service appears to be down. Your Fragata cannot run fully without reaching this service."
   trialLocked:
-    'Tu servicio xoa-updater parece estar caído. XOA no puede funcionar correctamente sin contactar con este servicio',
+    'Tu servicio xoa-updater parece estar caído. Fragata no puede funcionar correctamente sin contactar con este servicio',
 
   // Original text: "No update information available"
   noUpdateInfo: 'No hay información de actualización',
@@ -3332,14 +3332,14 @@ export default {
   // Original text: "Update information may be available"
   waitingUpdateInfo: 'Podría haber información de actualización disponible',
 
-  // Original text: "Your XOA is up-to-date"
-  upToDate: 'Tu XOA está al día',
+  // Original text: "Your Fragata is up-to-date"
+  upToDate: 'Tu Fragata está al día',
 
-  // Original text: "You need to update your XOA (new version is available)"
-  mustUpgrade: 'Necesitas actualizar tu XOA (hay disponible una nueva versión)',
+  // Original text: "You need to update your Fragata (new version is available)"
+  mustUpgrade: 'Necesitas actualizar tu Fragata (hay disponible una nueva versión)',
 
-  // Original text: "Your XOA is not registered for updates"
-  registerNeeded: 'Tu XOA no está registrado para recibir actualizaciones',
+  // Original text: "Your Fragata is not registered for updates"
+  registerNeeded: 'Tu Fragata no está registrado para recibir actualizaciones',
 
   // Original text: "Can't fetch update information"
   updaterError: 'No se puede obtener la información de actualización',
@@ -3347,7 +3347,7 @@ export default {
   // Original text: 'Upgrade successful'
   promptUpgradeReloadTitle: undefined,
 
-  // Original text: 'Your XOA has successfully upgraded, and your browser must reload the application. Do you want to reload now ?'
+  // Original text: 'Your Fragata has successfully upgraded, and your browser must reload the application. Do you want to reload now ?'
   promptUpgradeReloadMessage: undefined,
 
   // Original text: "Fragata from the sources"

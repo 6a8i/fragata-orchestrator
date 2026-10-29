@@ -203,7 +203,7 @@ describe('createServer (dynamic bootstrap)', () => {
   describe('search_documentation tool', () => {
     it('fetches and returns documentation through the client transport', async () => {
       const fetchFn = mockFetchFn(url =>
-        url.includes('docs.xen-orchestra.com')
+        url.includes('raw.githubusercontent.com')
           ? new Response('<h1>Installation Guide</h1><p>Install XO here.</p>', {
               status: 200,
               headers: { 'content-type': 'text/html' },
@@ -220,7 +220,7 @@ describe('createServer (dynamic bootstrap)', () => {
 
     it('returns error when documentation fetch fails', async () => {
       const fetchFn = mockFetchFn(url =>
-        url.includes('docs.xen-orchestra.com')
+        url.includes('raw.githubusercontent.com')
           ? new Response('Not Found', { status: 404, statusText: 'Not Found' })
           : undefined
       )

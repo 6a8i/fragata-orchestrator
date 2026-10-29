@@ -18,7 +18,7 @@ execPromise(async args => {
   }
 
   const support = args[0] === '-s'
-  const name = support ? 'xoa-support' : args[0]
+  const name = support ? 'fragata-support' : args[0]
 
   let password =
     args.length === 2

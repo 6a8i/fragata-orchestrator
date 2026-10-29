@@ -652,8 +652,6 @@ export const AbstractXapi = class AbstractXapiVmBackupRunner extends Abstract {
         // 2024-08-19 - Work-around a XAPI bug where allowed_operations are not properly computed when blocked_operations is updated
         //
         // this is a problem because some clients (e.g. XenCenter) use this field to allow operations.
-        //
-        // internal source: https://team.vates.fr/vates/pl/mjmxnce9qfdx587r3qpe4z91ho
         await vm.$call('update_allowed_operations')
       })
     }

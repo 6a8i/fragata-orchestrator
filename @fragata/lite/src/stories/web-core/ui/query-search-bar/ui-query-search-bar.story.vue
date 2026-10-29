@@ -80,27 +80,27 @@ const data = [
   },
   {
     id: '192bd01f-bf2d-129c-5223-61c9a2e114e7',
-    name_label: 'XOA Proxy QA',
+    name_label: 'Proxy QA',
     power_state: 'Running',
   },
   {
     id: 'ffc4f734-d4dc-1d11-bf82-8b583c9c8d89',
-    name_label: 'XOA-DW (DornerWorks)',
+    name_label: 'Fragata-DW',
     power_state: 'Running',
   },
   {
     id: 'a53fcee5-e35c-7bd5-03f4-acb16824ff04',
-    name_label: 'xoa-qa.lyon.vates.team (2024-02-12)',
+    name_label: 'fragata-qa.lab.example (2024-02-12)',
     power_state: 'Running',
   },
   {
     id: 'd6363a9d-03e5-f598-ebe6-b98b4fcf4ea6',
-    name_label: 'xolab.lyon.vates.team',
+    name_label: 'fragata-lab.example',
     power_state: 'Running',
   },
   {
     id: '5dac984b-d89a-6316-2c0c-fe1299a26f77',
-    name_label: 'YA XOA test',
+    name_label: 'Yet another Fragata test',
     power_state: 'Running',
   },
   {

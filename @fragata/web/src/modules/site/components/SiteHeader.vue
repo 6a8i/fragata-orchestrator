@@ -1,6 +1,6 @@
 <template>
   <UiHeadBar icon="fa:satellite">
-    {{ XOA_NAME }}
+    {{ ORCHESTRATOR_NAME }}
     <template #actions>
       <UiLink :to="{ name: '/pool/connect' }" size="medium" icon="fa:plus">
         {{ t('action:connect-pool') }}
@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts" setup>
-import { XOA_NAME } from '@/shared/constants.ts'
+import { ORCHESTRATOR_NAME } from '@/shared/constants.ts'
 import TabList from '@core/components/tab-list/TabList.vue'
 import UiHeadBar from '@core/components/ui/head-bar/UiHeadBar.vue'
 import UiLink from '@core/components/ui/link/UiLink.vue'

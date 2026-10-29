@@ -1,103 +1,33 @@
 import _ from 'intl'
-import * as xoaPlans from 'xoa-plans'
 import decorate from 'apply-decorators'
-import defined from '@fragata/defined'
 import PropTypes from 'prop-types'
 import React from 'react'
-import stripAnsi from 'strip-ansi'
-import xoaUpdater from 'xoa-updater'
-import { checkXoa, getApplianceInfo } from 'xo'
-import { createBlobFromString } from 'utils'
-import { createLogger } from '@fragata/log'
 import { identity, omit } from 'lodash'
 import { injectState, provideState } from 'reaclette'
-import { post } from 'fetch'
-import { timeout } from 'promise-toolbox'
 
 import ActionButton from './action-button'
 import ActionRowButton from './action-row-button'
 
-const ADDITIONAL_FILES_FETCH_TIMEOUT = 5e3
-
 const jsonStringify = json => JSON.stringify(json, null, 2)
-const logger = createLogger('report-bug-button')
 
 const GITHUB_URL = 'https://github.com/6a8i/fragata-orchestrator/issues/new'
 const GITHUB_BUG_TEMPLATE = 'bug_report.yml'
-const XO_SUPPORT_URL = 'https://xen-orchestra.com/#!/member/support'
-const SUPPORT_PANEL_URL = './api/support/create/ticket'
 
-const ADDITIONAL_FILES = [
-  {
-    fetch: () => xoaUpdater.getLocalManifest().then(jsonStringify),
-    name: 'manifest.json',
-  },
-  {
-    fetch: () => checkXoa().then(stripAnsi),
-    name: 'xoaCheck.txt',
-  },
-  {
-    fetch: () => getApplianceInfo().then(jsonStringify),
-    name: 'xoaInfo.json',
-  },
-]
-
-const reportInNewWindow = (url, { title, message, formatMessage = identity }) => {
+// Bug reports always go to the public issue tracker: Fragata has no commercial
+// support channel.
+export const reportBug = ({ title, message, formatMessage = identity } = {}) => {
   const encodedTitle = encodeURIComponent(title == null ? '' : title)
+  const encodedLabels = encodeURIComponent('type: bug :bug:,status: triaging :triangular_flag_on_post:')
 
-  let _url = `${url}?title=${encodedTitle}`
+  let url = `${GITHUB_URL}?title=${encodedTitle}&template=${GITHUB_BUG_TEMPLATE}&labels=${encodedLabels}`
 
-  if (url === GITHUB_URL) {
-    const encodedErrorMessage = encodeURIComponent(jsonStringify(message.error))
-    const encodedLabels = encodeURIComponent('type: bug :bug:,status: triaging :triangular_flag_on_post:')
-
-    _url += `&template=${GITHUB_BUG_TEMPLATE}&labels=${encodedLabels}&error-message=${encodedErrorMessage}`
-  }
-
-  window.open(_url)
-}
-
-export const reportOnSupportPanel = async ({ files = [], formatMessage = identity, message, title } = {}) => {
-  const { FormData, open } = window
-
-  const formData = new FormData()
-  if (title !== undefined) {
-    formData.append('title', title)
-  }
   if (message !== undefined) {
-    formData.append('message', formatMessage(message))
+    const error = typeof message === 'string' ? message : (message.error ?? message)
+    url += `&error-message=${encodeURIComponent(typeof error === 'string' ? error : jsonStringify(error))}`
   }
-  files.forEach(({ content, name }) => {
-    formData.append('attachments', content, name)
-  })
 
-  await Promise.all(
-    ADDITIONAL_FILES.map(({ fetch, name }) =>
-      timeout.call(fetch(), ADDITIONAL_FILES_FETCH_TIMEOUT).then(
-        file => formData.append('attachments', createBlobFromString(file), name),
-        error => logger.warn(`cannot get ${name}`, { error })
-      )
-    )
-  )
-
-  try {
-    const res = await timeout.call(post(SUPPORT_PANEL_URL, formData), 1e4)
-    if (res.status !== 200) {
-      throw new Error(`not a valid response status (${res.status})`)
-    }
-    open(await res.text())
-  } catch (error) {
-    logger.warn('cannot get the new ticket URL', { error })
-    reportInNewWindow(XO_SUPPORT_URL, {
-      title: defined(title, 'Bug report'),
-      message,
-      formatMessage,
-    })
-  }
+  window.open(url)
 }
-
-export const reportBug =
-  xoaPlans.CURRENT === xoaPlans.SOURCES ? params => reportInNewWindow(GITHUB_URL, params) : reportOnSupportPanel
 
 const REPORT_BUG_BUTTON_PROP_TYPES = {
   files: PropTypes.arrayOf(
@@ -115,10 +45,9 @@ const REPORT_BUG_BUTTON_PROP_TYPES = {
 const ReportBugButton = decorate([
   provideState({
     effects: {
-      async reportBug() {
-        const { files, formatMessage, message, title } = this.props
-        await reportBug({
-          files,
+      reportBug() {
+        const { formatMessage, message, title } = this.props
+        reportBug({
           formatMessage,
           message,
           title,

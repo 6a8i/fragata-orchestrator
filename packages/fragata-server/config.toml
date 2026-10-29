@@ -199,7 +199,6 @@ requestTimeout = 0
 # [port] is used to reuse the same port declared in [http.listen.0]
 '/openmetrics' = 'http://localhost:9004'
 '/v5/api' = '[protocol]//localhost:[port]/api'
-'/v5/api/updater' = 'ws://localhost:9001'
 '/v5/netdata' = '[protocol]//localhost:[port]/netdata'
 '/v5/rest' = '[protocol]//localhost:[port]/rest'
 
@@ -295,15 +294,15 @@ proxyName = 'Proxy {date}'
 
 licenseProductId = 'fragata-proxy'
 
-vmName = 'XOA Proxy {date}'
+vmName = 'Fragata Proxy {date}'
 
 # The duration for which we can wait for the VM networks to be defined
 vmNetworksTimeout = '5 min'
 
-vmTag = 'XOA Proxy'
+vmTag = 'Fragata Proxy'
 
-# The duration for which we can wait for the XOA to be upgraded
-xoaUpgradeTimeout = '5 min'
+# The duration for which we can wait for the proxy appliance to be upgraded
+applianceUpgradeTimeout = '5 min'
 
 [rest-api]
 dashboardCacheExpiresIn = '1 min'
@@ -318,9 +317,9 @@ maxEventsQueuedPerWatchClient = 1000
 [jsonrpc-api]
 xvaImportFromUrlTimeout = '6s'
 
-[xoa]
+[fragata]
 
-# Maximum number of "snapshot before upgrade" snapshots to keep on the XOA VM.
+# Maximum number of "snapshot before upgrade" snapshots to keep on the VM running Fragata.
 #
 # When a snapshot is taken before an upgrade, the oldest ones are rotated out so
 # that at most this many remain. Must be >= 1.

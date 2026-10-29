@@ -10,7 +10,7 @@
           <I18nT keypath="popup-first-connection-default-interface">
             <template #documentationLink>
               <UiLink
-                href="https://docs.xen-orchestra.com/getting-started/configuration#using-xo-5-as-the-default-interface"
+                href="https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/configuration.md#using-xo-5-as-the-default-interface"
                 size="medium"
               >
                 {{ t('popup-first-connection-follow-this-guide') }}
@@ -22,7 +22,7 @@
         <I18nT keypath="popup-first-connection-feedback" scope="global" tag="div">
           <template #feedbackLink>
             <UiLink
-              href="https://xcp-ng.org/forum/topic/11604/xo-6-dedicated-thread-for-all-your-feedback"
+              href="https://github.com/6a8i/fragata-orchestrator/discussions"
               size="medium"
             >
               {{ t('popup-first-connection-feedback-and-impressions') }}

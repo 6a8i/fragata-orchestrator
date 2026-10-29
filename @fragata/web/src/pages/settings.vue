@@ -11,21 +11,21 @@
             <VtsTabularKeyValueRow :label="t('version')" />
             <VtsTabularKeyValueRow :label="t('news')">
               <template #value>
-                <UiLink size="medium" :href="XO_LINKS.BLOG">
+                <UiLink size="medium" :href="FRAGATA_LINKS.NEWS">
                   {{ t('news-name', { name: t('xen-orchestra') }) }}
                 </UiLink>
               </template>
             </VtsTabularKeyValueRow>
             <VtsTabularKeyValueRow :label="t('community')">
               <template #value>
-                <UiLink size="medium" :href="XO_LINKS.COMMUNITY">
+                <UiLink size="medium" :href="FRAGATA_LINKS.COMMUNITY">
                   {{ t('community-name', { name: t('xen-orchestra') }) }}
                 </UiLink>
               </template>
             </VtsTabularKeyValueRow>
             <VtsTabularKeyValueRow :label="t('documentation')">
               <template #value>
-                <UiLink size="medium" :href="XO_LINKS.DOC">
+                <UiLink size="medium" :href="FRAGATA_LINKS.DOC">
                   {{ t('documentation-name', { name: t('xen-orchestra') }) }}
                 </UiLink>
               </template>
@@ -33,33 +33,26 @@
           </VtsTabularKeyValueList>
         </VtsColumn>
         <VtsColumn>
-          <div class="typo-h6">{{ t('xcp-ng') }}</div>
+          <div class="typo-h6">Fragata Host</div>
           <VtsTabularKeyValueList>
             <VtsTabularKeyValueRow :label="t('news')">
               <template #value>
-                <UiLink size="medium" :href="XCP_LINKS.BLOG">
-                  {{ t('news-name', { name: t('xcp-ng') }) }}
+                <UiLink size="medium" :href="FRAGATA_HOST_LINKS.NEWS">
+                  {{ t('news-name', { name: 'Fragata Host' }) }}
                 </UiLink>
               </template>
             </VtsTabularKeyValueRow>
             <VtsTabularKeyValueRow :label="t('community')">
               <template #value>
-                <UiLink size="medium" :href="XCP_LINKS.COMMUNITY">
-                  {{ t('community-name', { name: t('xcp-ng') }) }}
+                <UiLink size="medium" :href="FRAGATA_HOST_LINKS.COMMUNITY">
+                  {{ t('community-name', { name: 'Fragata Host' }) }}
                 </UiLink>
               </template>
             </VtsTabularKeyValueRow>
             <VtsTabularKeyValueRow :label="t('documentation')">
               <template #value>
-                <UiLink size="medium" :href="XCP_LINKS.DOC">
-                  {{ t('documentation-name', { name: t('xcp-ng') }) }}
-                </UiLink>
-              </template>
-            </VtsTabularKeyValueRow>
-            <VtsTabularKeyValueRow :label="t('support')">
-              <template #value>
-                <UiLink size="medium" :href="XCP_LINKS.SUPPORT">
-                  {{ t('pro-support', { name: t('xcp-ng') }) }}
+                <UiLink size="medium" :href="FRAGATA_HOST_LINKS.DOC">
+                  {{ t('documentation-name', { name: 'Fragata Host' }) }}
                 </UiLink>
               </template>
             </VtsTabularKeyValueRow>
@@ -135,8 +128,8 @@
           <VtsTabularKeyValueList>
             <VtsTabularKeyValueRow :label="t('translation-tool')">
               <template #value>
-                <UiLink size="medium" :href="XO_LINKS.TRANSLATION">
-                  {{ t('weblate') }}
+                <UiLink size="medium" :href="FRAGATA_LINKS.TRANSLATION">
+                  GitHub
                 </UiLink>
               </template>
             </VtsTabularKeyValueRow>
@@ -149,7 +142,7 @@
 
 <script setup lang="ts">
 import { useTheme } from '@/shared/composables/theme.composable.ts'
-import { XCP_LINKS, XO_LINKS } from '@/shared/constants.ts'
+import { FRAGATA_HOST_LINKS, FRAGATA_LINKS } from '@/shared/constants.ts'
 import VtsColumn from '@core/components/column/VtsColumn.vue'
 import VtsColumns from '@core/components/columns/VtsColumns.vue'
 import VtsIcon from '@core/components/icon/VtsIcon.vue'

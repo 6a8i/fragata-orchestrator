@@ -167,7 +167,7 @@ export default {
   // Original text: 'Subdirectory'
   subdirectory: undefined,
 
-  // Original text: 'Try XOA for free and deploy it here.'
+  // Original text: 'Try Fragata for free and deploy it here.'
   tryXoa: undefined,
 
   // Original text: 'Not installed'
@@ -413,7 +413,7 @@ export default {
   // Original text: 'Advanced tag creation'
   advancedTagCreation: undefined,
 
-  // Original text: 'Available in XOA Premium'
+  // Original text: 'Available in Fragata Premium'
   availableXoaPremium: undefined,
 
   // Original text: 'Detach'
@@ -425,7 +425,7 @@ export default {
   // Original text: 'Delete custom field'
   deleteCustomField: undefined,
 
-  // Original text: 'Only available to XOA users'
+  // Original text: 'Only available to Fragata users'
   onlyAvailableXoaUsers: undefined,
 
   // Original text: 'Remove color'
@@ -557,7 +557,7 @@ export default {
   // Original text: "Jobs"
   jobsPage: 'ジョブ',
 
-  // Original text: 'XOA'
+  // Original text: 'Fragata'
   xoaPage: undefined,
 
   // Original text: "Updates"
@@ -707,7 +707,7 @@ export default {
   // Original text: "User"
   userPage: 'ユーザー',
 
-  // Original text: 'XOA'
+  // Original text: 'Fragata'
   xoa: undefined,
 
   // Original text: "No support"
@@ -716,10 +716,10 @@ export default {
   // Original text: "Free upgrade!"
   freeUpgrade: 'フリーアップグレード',
 
-  // Original text: 'Check XOA'
+  // Original text: 'Check Fragata'
   checkXoa: undefined,
 
-  // Original text: 'XOA check'
+  // Original text: 'Fragata check'
   xoaCheck: undefined,
 
   // Original text: 'Close tunnel'
@@ -737,7 +737,7 @@ export default {
   // Original text: 'Open tunnel'
   openTunnel: undefined,
 
-  // Original text: 'The XOA check and the support tunnel are available in XOA.'
+  // Original text: 'The Fragata check and the support tunnel are available in Fragata.'
   supportCommunity: undefined,
 
   // Original text: 'Support tunnel'
@@ -959,7 +959,7 @@ export default {
   // Original text: "Shared {type}"
   srSharedType: '共有{type}',
 
-  // Original text: 'Host time and XOA time are not consistent with each other'
+  // Original text: 'Host time and Fragata time are not consistent with each other'
   warningHostTimeTooltip: undefined,
 
   // Original text: 'Not all hosts within {pool} have the same version'
@@ -1634,9 +1634,9 @@ export default {
   // Original text: 'Click for more information about the backup methods.'
   backupNgLinkToDocumentationMessage: undefined,
 
-  // Original text: "Warning: Local remotes will use limited XOA disk space. Only for advanced users."
+  // Original text: "Warning: Local remotes will use limited Fragata disk space. Only for advanced users."
   localRemoteWarningMessage:
-    '注意：ローカルリモートは、限定されたXOAディスク空間を利用します。アドバンスユーザのみの機能です。',
+    '注意：ローカルリモートは、限定されたFragataディスク空間を利用します。アドバンスユーザのみの機能です。',
 
   // Original text: "VMs"
   editBackupVmsTitle: 'VMs',
@@ -2724,7 +2724,7 @@ export default {
   // Original text: "Restart toolstack"
   restartHostAgent: 'Restart toolstack',
 
-  // Original text: 'As the XOA is hosted on the host that is scheduled for a reboot, it will also be restarted. Consequently, XO won\'t be able to resume VMs, and VMs with the "Protect from accidental shutdown" option enabled will not have this option reactivated automatically.'
+  // Original text: 'As the Fragata is hosted on the host that is scheduled for a reboot, it will also be restarted. Consequently, XO won\'t be able to resume VMs, and VMs with the "Protect from accidental shutdown" option enabled will not have this option reactivated automatically.'
   smartRebootBypassCurrentVmCheck: undefined,
 
   // Original text: 'Smart reboot'
@@ -5625,9 +5625,9 @@ export default {
   // Original text: "Ready for trial?"
   trialReadyModal: 'Ready for trial?',
 
-  // Original text: "During the trial period, XOA need to have a working internet connection. This limitation does not apply for our paid plans!"
+  // Original text: "During the trial period, Fragata need to have a working internet connection. This limitation does not apply for our paid plans!"
   trialReadyModalText:
-    'During the trial period, XOA need to have a working internet connection. This limitation does not apply for our paid plans!',
+    'During the trial period, Fragata need to have a working internet connection. This limitation does not apply for our paid plans!',
 
   // Original text: 'Cancel task{nTasks, plural, one {} other {s}}'
   cancelTasksModalTitle: undefined,
@@ -6071,8 +6071,8 @@ export default {
   // Original text: "Your trial has been ended. Contact us or downgrade to Free version"
   trialConsumed: 'Your trial has been ended. Contact us or downgrade to Free version',
 
-  // Original text: "Your xoa-updater service appears to be down. Your XOA cannot run fully without reaching this service."
-  trialLocked: 'Your xoa-updater service appears to be down. Your XOA cannot run fully without reaching this service.',
+  // Original text: "Your xoa-updater service appears to be down. Your Fragata cannot run fully without reaching this service."
+  trialLocked: 'Your xoa-updater service appears to be down. Your Fragata cannot run fully without reaching this service.',
 
   // Original text: "No update information available"
   noUpdateInfo: 'No update information available',
@@ -6080,14 +6080,14 @@ export default {
   // Original text: "Update information may be available"
   waitingUpdateInfo: 'Update information may be available',
 
-  // Original text: "Your XOA is up-to-date"
-  upToDate: 'Your XOA is up-to-date',
+  // Original text: "Your Fragata is up-to-date"
+  upToDate: 'Your Fragata is up-to-date',
 
-  // Original text: "You need to update your XOA (new version is available)"
-  mustUpgrade: 'You need to update your XOA (new version is available)',
+  // Original text: "You need to update your Fragata (new version is available)"
+  mustUpgrade: 'You need to update your Fragata (new version is available)',
 
-  // Original text: "Your XOA is not registered for updates"
-  registerNeeded: 'Your XOA is not registered for updates',
+  // Original text: "Your Fragata is not registered for updates"
+  registerNeeded: 'Your Fragata is not registered for updates',
 
   // Original text: "Can't fetch update information"
   updaterError: "Can't fetch update information",
@@ -6095,8 +6095,8 @@ export default {
   // Original text: "Upgrade successful"
   promptUpgradeReloadTitle: 'Upgrade successful',
 
-  // Original text: "Your XOA has successfully upgraded, and your browser must reload the application. Do you want to reload now ?"
-  promptUpgradeReloadMessage: 'XOAは正常にアップデートされました。ブラウザでのリロードが必要です。リロードしますか？',
+  // Original text: "Your Fragata has successfully upgraded, and your browser must reload the application. Do you want to reload now ?"
+  promptUpgradeReloadMessage: 'Fragataは正常にアップデートされました。ブラウザでのリロードが必要です。リロードしますか？',
 
   // Original text: 'Upgrade warning'
   upgradeWarningTitle: undefined,
@@ -6119,10 +6119,10 @@ export default {
   // Original text: 'Change channel'
   changeChannel: undefined,
 
-  // Original text: 'The Web updater, the release channels and the proxy settings are available in XOA.'
+  // Original text: 'The Web updater, the release channels and the proxy settings are available in Fragata.'
   updaterCommunity: undefined,
 
-  // Original text: 'XOA build:'
+  // Original text: 'Fragata build:'
   xoaBuild: undefined,
 
   // Original text: "Fragata from the sources"
@@ -6142,13 +6142,13 @@ export default {
   // Original text: "Why do I see this message?"
   disclaimerText4: 'なぜこのメッセージが表示されますか？',
 
-  // Original text: 'You are not registered. Your XOA may not be up to date.'
+  // Original text: 'You are not registered. Your Fragata may not be up to date.'
   notRegisteredDisclaimerInfo: undefined,
 
   // Original text: 'Click here to create an account.'
   notRegisteredDisclaimerCreateAccount: undefined,
 
-  // Original text: 'Click here to register and update your XOA.'
+  // Original text: 'Click here to register and update your Fragata.'
   notRegisteredDisclaimerRegister: undefined,
 
   // Original text: "Connect PIF"
@@ -6816,7 +6816,7 @@ export default {
   // Original text: 'XOSTOR'
   xostor: undefined,
 
-  // Original text: 'XOSTOR is available in XOA'
+  // Original text: 'XOSTOR is available in Fragata'
   xostorAvailableInXoa: undefined,
 
   // Original text: 'XOSTOR creation'
@@ -6837,7 +6837,7 @@ export default {
   // Original text: 'Hub'
   hubPage: undefined,
 
-  // Original text: 'Hub is available in XOA'
+  // Original text: 'Hub is available in Fragata'
   hubCommunity: undefined,
 
   // Original text: 'The selected pool has no default SR'
@@ -7074,10 +7074,10 @@ export default {
   // Original text: 'License has expired.'
   licenseHasExpired: undefined,
 
-  // Original text: 'License bound to another XOA'
+  // Original text: 'License bound to another Fragata'
   licenseBoundToOtherXoa: undefined,
 
-  // Original text: 'This license is active on this XOA'
+  // Original text: 'This license is active on this Fragata'
   licenseBoundToThisXoa: undefined,
 
   // Original text: 'License expires on {date}.'
@@ -7107,10 +7107,10 @@ export default {
   // Original text: 'Activate license'
   bindXoaLicense: undefined,
 
-  // Original text: 'Move license to this XOA'
+  // Original text: 'Move license to this Fragata'
   rebindXoaLicense: undefined,
 
-  // Original text: 'Are you sure you want to activate this license on your XOA? This action is not reversible!'
+  // Original text: 'Are you sure you want to activate this license on your Fragata? This action is not reversible!'
   bindXoaLicenseConfirm: undefined,
 
   // Original text: 'activate {licenseType} license'

@@ -6,7 +6,7 @@
       :name="guestToolsDisplay.icon"
       size="medium"
     />
-    <UiLink v-if="guestToolsDisplay.type === 'missing'" size="small" :href="XCP_LINKS.GUEST_TOOLS">
+    <UiLink v-if="guestToolsDisplay.type === 'missing'" size="small" :href="FRAGATA_HOST_LINKS.GUEST_TOOLS">
       {{ guestToolsDisplay.value }}
     </UiLink>
     <span v-else v-tooltip class="text-ellipsis">{{ guestToolsDisplay.value }}</span>
@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import type { GuestToolsDisplay } from '@/modules/vm/composables/xo-vm-utils.composable.ts'
-import { XCP_LINKS } from '@/shared/constants.ts'
+import { FRAGATA_HOST_LINKS } from '@/shared/constants.ts'
 import VtsIcon from '@core/components/icon/VtsIcon.vue'
 import UiLink from '@core/components/ui/link/UiLink.vue'
 import { vTooltip } from '@core/directives/tooltip.directive.ts'

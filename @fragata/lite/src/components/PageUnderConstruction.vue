@@ -5,7 +5,7 @@
     <p class="contact typo-body-regular">
       {{ t('do-you-have-needs') }}
       <a
-        href="https://xcp-ng.org/forum/topic/5018/xo-lite-building-an-embedded-ui-in-xcp-ng"
+        href="https://github.com/6a8i/fragata-orchestrator/discussions"
         rel="noopener noreferrer"
         target="_blank"
       >

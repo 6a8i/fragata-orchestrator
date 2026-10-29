@@ -173,32 +173,4 @@ export default {
     [actions.disconnected]: () => 'disconnected',
   }),
 
-  xoaUpdaterState: combineActionHandlers('disconnected', {
-    [actions.setXoaUpdaterState]: (_, state) => state,
-  }),
-  xoaTrialState: combineActionHandlers(
-    {},
-    {
-      [actions.setXoaTrialState]: (_, state) => state,
-    }
-  ),
-  xoaUpdaterLog: combineActionHandlers([], {
-    [actions.setXoaUpdaterLog]: (_, log) => log,
-  }),
-  xoaRegisterState: combineActionHandlers(
-    { state: '?' },
-    {
-      [actions.setXoaRegisterState]: (_, registration) => registration,
-    }
-  ),
-  xoaConfiguration: combineActionHandlers(
-    { proxyHost: '', proxyPort: '', proxyUser: '' },
-    {
-      // defined values for controlled inputs
-      [actions.setXoaConfiguration]: (_, configuration) => {
-        delete configuration.password
-        return configuration
-      },
-    }
-  ),
 }

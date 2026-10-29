@@ -37,7 +37,7 @@ See: https://icinga.com/docs/icinga2/latest/doc/12-icinga2-api/#filters
 Example:
 - Monitor the backup jobs of the VMs of a specific host:
 
-\`host.name=="xoa.example.com" && service.name=="xo-backup"\`
+\`host.name=="fragata.example.com" && service.name=="xo-backup"\`
       `.trim(),
     },
     acceptUnauthorized: {

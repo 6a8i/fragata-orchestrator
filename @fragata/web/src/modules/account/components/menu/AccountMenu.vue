@@ -22,8 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-import { XCP_LINKS, XO_LINKS } from '@/shared/constants.ts'
-import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
+import { FRAGATA_HOST_LINKS, FRAGATA_LINKS } from '@/shared/constants.ts'
 import type { IconName } from '@core/icons'
 import MenuItem from '@core/components/menu/MenuItem.vue'
 import MenuList from '@core/components/menu/MenuList.vue'
@@ -39,12 +38,9 @@ defineProps<{
 }>()
 
 const { t } = useI18n()
-const { buildXo5Route } = useXoRoutes()
 
 // TODO: Fetch the Fragata Classic mount path from API when available
 const logout = () => window.location.assign('/signout')
-
-const licenseUrl = computed(() => buildXo5Route('/xoa/licenses'))
 
 const links = computed<{ label: string; props: LinkOptions & { icon: IconName } }[]>(() => [
   {
@@ -55,31 +51,17 @@ const links = computed<{ label: string; props: LinkOptions & { icon: IconName } 
     },
   },
   {
-    label: t('license-name', { name: t('xoa') }),
-    props: {
-      icon: 'fa:satellite',
-      href: licenseUrl.value,
-    },
-  },
-  {
-    label: t('documentation-name', { name: t('xo') }),
+    label: t('documentation-name', { name: 'Fragata' }),
     props: {
       icon: 'fa:book',
-      href: XO_LINKS.DOC,
+      href: FRAGATA_LINKS.DOC,
     },
   },
   {
-    label: t('documentation-name', { name: t('xcp-ng') }),
+    label: t('documentation-name', { name: 'Fragata Host' }),
     props: {
       icon: 'fa:book',
-      href: XCP_LINKS.DOC,
-    },
-  },
-  {
-    label: t('professional-support'),
-    props: {
-      icon: 'fa:headset',
-      href: XCP_LINKS.SUPPORT,
+      href: FRAGATA_HOST_LINKS.DOC,
     },
   },
   {
@@ -93,7 +75,7 @@ const links = computed<{ label: string; props: LinkOptions & { icon: IconName } 
     label: t('send-us-feedback'),
     props: {
       icon: 'fa:message',
-      href: XO_LINKS.COMMUNITY,
+      href: FRAGATA_LINKS.COMMUNITY,
     },
   },
 ])

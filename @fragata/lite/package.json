@@ -8,7 +8,6 @@
     "preview": "vite preview --port 4173",
     "release": "./scripts/release.mjs",
     "build-only": "yarn release --build",
-    "deploy": "yarn release --build --deploy",
     "gh-release": "yarn release --build --tarball --gh-release",
     "test": "yarn run type-check",
     "type-check": "vue-tsc --build --force tsconfig.type-check.json"

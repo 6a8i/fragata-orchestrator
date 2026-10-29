@@ -7,7 +7,7 @@
 ## Usage
 
 Like all other fragata-server plugins, it can be configured directly via
-the web interface, see [the plugin documentation](https://docs.xen-orchestra.com/load_balancing).
+the web interface, see [the plugin documentation](https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/manage-your-infrastructure/load_balancing.md).
 
 ## Contributions
 

@@ -70,7 +70,7 @@
 #
 # It SHOULD be defined in case the IP address of the current machine is not
 # good enough (e.g. a domain name must be used or there is a reverse proxy).
-#publicUrl = 'https://xoa.company.lan'
+#publicUrl = 'https://fragata.company.lan'
 
 # Uncomment this if fragata-server is behind a reverse proxy to make fragata-server use
 # X-Forwarded-* headers to determine the IP address of clients.

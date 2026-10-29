@@ -6,7 +6,6 @@
     <template #content>
       <VtsInputWrapper
         :label="t('select-compression')"
-        learn-more-url="https://xcp-ng.org/blog/2018/12/19/zstd-compression-for-xcp-ng/"
       >
         <VtsSelect :id="compressionSelectId" accent="brand" />
       </VtsInputWrapper>

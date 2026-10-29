@@ -2,7 +2,7 @@ import { useXoHostCollection } from '@/modules/host/remote-resources/use-xo-host
 import { useXoPoolCollection } from '@/modules/pool/remote-resources/use-xo-pool-collection.ts'
 import type { XoSite } from '@/modules/site/types/xo-site.type.ts'
 import { useXoVmCollection } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
-import { XOA_NAME } from '@/shared/constants.ts'
+import { ORCHESTRATOR_NAME } from '@/shared/constants.ts'
 import { useTreeCollapse } from '@core/composables/tree-collapse.composable.ts'
 import { useTreeFilter } from '@core/composables/tree-filter.composable.ts'
 import { defineTree } from '@core/packages/tree/define-tree.ts'
@@ -19,7 +19,7 @@ export function useXoSiteTree() {
   const site: XoSite = {
     id: 'site-root',
     type: 'site',
-    name_label: XOA_NAME,
+    name_label: ORCHESTRATOR_NAME,
   }
 
   const sites = computed(() => [site])

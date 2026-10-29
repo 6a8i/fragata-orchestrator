@@ -1,7 +1,6 @@
 // hostnames on which the server listens on all interfaces: `localhost` is
 // reachable there, rewriting it would produce an unroutable target (0.0.0.0)
 // and route the request through the HTTP proxy if one is configured
-// (https://help.vates.tech/#ticket/zoom/63328)
 const WILDCARD_HOSTNAMES = new Set(['0.0.0.0', '::'])
 
 /**
