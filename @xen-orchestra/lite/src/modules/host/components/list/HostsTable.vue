@@ -3,7 +3,7 @@
     <UiTitle>
       {{ t('hosts') }}
     </UiTitle>
-    <UiQuerySearchBar @search="(value: string) => (searchQuery = value)" />
+    <VtsQueryBuilder v-model="filter" :schema />
     <div class="container">
       <VtsTable :pagination-bindings :state sticky="right">
         <thead>
@@ -28,18 +28,24 @@ import { getHostIpAddresses } from '@/modules/pif/utils/pif.util.ts'
 import { useHostMetricsStore } from '@/stores/xen-api/host-metrics.store.ts'
 import { usePifStore } from '@/stores/xen-api/pif.store.ts'
 import { usePoolStore } from '@/stores/xen-api/pool.store.ts'
+import VtsQueryBuilder from '@core/components/query-builder/VtsQueryBuilder.vue'
 import VtsRow from '@core/components/table/VtsRow.vue'
 import VtsTable from '@core/components/table/VtsTable.vue'
-import UiQuerySearchBar from '@core/components/ui/query-search-bar/UiQuerySearchBar.vue'
 import UiTitle from '@core/components/ui/title/UiTitle.vue'
 import { usePagination } from '@core/composables/pagination.composable.ts'
 import { useRouteQuery } from '@core/composables/route-query.composable.ts'
 import { useTableState } from '@core/composables/table-state.composable.ts'
 import { icon } from '@core/icons'
+import { useQueryBuilderSchema } from '@core/packages/query-builder/schema/use-query-builder-schema.ts'
+import { useQueryBuilderFilter } from '@core/packages/query-builder/use-query-builder-filter.ts'
 import { useHostColumns } from '@core/tables/column-sets/host-columns.ts'
+import { useStringSchema } from '@core/utils/query-builder/use-string-schema.ts'
+import { HOST_POWER_STATE } from '@vates/types'
 import { logicAnd, logicNot, logicOr } from '@vueuse/math'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+type FilterableHost = XenApiHost & { power_state: HOST_POWER_STATE }
 
 const {
   hosts: rawHosts,
@@ -63,18 +69,24 @@ const hasError = logicOr(() => error, hasPifError)
 
 const selectedHostId = useRouteQuery('id')
 
-const searchQuery = ref('')
+// power_state is not on the XAPI host record (it comes from host_metrics), so it is added to make it filterable
+const filterableHosts = computed(() =>
+  rawHosts.map(host => ({ ...host, power_state: getHostPowerState(host) }) satisfies FilterableHost)
+)
 
-const filteredHosts = computed(() => {
-  const searchTerm = searchQuery.value.trim().toLocaleLowerCase()
+const { items: filteredHosts, filter } = useQueryBuilderFilter('host', filterableHosts)
 
-  if (!searchTerm) {
-    return rawHosts
-  }
-
-  return rawHosts.filter(host =>
-    Object.values(host).some(value => String(value).toLocaleLowerCase().includes(searchTerm))
-  )
+const schema = useQueryBuilderSchema<FilterableHost>({
+  '': useStringSchema(t('any-property')),
+  name_label: useStringSchema(t('name')),
+  name_description: useStringSchema(t('description')),
+  address: useStringSchema(t('ip-address')),
+  power_state: useStringSchema(t('power-state'), {
+    [HOST_POWER_STATE.RUNNING]: t('status:running'),
+    [HOST_POWER_STATE.HALTED]: t('status:halted'),
+    [HOST_POWER_STATE.UNKNOWN]: t('status:unknown'),
+  } satisfies Record<HOST_POWER_STATE, string>),
+  tags: useStringSchema(t('tags')),
 })
 
 const state = useTableState({
