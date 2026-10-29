@@ -1,0 +1,31 @@
+{
+  "private": false,
+  "name": "@fragata/decorate-with",
+  "description": "Creates a decorator from a function wrapper",
+  "keywords": [
+    "apply",
+    "decorator",
+    "factory",
+    "wrapper"
+  ],
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/decorate-with",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/decorate-with",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "license": "ISC",
+  "version": "2.1.0",
+  "engines": {
+    "node": ">=8.10"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public",
+    "test": "node --test"
+  }
+}

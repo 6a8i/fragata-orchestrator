@@ -1,7 +1,7 @@
 'use strict'
 
 const { BLOCK_UNUSED, FOOTER_SIZE, HEADER_SIZE, SECTOR_SIZE } = require('./_constants')
-const { readChunkStrict, skipStrict } = require('@vates/read-chunk')
+const { readChunkStrict, skipStrict } = require('@fragata/read-chunk')
 const assert = require('assert')
 const { unpackFooter, unpackHeader, computeFullBlockSize } = require('./Vhd/_utils')
 

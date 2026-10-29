@@ -1,0 +1,633 @@
+import TTLCache from '@isaacs/ttlcache'
+import { asyncMap } from '@fragata/async-map'
+import { createLogger } from '@fragata/log'
+import { format } from 'json-rpc-peer'
+import { pipeline, Readable } from 'node:stream'
+import tarStream from 'tar-stream'
+import { Ref } from 'xen-api'
+import { incorrectState, invalidParameters } from 'fragata-common/api-errors.js'
+
+import { fromCallback } from 'promise-toolbox'
+import { moveFirst } from '../_moveFirst.mjs'
+
+/** @typedef {import('@fragata/types').XoNetwork} XoNetwork */
+/** @typedef {import('@fragata/types').XoPool} XoPool */
+
+const log = createLogger('xo:api:pool')
+
+const TTL_CACHE = 3e4
+const CACHE = new TTLCache({
+  ttl: TTL_CACHE,
+})
+
+// ===================================================================
+
+export async function set({
+  pool,
+
+  auto_poweron,
+  name_description: nameDescription,
+  name_label: nameLabel,
+  backupNetwork,
+  migrationCompression,
+  migrationNetwork,
+  rpuMigrateVmsBack,
+  suspendSr,
+  crashDumpSr,
+}) {
+  pool = this.getXapiObject(pool)
+
+  await Promise.all([
+    auto_poweron !== undefined && pool.update_other_config('auto_poweron', String(auto_poweron)),
+    nameDescription !== undefined && pool.set_name_description(nameDescription),
+    nameLabel !== undefined && pool.set_name_label(nameLabel),
+    migrationCompression !== undefined && pool.set_migration_compression(migrationCompression),
+    migrationNetwork !== undefined && pool.update_other_config('xo:migrationNetwork', migrationNetwork),
+    backupNetwork !== undefined && pool.update_other_config('xo:backupNetwork', backupNetwork),
+    rpuMigrateVmsBack !== undefined && pool.update_other_config('xo:rpuMigrateVmsBack', String(rpuMigrateVmsBack)),
+    suspendSr !== undefined && pool.$call('set_suspend_image_SR', suspendSr === null ? Ref.EMPTY : suspendSr._xapiRef),
+    crashDumpSr !== undefined &&
+      pool.$call('set_crash_dump_SR', crashDumpSr === null ? Ref.EMPTY : crashDumpSr._xapiRef),
+  ])
+}
+
+set.params = {
+  id: {
+    type: 'string',
+  },
+  auto_poweron: {
+    type: 'boolean',
+    optional: true,
+  },
+  name_label: {
+    type: 'string',
+    optional: true,
+  },
+  name_description: {
+    type: 'string',
+    minLength: 0,
+    optional: true,
+  },
+  backupNetwork: {
+    type: ['string', 'null'],
+    optional: true,
+  },
+  migrationCompression: {
+    type: 'boolean',
+    optional: true,
+  },
+  migrationNetwork: {
+    type: ['string', 'null'],
+    optional: true,
+  },
+
+  // whether a rolling pool update or reboot brings the VMs back to the host
+  // they were running on, defaults to true
+  rpuMigrateVmsBack: {
+    type: 'boolean',
+    optional: true,
+  },
+  suspendSr: {
+    type: ['string', 'null'],
+    optional: true,
+  },
+  crashDumpSr: {
+    type: ['string', 'null'],
+    optional: true,
+  },
+}
+
+set.resolve = {
+  pool: ['id', 'pool', 'administrate'],
+  suspendSr: ['suspendSr', 'SR', 'administrate'],
+  crashDumpSr: ['crashDumpSr', 'SR', 'administrate'],
+}
+
+// -------------------------------------------------------------------
+
+export async function setDefaultSr({ sr }) {
+  await this.checkPermissions([[sr.$pool, 'administrate']])
+
+  await this.getXapi(sr).setDefaultSr(sr._xapiId)
+}
+
+setDefaultSr.params = {
+  sr: {
+    type: 'string',
+  },
+}
+
+setDefaultSr.resolve = {
+  sr: ['sr', 'SR'],
+}
+
+// -------------------------------------------------------------------
+
+export async function setPoolMaster({ host }) {
+  await this.checkPermissions([[host.$pool, 'administrate']])
+
+  await this.getXapi(host).setPoolMaster(host._xapiId)
+}
+
+setPoolMaster.params = {
+  host: {
+    type: 'string',
+  },
+}
+
+setPoolMaster.resolve = {
+  host: ['host', 'host'],
+}
+
+// -------------------------------------------------------------------
+
+export async function disableHa({ pool }) {
+  await this.getXapi(pool).disableHa()
+}
+
+disableHa.params = {
+  pool: {
+    type: 'string',
+  },
+}
+
+disableHa.resolve = {
+  pool: ['pool', 'pool', 'administrate'],
+}
+
+// -------------------------------------------------------------------
+
+export async function enableHa({ pool, heartbeatSrs, configuration }) {
+  await this.getXapi(pool).enableHa(heartbeatSrs, configuration)
+}
+
+enableHa.params = {
+  pool: {
+    type: 'string',
+  },
+  heartbeatSrs: {
+    type: 'array',
+    items: { type: 'string' },
+  },
+  configuration: {
+    type: 'object',
+  },
+}
+
+enableHa.resolve = {
+  pool: ['pool', 'pool', 'administrate'],
+}
+
+// -------------------------------------------------------------------
+
+// Returns an array of missing new patches in the host
+// Returns an empty array if up-to-date
+export function listMissingPatches({ host }) {
+  return this.getXapi(host).listMissingPatches(host._xapiId)
+}
+
+listMissingPatches.description = 'return an array of missing new patches in the host'
+
+listMissingPatches.params = {
+  host: { type: 'string' },
+}
+
+listMissingPatches.resolve = {
+  host: ['host', 'host', 'view'],
+}
+
+// -------------------------------------------------------------------
+
+export async function installPatches({ pool, patches, hosts, xsHash }) {
+  const opts = { patches, xsCredentials: this.apiContext.user.preferences.xsCredentials, xsHash }
+  let xapi
+  if (pool !== undefined) {
+    pool = this.getXapiObject(pool, 'pool')
+    xapi = pool.$xapi
+    hosts = Object.values(xapi.objects.indexes.type.host)
+  } else {
+    hosts = await asyncMap(hosts, async hostId => {
+      await this.checkPermissions([[hostId, 'administrate']])
+      return this.getXapiObject(hostId)
+    })
+    opts.hosts = hosts
+    xapi = hosts[0].$xapi
+    pool = xapi.pool
+  }
+
+  if (pool.ha_enabled) {
+    throw incorrectState({
+      actual: pool.ha_enabled,
+      expected: false,
+      object: pool.$id,
+      property: 'ha_enabled',
+    })
+  }
+
+  await xapi.installPatches(opts)
+
+  const masterRef = pool.master
+  if (moveFirst(hosts, _ => _.$ref === masterRef)) {
+    await hosts.shift().$restartAgent()
+  }
+
+  await asyncMap(hosts, host => host.$restartAgent())
+}
+
+installPatches.params = {
+  pool: { type: 'string', optional: true },
+  patches: { type: 'array', optional: true },
+  hosts: { type: 'array', optional: true },
+  xsHash: { type: 'string', optional: true },
+}
+
+installPatches.resolve = {
+  pool: ['pool', 'pool', 'administrate'],
+}
+
+installPatches.description = 'Install patches on hosts'
+
+// -------------------------------------------------------------------
+
+export const rollingUpdate = async function ({
+  acceptCurrentStateAsBaseline,
+  bypassBackupCheck,
+  pool,
+  rebootVm,
+  shutdownPinnedVms,
+}) {
+  await this.rollingPoolUpdate(pool, { acceptCurrentStateAsBaseline, bypassBackupCheck, rebootVm, shutdownPinnedVms })
+}
+
+rollingUpdate.params = {
+  // start even though the master is up to date while another host is not:
+  // the pool was left partially updated and this run completes it
+  acceptCurrentStateAsBaseline: {
+    optional: true,
+    type: 'boolean',
+  },
+  bypassBackupCheck: {
+    optional: true,
+    type: 'boolean',
+  },
+  pool: { type: 'string' },
+  rebootVm: {
+    optional: true,
+    type: 'boolean',
+  },
+  // shut down VMs that cannot be migrated (PCI passthrough, vGPU, SR-IOV VIF)
+  // before their host reboots and start them again on it afterwards
+  shutdownPinnedVms: {
+    default: false,
+    type: 'boolean',
+  },
+}
+
+rollingUpdate.resolve = {
+  pool: ['pool', 'pool', 'administrate'],
+}
+
+// -------------------------------------------------------------------
+
+export async function getRollingUpdateRecovery({ pool }) {
+  // explicit null: the JSON-RPC layer would turn an undefined result into `true`
+  return (await this.getRollingUpdateRecovery(pool.id)) ?? null
+}
+
+getRollingUpdateRecovery.params = {
+  pool: { type: 'string' },
+}
+
+getRollingUpdateRecovery.resolve = {
+  pool: ['pool', 'pool', 'administrate'],
+}
+
+getRollingUpdateRecovery.description = 'Get the recovery status of an incomplete rolling pool update, if any'
+
+// -------------------------------------------------------------------
+
+export async function finalizeRollingUpdate({ force, pool }) {
+  await this.finalizeRollingUpdate(pool, { force })
+}
+
+finalizeRollingUpdate.params = {
+  // close even though the update left items unrestored (or its record cannot
+  // be read): they are abandoned and listed in the task, nothing is restored
+  force: {
+    optional: true,
+    type: 'boolean',
+  },
+  pool: { type: 'string' },
+}
+
+finalizeRollingUpdate.resolve = {
+  pool: ['pool', 'pool', 'administrate'],
+}
+
+finalizeRollingUpdate.description =
+  'Close the record of an incomplete rolling pool update once the pool has been reviewed'
+
+// -------------------------------------------------------------------
+
+export async function rollingReboot({ bypassBackupCheck, pool, shutdownPinnedVms }) {
+  await this.rollingPoolReboot(pool, { bypassBackupCheck, shutdownPinnedVms })
+}
+
+rollingReboot.params = {
+  bypassBackupCheck: {
+    optional: true,
+    type: 'boolean',
+  },
+  pool: { type: 'string' },
+  // shut down VMs that cannot be migrated (PCI passthrough, vGPU, SR-IOV VIF)
+  // before their host reboots and start them again on it afterwards
+  shutdownPinnedVms: {
+    default: false,
+    type: 'boolean',
+  },
+}
+
+rollingReboot.resolve = {
+  pool: ['pool', 'pool', 'administrate'],
+}
+
+// -------------------------------------------------------------------
+
+export async function getPatchesDifference({ source, target }) {
+  return this.getPatchesDifference(target.id, source.id)
+}
+
+getPatchesDifference.params = {
+  source: { type: 'string' },
+  target: { type: 'string' },
+}
+
+getPatchesDifference.resolve = {
+  source: ['source', 'host', 'view'],
+  target: ['target', 'host', 'view'],
+}
+
+// -------------------------------------------------------------------
+
+export async function mergeInto({ source, sources = [source], target, force }) {
+  await this.checkPermissions(sources.map(source => [source, 'administrate']))
+  return this.mergeInto({
+    force,
+    sources,
+    target,
+  })
+}
+
+mergeInto.params = {
+  force: { type: 'boolean', optional: true },
+  source: { type: 'string', optional: true },
+  sources: {
+    type: 'array',
+    items: { type: 'string' },
+    optional: true,
+  },
+  target: { type: 'string' },
+}
+
+mergeInto.resolve = {
+  target: ['target', 'pool', 'administrate'],
+}
+
+// -------------------------------------------------------------------
+
+export async function getLicenseState({ pool }) {
+  return this.getXapi(pool).call('pool.get_license_state', pool._xapiId.$ref)
+}
+
+getLicenseState.params = {
+  pool: {
+    type: 'string',
+  },
+}
+
+getLicenseState.resolve = {
+  pool: ['pool', 'pool', 'administrate'],
+}
+
+// -------------------------------------------------------------------
+
+export async function getGuestSecureBootReadiness({ pool, forceRefresh }) {
+  const xapi = this.getXapi(pool)
+  const poolRef = pool._xapiRef
+  const xapiMethodName = 'pool.get_guest_secureboot_readiness'
+
+  if (forceRefresh) {
+    CACHE.delete(xapi.computeCacheKey(xapiMethodName, poolRef))
+  }
+
+  return xapi.call(CACHE, xapiMethodName, poolRef)
+}
+
+getGuestSecureBootReadiness.params = {
+  id: { type: 'string' },
+  forceRefresh: { type: 'boolean', default: false },
+}
+
+getGuestSecureBootReadiness.resolve = {
+  pool: ['id', 'pool', null],
+}
+
+// -------------------------------------------------------------------
+
+async function handleInstallSupplementalPack(req, res, { poolId }) {
+  const xapi = this.getXapi(poolId)
+
+  // Timeout seems to be broken in Node 4.
+  // See https://github.com/nodejs/node/issues/3319
+  req.setTimeout(43200000) // 12 hours
+  req.length = req.headers['content-length']
+  await xapi.installSupplementalPackOnAllHosts(req)
+  res.end(format.response(0))
+}
+
+export async function installSupplementalPack({ pool }) {
+  return {
+    $sendTo: await this.registerHttpRequest(handleInstallSupplementalPack, {
+      poolId: pool.id,
+    }),
+  }
+}
+
+installSupplementalPack.description = 'installs supplemental pack from ISO file on all hosts'
+
+installSupplementalPack.params = {
+  pool: { type: 'string' },
+}
+
+installSupplementalPack.resolve = {
+  pool: ['pool', 'pool', 'admin'],
+}
+
+// -------------------------------------------------------------------
+
+export async function listPoolsMatchingCriteria(params) {
+  return this.listPoolsMatchingCriteria(params)
+}
+
+listPoolsMatchingCriteria.permission = 'admin'
+
+listPoolsMatchingCriteria.params = {
+  minAvailableHostMemory: { type: 'number', optional: true },
+  minAvailableSrSize: { type: 'number', optional: true },
+  minHostCpus: { type: 'number', optional: true },
+  minHostVersion: { type: 'string', optional: true },
+  poolNameRegExp: { type: 'string', optional: true },
+  srNameRegExp: { type: 'string', optional: true },
+}
+
+// -------------------------------------------------------------------
+
+/**
+ * Reconfigure the management interface for all hosts in the pool to use the given network.
+ *
+ * Each host in the pool will switch their management interface to a PIF on the specified network.
+ * The PIFs on the target network must already have IP addresses configured.
+ *
+ * @param {object} params
+ * @param {XoPool} params.pool - The pool to reconfigure
+ * @param {XoNetwork} params.network - The target network for management interfaces
+ * @returns {Promise<void>}
+ */
+export async function managementReconfigure({ pool, network }) {
+  if (network.$pool !== pool.id) {
+    throw invalidParameters(`the network ${network.id} does not belong to pool ${pool.id}`)
+  }
+  const xapi = this.getXapi(pool)
+  await xapi.callAsync('pool.management_reconfigure', network._xapiRef)
+}
+
+managementReconfigure.description =
+  'Reconfigure the management interface for all hosts in the pool to use the given network'
+
+managementReconfigure.params = {
+  id: { type: 'string' },
+  network: { type: 'string' },
+}
+
+managementReconfigure.resolve = {
+  pool: ['id', 'pool', 'administrate'],
+  network: ['network', 'network', 'administrate'],
+}
+
+// ===================================================================
+
+/**
+ * Download system status (bug report) from all hosts in a pool via HTTPS
+ * @param {object} req HTTP request object
+ * @param {object} res HTTP response object
+ * @param {object} data Handler data { xapi, pool, format }
+ */
+async function handleGetSystemStatuses(_req, res, { xapi, pool }) {
+  // Get all hosts in pool
+  const hosts = Object.values(xapi.objects.indexes.type.host)
+
+  // Get server credentials using the pool object which has $pool property
+  const serverId = this.getXenServerIdByObject(pool)
+  const server = await this.getXenServerWithCredentials(serverId)
+
+  // Create tar pack stream for archive
+  const pack = tarStream.pack()
+
+  // Set response headers
+  res.set({
+    'content-type': 'application/x-tar',
+    'content-disposition': `attachment; filename="${pool.name_label}-system-statuses.tar"`,
+  })
+
+  // Stream tar to response and handle downloads
+  // Create promise to track pipeline completion and catch errors
+  const pipelinePromise = fromCallback(pipeline, pack, res)
+
+  try {
+    // Download from each host sequentially to ensure safe tar creation
+    for (const host of hosts) {
+      // Build system-status URL
+      // Use host.address (the target host IP), not server.host (the XAPI server)
+      const url = new URL(`http://${host.address}/system-status`)
+      url.protocol = xapi._url.protocol // Use same protocol as XAPI connection
+      url.searchParams.set('output', 'tar.bz2') // XCP-ng requires output format parameter
+
+      // Setup HTTP Basic Auth
+      const opts = {
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${server.username}:${server.password}`).toString('base64')}`,
+        },
+        rejectUnauthorized: !server.allowUnauthorized,
+        timeout: 0, // No timeout for large downloads
+      }
+
+      // Download and add to tar archive
+      const response = await this.httpRequest(url, opts)
+      const filename = `${host.name_label}-system-status.tar.bz2`
+
+      // Get the size from Content-Length header if available
+      const contentLength = response.headers.get('content-length')
+      const size = contentLength ? Number.parseInt(contentLength, 10) : undefined
+
+      if (size === undefined) {
+        throw new Error(`Missing Content-Length header for host ${host.name_label} system status download`)
+      }
+
+      const entry = pack.entry({ name: filename, size }, err => {
+        if (err) {
+          log.error('Failed to create tar entry', {
+            hostName: host.name_label,
+            filename,
+            error: err,
+          })
+          // Destroy pack with error to propagate to pipelinePromise
+          pack.destroy(err)
+        }
+      })
+
+      await fromCallback(pipeline, Readable.fromWeb(response.body), entry)
+    }
+
+    // Finalize archive after all downloads complete
+    pack.finalize()
+
+    // Wait for pipeline to complete - ensures errors are properly caught
+    await pipelinePromise
+  } catch (err) {
+    log.warn('Failed to download system-statuses', { error: err })
+    pack.destroy()
+    throw err
+  }
+}
+
+/**
+ * Download system status (bug report) from all hosts in a pool
+ *
+ * @description Connects to all hosts in the pool via HTTPS and downloads their
+ *              system status (detailed diagnostic information) in tar.bz2 format.
+ *              All host status files are packaged in a single TAR archive.
+ *              Downloads happen in parallel (max 5 concurrent) for performance.
+ *              If any host fails, the entire operation fails (fail-fast).
+ *
+ * @param {string} id - Pool UUID
+ * @returns {object} TAR archive download via $getFrom
+ */
+export async function getSystemStatuses({ pool }) {
+  return {
+    $getFrom: await this.registerHttpRequest(
+      handleGetSystemStatuses,
+      { xapi: this.getXapi(pool), pool },
+      { suffix: `/${encodeURIComponent(pool.name_label)}-system-statuses.tar` }
+    ),
+  }
+}
+
+getSystemStatuses.description = 'Download system status (bug report) from all hosts in a pool'
+
+getSystemStatuses.params = {
+  id: { type: 'string' },
+}
+
+getSystemStatuses.resolve = {
+  pool: ['id', 'pool', 'administrate'],
+}

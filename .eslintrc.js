@@ -54,7 +54,7 @@ module.exports = {
       },
     },
     {
-      files: ['@xen-orchestra/{web-core,lite,web}/**/*.{vue,ts}'],
+      files: ['@fragata/{web-core,lite,web}/**/*.{vue,ts}'],
       parser: 'vue-eslint-parser',
       parserOptions: {
         sourceType: 'module',
@@ -76,7 +76,7 @@ module.exports = {
               '@': './src',
             },
             extensions: ['.ts'],
-            packages: ['@xen-orchestra/lite', '@xen-orchestra/web'],
+            packages: ['@fragata/lite', '@fragata/web'],
           },
         },
       },
@@ -206,14 +206,14 @@ module.exports = {
     // Specific rules for XO i18n-related files
     {
       files: [
-        '@xen-orchestra/lite/**/*.{vue,ts}',
-        '@xen-orchestra/web/**/*.{vue,ts}',
-        '@xen-orchestra/web-core/**/*.{vue,ts,json}',
+        '@fragata/lite/**/*.{vue,ts}',
+        '@fragata/web/**/*.{vue,ts}',
+        '@fragata/web-core/**/*.{vue,ts,json}',
       ],
       extends: ['plugin:@intlify/vue-i18n/base'],
       settings: {
         'vue-i18n': {
-          localeDir: ['@xen-orchestra/web-core/lib/locales/*.json'],
+          localeDir: ['@fragata/web-core/lib/locales/*.json'],
           messageSyntaxVersion: '^9.9.0',
         },
       },
@@ -232,12 +232,12 @@ module.exports = {
           'error',
           {
             ignoreText: [
-              'Xen Orchestra Lite',
-              'Xen Orchestra',
-              'Xen Orchestra Appliance',
-              'XO Lite',
+              'Fragata Fleet Lite',
+              'Fragata Fleet',
+              'Fragata Fleet Appliance',
+              'Fragata Deck',
               'XCP-ng',
-              'XO 5',
+              'Fleet Classic',
               '404',
               '⚠️',
             ],
@@ -279,17 +279,17 @@ module.exports = {
     // Specific rules for XO dev-related files
     {
       files: [
-        '@xen-orchestra/lite/src/stories/**/*',
-        '@xen-orchestra/lite/src/components/component-story/**/*',
-        '@xen-orchestra/web/src/pages/dev/**/*',
-        '@xen-orchestra/lite/src/views/story/**/*',
+        '@fragata/lite/src/stories/**/*',
+        '@fragata/lite/src/components/component-story/**/*',
+        '@fragata/web/src/pages/dev/**/*',
+        '@fragata/lite/src/views/story/**/*',
       ],
       rules: {
         '@intlify/vue-i18n/no-raw-text': 'off',
       },
     },
     {
-      files: ['@xen-orchestra/{web-core,lite,web}/src/pages/**/*.vue'],
+      files: ['@fragata/{web-core,lite,web}/src/pages/**/*.vue'],
       parserOptions: {
         sourceType: 'module',
       },
@@ -298,7 +298,7 @@ module.exports = {
       },
     },
     {
-      files: ['@xen-orchestra/{web-core,lite,web}/src/route-map.d.ts'],
+      files: ['@fragata/{web-core,lite,web}/src/route-map.d.ts'],
       parserOptions: {
         sourceType: 'module',
       },
@@ -320,7 +320,7 @@ module.exports = {
     },
   ],
 
-  ignorePatterns: ['@vates/fatfs/'],
+  ignorePatterns: ['@fragata/fatfs/'],
 
   parserOptions: {
     ecmaVersion: 13,
@@ -337,7 +337,7 @@ module.exports = {
     //
     // enabled by https://github.com/standard/eslint-config-standard/commit/319b177750899d4525eb1210686f6aca96190b2f
     //
-    // example: https://github.com/vatesfr/xen-orchestra/blob/31ed3767c67044ca445658eb6b560718972402f2/packages/xen-api/src/index.js#L156-L157
+    // example: https://github.com/6a8i/fragata-fleet/blob/31ed3767c67044ca445658eb6b560718972402f2/packages/xen-api/src/index.js#L156-L157
     'lines-between-class-members': 'off',
 
     'no-console': ['error', { allow: ['warn', 'error'] }],

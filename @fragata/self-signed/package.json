@@ -1,0 +1,28 @@
+{
+  "private": false,
+  "name": "@fragata/self-signed",
+  "description": "Minimalist wrapper around openssl to generate a self-signed certificate",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/self-signed",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/self-signed",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "version": "0.2.1",
+  "engines": {
+    "node": ">=15.6"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public"
+  },
+  "license": "ISC",
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./readCert": "./readCert.js"
+  }
+}

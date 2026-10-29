@@ -1,6 +1,6 @@
 import { Cancel } from 'promise-toolbox'
-import { parseXml } from '@vates/xml/parse'
-import { xmlRpcParser } from '@vates/xml-rpc/parser'
+import { parseXml } from '@fragata/xml/parse'
+import { xmlRpcParser } from '@fragata/xml-rpc/parser'
 
 import XapiError from './_XapiError.mjs'
 

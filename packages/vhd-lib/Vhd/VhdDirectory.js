@@ -1,7 +1,7 @@
 'use strict'
 
 const { unpackHeader, unpackFooter } = require('./_utils')
-const { createLogger } = require('@xen-orchestra/log')
+const { createLogger } = require('@fragata/log')
 const { fuFooter, fuHeader, checksumStruct } = require('../_structs')
 const { test, set: setBitmap } = require('../_bitmap')
 const { VhdAbstract } = require('./VhdAbstract')

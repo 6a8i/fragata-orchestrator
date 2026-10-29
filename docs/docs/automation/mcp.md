@@ -4,9 +4,9 @@
 
 [MCP](https://modelcontextprotocol.io/) (Model Context Protocol) is an open standard that lets AI assistants interact with external tools and data sources. Think of it as a universal adapter between AI assistants (like Claude) and your infrastructure.
 
-With the [`@xen-orchestra/mcp`](https://github.com/vatesfr/xen-orchestra/tree/master/@xen-orchestra/mcp) package, your AI assistant can directly query your Xen Orchestra instance and answer questions about your virtualization infrastructure in natural language.
+With the [`@fragata/mcp`](https://github.com/6a8i/fragata-fleet/tree/master/@fragata/mcp) package, your AI assistant can directly query your Fragata Fleet instance and answer questions about your virtualization infrastructure in natural language.
 
-## Why MCP with Xen Orchestra?
+## Why MCP with Fragata Fleet?
 
 MCP enables new ways to interact with your infrastructure:
 
@@ -22,38 +22,38 @@ All operations are **read-only by default**, ensuring safe interaction with your
 ### Prerequisites
 
 - **Node.js** 20 or later
-- A **Xen Orchestra** instance, version **6.5 or later**, with [REST API](restapi.md) enabled
+- A **Fragata Fleet** instance, version **6.5 or later**, with [REST API](restapi.md) enabled
 - An **AI assistant** that supports MCP (Claude Desktop, Claude Code, etc.)
 
 :::warning
-The MCP server requires **Xen Orchestra 6.5 or later**. On an older XO it stops at startup with an error such as `Unable to verify MCP status (HTTP 404)`. Upgrade your Xen Orchestra to use it.
+The MCP server requires **Fragata Fleet 6.5 or later**. On an older XO it stops at startup with an error such as `Unable to verify MCP status (HTTP 404)`. Upgrade your Fragata Fleet to use it.
 :::
 
 ### Install the MCP server
 
 <Terminal shell title="install the MCP server globally">{`
-npm install -g @xen-orchestra/mcp
+npm install -g @fragata/mcp
 `}</Terminal>
 
 Or run it directly without installing:
 
 <Terminal shell title="run without installing">{`
-npx @xen-orchestra/mcp
+npx @fragata/mcp
 `}</Terminal>
 
 ### Configure authentication
 
-The MCP server connects to Xen Orchestra via the REST API. Two authentication modes are supported: **token** (recommended) or **username/password**.
+The MCP server connects to Fragata Fleet via the REST API. Two authentication modes are supported: **token** (recommended) or **username/password**.
 
 | Variable                | Required                | Description                                                                                   |
 | ----------------------- | ----------------------- | --------------------------------------------------------------------------------------------- |
-| `XO_URL`                | Yes                     | Xen Orchestra server URL (e.g. `https://xo.example.com`)                                      |
+| `XO_URL`                | Yes                     | Fragata Fleet server URL (e.g. `https://xo.example.com`)                                      |
 | `XO_TOKEN`              | If no username/password | Authentication token                                                                          |
 | `XO_USERNAME`           | If no token             | XO user with admin privileges                                                                 |
 | `XO_PASSWORD`           | If no token             | XO password                                                                                   |
 | `XO_MCP_ENABLE_ACTIONS` | No                      | Set to `1` to expose write/destructive operations (see [Write operations](#write-operations)) |
 
-To generate a token, go to the XO user page (`/user`) or run `xo-cli create-token`. If both `XO_TOKEN` and `XO_USERNAME`/`XO_PASSWORD` are set, token authentication takes priority.
+To generate a token, go to the XO user page (`/user`) or run `fragata-cli create-token`. If both `XO_TOKEN` and `XO_USERNAME`/`XO_PASSWORD` are set, token authentication takes priority.
 
 :::tip
 Only admin users can currently use the REST API. See [REST API authentication](restapi.md#authentication) for details.
@@ -72,7 +72,7 @@ Using a token (recommended):
   "mcpServers": {
     "xo": {
       "command": "npx",
-      "args": ["@xen-orchestra/mcp"],
+      "args": ["@fragata/mcp"],
       "env": {
         "XO_URL": "https://your-xo-server",
         "XO_TOKEN": "your-token"
@@ -89,7 +89,7 @@ Using username/password:
   "mcpServers": {
     "xo": {
       "command": "npx",
-      "args": ["@xen-orchestra/mcp"],
+      "args": ["@fragata/mcp"],
       "env": {
         "XO_URL": "https://your-xo-server",
         "XO_USERNAME": "admin@example.com",
@@ -107,7 +107,7 @@ Using username/password:
 claude mcp add xo \\
   -e XO_URL=https://your-xo-server \\
   -e XO_TOKEN=your-token \\
-  -- npx @xen-orchestra/mcp
+  -- npx @fragata/mcp
 `}</Terminal>
 
 To use username/password instead, replace the `-e XO_TOKEN=…` line with `-e XO_USERNAME=…` and `-e XO_PASSWORD=…`.
@@ -119,7 +119,7 @@ Run the MCP server with the environment variables set:
 <Terminal shell title="start the MCP server manually">{`
 XO_URL=https://your-xo-server \\
 XO_TOKEN=your-token \\
-npx @xen-orchestra/mcp
+npx @fragata/mcp
 `}</Terminal>
 
 The server communicates via stdio using the MCP protocol (JSON-RPC), compatible with any MCP client.
@@ -133,7 +133,7 @@ To manage several XO servers from the same assistant, add one entry per instance
   "mcpServers": {
     "xo-production": {
       "command": "npx",
-      "args": ["@xen-orchestra/mcp"],
+      "args": ["@fragata/mcp"],
       "env": {
         "XO_URL": "https://xo-production.example.com",
         "XO_TOKEN": "prod-token"
@@ -141,7 +141,7 @@ To manage several XO servers from the same assistant, add one entry per instance
     },
     "xo-staging": {
       "command": "npx",
-      "args": ["@xen-orchestra/mcp"],
+      "args": ["@fragata/mcp"],
       "env": {
         "XO_URL": "https://xo-staging.example.com",
         "XO_TOKEN": "staging-token"
@@ -170,7 +170,7 @@ Example for Claude Desktop, with a corporate proxy and a XOA on the internal net
   "mcpServers": {
     "xo": {
       "command": "npx",
-      "args": ["@xen-orchestra/mcp"],
+      "args": ["@fragata/mcp"],
       "env": {
         "XO_URL": "https://xoa.internal.example.com",
         "XO_TOKEN": "your-token",
@@ -188,22 +188,22 @@ Example for Claude Desktop, with a corporate proxy and a XOA on the internal net
 
 ### Disabling MCP globally
 
-Sometimes you need to shut MCP off across the board: during an incident, while reviewing an internal policy, or simply to keep AI access turned off until you've decided who should have it. The xo-server config has a flag for that:
+Sometimes you need to shut MCP off across the board: during an incident, while reviewing an internal policy, or simply to keep AI access turned off until you've decided who should have it. The fragata-server config has a flag for that:
 
 ```toml
 [mcp]
 enabled = false
 ```
 
-Restart xo-server and the change takes effect immediately:
+Restart fragata-server and the change takes effect immediately:
 
-- The `@xen-orchestra/mcp` binary refuses to start. It prints `MCP disabled by admin` on stderr and exits with code 1.
+- The `@fragata/mcp` binary refuses to start. It prints `MCP disabled by admin` on stderr and exits with code 1.
 - Any MCP client already running gets a `503` with `{ "error": "mcp_disabled" }` on its next request, so sessions shut down without leaving stale connections on the server.
 
 The default is `enabled = true`; legacy configs without an `[mcp]` section behave the same way. Flip the value, restart, done: no other state to clean up.
 
 :::note Detection caveat
-The kill-switch keys off the `X-XO-Client: mcp` header the official binary sends. A third-party MCP client, or an older `@xen-orchestra/mcp` version that predates this header, will bypass the gate. Pin to a recent release if you rely on the kill-switch as a hard control.
+The kill-switch keys off the `X-XO-Client: mcp` header the official binary sends. A third-party MCP client, or an older `@fragata/mcp` version that predates this header, will bypass the gate. Pin to a recent release if you rely on the kill-switch as a hard control.
 :::
 
 ## How it works
@@ -227,7 +227,7 @@ The server exposes:
 
 Stats endpoints and binary downloads (`.xva`, `.vhd`, ...) are deliberately not exposed: their payloads are unsuitable for LLM context. Use the REST API directly when you need them.
 
-The exact tool list depends on your XO version, since it is generated at startup. For the complete, current reference (tool arguments, deny list, all environment variables), see the [`@xen-orchestra/mcp` README](https://github.com/vatesfr/xen-orchestra/tree/master/@xen-orchestra/mcp), which is the source of truth.
+The exact tool list depends on your XO version, since it is generated at startup. For the complete, current reference (tool arguments, deny list, all environment variables), see the [`@fragata/mcp` README](https://github.com/6a8i/fragata-fleet/tree/master/@fragata/mcp), which is the source of truth.
 
 **Example questions:**
 
@@ -279,9 +279,9 @@ If your AI assistant injects `HTTPS_PROXY` into the MCP process and your XOA liv
 :::
 
 :::note MCP disabled by admin
-The xo-server administrator has set `[mcp] enabled = false` in the server config. The binary won't start until that flag is removed or set back to `true`. See [Disabling MCP globally](#disabling-mcp-globally) for the server-side details.
+The fragata-server administrator has set `[mcp] enabled = false` in the server config. The binary won't start until that flag is removed or set back to `true`. See [Disabling MCP globally](#disabling-mcp-globally) for the server-side details.
 :::
 
 :::note Unable to verify MCP status (HTTP 404)
-Your Xen Orchestra is older than **6.5**. Upgrade XO to 6.5 or later to use the MCP server, see [Prerequisites](#prerequisites).
+Your Fragata Fleet is older than **6.5**. Upgrade XO to 6.5 or later to use the MCP server, see [Prerequisites](#prerequisites).
 :::

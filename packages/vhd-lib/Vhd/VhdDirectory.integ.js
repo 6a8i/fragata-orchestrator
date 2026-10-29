@@ -7,7 +7,7 @@ const { rimraf } = require('rimraf')
 const tmp = require('tmp')
 const fs = require('fs-extra')
 const zlib = require('zlib')
-const { getSyncedHandler } = require('@xen-orchestra/fs')
+const { getSyncedHandler } = require('@fragata/fs')
 const { Disposable, pFromCallback } = require('promise-toolbox')
 
 const { openVhd, VhdDirectory } = require('..')

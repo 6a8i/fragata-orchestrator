@@ -1,7 +1,7 @@
 'use strict'
 
 const { asCallback, fromCallback, fromEvent } = require('promise-toolbox')
-const { getHandler } = require('@xen-orchestra/fs')
+const { getHandler } = require('@fragata/fs')
 const { relative } = require('path')
 const { start: createRepl } = require('repl')
 const vhdLib = require('vhd-lib')

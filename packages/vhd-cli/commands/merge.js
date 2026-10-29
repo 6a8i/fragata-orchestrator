@@ -1,7 +1,7 @@
 'use strict'
 
 const { Bar } = require('cli-progress')
-const { getSyncedHandler } = require('@xen-orchestra/fs')
+const { getSyncedHandler } = require('@fragata/fs')
 const { mergeVhdChain } = require('vhd-lib/merge')
 const { Disposable } = require('promise-toolbox')
 

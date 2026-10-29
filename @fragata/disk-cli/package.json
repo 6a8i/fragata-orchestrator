@@ -1,0 +1,48 @@
+{
+  "private": false,
+  "name": "@fragata/disk-cli",
+  "version": "2.2.5",
+  "description": "CLI tool to inspect and manage disks in backup repositories",
+  "type": "module",
+  "bin": {
+    "fragata-disk-cli": "./dist/index.mjs"
+  },
+  "preferGlobal": true,
+  "engines": {
+    "node": ">=22.3"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist/",
+    "test": "tsc && node --experimental-test-module-mocks --test './dist/**/*.test.mjs'",
+    "postversion": "npm publish --access public"
+  },
+  "dependencies": {
+    "@fragata/async-each": "^1.0.3",
+    "@fragata/backups": "^0.78.0",
+    "@fragata/backup-archive": "^1.2.0",
+    "@fragata/disk-transform": "^1.3.4",
+    "@fragata/fs": "^4.10.0",
+    "@fragata/qcow2": "^1.4.1",
+    "promise-toolbox": "^0.21.0",
+    "vhd-lib": "^4.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.3.0",
+    "rimraf": "^6.0.1",
+    "typescript": "~5.6"
+  },
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/disk-cli",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/disk-cli",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "license": "AGPL-3.0-or-later",
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  }
+}

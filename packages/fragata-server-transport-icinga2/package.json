@@ -1,0 +1,36 @@
+{
+  "name": "fragata-server-transport-icinga2",
+  "description": "Sends backup runs statuses to icinga2 server",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-server-transport-icinga2",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "packages/fragata-server-transport-icinga2",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "main": "./dist",
+  "scripts": {
+    "build": "cross-env NODE_ENV=production babel --source-maps --out-dir=dist/ src/",
+    "dev": "cross-env NODE_ENV=development babel --watch --source-maps --out-dir=dist/ src/",
+    "prebuild": "rimraf dist/",
+    "predev": "yarn run prebuild",
+    "prepublishOnly": "yarn run build"
+  },
+  "version": "0.1.3",
+  "engines": {
+    "node": ">=8.9.4"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.29.0",
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "cross-env": "^7.0.2",
+    "rimraf": "^6.0.1"
+  },
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  }
+}

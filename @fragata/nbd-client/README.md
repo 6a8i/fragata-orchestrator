@@ -1,0 +1,105 @@
+<!-- DO NOT EDIT MANUALLY, THIS FILE HAS BEEN GENERATED -->
+
+# @fragata/nbd-client
+
+[![Package Version](https://badgen.net/npm/v/@fragata/nbd-client)](https://npmjs.org/package/@fragata/nbd-client) ![License](https://badgen.net/npm/license/@fragata/nbd-client) [![PackagePhobia](https://badgen.net/bundlephobia/minzip/@fragata/nbd-client)](https://bundlephobia.com/result?p=@fragata/nbd-client) [![Node compatibility](https://badgen.net/npm/node/@fragata/nbd-client)](https://npmjs.org/package/@fragata/nbd-client)
+
+## Install
+
+Installation of the [npm package](https://npmjs.org/package/@fragata/nbd-client):
+
+```sh
+npm install --save @fragata/nbd-client
+```
+
+## Usage
+
+This package provides a NBD client, in two flavors sharing the same protocol
+implementation (`AbstractNbdClient`): over the network, or over the standard
+streams of a NBD server run as a child process.
+
+### `new NbdClient({address, exportname, cert, port = 10809})`
+
+Create a new nbd client connecting to a server over TCP.
+
+`NbdClient` is also exported as `NbdTcpClient`.
+
+```js
+import NbdClient from '@fragata/nbd-client'
+const client = new NbdClient({
+  address: 'MY_NBD_HOST',
+  exportname: 'MY_SECRET_EXPORT',
+  cert: 'Server certificate', // optional, will use encrypted link if provided
+})
+
+await client.connect()
+const block = await client.readBlock(blockIndex, BlockSize)
+await client.disconnect()
+```
+
+### `new NbdStdioClient({command, args, exportname})`
+
+Create a new nbd client talking to a server through its standard streams, like
+`nbdkit --single` or any server reading its queries on stdin and writing its
+answers on stdout.
+
+The process is spawned by `connect()` and stopped by `disconnect()`.
+
+```js
+import { NbdStdioClient } from '@fragata/nbd-client'
+const client = new NbdStdioClient({
+  command: 'nbdkit',
+  args: ['--single', '--exit-with-parent', '--read-only', 'file', '/path/to/disk.raw'],
+  exportname: '', // optional, the default export of the server
+})
+
+await client.connect()
+const block = await client.readBlock(blockIndex, BlockSize)
+await client.disconnect()
+```
+
+There is no TLS here: the transport is a pair of pipes, there is nothing to
+encrypt.
+
+`readBlock()` retries on error, and a retry reconnects: with this client that
+means killing the server and spawning a new one, so the command must be
+restartable and must serve the same content on each run.
+
+`getMap()` is not implemented, since `nbdinfo` needs either an URI or a server
+supporting systemd socket activation: compute the map on the caller side and
+pass it explicitly, for example `new NbdDisk(infos, blockSize, { dataMap })`.
+
+The tail of the server stderr is available as `client.stderr` and attached to
+the errors raised when the server dies unexpectedly.
+
+### Writing another client
+
+Subclass `AbstractNbdClient` and implement the transport:
+
+- `_openTransport()`: **required**, returns `{ readable, writable }`, called on
+  every (re)connection.
+- `_secureTransport(transport)`: optional, called during the handshake, the only
+  place where the transport can be upgraded (`NBD_OPT_STARTTLS`).
+- `_closeTransport(transport, lastMessage)`: optional, must hand over
+  `lastMessage` (`NBD_CMD_DISC`) before closing.
+- `_destroyTransport(transport)`: optional, forceful cleanup, must not throw.
+- `getMap(signal)`: optional, the base implementation rejects with the code
+  `NBD_MAP_UNSUPPORTED`.
+
+Any extra property set on the transport object is passed back to
+`_closeTransport()` and `_destroyTransport()`.
+
+## Contributions
+
+Contributions are _very_ welcomed, either on the documentation or on
+the code.
+
+You may:
+
+- report any [issue](https://github.com/6a8i/fragata-fleet/issues)
+  you've encountered;
+- fork and create a pull request.
+
+## License
+
+[ISC](https://spdx.org/licenses/ISC) © [Vates SAS](https://vates.fr)

@@ -19,7 +19,7 @@ const {
 const assert = require('assert')
 const path = require('path')
 const asyncIteratorToStream = require('async-iterator-to-stream')
-const { createLogger } = require('@xen-orchestra/log')
+const { createLogger } = require('@fragata/log')
 const { checksumStruct, fuFooter, fuHeader } = require('../_structs')
 const { isVhdAlias, resolveVhdAlias } = require('../aliases')
 

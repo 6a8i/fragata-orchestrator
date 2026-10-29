@@ -2,7 +2,7 @@
 
 const { VhdFile, checkVhdChain } = require('vhd-lib')
 const getopts = require('getopts')
-const { getSyncedHandler } = require('@xen-orchestra/fs')
+const { getSyncedHandler } = require('@fragata/fs')
 const { Disposable } = require('promise-toolbox')
 
 const checkVhd = (handler, path) => new VhdFile(handler, path).readHeaderAndFooter()

@@ -1,0 +1,38 @@
+{
+  "private": true,
+  "name": "fragata-server-auth-oidc",
+  "description": "OpenID Connect authentication plugin for XO-Server",
+  "keywords": [
+    "authentication",
+    "connect",
+    "oauth",
+    "oidc",
+    "opendid",
+    "orchestra",
+    "xen-orchestra",
+    "xen",
+    "fragata-server"
+  ],
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-server-auth-oidc",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "packages/fragata-server-auth-oidc",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "license": "AGPL-3.0-or-later",
+  "version": "0.4.2",
+  "engines": {
+    "node": ">=12"
+  },
+  "dependencies": {
+    "passport-openidconnect": "^0.1.2"
+  }
+}

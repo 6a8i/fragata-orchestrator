@@ -66,11 +66,11 @@ This applies to both **Full backup** and **Incremental (Delta) backup** job type
 2. Configure at least two storage repositories in the **Replication** section.
 3. In the **Advanced** settings, enable **Distribute replications across storage repositories**.
 
-This applies to both **Full replication** and **Incremental replication** job types (the XO 5 interface still labels them **Disaster Recovery** and **Continuous Replication**).
+This applies to both **Full replication** and **Incremental replication** job types (the Fleet Classic interface still labels them **Disaster Recovery** and **Continuous Replication**).
 
 ## How target storage is selected
 
-At each backup run, Xen Orchestra selects a target for each VM independently using the following logic:
+At each backup run, Fragata Fleet selects a target for each VM independently using the following logic:
 
 ### When all targets report available space (NFS, Local, SMB)
 
@@ -82,7 +82,7 @@ Since unlimited or quota-less storage cannot report free space, a target is sele
 
 ### For incremental backup chains
 
-Incremental backups depend on a chain of delta files. Xen Orchestra enforces chain continuity:
+Incremental backups depend on a chain of delta files. Fragata Fleet enforces chain continuity:
 
 - **Existing chains**: new delta blocks are always written to the **same target** that holds the existing chain for that VM. The target selection algorithm is bypassed for these VMs.
 - **New full backup chains**: when starting a new chain (e.g. after retention merges or a forced full backup), the target is selected using the free-space algorithm described above.
@@ -101,7 +101,7 @@ When a health check is scheduled, it runs only against the target that holds the
 
 | Limitation                         | Details                                                                                                                                                                     |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Cannot mix storage classes         | A pool cannot combine limited-capacity targets (NFS, Local, SMB) with unlimited targets (S3, Azure Blob). Xen Orchestra will throw an error at the start of the backup run. |
+| Cannot mix storage classes         | A pool cannot combine limited-capacity targets (NFS, Local, SMB) with unlimited targets (S3, Azure Blob). Fragata Fleet will throw an error at the start of the backup run. |
 | Minimum 2 targets required         | The option is greyed out in the UI unless at least 2 BRs or SRs are selected.                                                                                           |
 | Not usable as mirror source        | A job with distributed backup enabled cannot be used as the source for a [Mirror Backup](../backup-types/mirror_backup.md) job.                                                             |
 | No duplication                     | Distributed mode and per-target duplication are mutually exclusive in the same job. Each VM backup lands on exactly one target.                                             |

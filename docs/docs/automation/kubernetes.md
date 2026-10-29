@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Xen Orchestra includes a Kubernetes cluster [recipe](../manage-your-infrastructure/advanced.md#recipes) that provides a simple way to deploy an official Kubernetes distribution called **MicroK8s** (maintained by Canonical).
+Fragata Fleet includes a Kubernetes cluster [recipe](../manage-your-infrastructure/advanced.md#recipes) that provides a simple way to deploy an official Kubernetes distribution called **MicroK8s** (maintained by Canonical).
 
 :::tip
 One of the key benefits of MicroK8s is its automatic security updates. For example, patch releases (like 1.30.x to 1.30.x+1) are applied automatically. This saves Kubernetes admins a lot of time and effort.
@@ -16,7 +16,7 @@ If you need to adjust the Calico setup, check the [MicroK8s documentation](https
 
 #### Configure the pod CIDR
 
-Since version 5.113 of Xen Orchestra, the pod and service CIDR can be customized via the recipe form. There is no need to perform manual configuration to change them. See [Deployment steps](./kubernetes.md#deployment-steps).
+Since version 5.113 of Fragata Fleet, the pod and service CIDR can be customized via the recipe form. There is no need to perform manual configuration to change them. See [Deployment steps](./kubernetes.md#deployment-steps).
 
 :::note
 The default CIDR for pods is `10.1.0.0/16`. All pods are assigned an IP address in that range.
@@ -26,15 +26,15 @@ The default service CIDR is `10.152.183.0/24`. `10.152.183.1` is reserved for th
 
 ### Cloud Controller Manager
 
-This recipe automatically deploys the [Xen Orchestra Cloud Controller Manager](https://github.com/vatesfr/xenorchestra-cloud-controller-manager) (CCM), a bridge between your Kubernetes cluster and the underlying Xen Orchestra instance. In short, it:
+This recipe automatically deploys the [Fragata Fleet Cloud Controller Manager](https://github.com/vatesfr/xenorchestra-cloud-controller-manager) (CCM), a bridge between your Kubernetes cluster and the underlying Fragata Fleet instance. In short, it:
 
-- **initializes nodes**: sets the `providerID`, node addresses, taints, and Xen Orchestra labels (pool, host) on each node
-- **manages the node lifecycle**: when a VM is deleted from Xen Orchestra, the associated node is automatically removed from the cluster
+- **initializes nodes**: sets the `providerID`, node addresses, taints, and Fragata Fleet labels (pool, host) on each node
+- **manages the node lifecycle**: when a VM is deleted from Fragata Fleet, the associated node is automatically removed from the cluster
 - **keeps labels in sync**: XO metadata is periodically reconciled back to the Kubernetes nodes
 
 The [CCM repository](https://github.com/vatesfr/xenorchestra-cloud-controller-manager) is the source of truth for its features, configuration and standalone installation (manifests and Helm chart).
 
-For the CCM to function properly, the Xen Orchestra instance must be reachable by the cluster nodes (VMs) via either an FQDN or IP address (see [Deployment steps](./kubernetes.md#deployment-steps)).
+For the CCM to function properly, the Fragata Fleet instance must be reachable by the cluster nodes (VMs) via either an FQDN or IP address (see [Deployment steps](./kubernetes.md#deployment-steps)).
 
 The recipe automatically generates an API token for the current user with a validity of 6 months.
 
@@ -54,7 +54,7 @@ kubectl get secret xenorchestra-cloud-controller-manager \\
 
 #### Refreshing the API Token
 
-To refresh the token, generate a new one using the Xen Orchestra API and update the Kubernetes secret:
+To refresh the token, generate a new one using the Fragata Fleet API and update the Kubernetes secret:
 
 <Terminal shell title="renew the CCM token">{`
 # 1. Generate a new token (replace with your XO URL)
@@ -77,14 +77,14 @@ kubectl get secret xenorchestra-cloud-controller-manager \\
 
 Make sure your infrastructure meets these requirements:
 
-- A running Xen Orchestra instance connected to an XCP-ng pool
+- A running Fragata Fleet instance connected to an XCP-ng pool
 - Enough resources to host the **control plane** and **worker nodes** (each node gets a 10 GB disk; CPU and RAM can be [adjusted after deployment](#adjusting-vm-resources))
 - Internet access from the pool and the node network: the recipe downloads its own **Debian 13** base image and the MicroK8s snap, so you do not need to prepare a VM template
-- The Xen Orchestra instance must be reachable by the cluster nodes (VMs), via an FQDN or an IP address, for the [Cloud Controller Manager](#cloud-controller-manager)
+- The Fragata Fleet instance must be reachable by the cluster nodes (VMs), via an FQDN or an IP address, for the [Cloud Controller Manager](#cloud-controller-manager)
 
 ## Deployment steps
 
-1. In Xen Orchestra 5, go to **Hub → Recipes**.\
+1. In Fragata Fleet 5, go to **Hub → Recipes**.\
    A list of recipes appears:
 
    <UiShot light="/img/xo5/hub-recipes.png" alt="The Recipes view of the Hub, with the Kubernetes cluster recipe" url="https://your-xo/v5/#/hub/recipes" />
@@ -101,7 +101,7 @@ Make sure your infrastructure meets these requirements:
       The name will be used to tag VMs (see [VM tagging](./kubernetes.md#vm-tagging)).
    4. Define the number of worker nodes.
    5. Choose the fault tolerance level for the control plane, which sets the number of control plane nodes (three or more enables high availability).
-   6. Define the FQDN or IP address that the Cloud Controller Manager (CCM) will use to reach this Xen Orchestra instance.\
+   6. Define the FQDN or IP address that the Cloud Controller Manager (CCM) will use to reach this Fragata Fleet instance.\
       _If the instance uses a self-signed HTTPS certificate, toggle "Allow insecure XO connection"._
    7. (Optional) To change the default CIDR for your cluster pods and services, check the **Use a custom cluster CIDR** box and specify the new IP ranges to use.
 
@@ -113,7 +113,7 @@ Make sure your infrastructure meets these requirements:
 
 4. Click **OK** to start deploying the cluster.
 
-Xen Orchestra handles the rest: cloning VMs, assigning IPs, bootstrapping Kubernetes and configuring internal networking.
+Fragata Fleet handles the rest: cloning VMs, assigning IPs, bootstrapping Kubernetes and configuring internal networking.
 
 ### VM tagging
 
@@ -217,7 +217,7 @@ When deploying Kubernetes clusters with recipes, it's important to plan for perf
 
 ## Related links
 
-- [Xen Orchestra Cloud Controller Manager](https://github.com/vatesfr/xenorchestra-cloud-controller-manager)
+- [Fragata Fleet Cloud Controller Manager](https://github.com/vatesfr/xenorchestra-cloud-controller-manager)
 - [Kubernetes official documentation](https://kubernetes.io/docs/home/)
 - [MicroK8s official documentation](https://microk8s.io/docs)
 - [CoreDNS official documentation](https://coredns.io/manual/toc/)

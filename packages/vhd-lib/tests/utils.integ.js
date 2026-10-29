@@ -5,7 +5,7 @@ const { strict: assert } = require('assert')
 
 const fs = require('fs-extra')
 const tmp = require('tmp')
-const { getSyncedHandler } = require('@xen-orchestra/fs')
+const { getSyncedHandler } = require('@fragata/fs')
 const { pFromCallback } = require('promise-toolbox')
 const { rimraf } = require('rimraf')
 

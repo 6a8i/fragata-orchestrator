@@ -11,12 +11,12 @@
     "xenapi",
     "xapi"
   ],
-  "homepage": "https://github.com/vatesfr/xen-orchestra/tree/master/packages/xen-api",
-  "bugs": "https://github.com/vatesfr/xen-orchestra/issues",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/xen-api",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
   "repository": {
     "directory": "packages/xen-api",
     "type": "git",
-    "url": "https://github.com/vatesfr/xen-orchestra.git"
+    "url": "https://github.com/6a8i/fragata-fleet.git"
   },
   "author": {
     "name": "Vates SAS",
@@ -31,14 +31,14 @@
     "node": ">=22.19"
   },
   "dependencies": {
-    "@vates/coalesce-calls": "^0.1.0",
-    "@vates/compose": "^2.1.0",
-    "@vates/decorate-with": "^2.1.0",
-    "@vates/json-hash": "^0.2.0",
-    "@vates/obfuscate": "^0.1.0",
-    "@vates/xml": "^2.0.0",
-    "@vates/xml-rpc": "^1.0.0",
-    "@xen-orchestra/log": "^0.7.2",
+    "@fragata/coalesce-calls": "^0.1.0",
+    "@fragata/compose": "^2.1.0",
+    "@fragata/decorate-with": "^2.1.0",
+    "@fragata/json-hash": "^0.2.0",
+    "@fragata/obfuscate": "^0.1.0",
+    "@fragata/xml": "^2.0.0",
+    "@fragata/xml-rpc": "^1.0.0",
+    "@fragata/log": "^0.7.2",
     "bind-property-descriptor": "^2.0.0",
     "blocked": "^1.2.1",
     "jest-diff": "^29.0.3",
@@ -52,8 +52,8 @@
     "promise-toolbox": "^0.21.0",
     "pw": "0.0.4",
     "undici": "^8.10.0",
-    "xo-collection": "^0.6.1",
-    "xo-common": "^0.11.0"
+    "fragata-collection": "^0.6.1",
+    "fragata-common": "^0.11.0"
   },
   "devDependencies": {
     "getopts": "^2.3.0",

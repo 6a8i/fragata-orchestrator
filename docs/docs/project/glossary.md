@@ -45,7 +45,7 @@
 | **MTU**           | Maximum Transmission Unit                | Largest Ethernet payload size on a link (e.g. jumbo frames).                                                                     |
 | **NBD**           | Network Block Device                     | Protocol XO uses to read disk data directly from hosts, for faster [NBD-enabled backups](../backups-and-dr/backup-types/incremental_backups.md#nbd-enabled-backups). Required for incremental backups of QCOW2 disks. |
 | **NFS**           | Network File System                      | File-based **SR** backed by an NFS export.                                                                                       |
-| **QCOW2**         | QEMU Copy On Write v2                    | Disk format lifting the 2 TiB **VHD** limit (up to 16 TiB per disk), generally available since XO 6.5 and recent XCP-ng releases. |
+| **QCOW2**         | QEMU Copy On Write v2                    | Disk format lifting the 2 TiB **VHD** limit (up to 16 TiB per disk), generally available since Fragata Fleet.5 and recent XCP-ng releases. |
 | **SR-IOV**        | Single Root I/O Virtualization           | Passing a virtual function of a physical NIC to a **VM** for near-native I/O.                                                    |
 | **Traffic rules** |                                          | Firewall-like rules applied to networks and **VIFs** through the [SDN controller](../manage-your-infrastructure/sdn_controller.md).                        |
 | **VHD**           | Virtual Hard Disk                        | Historical disk and backup format of the platform, limited to 2 TiB per disk (see **QCOW2**).                                    |
@@ -78,16 +78,16 @@
 | **Sequence**               |                                | [Chains backup schedules](../backups-and-dr/backup-features-and-settings.md#sequences) so they run one after the other instead of competing in parallel.                                |
 | **Smart backup**           |                                | [Selects VMs by criteria](../backups-and-dr/backup-features-and-settings.md#smart-backup) (pool, tags, power state) resolved at job runtime, instead of a fixed VM list.                |
 
-## XCP-ng/Xen Orchestra-specific
+## XCP-ng/Fragata Fleet-specific
 
 | Term                | Meaning                 | Definition                                                                                                                                        |
 | ------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Guest tools**     |                         | Drivers and agent [installed inside a VM](https://xcp-ng.org/docs/guests.html): they report the IP address and metrics, and enable clean shutdown and migration. |
 | **V2V**             | Virtual to Virtual      | Built-in [migration tool](../guides/v2v-migration-guide.md) importing VMs directly from VMware/ESXi to XCP-ng.                                          |
 | **XAPI** / **xapi** | Xen API                 | The management API and service on each **host** that **XO** talks to.                                                                             |
-| **XCP-ng**          |                         | The open source, Xen-based hypervisor [managed by XO](../getting-started/supported_hosts.md), developed by Vates alongside Xen Orchestra.                            |
-| **XO**              | Xen Orchestra           | The management UI/API stack (`xo-server`, `xo-web`, etc.).                                                                                        |
-| **XO 5** / **XO 6** |                         | The two web interfaces served by the same XO backend: XO 6 is the current default, XO 5 the previous generation. See [XO 6 vs XO 5](../discover-xen-orchestra/xo6vsxo5.md). |
-| **XO Lite**         |                         | [Lightweight web UI](https://docs.vates.tech/products/add-ons/xo-lite) embedded in every XCP-ng host (8.3+): basic management and XOA deployment, no installation needed. |
+| **XCP-ng**          |                         | The open source, Xen-based hypervisor [managed by XO](../getting-started/supported_hosts.md), developed by Vates alongside Fragata Fleet.                            |
+| **XO**              | Fragata Fleet           | The management UI/API stack (`fragata-server`, `fragata-web-classic`, etc.).                                                                                        |
+| **Fleet Classic** / **Fragata Fleet** |                         | The two web interfaces served by the same XO backend: Fragata Fleet is the current default, Fleet Classic the previous generation. See [Fragata Fleet vs Fleet Classic](../discover-xen-orchestra/xo6vsxo5.md). |
+| **Fragata Deck**         |                         | [Lightweight web UI](https://docs.vates.tech/products/add-ons/xo-lite) embedded in every XCP-ng host (8.3+): basic management and XOA deployment, no installation needed. |
 | **XO Proxy**        |                         | [Component deployed close to remote infrastructure](../backups-and-dr/scale-and-security/proxy.md) to run backups locally, without streaming all data through the main XOA.        |
-| **XOA**             | Xen Orchestra Appliance | Prebuilt VM image that runs **XO** as a packaged appliance.                                                                                       |
+| **XOA**             | Fragata Fleet Appliance | Prebuilt VM image that runs **XO** as a packaged appliance.                                                                                       |

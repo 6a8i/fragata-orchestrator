@@ -1,0 +1,33 @@
+{
+  "private": false,
+  "name": "@fragata/diff",
+  "description": "Computes differences between two arrays, buffers or strings",
+  "keywords": [
+    "array",
+    "binary",
+    "buffer",
+    "diff",
+    "differences",
+    "string"
+  ],
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/diff",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/diff",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "license": "ISC",
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=8.10"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public",
+    "test": "node --test"
+  }
+}

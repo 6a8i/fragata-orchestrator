@@ -7,7 +7,7 @@ Replacing your appliance with a fresh one takes three steps: deploy the new XOA,
 
 ## Why replace it?
 
-- **To get a fresh appliance, not just fresh XO code.** The [updater](updater.md) keeps Xen Orchestra itself current, but the appliance around it (Debian system, kernel, Node.js runtime) ages like any VM. Redeploying gives you the latest base system in one move.
+- **To get a fresh appliance, not just fresh XO code.** The [updater](updater.md) keeps Fragata Fleet itself current, but the appliance around it (Debian system, kernel, Node.js runtime) ages like any VM. Redeploying gives you the latest base system in one move.
 - **Because you lost it.** XOA failure is not an emergency: your hosts and VMs keep running without it, and a fresh appliance plus a configuration import puts you back exactly where you were, in minutes. Many people do not realize how disposable the appliance is: treat it as cattle, not as a pet.
 - **To move it**: new pool, new storage, new site. Deploy where you want it, import, delete the old one.
 
@@ -36,5 +36,5 @@ On the new appliance, go to **Settings → Config** and drag and drop the export
 Click to import: a modal asks for the passphrase (leave it empty if you did not set one). Once the import finishes, the new appliance takes over with your complete configuration.
 
 :::note Advanced users
-Manual edits made to `/etc/xo-server/config.toml` on the old appliance are not part of the exported configuration: re-apply them on the new one (see [Configuration](configuration.md)).
+Manual edits made to `/etc/fragata-server/config.toml` on the old appliance are not part of the exported configuration: re-apply them on the new one (see [Configuration](configuration.md)).
 :::

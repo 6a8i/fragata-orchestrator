@@ -2,15 +2,15 @@
 sidebar_position: 2
 ---
 
-# Management in XO 5
+# Management in Fleet Classic
 
-<InterfaceNote>This page describes infrastructure management in the XO 5 interface. XO 6 already covers inspection of pools, hosts, networks and storage, host power actions, network and VIF creation.</InterfaceNote>
+<InterfaceNote>This page describes infrastructure management in the Fleet Classic interface. Fragata Fleet already covers inspection of pools, hosts, networks and storage, host power actions, network and VIF creation.</InterfaceNote>
 
-Xen Orchestra is built on one idea: **a single interface for all your pools, hosts and VMs, from any device**: creation, modification, metrics and statistics for every object of your XCP-ng infrastructure. This page covers those day-to-day operations in XO 5.
+Fragata Fleet is built on one idea: **a single interface for all your pools, hosts and VMs, from any device**: creation, modification, metrics and statistics for every object of your XCP-ng infrastructure. This page covers those day-to-day operations in Fleet Classic.
 
 ## Home view
 
-The home view is what you see when you access your Xen Orchestra URL. It displays all running VMs. This can be configured to your needs (see the "Filters section" below).
+The home view is what you see when you access your Fragata Fleet URL. It displays all running VMs. This can be configured to your needs (see the "Filters section" below).
 
 If you don't have any servers connected, you'll see a panel telling you to add a server:
 
@@ -26,7 +26,7 @@ After clicking on connect, the server is displayed as connected:
 
 <UiDetail src="/img/xo5/xo5connectedserver.png" alt="The pool appears as soon as the server is connected" width={620} />
 
-Now go back to the Home view (or click on the "Xen Orchestra" title on the top left of the screen), you'll see the default home view of VM objects.
+Now go back to the Home view (or click on the "Fragata Fleet" title on the top left of the screen), you'll see the default home view of VM objects.
 
 ### VMs
 
@@ -88,7 +88,7 @@ The idea is not just to provide a good search engine, but also a complete soluti
 - sort your results for more pertinent insight
 
 :::tip
-Pro Tip: the URL of Xen Orchestra contains the search string, eg `home?s=power_state%3Arunning+`. You can share these URLs to your colleagues to share your search!
+Pro Tip: the URL of Fragata Fleet contains the search string, eg `home?s=power_state%3Arunning+`. You can share these URLs to your colleagues to share your search!
 :::
 
 ### Search examples
@@ -206,9 +206,9 @@ You can use the search field/filter with number comparisons:
 
 ### Available properties
 
-There isn't much documentation listing these (yet), but you can see all objects and their properties using `xo-cli list-objects`. You can then use these properties for search in XOA.
+There isn't much documentation listing these (yet), but you can see all objects and their properties using `fragata-cli list-objects`. You can then use these properties for search in XOA.
 
-Take a look at [the documentation](https://github.com/vatesfr/xen-orchestra/tree/master/packages/xo-cli#xo-cli) for xo-cli :)
+Take a look at [the documentation](https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-cli#fragata-cli) for fragata-cli :)
 
 Example: to search by the Xen Tools status:
 
@@ -229,7 +229,7 @@ Or in the home view:
 
 #### Select your Pool
 
-Because Xen Orchestra can be connected to multiple pools, you must select which one you want to create your VMs on:
+Because Fragata Fleet can be connected to multiple pools, you must select which one you want to create your VMs on:
 
 <UiDetail src="/img/xo5/xo5createonpool.png" alt="Select the pool where the VM will be created" width={620} />
 
@@ -331,13 +331,13 @@ XCP-ng doesn't limit VMs to 32 vCPU
 
 Thanks to Xen Storage Motion, it's easy to move a VM disk from one storage location to another, while the VM is running! This feature can help you migrate from your local storage to a SAN, or just upgrade your SAN without any downtime.
 
-To do so: Access the Xen Orchestra page for your running VM, then enter the Disk tab. Long click on the current SR of the disk, and a drop down menu will be displayed with all compatible destinations. Just select one, that's all: the migration will start live!
+To do so: Access the Fragata Fleet page for your running VM, then enter the Disk tab. Long click on the current SR of the disk, and a drop down menu will be displayed with all compatible destinations. Just select one, that's all: the migration will start live!
 
 <UiDetail src="/img/xo5/xo5diskmigrate.png" alt="Migrate a disk to another SR, live, from the VM Disks tab" width={700} />
 
 #### Offline VDI migration
 
-Even though it's not currently supported in XCP-ng/XenServer, we can do it in Xen Orchestra. It's exactly the same process as a running VM.
+Even though it's not currently supported in XCP-ng/XenServer, we can do it in Fragata Fleet. It's exactly the same process as a running VM.
 
 ### VM recovery
 
@@ -389,11 +389,11 @@ To add a restricted IP address:
    1. Choose your desired mode from that menu:
       <UiDetail src="/img/xo5/choose-vif-locking-mode.png" alt="Choose the locking mode of a VIF" width={320} />
 
-If Xen Orchestra knows the VM’s IP address (either through the guest agent or DHCP), it will automatically apply IP-level locking when the mode is enabled.
+If Fragata Fleet knows the VM’s IP address (either through the guest agent or DHCP), it will automatically apply IP-level locking when the mode is enabled.
 
 #### How do I automate VIF locking mode?
 
-If you’re automating things or working with scripts, you can also control VIF locking mode through the XO [command-line interface](../getting-started/architecture.md#xo-cli).
+If you’re automating things or working with scripts, you can also control VIF locking mode through the XO [command-line interface](../getting-started/architecture.md#fragata-cli).
 
 ### VM high availability (HA)
 
@@ -405,7 +405,7 @@ In the VM's Advanced tab, you can choose between three HA modes:
 - Disabled: if an unprotected VM or its host is stopped, HA does not attempt to restart the VM.
 
 :::tip
-In Xen Orchestra, you can filter to see which VMs are in which mode:
+In Fragata Fleet, you can filter to see which VMs are in which mode:
 `high_availability:restart` or `high_availability:best-effort`
 :::
 
@@ -455,7 +455,7 @@ to track a VM's history, keep that in mind before reverting.
 
 ## VM import and export
 
-Xen Orchestra can import and export VM's in XVA format (XCP-ng/XenServer format) or import OVA files (OVF1 format).
+Fragata Fleet can import and export VM's in XVA format (XCP-ng/XenServer format) or import OVA files (OVF1 format).
 
 :::tip
 We support OVA import from VirtualBox. Feel free to report issues with OVA from other virtualization platforms.
@@ -521,7 +521,7 @@ VM migration with storage motion allows you to migrate a VM from one host to ano
 
 ### Warm migration
 
-Warm migration moves a running VM to another SR, including on another pool, with minimal downtime. Unlike the migrations above, the data doesn't go directly from host to host: Xen Orchestra reads the VM from the source and writes it to the destination, using the same mechanism as [incremental replication](../backups-and-dr/backup-types/incremental_replication.md).
+Warm migration moves a running VM to another SR, including on another pool, with minimal downtime. Unlike the migrations above, the data doesn't go directly from host to host: Fragata Fleet reads the VM from the source and writes it to the destination, using the same mechanism as [incremental replication](../backups-and-dr/backup-types/incremental_replication.md).
 
 #### How it works
 
@@ -535,7 +535,7 @@ The downtime is limited to the time needed to shut down the source VM, transfer 
 #### Use Cases
 
 - Migrate a VM to another pool when a live migration is not possible (for example between pools with incompatible CPUs).
-- Migrate a VM between pools whose hosts can't reach each other directly, since all data goes through Xen Orchestra.
+- Migrate a VM between pools whose hosts can't reach each other directly, since all data goes through Fragata Fleet.
 
 #### How to use it
 
@@ -550,7 +550,7 @@ Warm migration requires an XOA Premium plan, and can only be run by an administr
 :::
 
 :::tip
-If you keep the source VM, it can't be started anymore: Xen Orchestra blocks its start operation, since it might not be up to date. It also keeps a snapshot named `[XO warm migration …]`, which you can delete once the migration is checked. The source VM is only deleted when **Start the migrated VM** is also selected.
+If you keep the source VM, it can't be started anymore: Fragata Fleet blocks its start operation, since it might not be up to date. It also keeps a snapshot named `[XO warm migration …]`, which you can delete once the migration is checked. The source VM is only deleted when **Start the migrated VM** is also selected.
 :::
 
 ### Preventing VM migration
@@ -567,13 +567,13 @@ When this option is enabled, the VM won't be able to migrate to another host.
 
 XCP-ng is a type 1 hypervisor, similar to VMware ESXi.
 
-You can migrate your VM from VMware vSphere to a Vates environment (Xen Orchestra and XCP-ng), directly from Xen Orchestra. For this, we use V2V ("VMware to Vates").
+You can migrate your VM from VMware vSphere to a Vates environment (Fragata Fleet and XCP-ng), directly from Fragata Fleet. For this, we use V2V ("VMware to Vates").
 
-To know more on using V2V in Xen Orchestra to migrate your environment from VMware, refer to the [XO V2V section in the XCP-ng documentation](https://docs.xcp-ng.org/installation/migrate-to-xcp-ng/#xo-v2v).
+To know more on using V2V in Fragata Fleet to migrate your environment from VMware, refer to the [XO V2V section in the XCP-ng documentation](https://docs.xcp-ng.org/installation/migrate-to-xcp-ng/#xo-v2v).
 
 ## Hosts management
 
-Outside updates (see next section), you can also do host management via Xen Orchestra. Basic operations are supported, like reboot, shutdown and so on.
+Outside updates (see next section), you can also do host management via Fragata Fleet. Basic operations are supported, like reboot, shutdown and so on.
 
 But there's also some specific things, like Maintenance mode.
 
@@ -604,7 +604,7 @@ There is more information about Dom0 memory management in the [XCP-ng Documentat
 
 ## Pool and host updates
 
-Xen Orchestra is here to help you to manage all your pools and hosts updates. Note there's a difference on updates between XCP-ng and Citrix Hypervisor, since they are not using the same mechanism. However, the view on available updates and updating is very similar.
+Fragata Fleet is here to help you to manage all your pools and hosts updates. Note there's a difference on updates between XCP-ng and Citrix Hypervisor, since they are not using the same mechanism. However, the view on available updates and updating is very similar.
 
 :::tip
 Updates can be called both "patches" or "updates", it doesn't matter. Updates are distributed via an ISO file containing RPMs for Citrix Hypervisor, while in XCP-ng they are just traditional RPMs hosted in a central repository and its mirrors, like a regular Linux distribution.
@@ -612,7 +612,7 @@ Updates can be called both "patches" or "updates", it doesn't matter. Updates ar
 
 ### Available updates
 
-You'll be notified by Xen Orchestra directly in the main XO menu (on the left), with a yellow triangle:
+You'll be notified by Fragata Fleet directly in the main XO menu (on the left), with a yellow triangle:
 
 <UiDetail src="/img/xo5/availableupdates.png" alt="The number of missing patches, right on the pool" width={300} />
 
@@ -630,12 +630,12 @@ On XCP-ng, there's multiple way to update your pools and hosts.
 
 #### ⚙️ How it works
 
-Xen Orchestra will request a plugin, bundled and hosted within your XCP-ng hosts. This plugin will query the status of updates. Then, when the update will be applied, it's also the plugin that will download and apply them.
-So unlike with Citrix Hypervisor, Xen Orchestra will not fetch or download updates, but it will order the host to do it by itself. Be sure that your host(s) can access the update repositories.
+Fragata Fleet will request a plugin, bundled and hosted within your XCP-ng hosts. This plugin will query the status of updates. Then, when the update will be applied, it's also the plugin that will download and apply them.
+So unlike with Citrix Hypervisor, Fragata Fleet will not fetch or download updates, but it will order the host to do it by itself. Be sure that your host(s) can access the update repositories.
 
 #### Rolling Pool Updates (RPU)
 
-Also known as RPU, **this is the advised way to update your pool**. By just clicking on one button, Xen Orchestra will automatically move VMs around, apply updates and reboot the hosts, without any service interruption. The following button is available in the **Pool** view of the **Patches** tab:
+Also known as RPU, **this is the advised way to update your pool**. By just clicking on one button, Fragata Fleet will automatically move VMs around, apply updates and reboot the hosts, without any service interruption. The following button is available in the **Pool** view of the **Patches** tab:
 
 <UiDetail src="/img/xo5/rpubutton.png" alt="The Rolling Pool Update button on the pool Patches tab" width={340} />
 
@@ -644,7 +644,7 @@ This powerful and fully automated mechanism requires some prerequisites: all you
 :::
 
 :::warning
-XO will restart the hosts one by one and wait for each host to be up and running before continuing. However, if the host takes too much time to boot, the RPU will fail with an error. By default, XO will wait up to 20 minutes before failing. You can change that value in your `xo-server` config:
+XO will restart the hosts one by one and wait for each host to be up and running before continuing. However, if the host takes too much time to boot, the RPU will fail with an error. By default, XO will wait up to 20 minutes before failing. You can change that value in your `fragata-server` config:
 
 ```toml
 [xapiOptions]
@@ -671,16 +671,16 @@ Of course, schedule the updates outside production hours. Although RPUs are desi
 
 ##### Troubleshooting a RPU
 
-XO keeps a full trace of each rolling pool update/reboot on disk. So even if `xo-server` crashed in the middle of a run, you can still find out what happened and where it stopped.
+XO keeps a full trace of each rolling pool update/reboot on disk. So even if `fragata-server` crashed in the middle of a run, you can still find out what happened and where it stopped.
 
-Each run writes two files in `<datadir>/rpu-traces` (on XOA: `/var/lib/xo-server/data/rpu-traces`):
+Each run writes two files in `<datadir>/rpu-traces` (on XOA: `/var/lib/fragata-server/data/rpu-traces`):
 
 - `rpu-<poolId>-<timestamp>.ndjson`: the trace. One JSON line per event: steps, progress, VM migrations, errors. Lines are written synchronously, so the file stays readable even after a crash.
 - `rpu-<poolId>-<timestamp>.heartbeat.json`: rewritten every 5 seconds with the current status, as long as the run is alive.
 
-The path of the trace file is logged in `journalctl -u xo-server` when the RPU starts. You'll also find it on the task itself, as the `traceFile` property in the tasks view.
+The path of the trace file is logged in `journalctl -u fragata-server` when the RPU starts. You'll also find it on the task itself, as the `traceFile` property in the tasks view.
 
-A heartbeat stuck on `"status": "pending"` with an old `lastUpdated` means the run died mid-flight. When `xo-server` comes back, it marks the task as `interrupted`, stamps the heartbeat with the last time the run was alive, and logs a line pointing at the trace.
+A heartbeat stuck on `"status": "pending"` with an old `lastUpdated` means the run died mid-flight. When `fragata-server` comes back, it marks the task as `interrupted`, stamps the heartbeat with the last time the run was alive, and logs a line pointing at the trace.
 
 There's no resume yet: just launch the RPU again. Hosts that were already patched have nothing left to install, so the new run goes through them quickly.
 
@@ -688,11 +688,11 @@ There's no resume yet: just launch the RPU again. Hosts that were already patche
 Only one RPU or rolling pool reboot can run at a time on a given pool. A second attempt is rejected with an explicit error, not queued.
 :::
 
-Traces are deleted after 31 days. Both the folder and the retention can be changed in your `xo-server` config:
+Traces are deleted after 31 days. Both the folder and the retention can be changed in your `fragata-server` config:
 
 ```toml
 [rpu]
-#tracesDir = '/var/lib/xo-server/data/rpu-traces'
+#tracesDir = '/var/lib/fragata-server/data/rpu-traces'
 tracesRetention = '31 days'
 ```
 
@@ -720,8 +720,8 @@ We do NOT recommend to install updates to individual hosts. Obviously except if 
 
 #### ⚙️ How it works
 
-Xen Orchestra will directly request a specific XML, hosted by Citrix. It will be analyzed and compared to the patch level on your hosts.
-If there's available/missing updates, XO will download it directly, then send it to the pool, and finally ask the pool to apply it. In that scenario, you should check if Xen Orchestra can access outside to get those updates.
+Fragata Fleet will directly request a specific XML, hosted by Citrix. It will be analyzed and compared to the patch level on your hosts.
+If there's available/missing updates, XO will download it directly, then send it to the pool, and finally ask the pool to apply it. In that scenario, you should check if Fragata Fleet can access outside to get those updates.
 
 #### Pool updates
 
@@ -737,7 +737,7 @@ When you click on "Install all patches", XOA will do all of the following automa
 You can see [more screenshots here](https://xen-orchestra.com/blog/hotfix-xs70e004-for-xenserver-7-0).
 
 :::tip
-If you are behind a proxy, please update your `xo-server` configuration to add a proxy server, as [explained in the appropriate section](../getting-started/configuration.md#proxy-for-updates-and-patches).
+If you are behind a proxy, please update your `fragata-server` configuration to add a proxy server, as [explained in the appropriate section](../getting-started/configuration.md#proxy-for-updates-and-patches).
 :::
 
 #### Host updates
@@ -799,7 +799,7 @@ The primary goals are to improve redundancy, so that a single cable or interface
 
 #### Supported bond types
 
-Xen Orchestra supports the following bond types:
+Fragata Fleet supports the following bond types:
 
 - **Active / Active (Balance-SLB)**
   - Does **not** require switch awareness (no LACP needed)
@@ -872,7 +872,7 @@ This way, you can do whatever is needed on the storage, and when done, re-enable
 
 ### Reclaim free space
 
-If your SAN supports it, Xen Orchestra can instruct your XCP-ng host to send a trim command to perform some cleaning.
+If your SAN supports it, Fragata Fleet can instruct your XCP-ng host to send a trim command to perform some cleaning.
 
 <UiDetail src="/img/xo5/xo5reclaimfree.png" alt="Reclaim free space from the SR Advanced tab" width={620} />
 
@@ -885,7 +885,7 @@ Visualizations can help you to understand your XCP-ng/XenServer infrastructure, 
 The dashboard view gathers information on all your connected pools/hosts.
 
 :::note
-Since XO 6 became the default interface, `https://your-xo/#/dashboard` opens the [new XO 6 dashboard](../manage-your-infrastructure/management.md). The XO 5 dashboard described here now lives under `/v5/`.
+Since Fragata Fleet became the default interface, `https://your-xo/#/dashboard` opens the [new Fragata Fleet dashboard](../manage-your-infrastructure/management.md). The Fleet Classic dashboard described here now lives under `/v5/`.
 :::
 
 <UiShot light="/img/xo5/dashboard-overview.png" alt="The Overview aggregates pools, hosts, VMs, resource usage and alarms at a glance" url="https://your-xo/v5/#/dashboard/overview" />
@@ -966,7 +966,7 @@ This is the place to compare metrics on comparable objects (VMs to VMs, hosts to
 
 ### Usage reports
 
-Xen Orchestra lets you monitor the usage of some or all of your resources by sending regular reports via email.
+Fragata Fleet lets you monitor the usage of some or all of your resources by sending regular reports via email.
 
 To receive reports, you first need to enable the **usage-report** plugin:
 
@@ -1022,7 +1022,7 @@ If you encounter issues with your software RAID array, you can find answers rega
 
 #### Checking RAID status
 
-Xen Orchestra allows you to monitor the health of your software RAID arrays directly from the interface.
+Fragata Fleet allows you to monitor the health of your software RAID arrays directly from the interface.
 
 To check the status reported by `mdadm`, go to the **Host → Advanced** section. You'll get a clear, real-time view of your RAID array’s condition:
 

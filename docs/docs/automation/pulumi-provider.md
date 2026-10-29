@@ -4,7 +4,7 @@
 
 Manually managing infrastructure can lead to errors and increased complexity. With Infrastructure as Code (IaC), you describe your infrastructure in code, making it **predictable**, **reproducible**, and **version-controlled**.
 
-Xen Orchestra has an official Pulumi provider, developed [on GitHub](https://github.com/vatesfr/pulumi-xenorchestra), with SDKs for **TypeScript/JavaScript**, **Python**, **Go**, and **.NET**. This guide walks you through deploying a virtual machine (VM) on your Xen Orchestra (XO) instance with **Pulumi**, then updating it.
+Fragata Fleet has an official Pulumi provider, developed [on GitHub](https://github.com/vatesfr/pulumi-xenorchestra), with SDKs for **TypeScript/JavaScript**, **Python**, **Go**, and **.NET**. This guide walks you through deploying a virtual machine (VM) on your Fragata Fleet (XO) instance with **Pulumi**, then updating it.
 
 :::note
 Pulumi supports several programming languages, but this guide uses TypeScript. For that language, you need Node.js 20 or newer.
@@ -16,7 +16,7 @@ Pulumi's approach lets you use real programming languages to define your infrast
 
 ## Prerequisites
 
-- a running **Xen Orchestra** instance connected to an **XCP-ng** pool (the provider drives the XO API)
+- a running **Fragata Fleet** instance connected to an **XCP-ng** pool (the provider drives the XO API)
 - the **Pulumi CLI** (3.x) and **Node.js** 20 or newer installed on your workstation
 - a VM **template** with cloud-init support
 - an XO **user account** or **API token** for the provider to authenticate with
@@ -25,9 +25,9 @@ Pulumi's approach lets you use real programming languages to define your infrast
 
 If you haven't installed Pulumi yet, follow the [official Pulumi tutorial](https://www.pulumi.com/docs/install/) to install it on your system.
 
-### VM templates in Xen Orchestra {#using-vm-templates-in-xen-orchestra}
+### VM templates in Fragata Fleet {#using-vm-templates-in-xen-orchestra}
 
-Pulumi needs a starting point to create a VM: a template that already contains an installed operating system with **cloud-init** capabilities (or **Cloudbase-init** for Windows), as well as **Xen/Guest Tools** for better integration with Xen Orchestra.
+Pulumi needs a starting point to create a VM: a template that already contains an installed operating system with **cloud-init** capabilities (or **Cloudbase-init** for Windows), as well as **Xen/Guest Tools** for better integration with Fragata Fleet.
 
 :::info
 We recommend the pre-built cloud-init-ready templates from the **XOA Hub** (Debian, Ubuntu, and others) for optimal results. For more information about templates:
@@ -38,13 +38,13 @@ We recommend the pre-built cloud-init-ready templates from the **XOA Hub** (Debi
 
 ## Installing the provider
 
-Create a new directory and initialize a TypeScript project, then add the Xen Orchestra package:
+Create a new directory and initialize a TypeScript project, then add the Fragata Fleet package:
 
 <Terminal shell title="create the Pulumi project and install the provider">{`
 mkdir xo-pulumi-project
 cd xo-pulumi-project
 pulumi new typescript
-npm install @vates/pulumi-xenorchestra
+npm install @fragata/pulumi-xenorchestra
 `}</Terminal>
 
 :::info
@@ -93,11 +93,11 @@ pulumi config set xenorchestra:token YOUR_TOKEN --secret
 
 ### Describe your infrastructure {#provisioning-your-vm-with-pulumi}
 
-Pulumi needs to know about the existing resources in XO (your pool, template, storage, network). To achieve this, we use the provider's data functions, so you never hardcode UUIDs. Edit the `index.ts` file and replace its contents with the following, using the exact names of your resources in Xen Orchestra:
+Pulumi needs to know about the existing resources in XO (your pool, template, storage, network). To achieve this, we use the provider's data functions, so you never hardcode UUIDs. Edit the `index.ts` file and replace its contents with the following, using the exact names of your resources in Fragata Fleet:
 
 ```typescript
 import * as pulumi from "@pulumi/pulumi";
-import * as xenorchestra from "@vates/pulumi-xenorchestra";
+import * as xenorchestra from "@fragata/pulumi-xenorchestra";
 
 // Retrieve the pool
 const pool = xenorchestra.getXoaPool({
@@ -175,7 +175,7 @@ pulumi up
 
 Pulumi analyzes your code, shows a preview of the changes (`+ 2 to create`: the stack and the VM), and asks for confirmation. Select `yes`, and after a few seconds the VM is created on your pool, with the `vmId` and `vmName` outputs displayed at the end of the run.
 
-<UiShot light="/img/xo5/pulumi-vm-general.png" alt="The freshly deployed VM, seen from its General tab in Xen Orchestra" url="https://your-xo/#/vms/…/general" />
+<UiShot light="/img/xo5/pulumi-vm-general.png" alt="The freshly deployed VM, seen from its General tab in Fragata Fleet" url="https://your-xo/#/vms/…/general" />
 
 Congratulations! Your VM is now deployed via Pulumi on XO, and any future modification can be **reviewed** and **version-controlled**.
 
@@ -254,7 +254,7 @@ This guide only scratches the surface: the provider also manages cloud-init conf
 ## Related links
 
 - [Provider source code and documentation on GitHub](https://github.com/vatesfr/pulumi-xenorchestra)
-- [Provider package on npm (@vates/pulumi-xenorchestra)](https://www.npmjs.com/package/@vates/pulumi-xenorchestra)
+- [Provider package on npm (@fragata/pulumi-xenorchestra)](https://www.npmjs.com/package/@fragata/pulumi-xenorchestra)
 - [Provider code examples](https://github.com/vatesfr/pulumi-xenorchestra/tree/main/examples)
 - [Official Pulumi documentation](https://www.pulumi.com/docs)
 - [Official XCP-ng documentation](https://docs.xcp-ng.org/)

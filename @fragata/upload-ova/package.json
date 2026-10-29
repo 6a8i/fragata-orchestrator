@@ -1,0 +1,66 @@
+{
+  "name": "@fragata/upload-ova",
+  "version": "0.1.9",
+  "license": "AGPL-3.0-or-later",
+  "description": "Basic CLI to upload ova files to Xen-Orchestra",
+  "keywords": [
+    "import",
+    "orchestra",
+    "ova",
+    "xcp-ng",
+    "xcp",
+    "xen-orchestra",
+    "xen-server",
+    "xen",
+    "xo"
+  ],
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/upload-ova",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/upload-ova",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "preferGlobal": true,
+  "main": "dist/",
+  "bin": {
+    "fragata-upload-ova": "dist/index.js"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "exec-promise": "^0.7.0",
+    "form-data": "^4.0.0",
+    "fs-extra": "^11.1.0",
+    "get-stream": "^6.0.0",
+    "human-format": "^1.0.0",
+    "lodash": "^4.18.0",
+    "pretty-ms": "^7.0.0",
+    "progress-stream": "^2.0.0",
+    "pw": "^0.0.4",
+    "xdg-basedir": "^4.0.0",
+    "fragata-lib": "^0.11.2",
+    "fragata-vmdk-to-vhd": "^2.5.10"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.29.0",
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "cross-env": "^7.0.2",
+    "rimraf": "^6.0.1"
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production babel --source-maps --out-dir=dist/ src/",
+    "dev": "cross-env NODE_ENV=development babel --watch --source-maps --out-dir=dist/ src/",
+    "prebuild": "rimraf dist/",
+    "predev": "yarn run prebuild",
+    "prepublishOnly": "yarn run build"
+  },
+  "private": true,
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  }
+}

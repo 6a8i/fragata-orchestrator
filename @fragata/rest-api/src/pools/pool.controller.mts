@@ -1,0 +1,1009 @@
+import {
+  Body,
+  Delete,
+  Example,
+  Extension,
+  Get,
+  Middlewares,
+  Path,
+  Post,
+  Put,
+  Query,
+  Request,
+  Response,
+  Route,
+  Security,
+  SuccessResponse,
+  Tags,
+} from 'tsoa'
+import { inject } from 'inversify'
+import { invalidParameters, noSuchObject } from 'fragata-common/api-errors.js'
+import { PassThrough } from 'node:stream'
+import { provide } from 'inversify-binding-decorators'
+import { json, type Request as ExRequest, type Response as ExResponse } from 'express'
+import type { VatesTask } from '@fragata/types/lib/vates/task'
+
+import { acl } from '../middlewares/acl.middleware.mjs'
+import { RestApi } from '../rest-api/rest-api.mjs'
+import {
+  asynchronousActionResp,
+  badRequestResp,
+  createdResp,
+  featureUnauthorized,
+  forbiddenOperationResp,
+  incorrectStateResp,
+  internalServerErrorResp,
+  invalidParameters as invalidParametersResp,
+  noContentResp,
+  notFoundResp,
+  unauthorizedResp,
+  type Unbrand,
+} from '../open-api/common/response.common.mjs'
+import type { SendObjects } from '../helpers/helper.type.mjs'
+import { XapiXoController } from '../abstract-classes/xapi-xo-controller.mjs'
+import type {
+  PoolRollingUpdateRecovery,
+  XapiPoolStats,
+  XapiStatsGranularity,
+  XcpPatches,
+  XenApiSr,
+  XenApiVm,
+  XoAlarm,
+  XoGpuGroup,
+  XoHost,
+  XoMessage,
+  XoNetwork,
+  XoPif,
+  XoPool,
+  XoSr,
+  XoTask,
+  XoVdi,
+  XoVgpuType,
+  XoVm,
+  XoVmTemplate,
+  XsPatches,
+} from '@fragata/types'
+import { AlarmService } from '../alarms/alarm.service.mjs'
+import { genericAlarmsExample } from '../open-api/oa-examples/alarm.oa-example.mjs'
+import {
+  createVm,
+  importVm,
+  partialPools,
+  pool,
+  poolDashboard,
+  poolIds,
+  poolMissingPatches,
+  poolRollingUpdateRecovery,
+  poolStats,
+} from '../open-api/oa-examples/pool.oa-example.mjs'
+import type {
+  CreateBondedNetworkBody,
+  CreateInternalNetworkBody,
+  CreateNetworkBody,
+  CreateVmBody,
+  CreateVmParams,
+  FinalizeRollingUpdateBody,
+  PoolDashboard,
+  RollingPoolActionBody,
+  RollingPoolUpdateBody,
+} from './pool.type.mjs'
+import { partialTasks, taskIds, taskLocation } from '../open-api/oa-examples/task.oa-example.mjs'
+import { createNetwork } from '../open-api/oa-examples/schedule.oa-example.mjs'
+import { VmService } from '../vms/vm.service.mjs'
+import { PoolService } from './pool.service.mjs'
+import { BASE_URL, escapeUnsafeComplexMatcher, NDJSON_CONTENT_TYPE } from '../helpers/utils.helper.mjs'
+import { messageIds, partialMessages } from '../open-api/oa-examples/message.oa-example.mjs'
+import type { CreateActionReturnType } from '../abstract-classes/base-controller.mjs'
+import { NetworkService } from '../networks/network.service.mjs'
+
+@Route('pools')
+@Security('*')
+@Response(badRequestResp.status, badRequestResp.description)
+@Response(unauthorizedResp.status, unauthorizedResp.description)
+@Tags('pools')
+@provide(PoolController)
+export class PoolController extends XapiXoController<XoPool> {
+  #vmService: VmService
+  #poolService: PoolService
+  #alarmService: AlarmService
+  #networkService: NetworkService
+
+  constructor(
+    @inject(RestApi) restApi: RestApi,
+    @inject(VmService) vmService: VmService,
+    @inject(PoolService) poolService: PoolService,
+    @inject(AlarmService) alarmService: AlarmService,
+    @inject(NetworkService) networkService: NetworkService
+  ) {
+    super('pool', restApi)
+    this.#vmService = vmService
+    this.#poolService = poolService
+    this.#alarmService = alarmService
+    this.#networkService = networkService
+  }
+
+  /**
+   * Returns all pools that match the following privilege:
+   * - resource: pool, action: read
+   *
+   * @example fields "auto_poweron,name_label,id"
+   * @example filter "auto_poweron?"
+   * @example limit 42
+   */
+  @Example(poolIds)
+  @Example(partialPools)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('')
+  @Security('*', ['acl'])
+  getPools(
+    @Request() req: ExRequest,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<Unbrand<XoPool>>> {
+    return this.sendObjects(Object.values(this.getObjects({ filter })), req, {
+      limit,
+      privilege: { action: 'read', resource: 'pool' },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: pool, action: read
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629676"
+   */
+  @Example(pool)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}')
+  @Middlewares(acl({ resource: 'pool', action: 'read', objectId: 'params.id' }))
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  getPool(@Path() id: string): Unbrand<XoPool> {
+    return this.getObject(id as XoPool['id'])
+  }
+
+  /**
+   * Required privilege:
+   * - resource: pool, action: create:network
+   * - resource: network, action: create
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629676"
+   * @example body {
+   *    "name": "awes0me_network",
+   *    "description": "random description",
+   *    "pif": "ad15b2c8-3d9a-194e-c43a-e3dcda74b256",
+   *    "vlan": 0
+   * }
+   */
+  @Example(taskLocation)
+  @Example(createNetwork)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/create_network')
+  @Middlewares([
+    json(),
+    acl([
+      // these two rights are a bit redundant, but for now this is the only way to restrict network creation on a given pool
+      { resource: 'pool', action: 'create:network', objectId: 'params.id' },
+      { resource: 'network', action: 'create', object: ({ req }) => req.body },
+    ]),
+  ])
+  @Tags('networks')
+  @SuccessResponse(createdResp.status, createdResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  createNetwork(
+    @Path() id: string,
+    @Body() body: Unbrand<CreateNetworkBody>,
+    @Query() sync?: boolean
+  ): CreateActionReturnType<{ id: Unbrand<XoNetwork>['id'] }> {
+    const poolId = id as XoPool['id']
+    const action = async () => {
+      const { pif, ...rest } = body
+      const networkId = await this.#networkService.create(poolId, { pifId: pif as XoPif['id'], ...rest })
+
+      return { id: networkId }
+    }
+
+    return this.createAction<{ id: XoNetwork['id'] }>(action, {
+      sync,
+      statusCode: createdResp.status,
+      taskProperties: {
+        name: 'create network',
+        objectId: poolId,
+        args: body,
+      },
+    })
+  }
+
+  /**
+   * Required privileges:
+   * - resource: pool, action: create:network
+   * - resource: network, action: create
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629676"
+   * @example body {
+   *    "name": "awes0me_bonded_network",
+   *    "description": "random description",
+   *    "pifIds": ["ad15b2c8-3d9a-194e-c43a-e3dcda74b256", "7b6bed50-26b2-bd27-8f3a-1b5a81989a92"],
+   *    "bondMode": "lacp"
+   * }
+   */
+  @Example(taskLocation)
+  @Example(createNetwork)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/create_bonded_network')
+  @Middlewares([
+    json(),
+    acl([
+      { resource: 'pool', action: 'create:network', objectId: 'params.id' },
+      { resource: 'network', action: 'create', object: ({ req }) => req.body },
+    ]),
+  ])
+  @Tags('networks')
+  @SuccessResponse(createdResp.status, createdResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  createBondedNetwork(
+    @Path() id: string,
+    @Body() body: Unbrand<CreateBondedNetworkBody>,
+    @Query() sync?: boolean
+  ): CreateActionReturnType<{ id: Unbrand<XoNetwork>['id'] }> {
+    const poolId = id as XoPool['id']
+    const action = async () => {
+      const { pifIds, ...rest } = body
+      const networkId = await this.#networkService.create(poolId, { pifIds: pifIds as XoPif['id'][], ...rest })
+
+      return { id: networkId }
+    }
+
+    return this.createAction<{ id: XoNetwork['uuid'] }>(action, {
+      sync,
+      statusCode: createdResp.status,
+      taskProperties: {
+        name: 'create bonded network',
+        objectId: poolId,
+        args: body,
+      },
+    })
+  }
+
+  /**
+   * Required privileges:
+   * - resource: pool, action: create:network
+   * - resource: network, action: create
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629676"
+   * @example body {
+   *    "name": "awes0me_internal_network",
+   *    "description": "random description"
+   * }
+   */
+  @Example(taskLocation)
+  @Example(createNetwork)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/create_internal_network')
+  @Middlewares([
+    json(),
+    acl([
+      { resource: 'pool', action: 'create:network', objectId: 'params.id' },
+      { resource: 'network', action: 'create', object: ({ req }) => req.body },
+    ]),
+  ])
+  @Tags('networks')
+  @SuccessResponse(createdResp.status, createdResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  createInternalNetwork(
+    @Path() id: string,
+    @Body() body: CreateInternalNetworkBody,
+    @Query() sync?: boolean
+  ): CreateActionReturnType<{ id: Unbrand<XoNetwork>['id'] }> {
+    const poolId = id as XoPool['id']
+    const action = async () => {
+      const networkId = await this.#networkService.create(poolId, body)
+
+      return { id: networkId }
+    }
+
+    return this.createAction<{ id: XoNetwork['uuid'] }>(action, {
+      sync,
+      statusCode: createdResp.status,
+      taskProperties: {
+        name: 'create internal network',
+        objectId: poolId,
+        args: body,
+      },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: pool, action: emergency-shutdown
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629677"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/emergency_shutdown')
+  @Middlewares(acl({ resource: 'pool', action: 'emergency-shutdown', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(featureUnauthorized.status, featureUnauthorized.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  emergencyShutdown(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const poolId = id as XoPool['id']
+    const action = async () => {
+      await this.restApi.xoApp.checkFeatureAuthorization('POOL_EMERGENCY_SHUTDOWN')
+      await this.getXapiObject(poolId).$xapi.pool_emergencyShutdown()
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'pool emergency shutdown',
+        objectId: poolId,
+      },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: pool, action: rolling-reboot
+   *
+   * Set `shutdownPinnedVms` to `true` to shut down VMs that cannot be migrated (PCI passthrough, vGPU, SR-IOV VIF)
+   * before their host reboots and start them again on it afterwards. Without it, such VMs make the action fail
+   * with an `incorrect state` error listing their UUIDs.
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629677"
+   * @example body { "bypassBackupCheck": false, "shutdownPinnedVms": true }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/rolling_reboot')
+  @Middlewares([json(), acl({ resource: 'pool', action: 'rolling-reboot', objectId: 'params.id' })])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(featureUnauthorized.status, featureUnauthorized.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(incorrectStateResp.status, incorrectStateResp.description)
+  rollingReboot(
+    @Path() id: string,
+    @Body() body?: RollingPoolActionBody,
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const poolId = id as XoPool['id']
+    const action = async (task: VatesTask) => {
+      const pool = this.getObject(poolId)
+      await this.restApi.xoApp.rollingPoolReboot(pool, { ...body, parentTask: task })
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'rolling pool reboot',
+        objectId: poolId,
+        params: body,
+        progress: 0,
+      },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: pool, action: rolling-update
+   *
+   * Set `shutdownPinnedVms` to `true` to shut down VMs that cannot be migrated (PCI passthrough, vGPU, SR-IOV VIF)
+   * before their host reboots and start them again on it afterwards. Without it, such VMs make the action fail
+   * with an `incorrect state` error listing their UUIDs.
+   *
+   * A pool whose previous rolling pool update is still running is refused with an `incorrect state` error.
+   *
+   * On a pool whose master runs XCP-ng or XenServer 8.4+, a master already up to date while another host is not
+   * means the pool was left partially updated, for example by an interrupted rolling pool update: set
+   * `acceptCurrentStateAsBaseline` to `true` to start from that state, otherwise the action fails with an
+   * `incorrect state` error listing the outdated hosts. Such a pool whose previous rolling pool update was left
+   * incomplete is refused with an `incorrect state` error as well. Older XenServer and Citrix Hypervisor pools are
+   * refused in neither case.
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629677"
+   * @example body { "bypassBackupCheck": false, "shutdownPinnedVms": true }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/rolling_update')
+  @Middlewares([json(), acl({ resource: 'pool', action: 'rolling-update', objectId: 'params.id' })])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(featureUnauthorized.status, featureUnauthorized.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(incorrectStateResp.status, incorrectStateResp.description)
+  rollingUpdate(
+    @Path() id: string,
+    @Body() body?: RollingPoolUpdateBody,
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const poolId = id as XoPool['id']
+    const action = async (task: VatesTask) => {
+      const pool = this.getObject(poolId)
+      await this.restApi.xoApp.rollingPoolUpdate(pool, { ...body, parentTask: task })
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'rolling pool update',
+        objectId: poolId,
+        params: body,
+        progress: 0,
+      },
+    })
+  }
+
+  // For this endpoint, the requestBody type is written directly to `tsoa.json` because TSOA does not provide a decorator for "octet-stream" file uploads
+  /**
+   *  Import an XVA VM into a pool
+   *
+   * Required privilege:
+   * - resource: sr, action: import:vm
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629677"
+   * @example sr "c787b75c-3e0d-70fa-d0c3-cbfd382d7e33"
+   *
+   */
+  @Example(importVm)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/vms')
+  @Middlewares(
+    acl([
+      {
+        resource: 'sr',
+        action: 'import:vm',
+        objectId: ({ req, restApi }) => {
+          if (req.query.sr) {
+            return req.query.sr as XoSr['id']
+          } else {
+            const pool = restApi.getObject(req.params.id as XoPool['id'], 'pool') as XoPool
+            return pool.default_SR as XoSr['id']
+          }
+        },
+      },
+    ])
+  )
+  @Tags('vms')
+  @SuccessResponse(createdResp.status, 'VM imported')
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async importVm(
+    @Request() req: ExRequest,
+    @Path() id: string,
+    @Query() sr?: string
+  ): Promise<{ id: Unbrand<XoVm>['id'] }> {
+    const pool = this.getXapiObject(id as XoPool['id'])
+    const xapi = pool.$xapi
+
+    let srRef: XenApiSr['$ref'] | undefined
+    if (sr !== undefined) {
+      srRef = this.restApi.getXapiObject<XoSr>(sr as XoSr['id'], 'SR').$ref
+    }
+
+    const vmRef = await xapi.VM_import(req, srRef)
+    const vmId = await xapi.getField<XenApiVm, 'uuid'>('VM', vmRef, 'uuid')
+
+    this.setHeader('Location', `${BASE_URL}/vms/${vmId}`)
+
+    return { id: vmId }
+  }
+
+  /**
+   * Required privilege:
+   * - resource: pool, action: create:vm
+   * - resource: vm-template, action: instantiate
+   * - resource: vdi, action: create (if vdis is passed)
+   * - resource: vdi, action: boot (if install.repository is passed)
+   * - resource: vif, action: create (if vifs is passed)
+   * - resource: host, action: allow-vm (if affinity is passed)
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629677"
+   * @example body {
+   * "name_label": "new VM from REST API",
+   * "template": "9bbcc5d1-ad4b-06f1-18f6-03125e809c38",
+   * "boot": true
+   * }
+   */
+  @Example(taskLocation)
+  @Example(createVm)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/create_vm')
+  @Middlewares([
+    json(),
+    acl([
+      { resource: 'pool', action: 'create:vm', objectId: 'params.id' },
+      {
+        resource: 'vm-template',
+        action: 'instantiate',
+        objectId: ({ req, restApi }) => {
+          const pool = restApi.getXapiObject<XoPool>(req.params.id as XoPool['id'], 'pool')
+          const template = pool.$xapi.getObject<XoVm>(req.body.template)
+
+          if (template.is_default_template) {
+            return `${pool.uuid}-${template.uuid}`
+          }
+
+          return req.body.template
+        },
+      },
+      {
+        resource: 'vdi',
+        action: 'boot',
+        objectId: ({ req }) => {
+          const repository = req.body.install?.repository
+          if (repository !== '') {
+            return repository
+          }
+        },
+      },
+      { resource: 'vdi', action: 'create', objects: ({ req }) => req.body.vdis },
+      { resource: 'vif', action: 'create', objects: ({ req }) => req.body.vifs },
+      { resource: 'host', action: 'allow-vm', objectId: 'body.affinity' },
+    ]),
+  ])
+  @Tags('vms')
+  @SuccessResponse(createdResp.status, createdResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async createVm(
+    @Path() id: string,
+    @Body() body: Unbrand<CreateVmBody>,
+    @Query() sync?: boolean
+  ): CreateActionReturnType<{ id: Unbrand<XoVm>['id'] }> {
+    const poolId = id as XoPool['id']
+    const action = async () => {
+      const { affinity, template, install, vgpuType, gpuGroup, vdis, high_availability, ...rest } = body
+
+      // rebrand all branded type
+      const vmId = await this.#vmService.create({
+        affinityHost: affinity as XoHost['id'] | undefined,
+        highAvailability: high_availability,
+        installRepository: install?.repository as XoVdi['id'] | '' | undefined,
+        pool: poolId,
+        template: template as XoVmTemplate['id'],
+        vdis: vdis as CreateVmParams['vdis'],
+        vgpuType: vgpuType as XoVgpuType['id'] | undefined,
+        gpuGroup: gpuGroup as XoGpuGroup['id'] | undefined,
+        ...rest,
+      })
+
+      return { id: vmId }
+    }
+
+    return this.createAction<{ id: XoVm['id'] }>(action, {
+      sync,
+      statusCode: createdResp.status,
+      taskProperties: {
+        args: body,
+        name: 'create VM',
+        objectId: poolId,
+      },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: pool, action: read
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629677"
+   */
+  @Example(poolStats)
+  @Extension('x-mcp-exposure', 'deny')
+  @Get('{id}/stats')
+  @Middlewares(acl({ resource: 'pool', action: 'read', objectId: 'params.id' }))
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(422, 'Invalid granularity')
+  getStats(@Path() id: string, @Query() granularity?: XapiStatsGranularity): Promise<XapiPoolStats> {
+    return this.restApi.xoApp.getXapiPoolStats(id as XoPool['id'], granularity)
+  }
+
+  /**
+   * Required privilege:
+   * - resource: pool, action: read
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629677"
+   */
+  @Example(poolDashboard)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/dashboard')
+  @Middlewares(acl({ resource: 'pool', action: 'read', objectId: 'params.id' }))
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async getPoolDashboard(
+    @Request() req: ExRequest,
+    @Path() id: string,
+    @Query() ndjson?: boolean
+  ): Promise<PoolDashboard | void> {
+    const poolId = id as XoPool['id']
+    // throw if pool not found
+    this.getObject(poolId)
+
+    const stream = ndjson ? new PassThrough() : undefined
+    const isStream = ndjson && stream !== undefined
+    if (isStream) {
+      const res = req.res as ExResponse
+      res.setHeader('Content-Type', NDJSON_CONTENT_TYPE)
+      stream.pipe(res)
+    }
+
+    const dashboard = await this.#poolService.getDashboard(poolId, { stream })
+
+    if (isStream) {
+      stream.end()
+    } else {
+      return dashboard
+    }
+  }
+
+  /**
+   * Returns all alarms that match the following privilege:
+   * - resource: alarm, action: read
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629676"
+   * @example fields "id,time"
+   * @example filter "time:>1747053793"
+   * @example limit 42
+   */
+  @Example(genericAlarmsExample)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/alarms')
+  @Security('*', ['acl'])
+  @Tags('alarms')
+  @Response(notFoundResp.status, notFoundResp.description)
+  getPoolAlarms(
+    @Request() req: ExRequest,
+    @Path() id: string,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<Unbrand<XoAlarm>>> {
+    const pool = this.getObject(id as XoPool['id'])
+    const alarms = this.#alarmService.getAlarms({
+      filter: `${escapeUnsafeComplexMatcher(filter) ?? ''} object:uuid:${pool.uuid}`,
+    })
+
+    return this.sendObjects(Object.values(alarms), req, {
+      path: 'alarms',
+      limit,
+      privilege: { action: 'read', resource: 'alarm' },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: pool, action: read
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629676"
+   */
+  @Example(poolMissingPatches)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/missing_patches')
+  @Middlewares(acl({ resource: 'pool', action: 'read', objectId: 'params.id' }))
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(featureUnauthorized.status, featureUnauthorized.description)
+  async getPoolMissingPatches(@Path() id: string): Promise<XcpPatches[] | XsPatches[]> {
+    const pool = this.getObject(id as XoPool['id'])
+    const { missingPatches } = await this.#poolService.getMissingPatches(pool.id)
+
+    return missingPatches
+  }
+
+  /**
+   * Recovery status of an incomplete rolling pool update: run and per-host
+   * step statuses, last error, pinned VMs still halted. 404 when the last
+   * rolling pool update completed successfully (no recovery needed), or when
+   * the pool's master does not run XCP-ng or XenServer 8.4+ (no recovery
+   * record is kept for those pools).
+   *
+   * Required privilege:
+   * - resource: pool, action: rolling-update
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629676"
+   */
+  @Example(poolRollingUpdateRecovery)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/rolling_update_recovery')
+  @Middlewares(acl({ resource: 'pool', action: 'rolling-update', objectId: 'params.id' }))
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async getRollingUpdateRecovery(@Path() id: string): Promise<PoolRollingUpdateRecovery> {
+    const pool = this.getObject(id as XoPool['id'])
+    const recovery = await this.restApi.xoApp.getRollingUpdateRecovery(pool.id)
+    if (recovery === undefined) {
+      throw noSuchObject(id, 'rollingUpdateRecovery')
+    }
+    return recovery
+  }
+
+  /**
+   * Close the record of an incomplete rolling pool update, once the pool has been reviewed.
+   *
+   * Refused with an `incorrect state` error listing what the update changed and did not restore (HA, auto power-on,
+   * WLB, load balancer, backup schedules, disabled hosts, displaced or halted VMs) while any item remains, or when
+   * the record cannot be read. Displaced VMs alone do not refuse it, they are only listed in the task. Set `force` to `true` to close it anyway: the items are abandoned and listed in the
+   * task, nothing is restored nor changed in the pool. 404 when the pool has no record.
+   *
+   * Required privilege:
+   * - resource: pool, action: rolling-update
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629676"
+   * @example body { "force": false }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/finalize_rolling_update')
+  @Middlewares([json(), acl({ resource: 'pool', action: 'rolling-update', objectId: 'params.id' })])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(incorrectStateResp.status, incorrectStateResp.description)
+  finalizeRollingUpdate(
+    @Path() id: string,
+    @Body() body?: FinalizeRollingUpdateBody,
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const poolId = id as XoPool['id']
+    const action = async (task: VatesTask) => {
+      const pool = this.getObject(poolId)
+      await this.restApi.xoApp.finalizeRollingUpdate(pool, { ...body, parentTask: task })
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'finalize rolling pool update',
+        objectId: poolId,
+        params: body,
+        progress: 0,
+      },
+    })
+  }
+
+  /**
+   * Returns all messages that match the following privilege:
+   * - resource: message, action: read
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629676"
+   * @example fields "name,id,$object"
+   * @example filter "name:IP_CONFIGURED_PIF_CAN_UNPLUG"
+   * @example limit 42
+   */
+  @Example(messageIds)
+  @Example(partialMessages)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/messages')
+  @Security('*', ['acl'])
+  @Tags('messages')
+  @Response(notFoundResp.status, notFoundResp.description)
+  getPoolMessages(
+    @Request() req: ExRequest,
+    @Path() id: string,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<Unbrand<XoMessage>>> {
+    const messages = this.getMessagesForObject(id as XoPool['id'], { filter })
+
+    return this.sendObjects(Object.values(messages), req, {
+      path: 'messages',
+      limit,
+      privilege: { action: 'read', resource: 'message' },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: pool, action: update:tags
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629676"
+   * @example tag "from-rest-api"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Put('{id}/tags/{tag}')
+  @Middlewares(acl({ resource: 'pool', action: 'update:tags', objectId: 'params.id' }))
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async putPoolTag(@Path() id: string, @Path() tag: string): Promise<void> {
+    const pool = this.getXapiObject(id as XoPool['id'])
+    await pool.$call('add_tags', tag)
+  }
+
+  /**
+   * Required privilege:
+   * - resource: pool, action: update:tags
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629676"
+   * @example tag "from-rest-api"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Delete('{id}/tags/{tag}')
+  @Middlewares(acl({ resource: 'pool', action: 'update:tags', objectId: 'params.id' }))
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async deletePoolTag(@Path() id: string, @Path() tag: string): Promise<void> {
+    const pool = this.getXapiObject(id as XoPool['id'])
+    await pool.$call('remove_tags', tag)
+  }
+
+  /**
+   * Returns all tasks that match the following privilege:
+   * - resource: task, action: read
+   *
+   * @example fields "id,status,properties"
+   * @example filter "status:failure"
+   * @example limit 42
+   */
+  @Example(taskIds)
+  @Example(partialTasks)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/tasks')
+  @Security('*', ['acl'])
+  @Tags('tasks')
+  @Response(notFoundResp.status, notFoundResp.description)
+  async getPoolTasks(
+    @Request() req: ExRequest,
+    @Path() id: string,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<Unbrand<XoTask>>> {
+    const tasks = await this.getTasksForObject(id as XoPool['id'], { filter })
+
+    return this.sendObjects(Object.values(tasks), req, {
+      path: 'tasks',
+      limit,
+      privilege: { action: 'read', resource: 'task' },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: pif, action: update:management
+   *
+   * Reconfigure the management interface for all hosts in the pool to use the given network.
+   *
+   * Each host in the pool will switch their management interface to a PIF on the specified network.
+   * The PIFs on the target network must already have IP addresses configured.
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629676"
+   * @example body { "network": "c787b75c-3e0d-70fa-d0c3-cbfd382d7e33" }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/management_reconfigure')
+  @Middlewares([
+    json(),
+    acl({
+      resource: 'pif',
+      action: 'update:management',
+      objectIds: ({ req, restApi }) => {
+        const network = restApi.getObject<XoNetwork>(req.body.network as XoNetwork['id'], 'network')
+        return network.PIFs
+      },
+    }),
+  ])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(badRequestResp.status, badRequestResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  managementReconfigure(
+    @Path() id: string,
+    @Body() body: { network: string },
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const poolId = id as XoPool['id']
+    const action = async () => {
+      const pool = this.getObject(poolId)
+      const network = this.restApi.getObject<XoNetwork>(body.network as XoNetwork['id'], 'network')
+      if (network.$pool !== pool.id) {
+        throw invalidParameters(`the network ${network.uuid} does not belong to pool ${pool.uuid}`)
+      }
+      const xapiPool = this.getXapiObject(poolId)
+      await xapiPool.$xapi.callAsync('pool.management_reconfigure', network._xapiRef)
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'reconfigure pool management interface',
+        objectId: poolId,
+        args: body,
+      },
+    })
+  }
+
+  /**
+   * Required privileges:
+   * - resource: pool, action: add-host
+   * - resource: host, action: join-pool
+   *
+   * Add a host to the pool.
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629676"
+   * @example body { "host": "c787b75c-3e0d-70fa-d0c3-cbfd382d7e33", "force": "false" }
+   */
+  @Example(taskLocation)
+  @Post('{id}/actions/add_host')
+  @Middlewares([
+    json(),
+    acl([
+      { resource: 'pool', action: 'add-host', objectId: 'params.id' },
+      { resource: 'host', action: 'join-pool', objectId: 'body.host' },
+    ]),
+  ])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(badRequestResp.status, badRequestResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  addHost(
+    @Path() id: string,
+    @Body() body: { host: string; force?: boolean },
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const poolId = id as XoPool['id']
+    const action = async () => {
+      const {
+        _auth: { user, password },
+        _url: { hostnameRaw },
+      } = this.restApi.xoApp.getXapi(poolId)
+      const hostXapi = this.restApi.xoApp.getXapi(body.host as XoHost['id'])
+      await hostXapi.joinPool(hostnameRaw, user, password, body.force)
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'add host',
+        objectId: poolId,
+        params: body,
+      },
+    })
+  }
+}

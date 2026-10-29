@@ -6,7 +6,7 @@ const { strict: assert } = require('assert')
 const { rimraf } = require('rimraf')
 const tmp = require('tmp')
 const fs = require('node:fs/promises')
-const { getSyncedHandler } = require('@xen-orchestra/fs')
+const { getSyncedHandler } = require('@fragata/fs')
 const { Disposable, pFromCallback } = require('promise-toolbox')
 
 const { openVhd } = require('./index')

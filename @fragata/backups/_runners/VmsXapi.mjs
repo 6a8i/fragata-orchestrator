@@ -1,0 +1,292 @@
+import { asyncMapSettled } from '@fragata/async-map'
+import Disposable from 'promise-toolbox/Disposable'
+import { limitConcurrency } from 'limit-concurrency-decorator'
+import { Task } from '@fragata/task'
+
+import { extractIdsFromSimplePattern } from '../extractIdsFromSimplePattern.mjs'
+import { DEFAULT_SETTINGS, Abstract } from './_Abstract.mjs'
+import { getAdaptersByRemote } from './_getAdaptersByRemote.mjs'
+import { IncrementalXapi } from './_vmRunners/IncrementalXapi.mjs'
+import { FullXapi } from './_vmRunners/FullXapi.mjs'
+import { Throttle } from '@fragata/generator-toolbox'
+import { asyncEach } from '@fragata/async-each'
+import createStreamThrottle from './_createStreamThrottle.mjs'
+import { selectSynchronizedSnapshotVms } from './_selectSynchronizedSnapshotVms.mjs'
+
+const noop = Function.prototype
+
+const DEFAULT_XAPI_VM_SETTINGS = {
+  bypassVdiChainsCheck: false,
+  cbtDestroySnapshotData: false,
+  checkpointSnapshot: false,
+  concurrency: 2,
+  copyRetention: 0,
+  deleteFirst: false,
+  diskPerVmConcurrency: 0, // not limited by default
+  exportRetention: 0,
+  fullInterval: 0,
+  healthCheckSr: undefined,
+  healthCheckVmsWithTags: [],
+  healthCheckTimeout: '10m',
+  maxExportRate: 0,
+  maxMergedDeltasPerRun: Infinity,
+  nRetriesVmBackupFailures: 0,
+  offlineBackup: false,
+  offlineSnapshot: false,
+  snapshotConcurrency: 2,
+  snapshotRetention: 0,
+  synchronizedSnapshot: false,
+  timeout: 0,
+  useNbd: false,
+  unconditionalSnapshot: false,
+  validateVhdStreams: false,
+  vmTimeout: 0,
+}
+
+export const VmsXapi = class VmsXapiBackupRunner extends Abstract {
+  _computeBaseSettings(config, job) {
+    const baseSettings = { ...DEFAULT_SETTINGS }
+    Object.assign(baseSettings, DEFAULT_XAPI_VM_SETTINGS, config.defaultSettings, config.vm?.defaultSettings)
+    Object.assign(baseSettings, job.settings[''])
+    return baseSettings
+  }
+
+  _getVmBackup(jobMode, opts) {
+    if (jobMode === 'delta') {
+      return new IncrementalXapi(opts)
+    } else if (jobMode === 'full') {
+      return new FullXapi(opts)
+    }
+
+    throw new Error(`Job mode ${jobMode} not implemented`)
+  }
+
+  async run() {
+    const job = this._job
+
+    // FIXME: proper SimpleIdPattern handling
+    const getSnapshotNameLabel = this._getSnapshotNameLabel
+    const schedule = this._schedule
+    const settings = this._settings
+
+    const throttleGenerator = new Throttle(settings.maxExportRate)
+    const throttleStream = createStreamThrottle(settings.maxExportRate)
+
+    const config = this._config
+
+    await Disposable.use(
+      Disposable.all(
+        extractIdsFromSimplePattern(job.srs).map(id =>
+          this._getRecord('SR', id).catch(error => {
+            Task.run(
+              {
+                properties: { id, name: 'get SR record', type: 'SR' },
+              },
+              () => Promise.reject(error)
+            ).catch(noop)
+          })
+        )
+      ),
+      Disposable.all(extractIdsFromSimplePattern(job.remotes).map(id => this._getAdapter(id))),
+      () => (settings.healthCheckSr !== undefined ? this._getRecord('SR', settings.healthCheckSr) : undefined),
+      async (srs, remoteAdapters, healthCheckSr) => {
+        // remove adapters that failed (already handled)
+        remoteAdapters = remoteAdapters.filter(_ => _ !== undefined)
+
+        // remove srs that failed (already handled)
+        srs = srs.filter(_ => _ !== undefined)
+
+        if (remoteAdapters.length === 0 && srs.length === 0 && settings.snapshotRetention === 0) {
+          return
+        }
+
+        const vmIds = extractIdsFromSimplePattern(job.vms)
+
+        Task.info('vms', { vms: vmIds })
+
+        remoteAdapters = getAdaptersByRemote(remoteAdapters)
+
+        const allSettings = this._job.settings
+        const baseSettings = this._baseSettings
+
+        const preTakenTimestampByVmId = {}
+        const failedSnapshotByVmId = {}
+        const taskByVmId = {}
+        const nTriesByVmId = {}
+
+        const getVmTask = (vmUuid, name_label) => {
+          const started = taskByVmId[vmUuid] !== undefined
+          if (!started) {
+            taskByVmId[vmUuid] = new Task({ properties: { id: vmUuid, name: 'backup VM', type: 'VM', name_label } })
+          }
+          return {
+            task: taskByVmId[vmUuid],
+            started,
+          }
+        }
+
+        if (settings.synchronizedSnapshot) {
+          await Disposable.use(
+            Disposable.all(vmIds.map(vmId => this._getRecord('VM', vmId).catch(noop))),
+            async vms => {
+              // remove vms that failed (already handled)
+              vms = vms.filter(_ => _ !== undefined)
+
+              const batchIds = selectSynchronizedSnapshotVms(settings.synchronizedSnapshot, vms)
+
+              if (batchIds.size > 0) {
+                Task.info('synchronized snapshot', { vms: Array.from(batchIds) })
+              }
+
+              await asyncEach(
+                [...vms].filter(vm => batchIds.has(vm.uuid)),
+                async vm => {
+                  const { task } = getVmTask(vm.uuid, vm.name_label)
+
+                  const vmSettings = { ...settings, ...allSettings[vm.uuid] }
+                  const opts = {
+                    baseSettings,
+                    config,
+                    getSnapshotNameLabel,
+                    healthCheckSr,
+                    job,
+                    remoteAdapters,
+                    schedule,
+                    settings: vmSettings,
+                    srs,
+                    throttleGenerator,
+                    throttleStream,
+                    vm,
+                  }
+
+                  await task
+                    .runInside(async () => {
+                      let vmBackup
+                      try {
+                        vmBackup = this._getVmBackup(job.mode, opts)
+                        if (
+                          !vmBackup._settings.offlineBackup &&
+                          !vmBackup._settings.offlineSnapshot &&
+                          (await vmBackup._mustDoSnapshot())
+                        ) {
+                          await vmBackup._prepareAndSnapshot()
+                          preTakenTimestampByVmId[vm.uuid] = vmBackup.timestamp
+                        }
+                      } catch (error) {
+                        failedSnapshotByVmId[vm.uuid] = error
+                        if (vmBackup !== undefined) {
+                          try {
+                            await vmBackup._fetchJobSnapshots()
+                            await vmBackup._removeUnusedSnapshots()
+                            await vmBackup._cleanMetadata()
+                          } catch (cleanupError) {
+                            // Best effort cleanup
+                          }
+                        }
+
+                        throw error
+                      }
+                    })
+                    .catch(noop)
+                },
+                {
+                  concurrency: settings.snapshotConcurrency,
+                }
+              )
+            }
+          )
+        }
+
+        const snapshotedVmIds = new Set(vmIds.filter(id => !(id in failedSnapshotByVmId)))
+
+        const queue = new Set(snapshotedVmIds)
+
+        const handleVm = vmUuid => {
+          const vmBackupFailed = async (error, task) => {
+            if (isLastRun) {
+              return task.failure(error)
+            } else {
+              // don't end the task
+              task.warning(`Retry the VM backup due to an error`, {
+                attempt: nTriesByVmId[vmUuid],
+                error: error.message,
+                isRetry: true,
+              })
+              queue.add(vmUuid)
+            }
+          }
+
+          if (nTriesByVmId[vmUuid] === undefined) {
+            nTriesByVmId[vmUuid] = 0
+          }
+          nTriesByVmId[vmUuid]++
+
+          const vmSettings = { ...settings, ...allSettings[vmUuid] }
+          const isLastRun = nTriesByVmId[vmUuid] === vmSettings.nRetriesVmBackupFailures + 1
+
+          return this._getRecord('VM', vmUuid).then(
+            disposableVm =>
+              Disposable.use(disposableVm, async vm => {
+                const { task } = getVmTask(vmUuid, vm.name_label)
+
+                // error has to be caught in the task to prevent its failure, but handled outside the task to execute another task.run()
+                let taskError
+                return task
+                  .runInside(async () => {
+                    const opts = {
+                      baseSettings,
+                      config,
+                      getSnapshotNameLabel,
+                      healthCheckSr,
+                      job,
+                      remoteAdapters,
+                      schedule,
+                      settings: vmSettings,
+                      srs,
+                      // when set, the batch phase already snapshotted this VM; the
+                      // runner re-finds that snapshot by its metadata (see _snapshot)
+                      synchronizedSnapshotTimestamp: preTakenTimestampByVmId[vmUuid],
+                      throttleGenerator,
+                      throttleStream,
+                      vm,
+                    }
+
+                    const vmBackup = this._getVmBackup(job.mode, opts)
+
+                    return vmBackup.run().catch(error => {
+                      taskError = error
+                    })
+                  })
+                  .then(result => {
+                    if (taskError === undefined) {
+                      task.success(result)
+                    } else {
+                      // ending the task with error or not ending the task
+                      return vmBackupFailed(taskError, task)
+                    }
+                  })
+                  .catch(noop) // errors are handled by logs
+              }),
+            error => {
+              const { task: vmTask, started } = getVmTask(vmUuid)
+              if (!started) {
+                // the task is not started (except if it's a retry), and an unstarted task can't be failed
+                vmTask.start()
+              }
+              return vmBackupFailed(error, vmTask)
+            }
+          )
+        }
+        const { concurrency } = settings
+        const _handleVm = concurrency === 0 ? handleVm : limitConcurrency(concurrency)(handleVm)
+
+        while (queue.size > 0) {
+          const vmIds = Array.from(queue)
+          queue.clear()
+
+          await asyncMapSettled(vmIds, _handleVm)
+        }
+      }
+    )
+  }
+}

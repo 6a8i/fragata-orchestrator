@@ -1,7 +1,7 @@
 'use strict'
 
 const { Constants } = require('vhd-lib')
-const { getSyncedHandler } = require('@xen-orchestra/fs')
+const { getSyncedHandler } = require('@fragata/fs')
 const { openVhd } = require('vhd-lib/openVhd')
 const Disposable = require('promise-toolbox/Disposable')
 const humanFormat = require('human-format')

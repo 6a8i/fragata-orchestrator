@@ -1,0 +1,34 @@
+{
+  "private": false,
+  "name": "@fragata/disposable",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/disposable",
+  "description": "Utilities for disposables",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/disposable",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "license": "ISC",
+  "version": "0.1.6",
+  "engines": {
+    "node": ">=8.10"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@fragata/multi-key-map": "^0.2.0",
+    "@fragata/async-map": "^0.1.5",
+    "@fragata/log": "^0.7.2",
+    "ensure-array": "^1.0.0"
+  },
+  "devDependencies": {
+    "sinon": "^18.0.0"
+  }
+}

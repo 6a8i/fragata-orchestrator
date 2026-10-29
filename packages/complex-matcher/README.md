@@ -42,7 +42,7 @@ the code.
 
 You may:
 
-- report any [issue](https://github.com/vatesfr/xen-orchestra/issues)
+- report any [issue](https://github.com/6a8i/fragata-fleet/issues)
   you've encountered;
 - fork and create a pull request.
 

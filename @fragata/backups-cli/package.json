@@ -1,0 +1,37 @@
+{
+  "private": false,
+  "bin": {
+    "fragata-backups": "index.mjs"
+  },
+  "preferGlobal": true,
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "dependencies": {
+    "@fragata/async-each": "^1.0.3",
+    "@fragata/async-map": "^0.1.5",
+    "@fragata/backups": "^0.78.0",
+    "@fragata/fs": "^4.10.0",
+    "filenamify": "^6.0.0",
+    "getopts": "^2.2.5",
+    "lodash": "^4.18.0",
+    "promise-toolbox": "^0.21.0"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/backups-cli",
+  "name": "@fragata/backups-cli",
+  "repository": {
+    "directory": "@fragata/backups-cli",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public"
+  },
+  "version": "1.1.18",
+  "license": "AGPL-3.0-or-later",
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  }
+}

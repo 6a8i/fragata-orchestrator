@@ -1,0 +1,30 @@
+{
+  "name": "@fragata/audit-core",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/audit-core",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/audit-core",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "version": "0.4.0",
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@fragata/decorate-with": "^2.1.0",
+    "@fragata/log": "^0.7.2",
+    "golike-defer": "^0.5.1",
+    "object-hash": "^2.0.1"
+  },
+  "private": false,
+  "license": "AGPL-3.0-or-later",
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  }
+}

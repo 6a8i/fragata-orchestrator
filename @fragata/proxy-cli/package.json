@@ -1,0 +1,48 @@
+{
+  "private": false,
+  "name": "@fragata/proxy-cli",
+  "version": "0.3.4",
+  "license": "AGPL-3.0-or-later",
+  "description": "CLI for @fragata/proxy",
+  "keywords": [
+    "backup",
+    "proxy",
+    "xen-orchestra",
+    "xo"
+  ],
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/proxy-cli",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/proxy-cli",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "preferGlobal": true,
+  "bin": {
+    "fragata-proxy-cli": "./index.mjs"
+  },
+  "engines": {
+    "node": ">=14.13"
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.0",
+    "@fragata/read-chunk": "^1.2.1",
+    "ansi-colors": "^4.1.1",
+    "app-conf": "^3.0.0",
+    "content-type": "^1.0.4",
+    "cson-parser": "^4.0.7",
+    "getopts": "^2.2.3",
+    "json-rpc-protocol": "^0.13.1",
+    "promise-toolbox": "^0.21.0",
+    "pumpify": "^2.0.1",
+    "split2": "^4.1.0",
+    "undici": "^6.26.0"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  }
+}

@@ -4,14 +4,14 @@ sidebar_position: 9
 
 # Architecture
 
-Xen Orchestra (XO) is built as **one server and several clients**: the two web interfaces ([XO 6](../discover-xen-orchestra/gettingstarted.md) and XO 5), the command line client `xo-cli`, and anything speaking the [REST API](automation/restapi.md). The server, `xo-server`, is the only piece that talks to your infrastructure.
+Fragata Fleet (XO) is built as **one server and several clients**: the two web interfaces ([Fragata Fleet](../discover-xen-orchestra/gettingstarted.md) and Fleet Classic), the command line client `fragata-cli`, and anything speaking the [REST API](automation/restapi.md). The server, `fragata-server`, is the only piece that talks to your infrastructure.
 
 :::tip
-XO is totally agent-less: nothing to install on your hosts. `xo-server` speaks XAPI, the native toolstack of XCP-ng, directly over the network.
+XO is totally agent-less: nothing to install on your hosts. `fragata-server` speaks XAPI, the native toolstack of XCP-ng, directly over the network.
 :::
 
 <Schema label="One server, several clients, your whole infrastructure" legend={[["#6aabf0", "XO"], ["#8e83fe", "XCP-ng"]]} maxWidth="720px">
-<svg viewBox="0 0 680 330" role="img" aria-label="XO 6, XO 5, xo-cli and REST API clients talk to xo-server, which connects to the master of every XCP-ng pool over XAPI">
+<svg viewBox="0 0 680 330" role="img" aria-label="Fragata Fleet, Fleet Classic, fragata-cli and REST API clients talk to fragata-server, which connects to the master of every XCP-ng pool over XAPI">
   <g fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.28)">
     <rect x="20" y="12" width="150" height="52" rx="8"/>
     <rect x="190" y="12" width="150" height="52" rx="8"/>
@@ -19,9 +19,9 @@ XO is totally agent-less: nothing to install on your hosts. `xo-server` speaks X
     <rect x="520" y="12" width="140" height="52" rx="8"/>
   </g>
   <g fontSize="12.5" fill="#c6d2e1" textAnchor="middle">
-    <text x="95" y="34">XO 6</text>
-    <text x="265" y="34">XO 5</text>
-    <text x="430" y="34">xo-cli</text>
+    <text x="95" y="34">Fragata Fleet</text>
+    <text x="265" y="34">Fleet Classic</text>
+    <text x="430" y="34">fragata-cli</text>
     <text x="590" y="34">REST API</text>
   </g>
   <g fontSize="10" fill="#7a8699" textAnchor="middle">
@@ -37,7 +37,7 @@ XO is totally agent-less: nothing to install on your hosts. `xo-server` speaks X
     <line x1="590" y1="64" x2="430" y2="120"/>
   </g>
   <rect x="190" y="120" width="300" height="60" rx="8" fill="rgba(106,171,240,0.12)" stroke="#6aabf0"/>
-  <text x="340" y="145" fontSize="15" fill="#6aabf0" textAnchor="middle">xo-server</text>
+  <text x="340" y="145" fontSize="15" fill="#6aabf0" textAnchor="middle">fragata-server</text>
   <text x="340" y="164" fontSize="10.5" fill="#7a8699" textAnchor="middle">Node.js daemon · events · cache · proxy</text>
   <g className="schema-flow" stroke="#6aabf0" strokeWidth="1.6" strokeDasharray="5 4">
     <line x1="270" y1="180" x2="170" y2="230"/>
@@ -86,34 +86,34 @@ XO is totally agent-less: nothing to install on your hosts. `xo-server` speaks X
 </svg>
 </Schema>
 
-Note that `xo-server` only needs to reach the **master** of each pool: the master relays to the other hosts of its pool. One XO connects to any number of pools, on any site.
+Note that `fragata-server` only needs to reach the **master** of each pool: the master relays to the other hosts of its pool. One XO connects to any number of pools, on any site.
 
 ## XOA
 
-The _Xen Orchestra Appliance_ (XOA) is a VM with the whole stack pre-installed, configured and QA validated. It is the way we recommend and support running XO: see [Installing XOA](installation.md).
+The _Fragata Fleet Appliance_ (XOA) is a VM with the whole stack pre-installed, configured and QA validated. It is the way we recommend and support running XO: see [Installing XOA](installation.md).
 
-## xo-server
+## fragata-server
 
-[`xo-server`](https://github.com/vatesfr/xen-orchestra/tree/master/packages/xo-server/) is the heart of Xen Orchestra: a Node.js daemon connected permanently to your pools. Its central position is what makes XO more than a mere client:
+[`fragata-server`](https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-server/) is the heart of Fragata Fleet: a Node.js daemon connected permanently to your pools. Its central position is what makes XO more than a mere client:
 
 - **Always on**: as a daemon, it listens to and records every event of your infrastructure, around the clock, whether a client is watching or not. That is what makes always-up-to-date views, scheduled backup jobs and task history possible.
-- **Event driven**: `xo-server` subscribes to XAPI events instead of polling. Changes on a host or VM appear in your browser the moment they happen, and the server-side cache answers clients instantly, at any infrastructure size.
-- **A single connection point**: clients connect to `xo-server`, never to your hosts. Legacy thick clients opened connections from every admin workstation to every server; here one daemon holds one connection per pool, and any number of clients share it.
-- **A proxy for your hosts**: because everything flows through it, `xo-server` can expose VM consoles to clients that have no network access to the hosts, or stream a VM export from one pool straight into another (that is [warm migration](../manage-your-infrastructure/manage_infrastructure.md#warm-migration) territory) without a file stop in between.
+- **Event driven**: `fragata-server` subscribes to XAPI events instead of polling. Changes on a host or VM appear in your browser the moment they happen, and the server-side cache answers clients instantly, at any infrastructure size.
+- **A single connection point**: clients connect to `fragata-server`, never to your hosts. Legacy thick clients opened connections from every admin workstation to every server; here one daemon holds one connection per pool, and any number of clients share it.
+- **A proxy for your hosts**: because everything flows through it, `fragata-server` can expose VM consoles to clients that have no network access to the hosts, or stream a VM export from one pool straight into another (that is [warm migration](../manage-your-infrastructure/manage_infrastructure.md#warm-migration) territory) without a file stop in between.
 - **Pluggable**: features like LDAP authentication, load balancing, netbox synchronization or backup reports are [plugins](#plugins), not core patches.
 
 ### Events, not polling
 
-Legacy clients ask the servers "anything new?" every few seconds: slow, and it collapses at scale. `xo-server` subscribes once to the XAPI event stream, and pushes every change to all connected clients the moment it happens:
+Legacy clients ask the servers "anything new?" every few seconds: slow, and it collapses at scale. `fragata-server` subscribes once to the XAPI event stream, and pushes every change to all connected clients the moment it happens:
 
 <Schema label="Polling asks, events arrive" legend={[["#6aabf0", "XO"], ["#8e83fe", "XCP-ng"]]} maxWidth="680px">
-<svg viewBox="0 0 680 230" role="img" aria-label="Legacy polling asks the host for news every few seconds; with Xen Orchestra, XAPI events flow from the host through xo-server to every client the moment they happen">
+<svg viewBox="0 0 680 230" role="img" aria-label="Legacy polling asks the host for news every few seconds; with Fragata Fleet, XAPI events flow from the host through fragata-server to every client the moment they happen">
   <g fill="none" stroke="rgba(255,255,255,0.22)" strokeDasharray="6 5">
     <rect x="20" y="14" width="290" height="200" rx="10"/>
     <rect x="370" y="14" width="290" height="200" rx="10"/>
   </g>
   <text x="36" y="38" fontSize="12" fill="#7a8699">polling · legacy clients</text>
-  <text x="386" y="38" fontSize="12" fill="#7a8699">events · Xen Orchestra</text>
+  <text x="386" y="38" fontSize="12" fill="#7a8699">events · Fragata Fleet</text>
   {/* Polling side: client asks, waits, asks again. */}
   <rect x="95" y="52" width="140" height="34" rx="6" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.28)"/>
   <text x="165" y="73" fontSize="11.5" fill="#c6d2e1" textAnchor="middle">client</text>
@@ -130,7 +130,7 @@ Legacy clients ask the servers "anything new?" every few seconds: slow, and it c
     <animate attributeName="opacity" dur="6s" repeatCount="indefinite"
       values="0;0;1;1;0;0" keyTimes="0;0.55;0.6;0.72;0.76;1"/>
   </g>
-  {/* Events side: host pushes through xo-server to every client, instantly. */}
+  {/* Events side: host pushes through fragata-server to every client, instantly. */}
   <g fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.28)">
     <rect x="390" y="52" width="115" height="30" rx="6"/>
     <rect x="525" y="52" width="115" height="30" rx="6"/>
@@ -140,7 +140,7 @@ Legacy clients ask the servers "anything new?" every few seconds: slow, and it c
     <text x="582" y="71">client</text>
   </g>
   <rect x="440" y="104" width="150" height="32" rx="6" fill="rgba(106,171,240,0.12)" stroke="#6aabf0"/>
-  <text x="515" y="124" fontSize="11.5" fill="#6aabf0" textAnchor="middle">xo-server</text>
+  <text x="515" y="124" fontSize="11.5" fill="#6aabf0" textAnchor="middle">fragata-server</text>
   <rect x="445" y="166" width="140" height="34" rx="6" fill="rgba(142,131,254,0.14)" stroke="#8e83fe" strokeOpacity="0.85"/>
   <text x="515" y="187" fontSize="11.5" fill="#8e83fe" textAnchor="middle">host</text>
   <g className="schema-flow" stroke="#6aabf0" strokeWidth="1.4" strokeDasharray="5 4">
@@ -170,60 +170,60 @@ Legacy clients ask the servers "anything new?" every few seconds: slow, and it c
 
 ## The web interfaces
 
-Two web UIs currently ship with Xen Orchestra, served by `xo-server` and talking to it over WebSockets:
+Two web UIs currently ship with Fragata Fleet, served by `fragata-server` and talking to it over WebSockets:
 
-- **XO 6** (`@xen-orchestra/web`), the new default interface, built with Vue.js on a dedicated design system. See the [XO 6 documentation](../discover-xen-orchestra/gettingstarted.md).
-- **XO 5** (`xo-web`), the complete historical interface, built with React. See [the infrastructure management section](../manage-your-infrastructure/manage_infrastructure.md) for what you can do with it.
+- **Fragata Fleet** (`@fragata/web`), the new default interface, built with Vue.js on a dedicated design system. See the [Fragata Fleet documentation](../discover-xen-orchestra/gettingstarted.md).
+- **Fleet Classic** (`fragata-web-classic`), the complete historical interface, built with React. See [the infrastructure management section](../manage-your-infrastructure/manage_infrastructure.md) for what you can do with it.
 
-<UiShot light="/img/xo6/dashboard-light.png" dark="/img/xo6/dashboard-dark.png" alt="XO 6, the new default web interface" url="https://your-xo/v6/#/dashboard" />
+<UiShot light="/img/xo6/dashboard-light.png" dark="/img/xo6/dashboard-dark.png" alt="Fragata Fleet, the new default web interface" url="https://your-xo/v6/#/dashboard" />
 
-Both run against the same server and the same data at the same time: see [XO 6 and XO 5](../discover-xen-orchestra/xo6vsxo5.md).
+Both run against the same server and the same data at the same time: see [Fragata Fleet and Fleet Classic](../discover-xen-orchestra/xo6vsxo5.md).
 
-## xo-cli
+## fragata-cli
 
-[`xo-cli`](https://github.com/vatesfr/xen-orchestra/tree/master/packages/xo-cli) sends commands to `xo-server` from a shell. Thanks to introspection, it discovers every method the server exposes, plus a convenient wrapper around the REST API.
+[`fragata-cli`](https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-cli) sends commands to `fragata-server` from a shell. Thanks to introspection, it discovers every method the server exposes, plus a convenient wrapper around the REST API.
 
 :::warning
-`xo-cli` is mainly a debug and power-user tool: there is no absolute guarantee on its stability. Prefer the [REST API](automation/restapi.md) for automation.
+`fragata-cli` is mainly a debug and power-user tool: there is no absolute guarantee on its stability. Prefer the [REST API](automation/restapi.md) for automation.
 :::
 
 Register your XO instance first (only a token is stored):
 
 <Terminal title="workstation — register your XO">{`
-xo-cli register http://xo.my-company.net admin@admin.net admin
+fragata-cli register http://xo.my-company.net admin@admin.net admin
 Successfully logged with admin@admin.net
 `}</Terminal>
 
 Discover what the server exposes:
 
 <Terminal shell title="workstation — explore the API">{`
-xo-cli list-commands  # every available method
-xo-cli list-commands '{user,group}.*'  # filtered by pattern
-xo-cli list-objects type=VM-template  # objects, filterable by properties
+fragata-cli list-commands  # every available method
+fragata-cli list-commands '{user,group}.*'  # filtered by pattern
+fragata-cli list-objects type=VM-template  # objects, filterable by properties
 `}</Terminal>
 
-Then call any method with `xo-cli <command> <param>=<value>`:
+Then call any method with `fragata-cli <command> <param>=<value>`:
 
 <Terminal title="workstation — add a server">{`
-xo-cli server.add host=my.server.net username=root password=secret-password
+fragata-cli server.add host=my.server.net username=root password=secret-password
 42
 `}</Terminal>
 
-Parameters are strings by default (`true`/`false` are parsed as booleans); prefix with `json:` for other types (`baz='json:[1, 2, 3]'`). `xo-cli help` documents everything, including the `xo-cli rest get|post|patch|del` subcommands that map directly onto the REST API.
+Parameters are strings by default (`true`/`false` are parsed as booleans); prefix with `json:` for other types (`baz='json:[1, 2, 3]'`). `fragata-cli help` documents everything, including the `fragata-cli rest get|post|patch|del` subcommands that map directly onto the REST API.
 
 :::note
-`xo-cli` imports XVA files only (`xo-cli vm.import sr=<SR UUID> @=vm.xva`). For OVA imports, use the web UI or [`xo-upload-ova`](https://github.com/vatesfr/xen-orchestra/blob/master/@xen-orchestra/upload-ova/README.md#xo-upload-ova).
+`fragata-cli` imports XVA files only (`fragata-cli vm.import sr=<SR UUID> @=vm.xva`). For OVA imports, use the web UI or [`fragata-upload-ova`](https://github.com/6a8i/fragata-fleet/blob/master/@fragata/upload-ova/README.md#fragata-upload-ova).
 :::
 
 ## APIs
 
-The public, supported API of Xen Orchestra is the **[REST API](automation/restapi.md)**: plain HTTP, easy to call from any language or tool, with its own documentation page and a live OpenAPI reference at `/rest/v0/docs/` on your XO.
+The public, supported API of Fragata Fleet is the **[REST API](automation/restapi.md)**: plain HTTP, easy to call from any language or tool, with its own documentation page and a live OpenAPI reference at `/rest/v0/docs/` on your XO.
 
-Internally, the web UIs and `xo-cli` talk to `xo-server` over a JSON-RPC-over-WebSockets protocol: that connected mode is what lets clients subscribe to events and stay current in real time. This internal API is not designed for third parties: if you automate against XO, use the REST API.
+Internally, the web UIs and `fragata-cli` talk to `fragata-server` over a JSON-RPC-over-WebSockets protocol: that connected mode is what lets clients subscribe to events and stay current in real time. This internal API is not designed for third parties: if you automate against XO, use the REST API.
 
 ## Plugins
 
-Plugins extend Xen Orchestra without touching its core. They live in "Settings, then Plugins":
+Plugins extend Fragata Fleet without touching its core. They live in "Settings, then Plugins":
 
 <UiDetail src="/img/xoa/plugins-menu.png" alt="The Plugins page in Settings" width={520} />
 

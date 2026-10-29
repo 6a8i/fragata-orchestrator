@@ -1,0 +1,38 @@
+{
+  "name": "@fragata/generator-toolbox",
+  "version": "1.1.3",
+  "main": "dist/index.mjs",
+  "license": "MIT",
+  "private": false,
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "rimraf": "^6.0.1",
+    "@types/node": "^20.6",
+    "typescript": "~5.6",
+    "typescript-eslint": "^8.61.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "postversion": "npm publish --access public",
+    "prebuild": "rimraf dist/",
+    "predev": "yarn run prebuild",
+    "test": "tsc && node --test **/*.test.mjs",
+    "clean": "rimraf dist/"
+  },
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/generator-toolbox",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/generator-toolbox",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "engines": {
+    "node": ">=20.18"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "private": false,
+  "name": "@fragata/mixins",
+  "description": "Mixins shared between fragata-proxy and fragata-server",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/mixins",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/mixins",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "license": "AGPL-3.0-or-later",
+  "version": "0.23.0",
+  "engines": {
+    "node": ">=15.6"
+  },
+  "dependencies": {
+    "@fragata/async-each": "^1.0.3",
+    "@fragata/event-listeners-manager": "^1.0.1",
+    "@fragata/iscsi": "^0.4.0",
+    "@fragata/parse-duration": "^0.1.1",
+    "@fragata/task": "^0.7.0",
+    "@fragata/backup-archive": "^1.2.0",
+    "@fragata/log": "^0.7.2",
+    "acme-client": "^5.0.0",
+    "app-conf": "^3.0.0",
+    "fast-xml-parser": "^4.0.0",
+    "golike-defer": "^0.5.1",
+    "lodash": "^4.18.0",
+    "promise-toolbox": "^0.21.0",
+    "fragata-common": "^0.11.0"
+  },
+  "devDependencies": {
+    "@fragata/types": "^2.5.0"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public",
+    "test": "node --test"
+  }
+}

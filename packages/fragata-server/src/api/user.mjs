@@ -1,0 +1,139 @@
+import isEmpty from 'lodash/isEmpty.js'
+import { forbiddenOperation, invalidParameters } from 'fragata-common/api-errors.js'
+import { getUserPublicProperties } from '../utils.mjs'
+
+// ===================================================================
+
+export async function create({ email, firstname, lastname, password, permission, username }) {
+  return (await this.createUser({ email, firstname, lastname, password, permission, username })).id
+}
+
+create.description = 'creates a new user'
+
+create.permission = 'admin'
+
+create.params = {
+  email: { type: 'string' },
+  firstname: { type: 'string', optional: true },
+  lastname: { type: 'string', optional: true },
+  password: { type: 'string' },
+  permission: { type: 'string', optional: true },
+  username: { type: 'string', optional: true },
+}
+
+// -------------------------------------------------------------------
+
+// Deletes an existing user.
+async function delete_({ id }) {
+  if (id === this.apiContext.user.id) {
+    throw invalidParameters('a user cannot delete itself')
+  }
+
+  await this.deleteUser(id)
+}
+
+// delete is not a valid identifier.
+export { delete_ as delete }
+
+delete_.description = 'deletes an existing user'
+
+delete_.permission = 'admin'
+
+delete_.params = {
+  id: { type: 'string' },
+}
+
+// -------------------------------------------------------------------
+
+// TODO: remove this function when users are integrated to the main
+// collection.
+export async function getAll() {
+  // Retrieves the users.
+  const users = await this.getAllUsers()
+
+  // Filters out private properties.
+  return users.map(getUserPublicProperties)
+}
+
+getAll.description = 'returns all the existing users'
+
+getAll.permission = 'admin'
+
+// -------------------------------------------------------------------
+
+export function getAuthenticationTokens() {
+  return this.getAuthenticationTokensForUser(this.apiContext.user.id)
+}
+
+getAuthenticationTokens.description = 'returns authentication tokens of the current user'
+
+// -------------------------------------------------------------------
+
+export async function set({ id, email, firstname, lastname, password, permission, preferences, username }) {
+  const isAdmin = this.apiContext.permission === 'admin'
+  const noEditFields = this.getUserIdentityFields()
+  if (isAdmin) {
+    if (permission && id === this.apiContext.user.id) {
+      throw invalidParameters('a user cannot change its own permission')
+    }
+  } else if ([...noEditFields, 'permission'].some(key => arguments[0][key])) {
+    throw invalidParameters('this property can only be changed by an administrator')
+  } else if (id !== this.apiContext.user.id) {
+    throw invalidParameters('a user can only change its own properties')
+  }
+
+  const user = await this.getUser(id)
+  if (!isEmpty(user.authProviders)) {
+    const unallowedEdits = noEditFields.filter(key => arguments[0][key] !== undefined)
+    if (unallowedEdits.length > 0) {
+      throw forbiddenOperation('update user', `cannot change ${unallowedEdits.join(' or ')} of synchronized user`)
+    }
+  }
+
+  await this.updateUser(id, { email, firstname, lastname, password, permission, preferences, username })
+}
+
+set.description = 'changes the properties of an existing user'
+
+set.params = {
+  id: { type: 'string' },
+  email: { type: 'string', optional: true },
+  firstname: { type: 'string', optional: true },
+  lastname: { type: 'string', optional: true },
+  password: { type: 'string', optional: true },
+  permission: { type: 'string', optional: true },
+  preferences: { type: 'object', optional: true },
+  username: { type: 'string', optional: true },
+}
+
+// -------------------------------------------------------------------
+
+export async function changePassword({ oldPassword, newPassword }) {
+  const { user } = this.apiContext
+
+  if (!isEmpty(user.authProviders)) {
+    throw forbiddenOperation('change password', 'synchronized users cannot change their passwords')
+  }
+
+  await this.changeUserPassword(user.id, oldPassword, newPassword)
+}
+
+changePassword.description = 'change password after checking old password (user function)'
+
+changePassword.params = {
+  oldPassword: { type: 'string' },
+  newPassword: { type: 'string' },
+}
+
+// -------------------------------------------------------------------
+
+export async function removeAuthProvider({ id, authProvider }) {
+  await this.updateUser(id, { authProviders: { [authProvider]: null } })
+}
+
+removeAuthProvider.permission = 'admin'
+
+removeAuthProvider.params = {
+  authProvider: { type: 'string' },
+  id: { type: 'string' },
+}

@@ -5,13 +5,13 @@ sidebar_position: 1
 
 # Backup overview
 
-Xen Orchestra ships a complete, **agentless** backup engine for your whole infrastructure: nothing to install inside your VMs, everything managed from one place, from quick rolling snapshots to cross-site disaster recovery.
+Fragata Fleet ships a complete, **agentless** backup engine for your whole infrastructure: nothing to install inside your VMs, everything managed from one place, from quick rolling snapshots to cross-site disaster recovery.
 
 New to backups in XO? Start with these two:
 
 <CardGrid>
 <LinkCard title="Backup strategy guide" href="/backups-and-dr/backup_howto">Which backup type for which need: design your protection plan before clicking anything.</LinkCard>
-<LinkCard title="Backups in XO 6" href="/backups-and-dr/backups-in-xo6">Follow backup health from the new dashboards: job status, per-VM protection, restore points.</LinkCard>
+<LinkCard title="Backups in Fragata Fleet" href="/backups-and-dr/backups-in-xo6">Follow backup health from the new dashboards: job status, per-VM protection, restore points.</LinkCard>
 </CardGrid>
 
 ## Pick your backup type

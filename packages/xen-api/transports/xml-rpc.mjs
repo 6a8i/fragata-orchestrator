@@ -1,8 +1,8 @@
-import { formatXml } from '@vates/xml/format'
-import { parseXml } from '@vates/xml/parse'
+import { formatXml } from '@fragata/xml/format'
+import { parseXml } from '@fragata/xml/parse'
 import { request } from 'undici'
-import { xmlRpcFormatter } from '@vates/xml-rpc/formatter'
-import { xmlRpcParser } from '@vates/xml-rpc/parser'
+import { xmlRpcFormatter } from '@fragata/xml-rpc/formatter'
+import { xmlRpcParser } from '@fragata/xml-rpc/parser'
 
 import prepareXmlRpcParams from './_prepareXmlRpcParams.mjs'
 import XapiError from '../_XapiError.mjs'

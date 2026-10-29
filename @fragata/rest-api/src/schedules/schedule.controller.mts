@@ -1,0 +1,155 @@
+import type { XoSchedule } from '@fragata/types'
+import {
+  Example,
+  Extension,
+  Get,
+  Middlewares,
+  Path,
+  Post,
+  Query,
+  Request,
+  Response,
+  Route,
+  Security,
+  SuccessResponse,
+  Tags,
+} from 'tsoa'
+import { inject } from 'inversify'
+import { provide } from 'inversify-binding-decorators'
+import type { Request as ExRequest } from 'express'
+
+import { acl } from '../middlewares/acl.middleware.mjs'
+import {
+  asynchronousActionResp,
+  badRequestResp,
+  featureUnauthorized,
+  forbiddenOperationResp,
+  internalServerErrorResp,
+  noContentResp,
+  notFoundResp,
+  unauthorizedResp,
+  type Unbrand,
+} from '../open-api/common/response.common.mjs'
+import { partialSchedules, schedule, scheduleIds } from '../open-api/oa-examples/schedule.oa-example.mjs'
+import { taskLocation } from '../open-api/oa-examples/task.oa-example.mjs'
+import type { SendObjects } from '../helpers/helper.type.mjs'
+import { XoController } from '../abstract-classes/xo-controller.mjs'
+import type { CreateActionReturnType } from '../abstract-classes/base-controller.mjs'
+import { RestApi } from '../rest-api/rest-api.mjs'
+
+@Route('schedules')
+@Security('*')
+@Response(badRequestResp.status, badRequestResp.description)
+@Response(unauthorizedResp.status, unauthorizedResp.description)
+@Tags('schedules')
+@provide(ScheduleController)
+export class ScheduleController extends XoController<XoSchedule> {
+  constructor(@inject(RestApi) restApi: RestApi) {
+    super('schedule', restApi)
+  }
+
+  // --- abstract methods
+  getAllCollectionObjects(): Promise<XoSchedule[]> {
+    return this.restApi.xoApp.getAllSchedules()
+  }
+  getCollectionObject(id: XoSchedule['id']): Promise<XoSchedule> {
+    return this.restApi.xoApp.getSchedule(id)
+  }
+
+  /**
+   * Returns all schedules that match the following privilege:
+   * - resource: schedule, action: read
+   *
+   * @example fields "enabled,jobId,cron,id"
+   * @example filter "enabled?"
+   * @example limit 42
+   */
+  @Example(scheduleIds)
+  @Example(partialSchedules)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('')
+  @Security('*', ['acl'])
+  async getSchedules(
+    @Request() req: ExRequest,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<Unbrand<XoSchedule>>> {
+    return this.sendObjects(Object.values(await this.getObjects({ filter })), req, {
+      limit,
+      privilege: { action: 'read', resource: 'schedule' },
+    })
+  }
+
+  /**
+   *
+   * Required privilege:
+   * - resource: schedule, action: read
+   *
+   * @example id "cf7249f8-d20b-494f-97f4-b1f32f94e780"
+   */
+  @Example(schedule)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}')
+  @Middlewares(
+    acl({
+      resource: 'schedule',
+      action: 'read',
+      objectId: 'params.id',
+      getObject:
+        ({ restApi }) =>
+        id =>
+          restApi.xoApp.getSchedule(id),
+    })
+  )
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async getSchedule(@Path() id: string): Promise<Unbrand<XoSchedule>> {
+    return this.getObject(id as XoSchedule['id'])
+  }
+
+  /**
+   *
+   * Required privilege:
+   * - resource: schedule, action: run
+   *
+   * @example id "cf7249f8-d20b-494f-97f4-b1f32f94e780"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/run')
+  @Middlewares(
+    acl({
+      resource: 'schedule',
+      action: 'run',
+      objectId: 'params.id',
+      getObject:
+        ({ restApi }) =>
+        id =>
+          restApi.xoApp.getSchedule(id),
+    })
+  )
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(featureUnauthorized.status, featureUnauthorized.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async runSchedule(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const scheduleId = id as XoSchedule['id']
+    const action = async () => {
+      const xoApp = this.restApi.xoApp
+      const schedule = await this.getObject(scheduleId)
+      const job = await xoApp.getJob(schedule.jobId)
+      await xoApp.runJob(job, schedule)
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: { name: 'run schedule', objectId: scheduleId },
+    })
+  }
+}

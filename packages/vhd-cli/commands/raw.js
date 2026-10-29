@@ -1,7 +1,7 @@
 'use strict'
 
 const { openVhd } = require('vhd-lib')
-const { getSyncedHandler } = require('@xen-orchestra/fs')
+const { getSyncedHandler } = require('@fragata/fs')
 const { resolve } = require('path')
 
 const { writeStream } = require('../_utils')

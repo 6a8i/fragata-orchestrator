@@ -1,4 +1,4 @@
-# Code of Conduct - Xen Orchestra
+# Code of Conduct - Fragata Fleet
 
 ## Our Pledge
 

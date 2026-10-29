@@ -1,6 +1,6 @@
 'use strict'
 
-const { asyncEach } = require('@vates/async-each')
+const { asyncEach } = require('@fragata/async-each')
 const { forEach, fromCallback } = require('promise-toolbox')
 const { join } = require('path')
 const fs = require('fs')

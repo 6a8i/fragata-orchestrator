@@ -2,15 +2,15 @@
   "private": false,
   "name": "vhd-cli",
   "version": "1.1.2",
-  "deprecated": "Use @xen-orchestra/disk-cli instead",
+  "deprecated": "Use @fragata/disk-cli instead",
   "license": "ISC",
   "description": "Tools to read/create and merge VHD files",
-  "homepage": "https://github.com/vatesfr/xen-orchestra/tree/master/packages/vhd-cli",
-  "bugs": "https://github.com/vatesfr/xen-orchestra/issues",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/vhd-cli",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
   "repository": {
     "directory": "packages/vhd-cli",
     "type": "git",
-    "url": "https://github.com/vatesfr/xen-orchestra.git"
+    "url": "https://github.com/6a8i/fragata-fleet.git"
   },
   "author": {
     "name": "Vates SAS",
@@ -24,7 +24,7 @@
     "node": ">=10"
   },
   "dependencies": {
-    "@xen-orchestra/fs": "^4.10.0",
+    "@fragata/fs": "^4.10.0",
     "cli-progress": "^3.1.0",
     "exec-promise": "^0.7.0",
     "getopts": "^2.2.3",

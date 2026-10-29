@@ -1,45 +1,50 @@
-<h3 align="center"><b>Xen Orchestra</b></h3>
-<p align="center"><b>Manage, Backup and Cloudify your XCP-ng/XenServer infrastructure</b></p>
+<h3 align="center"><b>Fragata Fleet</b></h3>
+<p align="center"><b>Orquestração, backup e API para infraestruturas Fragata Host, XCP-ng e XenServer</b></p>
 
-![](https://repository-images.githubusercontent.com/8077957/6dcf71fd-bad9-4bfa-933f-b466c52d513d)
+Fragata Fleet é um hard fork do Xen Orchestra, iniciado em 29 de outubro de 2026 a partir do commit `a50776cb` do repositório `vatesfr/xen-orchestra`. A partir desse ponto o projeto segue roadmap, versionamento e identidade próprios.
 
-XO (Xen Orchestra) is a complete solution to visualize, manage, backup and delegate your XCP-ng (or XenServer) infrastructure. **No agent** is required for it to work.
+Sem agente nos hosts: o Fleet conversa com os pools pela XAPI. Oferece interface web, CLI, API REST, servidor MCP e um motor de backup completo (full, incremental, replicação contínua, disaster recovery, remotes NFS, SMB e S3).
 
-It provides a web UI, a CLI and a REST API, while also getting a Terraform provider among other connectors/plugins.
+## Produtos
 
-## ⚡️ Quick start
+| Produto | Papel | Origem |
+|---|---|---|
+| **Fragata Fleet** | orquestração, backup e API para um ou mais pools (este repositório) | Xen Orchestra |
+| **Fragata Host** | hipervisor e host de virtualização | XCP-ng |
+| **Fragata Deck** | interface leve embutida no host (`@fragata/lite`) | XO Lite |
 
-Log in to your account and use the deploy form available from the [Vates website](https://vates.tech/deploy/).
+## Estrutura do monorepo
 
-## 📚 Documentation
+- `packages/fragata-server`: backend, API JSON-RPC e REST, backups, autenticação.
+- `packages/fragata-server-*`: plugins (autenticação LDAP, SAML, OIDC, GitHub, Google; alertas; load balancer; Netbox; SDN; transportes de notificação).
+- `@fragata/web` e `@fragata/web-core`: interface principal (Vue 3).
+- `packages/fragata-web-classic`: interface clássica (React), servida em `/v5`.
+- `@fragata/lite`: Fragata Deck.
+- `@fragata/backups`, `@fragata/backup-archive`, `@fragata/fs`, `packages/vhd-lib`: motor de backup e storage remoto.
+- `@fragata/rest-api`, `@fragata/mcp`, `packages/fragata-cli`: API REST, servidor MCP e CLI.
 
-The official documentation is available at https://docs.xen-orchestra.com/
+## Rodando a partir do código
 
-Documentation updates are deployed automatically once per day.
+Requisitos: Node.js LTS, Yarn 1.x, Redis e as dependências de sistema listadas em `docs/docs/getting-started/install-from-sources.md`.
 
-## 🚀 Features
+```bash
+yarn
+yarn build
+cd packages/fragata-server
+node dist/cli.mjs
+```
 
-- **Centralized interface**: one Xen Orchestra to rule your entire infrastructure, even across datacenters at various locations
-- **Administration and management:** VM creation, management, migration, metrics and statistics, XO proxies for remote sites… XO will become your best friend!
-- **Backup & Disaster Recovery:** The backup is an essential component for the security of your infrastructure. With Xen Orchestra, select the backup mode that suits you best and protect your VMs and your business. Rolling snapshot, Full backup & replication, incremental backup & replication, mirror backup, S3 support among many other possibilities!
-- **Cloud Enabler:** Xen Orchestra is your cloud initiator for XCP-ng (and XenServer). Group management, resource delegation and easy group administration. The Cloud is yours!
+Configuração em `/etc/fragata-server/config.toml` ou `~/.config/fragata-server/config.toml`. Um ambiente em container (Podman ou Docker) com Redis está descrito no repositório de infraestrutura do projeto.
 
-## 🌍 Translations
+## Branches
 
-Status of XO Lite & XO 6:
+- `main`: linha de desenvolvimento do Fragata.
+- `upstream`: cópia congelada do ponto de origem (tag `upstream-base`), mantida só para referência e cherry-pick seletivo de correções de segurança. Nunca é mergeada.
 
-[![Translation status](http://translate.vates.tech/widget/xen-orchestra/multi-auto.svg)](http://translate.vates.tech/engage/xen-orchestra/)
+## Licença
 
-[Help us translate Xen Orchestra in more languages!](http://translate.vates.tech/engage/xen-orchestra/)
+AGPL-3.0, a mesma do projeto de origem. Os avisos de copyright da Vates SAS nos pacotes são mantidos; veja `LICENSE.md`.
 
-## 📸 Screenshots
+## Origem e marcas
 
-![Xen Orchestra dashboard](https://docs.xen-orchestra.com/img/xo6/dashboard-dark.png)
-
-![Xen Orchestra dashboard, including Network stats](https://docs.xen-orchestra.com/img/xo6/lab-dashboard.webp)
-
-![Storage repository statistics (XO 5)](https://vates.tech/assets/img/illustrations/xen-orchestra-screen-4.png.avif)
-
-## License
-
-AGPL3 © [Vates](https://vates.tech)
+O Xen Orchestra é um projeto da Vates SAS. "Xen Orchestra", "XOA", "XO" e "XCP-ng" são marcas de seus respectivos donos e não são usadas por este projeto; "Xen" é marca do Xen Project. Nomes de pacote como `xen-api` e `xapi` descrevem o protocolo e não uma marca.

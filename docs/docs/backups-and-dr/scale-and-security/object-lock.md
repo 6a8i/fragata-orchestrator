@@ -1,6 +1,6 @@
 # S3 Object Lock
 
-[Object Lock](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html) is the immutability mechanism of S3-compatible object storage. This page explains what it actually protects when Xen Orchestra writes to a locked bucket, how to configure the bucket, and which backup settings are compatible with it.
+[Object Lock](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html) is the immutability mechanism of S3-compatible object storage. This page explains what it actually protects when Fragata Fleet writes to a locked bucket, how to configure the bucket, and which backup settings are compatible with it.
 
 :::tip
 If your backup repository (BR) is a local filesystem, NFS or SMB share, you want the [on-prem immutability service](./immutability.md) instead. The two mechanisms serve the same purpose but behave very differently in practice, so do not transpose the advice from one page to the other.

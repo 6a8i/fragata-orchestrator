@@ -1,0 +1,130 @@
+import { asyncEach } from '@fragata/async-each'
+import { createLogger } from '@fragata/log'
+import { strictEqual } from 'node:assert'
+
+const PLUGIN_NAME = 'sdncontroller.py'
+
+const log = createLogger('xo:sdn-controller:openflowplugin')
+export class OpenFlowPlugin {
+  #getBridge(network) {
+    return network.bridge // following discussion with David, it may not be the right bridge
+    // the plugin may need the bridge name on dom0 sides
+  }
+
+  async #callPluginOnAllNetwork(network, method, parameters) {
+    const bridge = this.#getBridge(network)
+    return asyncEach(
+      network.$PIFs,
+      async PIF => {
+        const host = PIF.$host
+        return host.$xapi.call('host.call_plugin', host.$ref, PLUGIN_NAME, method, { ...parameters, bridge })
+      },
+      { stopOnError: false }
+    )
+  }
+
+  async addRule({ vif, allow, protocol, ipRange, direction, port, priority }) {
+    if (port) {
+      port = String(port)
+    }
+    log.debug('addRule', { vif, allow, protocol, ipRange, direction, port, priority })
+    return this.#callPluginOnAllNetwork(vif.$network, 'add-rule', {
+      mac: vif.MAC,
+      allow: allow ? 'true' : 'false',
+      protocol,
+      ipRange,
+      direction,
+      port,
+      // 0 is a valid priority
+      priority: priority === undefined ? undefined : String(priority),
+    })
+  }
+
+  async deleteRule({ vif, allow, protocol, ipRange, direction, port }) {
+    if (port) {
+      port = String(port)
+    }
+    log.debug('deleteRule', { vif, allow, protocol, ipRange, direction, port })
+    return this.#callPluginOnAllNetwork(vif.$network, 'del-rule', {
+      mac: vif.MAC,
+      allow: allow ? 'true' : 'false',
+      protocol,
+      ipRange,
+      direction,
+      port,
+    })
+  }
+
+  async addNetworkRule({ network, allow, protocol, ipRange, direction, port, priority, cookie }) {
+    if (port) {
+      port = String(port)
+    }
+    log.debug('addNetworkRule', { network, allow, protocol, ipRange, direction, port, priority, cookie })
+    return this.#callPluginOnAllNetwork(network, 'add-rule', {
+      allow: allow ? 'true' : 'false',
+      protocol,
+      ipRange,
+      direction,
+      port,
+      priority: priority === undefined ? undefined : String(priority),
+      cookie,
+    })
+  }
+  async deleteNetworkRule({ network, allow, protocol, ipRange, direction, port, cookie }) {
+    if (port) {
+      port = String(port)
+    }
+    log.debug('deleteNetworkRule', { network, allow, protocol, ipRange, direction, port, cookie })
+    return this.#callPluginOnAllNetwork(network, 'del-rule', {
+      allow: allow ? 'true' : 'false',
+      protocol,
+      ipRange,
+      direction,
+      port,
+      cookie,
+    })
+  }
+
+  async check(host) {
+    log.debug('check', { host })
+    // if at least one of the network can answer with a well formed answer from the plugin
+    // then the plugin is considered installed and working
+    // some network can fails this test,
+    let lastError
+    if (!host.$PIFs) {
+      log.error('error while listing the host PIFs', host)
+      lastError = new Error(`No network associated to host ${host.id}`)
+    } else {
+      for (const { $network } of host.$PIFs) {
+        try {
+          const response = await host.$xapi.call('host.call_plugin', host.$ref, PLUGIN_NAME, 'dump-flows', {
+            bridge: $network.bridge,
+          })
+          const json = JSON.parse(response)
+          strictEqual(
+            json.returncode,
+            0,
+            `plugin check should have a return code of 0 to succeed, got ${json.returncode}`
+          )
+          // one of the network is valid, let's stop the check here
+          return true
+        } catch (error) {
+          if (error.code === 'XENAPI_MISSING_PLUGIN') {
+            // plugin is not installed , no need to test other networks
+            throw error
+          }
+          log.warn('error while checking if the host has the sdn plugin', {
+            host: host.uuid,
+            network: $network.uuid,
+            bridge: $network.bridge,
+            error,
+          })
+          // track it: it will be throw only if no call_plugin successed
+          lastError = error
+        }
+      }
+    }
+
+    throw lastError
+  }
+}

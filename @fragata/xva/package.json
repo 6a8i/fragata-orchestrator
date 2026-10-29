@@ -1,0 +1,29 @@
+{
+  "name": "@fragata/xva",
+  "version": "1.0.3",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "private": false,
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/xva",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/xva",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "engines": {
+    "node": ">=14.0"
+  },
+  "dependencies": {
+    "@fragata/read-chunk": "^1.2.1",
+    "hash-wasm": "^4.11.0",
+    "lodash.defaultsdeep": "^4.6.1",
+    "promise-toolbox": "^0.21.0",
+    "tar-stream": "^3.1.6",
+    "uuid": "^9.0.0"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public"
+  }
+}

@@ -10,10 +10,10 @@ The source and destination can have different settings for encryption, VHD stora
 
 A mirror backup is a backup of your backups: XO reads the archives already stored on the source BR and copies the new ones to the destination BR. The VM and the hosts are never involved in the transfer:
 
-<Schema label="A mirror backup copies existing archives from one BR to another: the VM is only exported once by its normal backup job, then XO mirrors the archives to a bigger, slower, cheaper BR with a longer retention" legend={[["#e0a94a", "backup archive"], ["#5ac8c8", "mirror transfer"], ["#8e83fe", "Xen Orchestra"]]} maxWidth="640px">
-<svg viewBox="0 0 640 260" role="img" aria-label="A VM is exported by its normal backup job to a source backup repository holding archives B, C and D; Xen Orchestra orchestrates a mirror transfer that copies the new archives to a bigger destination backup repository with a longer retention, holding A, B, C and D; the VM and hosts are not involved in the mirror transfer">
+<Schema label="A mirror backup copies existing archives from one BR to another: the VM is only exported once by its normal backup job, then XO mirrors the archives to a bigger, slower, cheaper BR with a longer retention" legend={[["#e0a94a", "backup archive"], ["#5ac8c8", "mirror transfer"], ["#8e83fe", "Fragata Fleet"]]} maxWidth="640px">
+<svg viewBox="0 0 640 260" role="img" aria-label="A VM is exported by its normal backup job to a source backup repository holding archives B, C and D; Fragata Fleet orchestrates a mirror transfer that copies the new archives to a bigger destination backup repository with a longer retention, holding A, B, C and D; the VM and hosts are not involved in the mirror transfer">
   <rect x="272" y="16" width="96" height="32" rx="6" fill="rgba(255,255,255,0.04)" stroke="#8e83fe" />
-  <text x="320" y="36" fill="#c6d2e1" fontSize="11" textAnchor="middle">Xen Orchestra</text>
+  <text x="320" y="36" fill="#c6d2e1" fontSize="11" textAnchor="middle">Fragata Fleet</text>
   <line x1="296" y1="48" x2="204" y2="94" stroke="rgba(255,255,255,0.22)" strokeDasharray="4 4" />
   <line x1="344" y1="48" x2="448" y2="74" stroke="rgba(255,255,255,0.22)" strokeDasharray="4 4" />
   <text x="320" y="66" fill="#7a8699" fontSize="9" textAnchor="middle">orchestrates</text>

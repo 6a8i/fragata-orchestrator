@@ -8,7 +8,7 @@ const fs = require('fs-extra')
 const getStream = require('get-stream')
 const { rimraf } = require('rimraf')
 const tmp = require('tmp')
-const { getSyncedHandler } = require('@xen-orchestra/fs')
+const { getSyncedHandler } = require('@fragata/fs')
 const { Disposable, pFromCallback } = require('promise-toolbox')
 const { randomBytes } = require('crypto')
 

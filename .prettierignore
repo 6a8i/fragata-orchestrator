@@ -3,8 +3,8 @@
 **/*.hbs
 
 # Generated files
-/@xen-orchestra/web/src/route-map.d.ts
-/@xen-orchestra/lite/src/route-map.d.ts
+/@fragata/web/src/route-map.d.ts
+/@fragata/lite/src/route-map.d.ts
 
 # Docusaurus MDX content: prettier's markdown parser corrupts JSX
 # comments ({/* … */} becomes {/_ … _/}) and other MDX constructs

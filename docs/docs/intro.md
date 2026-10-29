@@ -4,18 +4,18 @@ sidebar_position: 1
 sidebar_label: Introduction
 ---
 
-# Xen Orchestra in a nutshell
+# Fragata Fleet in a nutshell
 
-Xen Orchestra (XO) is the complete solution to **visualize, manage, back up and delegate** your XCP-ng (or XenServer) infrastructure: any number of pools, on any site, from one place. **No agent** is required for it to work. Together with [XCP-ng](https://docs.xcp-ng.org/), it forms [Vates VMS](https://docs.vates.tech/), the fully open source virtualization stack built and supported by [Vates](https://vates.tech).
+Fragata Fleet (XO) is the complete solution to **visualize, manage, back up and delegate** your XCP-ng (or XenServer) infrastructure: any number of pools, on any site, from one place. **No agent** is required for it to work. Together with [XCP-ng](https://docs.xcp-ng.org/), it forms [Vates VMS](https://docs.vates.tech/), the fully open source virtualization stack built and supported by [Vates](https://vates.tech).
 
-<UiShot dark="/img/xo6/lab-dashboard.webp" alt="Xen Orchestra 6: one dashboard for every pool, host and VM you manage" url="https://myxoa.domain.tld/v6/#/dashboard" />
+<UiShot dark="/img/xo6/lab-dashboard.webp" alt="Fragata Fleet 6: one dashboard for every pool, host and VM you manage" url="https://myxoa.domain.tld/v6/#/dashboard" />
 
 Everything goes through XO, and everything that talks to your infrastructure talks to XO:
 
-<Schema label="Xen Orchestra at the center of your infrastructure" legend={[["#6aabf0", "XO"], ["#8e83fe", "XCP-ng"], ["#56c288", "VMs"], ["#e0a94a", "backup"], ["#5ac8c8", "V2V"]]} maxWidth="760px">
-<svg viewBox="0 0 680 380" role="img" aria-label="Users and automation tools drive Xen Orchestra, which manages any number of XCP-ng pools, streams backups to a repository, keeps disaster recovery copies and imports VMware VMs with V2V">
+<Schema label="Fragata Fleet at the center of your infrastructure" legend={[["#6aabf0", "XO"], ["#8e83fe", "XCP-ng"], ["#56c288", "VMs"], ["#e0a94a", "backup"], ["#5ac8c8", "V2V"]]} maxWidth="760px">
+<svg viewBox="0 0 680 380" role="img" aria-label="Users and automation tools drive Fragata Fleet, which manages any number of XCP-ng pools, streams backups to a repository, keeps disaster recovery copies and imports VMware VMs with V2V">
 {/* Who talks to XO: humans and automation. */}
-<a href="/discover-xen-orchestra/gettingstarted" aria-label="The XO 6 web interface">
+<a href="/discover-xen-orchestra/gettingstarted" aria-label="The Fragata Fleet web interface">
 <rect x="20" y="12" width="170" height="62" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.28)"/>
 <text x="105" y="37" fontSize="13.5" fill="#c6d2e1" textAnchor="middle">Your team</text>
 <text x="105" y="56" fontSize="11.5" fill="#7a8699" textAnchor="middle">Web UI · any browser</text>
@@ -38,7 +38,7 @@ Everything goes through XO, and everything that talks to your infrastructure tal
 {/* XO, the middleware. The band below the text stays empty so the
 backup packet can cross the box. */}
 <rect x="190" y="115" width="300" height="76" rx="8" fill="rgba(106,171,240,0.12)" stroke="#6aabf0"/>
-<text x="340" y="139" fontSize="17" fill="#6aabf0" textAnchor="middle">Xen Orchestra</text>
+<text x="340" y="139" fontSize="17" fill="#6aabf0" textAnchor="middle">Fragata Fleet</text>
 <text x="340" y="156" fontSize="11.5" fill="#7a8699" textAnchor="middle">backup · DR · V2V · load balancing</text>
 <text x="340" y="172" fontSize="11.5" fill="#7a8699" textAnchor="middle">Web UI · REST API · CLI</text>
 {/* VMware cluster: the V2V source, on a 36s cycle. It appears, XO
@@ -159,8 +159,8 @@ the parked standby. */}
 ## Start here
 
 <CardGrid>
-<LinkCard title="Deploy Xen Orchestra" href="/getting-started/installation">Get the turnkey appliance (XOA) running in minutes, or install from the sources.</LinkCard>
-<LinkCard title="Discover XO 6" href="/discover-xen-orchestra/gettingstarted">Tour the new interface: tree view, dashboards, consoles.</LinkCard>
+<LinkCard title="Deploy Fragata Fleet" href="/getting-started/installation">Get the turnkey appliance (XOA) running in minutes, or install from the sources.</LinkCard>
+<LinkCard title="Discover Fragata Fleet" href="/discover-xen-orchestra/gettingstarted">Tour the new interface: tree view, dashboards, consoles.</LinkCard>
 <LinkCard title="Set up backups" href="/backups-and-dr/backup">Rolling snapshots, incremental backups, replication and more.</LinkCard>
 <LinkCard title="Migrate from VMware" href="/guides/v2v-migration-guide">Import your ESXi VMs directly into your pools with V2V.</LinkCard>
 <LinkCard title="Automate everything" href="/automation/restapi">REST API, CLI, Terraform, Ansible, Pulumi and more.</LinkCard>
@@ -169,7 +169,7 @@ the parked standby. */}
 
 ## What XO does for you
 
-- **Administration**: complete control of your pools, hosts, VMs, storage and networks, from a [modern web interface](/discover-xen-orchestra/gettingstarted.md) or from XO 5.
+- **Administration**: complete control of your pools, hosts, VMs, storage and networks, from a [modern web interface](/discover-xen-orchestra/gettingstarted.md) or from Fleet Classic.
 - **Backup and disaster recovery**: rolling snapshots, full and incremental backups, replication, mirroring and immutability, toward S3, NFS, SMB or Azure targets. See [Backups](/backups-and-dr/backups-in-xo6.md).
 - **Migration from VMware**: [V2V](/guides/v2v-migration-guide.md) imports your ESXi VMs directly into your pools.
 - **Automation**: a [REST API](automation/restapi.md), a CLI, and first-class providers for [Terraform](automation/terraform-provider.md), [Ansible](automation/ansible.md), [Pulumi](automation/pulumi-provider.md), [Packer](automation/packer-provider.md) and [PowerShell](automation/powershell-module.md), plus [Kubernetes cluster recipes](automation/kubernetes.md).
@@ -178,11 +178,11 @@ the parked standby. */}
 
 ## XO in the Vates VMS stack
 
-This documentation covers Xen Orchestra itself. Its two siblings cover the rest of the stack, and the three work as one set:
+This documentation covers Fragata Fleet itself. Its two siblings cover the rest of the stack, and the three work as one set:
 
 | You are looking for                                                                                                                    | Where to go                                 |
 | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| Xen Orchestra: the interfaces, the backup engine, the REST API and automation, XOA                                                     | **You are here**                            |
+| Fragata Fleet: the interfaces, the backup engine, the REST API and automation, XOA                                                     | **You are here**                            |
 | XCP-ng: installing and operating the hypervisor, hosts, storage and networks, hardware compatibility                                   | [docs.xcp-ng.org](https://docs.xcp-ng.org/) |
 | The stack as a whole: getting started end to end, bundles and licensing, compatibility ecosystem, security advisories, product roadmap | [docs.vates.tech](https://docs.vates.tech/) |
 
@@ -192,4 +192,4 @@ The search bar at the top covers docs.xen-orchestra.com, docs.xcp-ng.org and doc
 
 ## Two interfaces, one product
 
-Xen Orchestra currently ships two web interfaces on the same server and the same data: **XO 6**, the new default interface, and **XO 5**, which remains available for the operations XO 6 does not cover yet. Read [XO 6 and XO 5](/discover-xen-orchestra/xo6vsxo5.md) to see what lives where.
+Fragata Fleet currently ships two web interfaces on the same server and the same data: **Fragata Fleet**, the new default interface, and **Fleet Classic**, which remains available for the operations Fragata Fleet does not cover yet. Read [Fragata Fleet and Fleet Classic](/discover-xen-orchestra/xo6vsxo5.md) to see what lives where.

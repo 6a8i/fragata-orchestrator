@@ -1,0 +1,71 @@
+{
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "main": "./dist/index.mjs",
+  "name": "@fragata/rest-api",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/rest-api",
+  "version": "0.41.1",
+  "description": "REST API to manage your XOA",
+  "license": "AGPL-3.0-or-later",
+  "private": false,
+  "type": "module",
+  "engines": {
+    "node": ">=20.18"
+  },
+  "scripts": {
+    "build": "tsoa spec-and-routes && tsc",
+    "clean": "rimraf dist/ open-api/spec/ src/open-api/routes",
+    "dev": "tsoa spec-and-routes && tsc --watch",
+    "prepublishOnly": "npm run build",
+    "postversion": "npm publish --access public",
+    "prebuild": "npm run clean",
+    "predev": "npm run clean",
+    "test": "npm run build && node --test dist/**/*.test.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "@types/express": "^5.0.0",
+    "@types/swagger-ui-express": "^4.1.7",
+    "@fragata/disk-transform": "^1.3.4",
+    "openapi-types": "^12.1.3",
+    "rimraf": "^6.0.1",
+    "typescript": "~5.6.3",
+    "typescript-eslint": "^8.61.0"
+  },
+  "dependencies": {
+    "@fragata/async-each": "^1.0.3",
+    "@fragata/obfuscate": "^0.1.0",
+    "@fragata/task": "^0.7.0",
+    "@fragata/types": "^2.5.0",
+    "@fragata/acl": "^1.8.0",
+    "@fragata/backups": "^0.78.0",
+    "@fragata/log": "^0.7.2",
+    "@fragata/qcow2": "^1.4.1",
+    "@fragata/vmdk": "^1.0.0",
+    "@fragata/xapi": "^9.1.0",
+    "complex-matcher": "^1.1.1",
+    "fast-xml-parser": "^5.10.1",
+    "golike-defer": "^0.5.1",
+    "inversify": "^6.2.2",
+    "inversify-binding-decorators": "^4.0.0",
+    "lodash": "^4.18.0",
+    "promise-toolbox": "^0.21.0",
+    "semver": "^7.7.2",
+    "swagger-ui-express": "^5.0.1",
+    "tsoa": "^6.6.0",
+    "value-matcher": "^0.2.0",
+    "vhd-lib": "^4.17.0",
+    "fragata-common": "^0.11.0",
+    "fragata-remote-parser": "^2.0.0",
+    "zod": "^4.3.6",
+    "zod-openapi": "^5.4.6"
+  },
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/rest-api",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  }
+}

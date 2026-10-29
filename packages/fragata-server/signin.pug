@@ -1,0 +1,115 @@
+doctype html
+html
+  head
+    meta(charset = 'utf-8')
+    meta(http-equiv = 'X-UA-Compatible' content = 'IE=edge,chrome=1')
+    meta(name = 'viewport' content = 'width=device-width, initial-scale=1.0')
+    title Fragata Fleet
+    meta(name = 'author' content = 'Vates SAS')
+    link(rel = 'stylesheet' href = `${xo5Mount}index.css`)
+    link(rel = 'icon' href = `${xo5Mount}assets/favicon.svg` type = 'image/svg+xml')
+    style.
+      body {
+        color: #F8F8F8;
+        background-color: #111225;
+      }
+      button {
+        background-color: #8F84FF;
+      }
+      .error {
+        color: #EC535D;
+      }
+      @media (prefers-color-scheme: light) {
+        body {
+          color: #1A1B38;
+          background-color: #FFFFFF;
+        }
+        .error {
+          color: #BE1621;
+        }
+      }
+  body(style = 'display: flex; height: 100vh;')
+    div(style = 'margin: auto; width: 20em;')
+      div(style = 'display: flex;')
+        img(src = `${xo5Mount}assets/logo.svg` style = 'margin: auto; max-width: 100%;')
+      h2.text-xs-center.mb-2 Welcome to Fragata Fleet
+
+      if error
+        p.error #{error}
+      if otp
+        form(action = 'signin-otp' method = 'post')
+          fieldset
+            .input-group.mb-1
+              span.input-group-addon
+                i.fa.fa-key.fa-fw
+              input.form-control(
+                autocomplete = 'off'
+                autofocus
+                name = 'otp'
+                type = 'text'
+                inputmode = 'numeric'
+                placeholder = 'Code'
+                required
+              )
+            div
+              button.btn.btn-block
+                i.fa.fa-sign-in
+                |  Sign in
+      else
+        if Object.keys(strategies).length !== 0
+          form(action = 'signin/dispatch' method = 'post')
+            .checkbox
+              label
+                input(
+                  name = 'remember-me'
+                  type = 'checkbox'
+                )
+                | &nbsp;
+                | Remember me
+            each label, id in strategies
+              div: button(type = 'submit' name = 'provider' value = id).btn.btn-block.mb-1 Sign in with #{label}
+          hr
+        form(action = 'signin/local' method = 'post')
+          fieldset
+            .input-group.mb-1
+              span.input-group-addon
+                i.xo-icon-user.fa-fw
+              input.form-control(
+                autofocus
+                name = 'username'
+                placeholder = 'Username'
+                required
+                type = 'text'
+              )
+            .input-group.mb-1
+              span.input-group-addon
+                i.fa.fa-key.fa-fw
+              input.form-control(
+                name = 'password'
+                type = 'password'
+                placeholder = 'Password'
+                required
+              )
+            .checkbox
+              label
+                input(
+                  name = 'remember-me'
+                  type = 'checkbox'
+                )
+                | &nbsp;
+                | Remember me
+            div
+              button.btn.btn-block
+                |  Sign in with password
+    //- Note: if this script changes, make sure to update the hash in fragata-server/src/index.mjs to match the new content.
+    script.
+      (function () {
+        var d = document
+        var h = d.location.hash
+        d.querySelectorAll('a').forEach(a => {
+            a.href += h
+        })
+        d.querySelectorAll('form').forEach(form => {
+            form.action += h
+        })
+      })()

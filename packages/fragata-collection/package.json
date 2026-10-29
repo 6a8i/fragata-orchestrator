@@ -1,0 +1,45 @@
+{
+  "private": false,
+  "name": "fragata-collection",
+  "version": "0.6.1",
+  "license": "AGPL-3.0-or-later",
+  "description": "Generic in-memory collection with events",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-collection",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "packages/fragata-collection",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "preferGlobal": false,
+  "main": "dist/collection",
+  "engines": {
+    "node": ">=6"
+  },
+  "dependencies": {
+    "kindof": "^2.0.0",
+    "lodash": "^4.18.0",
+    "make-error": "^1.0.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.29.0",
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "cross-env": "^7.0.2",
+    "promise-toolbox": "^0.21.0",
+    "rimraf": "^6.0.1"
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production babel --source-maps --out-dir=dist/ src/",
+    "dev": "cross-env NODE_ENV=development babel --watch --source-maps --out-dir=dist/ src/",
+    "prebuild": "rimraf dist/",
+    "predev": "yarn run prebuild",
+    "prepublishOnly": "yarn run build",
+    "postversion": "npm publish",
+    "test": "cd dist && node --test"
+  }
+}

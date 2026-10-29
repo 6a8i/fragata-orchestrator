@@ -1,0 +1,47 @@
+{
+  "private": false,
+  "name": "@fragata/log",
+  "version": "0.7.2",
+  "license": "ISC",
+  "description": "Logging system with decoupled producers/consumer",
+  "keywords": [
+    "async",
+    "asynchronous",
+    "capture",
+    "context"
+  ],
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/log",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/log",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "preferGlobal": false,
+  "browserslist": [
+    ">2%"
+  ],
+  "engines": {
+    "node": ">=8.3"
+  },
+  "dependencies": {
+    "lodash": "^4.18.0",
+    "promise-toolbox": "^0.21.0"
+  },
+  "scripts": {
+    "postversion": "npm publish",
+    "test": "node --test"
+  },
+  "types": "./index.d.ts",
+  "exports": {
+    ".": "./index.js",
+    "./_*": null,
+    "./.*": null,
+    "./*": "./*.js",
+    "./index": null
+  }
+}

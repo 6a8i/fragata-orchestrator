@@ -1,0 +1,36 @@
+{
+  "private": false,
+  "name": "@fragata/stream-reader",
+  "description": "Efficiently reads and skips chunks of a given size in a stream",
+  "keywords": [
+    "async",
+    "chunk",
+    "data",
+    "node",
+    "promise",
+    "read",
+    "reader",
+    "skip",
+    "stream"
+  ],
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/stream-reader",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/stream-reader",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "license": "ISC",
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=12.3"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public",
+    "test": "node --test"
+  }
+}

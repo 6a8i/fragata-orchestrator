@@ -1,0 +1,39 @@
+{
+  "private": false,
+  "name": "@fragata/nbd-client",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/nbd-client",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/nbd-client",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "license": "ISC",
+  "version": "3.7.0",
+  "engines": {
+    "node": ">=14.0"
+  },
+  "main": "./index.mjs",
+  "dependencies": {
+    "@fragata/async-each": "^1.0.3",
+    "@fragata/read-chunk": "^1.2.1",
+    "@fragata/async-map": "^0.1.5",
+    "@fragata/disk-transform": "^1.3.4",
+    "@fragata/log": "^0.7.2",
+    "promise-toolbox": "^0.21.0",
+    "xen-api": "^5.1.0"
+  },
+  "devDependencies": {
+    "tap": "^18.7.0",
+    "tmp": "^0.2.1"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public",
+    "test": "node --experimental-test-module-mocks --test",
+    "test-integration": "tap --allow-incomplete-coverage tests/*.integ.mjs"
+  }
+}

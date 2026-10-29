@@ -1,0 +1,28 @@
+{
+  "private": false,
+  "name": "fragata-acl-resolver",
+  "version": "0.6.0",
+  "license": "AGPL-3.0-or-later",
+  "description": "Xen-Orchestra internal: do ACLs resolution",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-acl-resolver",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "packages/fragata-acl-resolver",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "preferGlobal": false,
+  "engines": {
+    "node": ">=6"
+  },
+  "dependencies": {
+    "fragata-common": "^0.11.0"
+  },
+  "scripts": {
+    "postversion": "npm publish"
+  }
+}

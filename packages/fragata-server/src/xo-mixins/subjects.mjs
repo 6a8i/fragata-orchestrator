@@ -1,0 +1,572 @@
+import assert from 'node:assert/strict'
+import filter from 'lodash/filter.js'
+import uniqBy from 'lodash/uniqBy.js'
+import { createLogger } from '@fragata/log'
+import { ignoreErrors } from 'promise-toolbox'
+import { hash, needsRehash, verify } from 'hashy'
+import { invalidCredentials, noSuchObject, objectAlreadyExists } from 'fragata-common/api-errors.js'
+
+import * as XenStore from '../_XenStore.mjs'
+import { Groups } from '../models/group.mjs'
+import { UNIQUE_FIELDS, Users } from '../models/user.mjs'
+import { forEach, isEmpty, lightSet } from '../utils.mjs'
+
+/**
+ * @typedef {import('@fragata/types').XoApp} XoApp
+ */
+
+// ===================================================================
+
+const log = createLogger('xo:xo-mixins:subjects')
+
+const addToArraySet = (set, value) => (set !== undefined ? (set.includes(value) ? set : set.concat(value)) : [value])
+const removeFromArraySet = (set, value) => set && filter(set, current => current !== value)
+
+const onCacheInvalidationError = error => log.warn('failed to invalidate the object filter cache', { error })
+
+// ===================================================================
+
+export default class {
+  constructor(app) {
+    /** @type {XoApp} */
+    this._app = app
+
+    app.hooks.on('clean', () => Promise.all([this._groups.rebuildIndexes(), this._users.rebuildIndexes()]))
+    app.hooks.on('core started', () => {
+      const redis = app._redis
+      const groupsDb = (this._groups = new Groups({
+        connection: redis,
+        namespace: 'group',
+        indexes: ['name'],
+        crypto: app.cryptoCredentials,
+      }))
+
+      for (const event of ['add', 'update']) {
+        groupsDb.on(event, groups => {
+          for (const group of groups) {
+            for (const userId of group.users ?? []) {
+              app.clearObjectFilterCache(userId).catch(onCacheInvalidationError)
+            }
+          }
+        })
+      }
+      groupsDb.on('remove', () => app.clearObjectFilterCache().catch(onCacheInvalidationError))
+
+      app.hooks.emit('registerCollection', {
+        collection: groupsDb,
+        type: 'group',
+        decorate: this.#normalizeGroup.bind(this),
+      })
+      const usersDb = (this._users = new Users({
+        connection: redis,
+        namespace: 'user',
+        indexes: UNIQUE_FIELDS,
+        crypto: app.cryptoCredentials,
+      }))
+
+      for (const event of ['add', 'update']) {
+        usersDb.on(event, models => {
+          for (const model of models) {
+            app.clearObjectFilterCache(model.id).catch(onCacheInvalidationError)
+          }
+        })
+      }
+      usersDb.on('remove', userIds => {
+        for (const userId of userIds) {
+          app.clearObjectFilterCache(userId).catch(onCacheInvalidationError)
+        }
+      })
+
+      app.hooks.emit('registerCollection', {
+        collection: usersDb,
+        type: 'user',
+        decorate: user => this.#normalizeUser(user, { obfuscatePassword: true }),
+      })
+
+      app.addConfigManager(
+        'groups',
+        () => groupsDb.get(),
+        groups => groupsDb.update(groups),
+        ['users']
+      )
+      const findConflictUsers = async user => {
+        const matches = await Promise.all(
+          UNIQUE_FIELDS.filter(field => user[field] != null).map(field => usersDb.get({ [field]: user[field] }))
+        )
+        return uniqBy(matches.flat(), 'id').filter(({ id }) => id !== user.id)
+      }
+      app.addConfigManager(
+        'users',
+        () => usersDb.get(),
+        users =>
+          Promise.all(
+            users.map(async user => {
+              const conflictUsers = await findConflictUsers(user)
+              if (!isEmpty(conflictUsers)) {
+                await Promise.all(conflictUsers.map(({ id }) => this.deleteUser(id)))
+              }
+              return usersDb.update(user)
+            })
+          )
+      )
+    })
+    app.hooks.on('start', async () => {
+      if (!(await this._users.exists())) {
+        const key = 'vm-data/admin-account'
+        const { email = 'admin@admin.net', password = 'admin' } = await XenStore.read(key)
+          .then(JSON.parse)
+          .catch(() => ({}))
+
+        await this.createUser({ email, password, permission: 'admin' })
+        log.info(`Default user created: ${email}`)
+
+        ignoreErrors.call(XenStore.rm(key))
+      }
+    })
+  }
+
+  // -----------------------------------------------------------------
+
+  async createUser({ name, password, ...properties }) {
+    if (name) {
+      properties.email = name
+    }
+
+    if (password) {
+      properties.pw_hash = await hash(password)
+    }
+
+    return this._users.add(properties)
+  }
+
+  async deleteUser(id) {
+    const user = await this.getUser(id)
+
+    const aclV2Roles = await this._app.getAclV2UserRoles(id, { bypassAuthorization: true, fromGroup: false })
+
+    await this._users.remove(id)
+
+    // Remove tokens of user.
+    this._app
+      .getAuthenticationTokensForUser(id)
+      .then(tokens => {
+        forEach(tokens, token => {
+          this._app.deleteAuthenticationToken(id)::ignoreErrors()
+        })
+      })
+      ::ignoreErrors()
+
+    // Remove ACLs for this user.
+    this._app.getAclsForSubject(id).then(acls => {
+      forEach(acls, acl => {
+        this._app.removeAcl(id, acl.object, acl.action)::ignoreErrors()
+      })
+    })
+    // Detache ACL V2 roles for this user.
+    await Promise.all(
+      aclV2Roles.map(({ id: roleId }) => this._app.deleteAclV2UserRole(id, roleId, { bypassAuthorization: true }))
+    )
+
+    // Remove the user from all its groups.
+    forEach(user.groups, groupId => {
+      this.getGroup(groupId)
+        .then(group => this._removeUserFromGroup(id, group))
+        ::ignoreErrors()
+    })
+
+    for (const connection of this._app.apiConnections) {
+      if (connection.get('user_id', undefined) === id) {
+        connection.close()
+      }
+    }
+  }
+
+  doesUserExist(id) {
+    return this._users.exists(id)
+  }
+
+  async updateUser(
+    id,
+    {
+      email,
+      authProviders,
+      firstname,
+      lastname,
+      // kept for historical reasons
+      name = email,
+      password,
+      permission,
+      preferences,
+      username,
+    }
+  ) {
+    const user = await this.getUser(id)
+
+    name = name?.trim()
+    if (name) {
+      user.name = name
+    }
+    if (firstname !== undefined) {
+      user.firstname = firstname
+    }
+    if (lastname !== undefined) {
+      user.lastname = lastname
+    }
+    username = username?.trim()
+    if (username) {
+      user.username = username
+    }
+    if (permission) {
+      user.permission = permission
+    }
+    if (password !== undefined) {
+      user.pw_hash = password === null ? undefined : await hash(password)
+    }
+
+    const newPreferences = { ...user.preferences }
+    forEach(preferences, (value, name) => {
+      if (value == null) {
+        delete newPreferences[name]
+      } else {
+        newPreferences[name] = value
+      }
+    })
+    user.preferences = isEmpty(newPreferences) ? undefined : newPreferences
+
+    if (authProviders !== undefined) {
+      let newAuthProviders
+      if (authProviders !== null) {
+        newAuthProviders = { ...user.authProviders }
+        forEach(authProviders, (value, name) => {
+          if (value == null) {
+            delete newAuthProviders[name]
+          } else {
+            newAuthProviders[name] = value
+          }
+        })
+      }
+      user.authProviders = isEmpty(newAuthProviders) ? undefined : newAuthProviders
+    }
+
+    // if updating either authProviders or password, check consistency
+    if (
+      (authProviders !== undefined || password !== undefined) &&
+      user.pw_hash !== undefined &&
+      !isEmpty(user.authProviders)
+    ) {
+      throw new Error('user cannot have both password and auth providers')
+    }
+
+    if (user.pw_hash === undefined && isEmpty(user.authProviders) && id === this._app.apiContext?.user.id) {
+      throw new Error('current user cannot be without password and auth providers')
+    }
+
+    user.email = user.name
+    delete user.name
+
+    await this._users.update(user)
+  }
+
+  // Merge this method in getUser() when plain objects.
+  async _getUser(id) {
+    const user = await this._users.first(id)
+    if (user === undefined) {
+      throw noSuchObject(id, 'user')
+    }
+
+    return user
+  }
+
+  // TODO: this method will no longer be async when users are
+  // integrated to the main collection.
+  async getUser(id, { obfuscatePassword = false } = {}) {
+    const user = await this._getUser(id)
+
+    return this.#normalizeUser(user, { obfuscatePassword })
+  }
+
+  #normalizeUser(user, { obfuscatePassword = false } = {}) {
+    const normalizedUser = { ...user }
+
+    if (normalizedUser.pw_hash !== undefined && obfuscatePassword) {
+      normalizedUser.pw_hash = '***obfuscated***'
+    }
+
+    if (!('name' in user)) {
+      normalizedUser.name = user.email
+    }
+
+    return normalizedUser
+  }
+
+  async getAllUsers({ obfuscatePassword = false } = {}) {
+    const users = await this._users.get()
+
+    return users.map(user => {
+      return this.#normalizeUser(user, { obfuscatePassword })
+    })
+  }
+
+  async getUserByName(name, returnNullIfMissing) {
+    const user = await this._users.first({ email: name })
+    if (user !== undefined) {
+      return this.#normalizeUser(user)
+    }
+
+    if (returnNullIfMissing) {
+      return null
+    }
+
+    throw noSuchObject(name, 'user')
+  }
+
+  async registerUser() {
+    throw new Error('use registerUser2 instead')
+  }
+
+  // New implementation of registerUser that:
+  //   - allows multiple providers per XO user
+  //   - binds a XO user to the provider's user with a unique ID
+  // - id: the ID that the provider uses to identify the user
+  // - name: the name of the user according to the provider
+  // - data: additional data about the user that the provider may want to store
+  async registerUser2(providerId, { user: { id, name }, data }) {
+    assert.equal(typeof id, 'string')
+    assert.notEqual(id, '')
+    assert.equal(typeof name, 'string')
+    assert.notEqual(name, '')
+
+    const users = await this.getAllUsers()
+
+    // Get the XO user bound to the provider's user
+    let user = users.find(user => user.authProviders?.[providerId]?.id === id)
+
+    // If that XO user doesn't exist or doesn't have the correct name, there
+    // is a chance that there is another XO user that already has that name
+    let conflictingUser
+    if (user?.email !== name) {
+      conflictingUser = users.find(user => user.email === name)
+
+      if (conflictingUser !== undefined) {
+        if (!this._app.config.get('authentication.mergeProvidersUsers')) {
+          throw new Error(`User with name ${name} already exists`)
+        }
+        if (user !== undefined) {
+          // TODO: merge `conflictingUser` into `user` and delete
+          // `conflictingUser`. For now: keep the 2 users. Once implemented:
+          // remove the `conflictingUser === undefined` condition on
+          // `updateUser`.
+        } else {
+          user = conflictingUser
+        }
+      }
+    } else if (user !== undefined) {
+      // The user exists and is up to date
+      return user
+    }
+
+    if (user === undefined) {
+      if (!this._app.config.get('createUserOnFirstSignin')) {
+        throw new Error(`registering ${name} user is forbidden`)
+      }
+      user = await this.createUser({
+        name,
+        authProviders: { [providerId]: { id, data } },
+      })
+    } else {
+      // If the user has more than 1 auth provider: don't update the name to
+      // avoid conflicts
+      await this.updateUser(user.id, {
+        name:
+          (user.authProviders === undefined || Object.keys(user.authProviders).length < 2) &&
+          conflictingUser === undefined // cf: TODO above
+            ? name
+            : undefined,
+        authProviders: {
+          ...user.authProviders,
+          [providerId]: {
+            id,
+            data: data !== undefined ? data : user.authProviders?.[providerId]?.data,
+          },
+        },
+        password: null,
+      })
+    }
+
+    return this.getUser(user.id)
+  }
+
+  async changeUserPassword(userId, oldPassword, newPassword) {
+    if (!(await this.checkUserPassword(userId, oldPassword, false))) {
+      throw invalidCredentials()
+    }
+
+    await this.updateUser(userId, { password: newPassword })
+  }
+
+  async checkUserPassword(userId, password, updateIfNecessary = true) {
+    const { authProviders, pw_hash: hash } = await this.getUser(userId)
+    if (!(hash !== undefined && isEmpty(authProviders) && (await verify(password, hash)))) {
+      return false
+    }
+
+    if (updateIfNecessary && needsRehash(hash)) {
+      await this.updateUser(userId, { password })
+    }
+
+    return true
+  }
+
+  // fields synchronized users should not be able to modify
+  getUserIdentityFields() {
+    // returning both name and email for convenience though they are the same value
+    return ['email', 'firstname', 'lastname', 'name', 'password', 'username']
+  }
+
+  // -----------------------------------------------------------------
+
+  async createGroup({ name, provider, providerGroupId }) {
+    try {
+      return await this._groups.add({ name, provider, providerGroupId })
+    } catch (error) {
+      if (error.message === `the group ${name} already exists`) {
+        const existingGroup = await this._groups.first({ name })
+        throw objectAlreadyExists({
+          objectId: existingGroup.id,
+          objectType: 'group',
+        })
+      }
+      throw error
+    }
+  }
+
+  async deleteGroup(id) {
+    const group = await this.getGroup(id)
+
+    const aclV2Roles = await this._app.getAclV2GroupRoles(id, { bypassAuthorization: true })
+    await this._groups.remove(id)
+
+    // Remove ACLs for this group.
+    this._app.getAclsForSubject(id).then(acls => {
+      forEach(acls, acl => {
+        this._app.removeAcl(id, acl.object, acl.action)::ignoreErrors()
+      })
+    })
+    // Detache ACL V2 roles for this group.
+    await Promise.all(
+      aclV2Roles.map(({ id: roleId }) => this._app.deleteAclV2GroupRole(id, roleId, { bypassAuthorization: true }))
+    )
+
+    // Remove the group from all its users.
+    forEach(group.users, userId => {
+      this.getUser(userId)
+        .then(user => this._removeGroupFromUser(id, user))
+        ::ignoreErrors()
+    })
+  }
+
+  async updateGroup(id, { name }) {
+    const group = await this.getGroup(id)
+
+    if (name) group.name = name
+
+    try {
+      await this._groups.update(group)
+    } catch (error) {
+      if (error.message === `the group ${name} already exists`) {
+        const existingGroup = await this._groups.get({ name })
+        throw objectAlreadyExists({
+          objectId: existingGroup.id,
+          objectType: 'group',
+        })
+      }
+      throw error
+    }
+  }
+
+  async #normalizeGroup(group) {
+    const roleIds = (await this._app.hasFeatureAuthorization('RBAC'))
+      ? await this._app.getAclV2GroupRoles(group.id, { bypassAuthorization: true })
+      : []
+    group.aclRoleIds = roleIds.map(role => role.id)
+
+    return group
+  }
+
+  async getGroup(id) {
+    const group = await this._groups.first(id)
+    if (group === undefined) {
+      throw noSuchObject(id, 'group')
+    }
+
+    return this.#normalizeGroup(group)
+  }
+
+  async getAllGroups() {
+    const groups = await this._groups.get()
+
+    return Promise.all(groups.map(group => this.#normalizeGroup(group)))
+  }
+
+  async addUserToGroup(userId, groupId) {
+    const [user, group] = await Promise.all([this.getUser(userId), this.getGroup(groupId)])
+
+    user.groups = addToArraySet(user.groups, groupId)
+    group.users = addToArraySet(group.users, userId)
+
+    await Promise.all([this._users.update(user), this._groups.update(group)])
+  }
+
+  async _removeUserFromGroup(userId, group) {
+    group.users = removeFromArraySet(group.users, userId)
+    return this._groups.update(group)
+  }
+
+  async _removeGroupFromUser(groupId, user) {
+    user.groups = removeFromArraySet(user.groups, groupId)
+    return this._users.update(user)
+  }
+
+  async removeUserFromGroup(userId, groupId) {
+    const [user, group] = await Promise.all([this.getUser(userId), this.getGroup(groupId)])
+
+    await Promise.all([this._removeUserFromGroup(userId, group), this._removeGroupFromUser(groupId, user)])
+  }
+
+  async setGroupUsers(groupId, userIds) {
+    const group = await this.getGroup(groupId)
+
+    let newUsersIds = lightSet(userIds)
+    const oldUsersIds = []
+    forEach(group.users, id => {
+      if (newUsersIds.has(id)) {
+        newUsersIds.delete(id)
+      } else {
+        oldUsersIds.push(id)
+      }
+    })
+    newUsersIds = newUsersIds.toArray()
+
+    const getUser = ::this.getUser
+    const [newUsers, oldUsers] = await Promise.all([
+      Promise.all(newUsersIds.map(getUser)),
+      Promise.all(oldUsersIds.map(getUser)),
+    ])
+
+    forEach(newUsers, user => {
+      user.groups = addToArraySet(user.groups, groupId)
+    })
+    forEach(oldUsers, user => {
+      user.groups = removeFromArraySet(user.groups, groupId)
+    })
+
+    group.users = userIds
+
+    const updateUser = ::this._users.update
+    await Promise.all([
+      Promise.all(newUsers.map(updateUser)),
+      Promise.all(oldUsers.map(updateUser)),
+      this._groups.update(group),
+    ])
+  }
+}

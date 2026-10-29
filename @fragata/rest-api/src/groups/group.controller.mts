@@ -1,0 +1,363 @@
+import {
+  Body,
+  Delete,
+  Example,
+  Extension,
+  Get,
+  Middlewares,
+  Patch,
+  Path,
+  Post,
+  Put,
+  Query,
+  Request,
+  Response,
+  Route,
+  Security,
+  SuccessResponse,
+  Tags,
+} from 'tsoa'
+import { inject } from 'inversify'
+import { json, type Request as ExRequest } from 'express'
+import { provide } from 'inversify-binding-decorators'
+import type { XoAclRole, XoGroup, XoTask, XoUser } from '@fragata/types'
+
+import { forbiddenOperation } from 'fragata-common/api-errors.js'
+import {
+  badRequestResp,
+  createdResp,
+  forbiddenOperationResp,
+  invalidParameters,
+  noContentResp,
+  notFoundResp,
+  resourceAlreadyExists,
+  unauthorizedResp,
+  type Unbrand,
+} from '../open-api/common/response.common.mjs'
+import { group, groupId, groupIds, partialGroups } from '../open-api/oa-examples/group.oa-example.mjs'
+import type { SendObjects } from '../helpers/helper.type.mjs'
+import type { UpdateGroupRequestBody } from './group.type.mjs'
+import { XoController } from '../abstract-classes/xo-controller.mjs'
+import { RestApi } from '../rest-api/rest-api.mjs'
+import { limitAndFilterArray } from '../helpers/utils.helper.mjs'
+import { partialUsers, userIds } from '../open-api/oa-examples/user.oa-example.mjs'
+import { partialTasks, taskIds } from '../open-api/oa-examples/task.oa-example.mjs'
+import { acl, actionFromBody } from '../middlewares/acl.middleware.mjs'
+import { aclRoleIds, partialAclRoles } from '../open-api/oa-examples/acl-role.oa-example.mjs'
+
+@Route('groups')
+@Security('*')
+@Response(badRequestResp.status, badRequestResp.description)
+@Response(unauthorizedResp.status, unauthorizedResp.description)
+@Tags('groups')
+@provide(GroupController)
+export class GroupController extends XoController<XoGroup> {
+  constructor(@inject(RestApi) restApi: RestApi) {
+    super('group', restApi)
+  }
+
+  // --- abstract methods
+  getAllCollectionObjects(): Promise<XoGroup[]> {
+    return this.restApi.xoApp.getAllGroups()
+  }
+  getCollectionObject(id: XoGroup['id']): Promise<XoGroup> {
+    return this.restApi.xoApp.getGroup(id)
+  }
+
+  /**
+   * Returns all groups that match the following privilege:
+   * - resource: group, action: read
+   *
+   * @example fields "name,id,users"
+   * @example filter "users:length:>0"
+   * @example limit 42
+   */
+  @Example(groupIds)
+  @Example(partialGroups)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('')
+  @Security('*', ['acl'])
+  async getGroups(
+    @Request() req: ExRequest,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<Unbrand<XoGroup>>> {
+    return this.sendObjects(Object.values(await this.getObjects({ filter })), req, {
+      limit,
+      privilege: { action: 'read', resource: 'group' },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: group, action: read
+   *
+   * @example id "7d98fee4-3357-41a7-ac3f-9124212badb7"
+   */
+  @Example(group)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}')
+  @Middlewares(
+    acl({
+      resource: 'group',
+      action: 'read',
+      objectId: 'params.id',
+      getObject: ({ restApi }) => restApi.xoApp.getGroup,
+    })
+  )
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  getGroup(@Path() id: string): Promise<Unbrand<XoGroup>> {
+    return this.getObject(id as XoGroup['id'])
+  }
+
+  /**
+   * You cannot patch `synchronized` groups (even with the right privilege)
+   *
+   * Required privileges:
+   * - resource: group, action: update (grants all fields)
+   * - resource: group, action: update:name (if name is passed)
+   *
+   * @example id "c98395a7-26d8-4e09-b055-d5f0f4a98312"
+   * @example body { "name": "new group name" }
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Patch('{id}')
+  @Middlewares([
+    json(),
+    acl({
+      resource: 'group',
+      action: actionFromBody<'group'>('update:name'),
+      objectId: 'params.id',
+      getObject: ({ restApi }) => restApi.xoApp.getGroup,
+    }),
+  ])
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(resourceAlreadyExists.status, resourceAlreadyExists.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  async updateGroup(@Path() id: string, @Body() body: UpdateGroupRequestBody): Promise<void> {
+    const group = await this.getObject(id as XoGroup['id'])
+
+    if (group.provider !== undefined) {
+      throw forbiddenOperation('update group', 'synchronized group')
+    }
+
+    await this.restApi.xoApp.updateGroup(group.id, body)
+  }
+
+  /**
+   * Required privilege:
+   * - resource: group, action: create
+   *
+   *  @example body {
+   *    "name": "new group"
+   *  }
+   */
+  @Example(groupId)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('')
+  @Middlewares([json(), acl({ resource: 'group', action: 'create', object: ({ req }) => req.body })])
+  @SuccessResponse(createdResp.status, createdResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(invalidParameters.status, invalidParameters.description)
+  @Response(resourceAlreadyExists.status, resourceAlreadyExists.description)
+  async createGroup(@Body() body: { name: string }): Promise<{ id: Unbrand<XoGroup>['id'] }> {
+    const group = await this.restApi.xoApp.createGroup(body)
+
+    return { id: group.id }
+  }
+
+  /**
+   * Required privilege:
+   * - resource: group, action: delete
+   *
+   * @example id "7d98fee4-3357-41a7-ac3f-9124212badb7"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Delete('{id}')
+  @Middlewares(
+    acl({
+      resource: 'group',
+      action: 'delete',
+      objectId: 'params.id',
+      getObject: ({ restApi }) => restApi.xoApp.getGroup,
+    })
+  )
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async deleteGroup(@Path() id: string): Promise<void> {
+    const groupId = id as XoGroup['id']
+    await this.restApi.xoApp.deleteGroup(groupId)
+  }
+
+  /**
+   * You cannot manage users of `synchronized` groups (even with the right privilege)
+   *
+   * Required privilege:
+   * - resource: group, action: update:users
+   *
+   * @example id "c98395a7-26d8-4e09-b055-d5f0f4a98312"
+   * @example userId "722d17b9-699b-49d2-8193-be1ac573d3de"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Delete('{id}/users/{userId}')
+  @Middlewares(
+    acl({
+      resource: 'group',
+      action: 'update:users',
+      objectId: 'params.id',
+      getObject: ({ restApi }) => restApi.xoApp.getGroup,
+    })
+  )
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  async removeUserFromGroup(@Path() id: string, @Path() userId: string): Promise<void> {
+    const group = await this.getObject(id as XoGroup['id'])
+
+    if (group.provider !== undefined) {
+      throw forbiddenOperation('remove user from group', 'synchronized group')
+    }
+
+    await this.restApi.xoApp.removeUserFromGroup(userId as XoUser['id'], group.id)
+  }
+
+  /**
+   * You cannot manage users of `synchronized` groups (even with the right privilege)
+   *
+   * Required privilege:
+   * - resource: group, action: update:users
+   *
+   * @example id "6c81b5e1-afc1-43ea-8f8d-939ceb5f3f90"
+   * @example userId "722d17b9-699b-49d2-8193-be1ac573d3de"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Put('{id}/users/{userId}')
+  @Middlewares(
+    acl({
+      resource: 'group',
+      action: 'update:users',
+      objectId: 'params.id',
+      getObject: ({ restApi }) => restApi.xoApp.getGroup,
+    })
+  )
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  async addUserToGroup(@Path() id: string, @Path() userId: string): Promise<void> {
+    const group = await this.getObject(id as XoGroup['id'])
+    if (group.provider !== undefined) {
+      throw forbiddenOperation('add user to group', 'synchronized group')
+    }
+
+    await this.restApi.xoApp.addUserToGroup(userId as XoUser['id'], group.id)
+  }
+
+  /**
+   * Returns all users that match the following privilege:
+   * - resource: user, action: read
+   *
+   * @example id "6c81b5e1-afc1-43ea-8f8d-939ceb5f3f90"
+   * @example fields "permission,name,id"
+   * @example filter "permission:none"
+   * @example limit 42
+   */
+  @Example(userIds)
+  @Example(partialUsers)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/users')
+  @Security('*', ['acl'])
+  @Tags('users')
+  @Response(notFoundResp.status, notFoundResp.description)
+  async getGroupUsers(
+    @Request() req: ExRequest,
+    @Path() id: string,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<Unbrand<XoUser>>> {
+    const group = await this.getObject(id as XoGroup['id'])
+    const users = await Promise.all(group.users.map(id => this.restApi.xoApp.getUser(id, { obfuscatePassword: true })))
+    return this.sendObjects(limitAndFilterArray(users, { filter }), req, {
+      path: 'users',
+      limit,
+      privilege: { action: 'read', resource: 'user' },
+    })
+  }
+
+  /**
+   * Returns all tasks that match the following privilege:
+   * - resource: task, action: read
+   *
+   * @example id "6c81b5e1-afc1-43ea-8f8d-939ceb5f3f90"
+   * @example fields "id,status,properties"
+   * @example filter "status:failure"
+   * @example limit 42
+   */
+  @Example(taskIds)
+  @Example(partialTasks)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/tasks')
+  @Security('*', ['acl'])
+  @Tags('tasks')
+  @Response(notFoundResp.status, notFoundResp.description)
+  async getGroupTasks(
+    @Request() req: ExRequest,
+    @Path() id: string,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<Unbrand<XoTask>>> {
+    const tasks = await this.getTasksForObject(id as XoGroup['id'], { filter })
+
+    return this.sendObjects(Object.values(tasks), req, {
+      path: 'tasks',
+      limit,
+      privilege: { action: 'read', resource: 'task' },
+    })
+  }
+
+  /**
+   * Returns all acl-roles that match the following privilege:
+   * - resource: acl-role, action: read
+   *
+   * @example id "6c81b5e1-afc1-43ea-8f8d-939ceb5f3f90"
+   * @example fields "id,name,isTemplate"
+   * @example filter "name:read only"
+   * @example limit 42
+   */
+  @Example(aclRoleIds)
+  @Example(partialAclRoles)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/acl-roles')
+  @Security('*', ['acl'])
+  @Tags('rbacs')
+  @Response(notFoundResp.status, notFoundResp.description)
+  async getGroupAclRoles(
+    @Request() req: ExRequest,
+    @Path() id: string,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<Unbrand<Exclude<XoAclRole, { isTemplate: true }>>>> {
+    const group = await this.getObject(id as XoGroup['id'])
+    const roles = await Promise.all(group.aclRoleIds.map(roleId => this.restApi.xoApp.getAclV2Role(roleId)))
+
+    return this.sendObjects(limitAndFilterArray(roles, { filter }), req, {
+      path: 'acl-roles',
+      limit,
+      privilege: { action: 'read', resource: 'acl-role' },
+    })
+  }
+}

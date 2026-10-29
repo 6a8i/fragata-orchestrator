@@ -4,20 +4,20 @@ sidebar_position: 5
 
 # SDN controller
 
-<InterfaceNote>Private networks are currently created and managed from XO 5. Traffic rules moved ahead in [XO 6](../manage-your-infrastructure/management.md#traffic-rules), with more capabilities than the XO 5 equivalent.</InterfaceNote>
+<InterfaceNote>Private networks are currently created and managed from Fleet Classic. Traffic rules moved ahead in [Fragata Fleet](../manage-your-infrastructure/management.md#traffic-rules), with more capabilities than the Fleet Classic equivalent.</InterfaceNote>
 
 :::tip
 Be sure to enable the plugin on only one XOA instance.
 :::
 
-The SDN Controller enables a user to **create pool-wide and cross-pool private networks** and more. It's available as a Xen Orchestra plugin (included in XOA Premium).
+The SDN Controller enables a user to **create pool-wide and cross-pool private networks** and more. It's available as a Fragata Fleet plugin (included in XOA Premium).
 
 ## Global Private Networks
 
 Interconnect your VMs and hosts within a dedicated and secured private network, even across different pools all around the world. This is a great way to protect "private links" (eg between applications and databases, management networks etc.) without any complicated deployment.
 
 <Schema label="One private network spanning two sites" legend={[["#6aabf0", "XO"], ["#8e83fe", "XCP-ng"], ["#5ac8c8", "private network tunnels"]]} maxWidth="640px">
-<svg viewBox="0 0 640 260" role="img" aria-label="The SDN controller in Xen Orchestra builds encrypted GRE or VxLAN tunnels between the hosts of two pools in different locations, forming a single private network for the VMs">
+<svg viewBox="0 0 640 260" role="img" aria-label="The SDN controller in Fragata Fleet builds encrypted GRE or VxLAN tunnels between the hosts of two pools in different locations, forming a single private network for the VMs">
   <rect x="280" y="10" width="80" height="34" rx="8" fill="rgba(106,171,240,0.12)" stroke="#6aabf0"/>
   <text x="320" y="27" fontSize="12.5" fill="#6aabf0" textAnchor="middle">XO</text>
   <text x="320" y="39" fontSize="8.5" fill="#7a8699" textAnchor="middle">SDN controller</text>
@@ -104,7 +104,7 @@ In the network creation view:
 
 ### Configuration
 
-Like all other xo-server plugins, it can be configured directly via the web interface, see [the plugin documentation](../getting-started/architecture.md#plugins).
+Like all other fragata-server plugins, it can be configured directly via the web interface, see [the plugin documentation](../getting-started/architecture.md#plugins).
 
 The plugin's configuration contains:
 
@@ -139,8 +139,8 @@ At this time, the two options are covered until we can fully deprecate the older
 
 Where the UI lives:
 
-- **XO 5**: per-VIF rules only, from the VM **Network** tab (described [below](#openflow-protocol))
-- **XO 6**: the full experience, network-wide **and** per-VIF rules, with a consolidated pool view: see [Traffic rules in XO 6](./management.md#traffic-rules). It requires the XAPI plugin backend.
+- **Fleet Classic**: per-VIF rules only, from the VM **Network** tab (described [below](#openflow-protocol))
+- **Fragata Fleet**: the full experience, network-wide **and** per-VIF rules, with a consolidated pool view: see [Traffic rules in Fragata Fleet](./management.md#traffic-rules). It requires the XAPI plugin backend.
 
 ### OpenFlow Protocol
 
@@ -153,7 +153,7 @@ Limitations:
 - Only on the physical host's management network (neither bond nor VLAN)
 - Only supports per-VIF rules
 
-For now, this is the default mode in Xen Orchestra.
+For now, this is the default mode in Fragata Fleet.
 
 Please see the [devblog about OpenFlow rules](https://xen-orchestra.com/blog/vms-vif-network-traffic-control/).
 
@@ -179,11 +179,11 @@ A few caveats:
 
 - This is still in BETA and should not be used in production yet.
 - This will only work on XCP-ng, not on XenServer hosts.
-- This is not enabled by default, and requires a configuration change for `xo-server`. See [the configuration page](../getting-started/configuration.md#sdn-controller-mode) to know more.
+- This is not enabled by default, and requires a configuration change for `fragata-server`. See [the configuration page](../getting-started/configuration.md#sdn-controller-mode) to know more.
   :::
 
 :::tip
-This is the backend used by the [XO 6 traffic rules UI](./management.md#traffic-rules) (since XO 6.5): network-wide and per-VIF rules, with a consolidated view in the pool **Traffic rules** tab. The rules can also be managed through the [REST API](../automation/restapi.md), including in-place updates (since XO 6.7).
+This is the backend used by the [Fragata Fleet traffic rules UI](./management.md#traffic-rules) (since Fragata Fleet.5): network-wide and per-VIF rules, with a consolidated view in the pool **Traffic rules** tab. The rules can also be managed through the [REST API](../automation/restapi.md), including in-place updates (since Fragata Fleet.7).
 :::
 
 - Works on any network:
@@ -195,12 +195,12 @@ This is the backend used by the [XO 6 traffic rules UI](./management.md#traffic-
 
 To setup a per-VIF rule using the UI, follow the [openflow instructions](#openflow-protocol) above, as the UI is the same and only the backend changes.
 
-Here, we describe how to use `xo-cli` to configure rules. First, make sure to register xo-cli to your XOA instance as documented in [its documentation](../getting-started/architecture.md#xo-cli).
+Here, we describe how to use `fragata-cli` to configure rules. First, make sure to register fragata-cli to your XOA instance as documented in [its documentation](../getting-started/architecture.md#fragata-cli).
 
-- Add per-VIF rules: `xo-cli sdnController.addRule vifId=<VIF_UUID> <parameters>`
-- Delete per-VIF rules: `xo-cli sdnController.deleteRule vifId=<VIF_UUID> <parameters>`
-- Add new network-wide rules: `xo-cli sdnController.addNetworkRule networkId=<NETWORK_UUID> <parameters>`
-- Delete network-wide rules: `xo-cli sdnController.deleteNetworkRule networkId=<NETWORK_UUID> <parameters>`
+- Add per-VIF rules: `fragata-cli sdnController.addRule vifId=<VIF_UUID> <parameters>`
+- Delete per-VIF rules: `fragata-cli sdnController.deleteRule vifId=<VIF_UUID> <parameters>`
+- Add new network-wide rules: `fragata-cli sdnController.addNetworkRule networkId=<NETWORK_UUID> <parameters>`
+- Delete network-wide rules: `fragata-cli sdnController.deleteNetworkRule networkId=<NETWORK_UUID> <parameters>`
 
 Parameters:
 
@@ -221,17 +221,17 @@ Leave room between the priorities of your rules (for example 100, 110, 120…) r
 Some examples:
 
 <Terminal shell title="per-VIF rules">{`
-xo-cli sdnController.addRule vifId=15f1a9ec-4348-0cca-d2b8-e536db043298 direction=from ipRange=1.1.1.3 protocol=tcp port=json:4242 allow=false priority=json:100
-xo-cli sdnController.deleteRule vifId=15f1a9ec-4348-0cca-d2b8-e536db043298 direction=from ipRange=1.1.1.3 protocol=tcp port=json:4242 priority=json:100
-xo-cli sdnController.addRule vifId=e9a7914a-9518-82e2-7052-42cb16cc9724 direction=to ipRange=1.1.1.2 protocol=icmp allow=false priority=json:110
-xo-cli sdnController.deleteRule vifId=e9a7914a-9518-82e2-7052-42cb16cc9724 direction=to ipRange=1.1.1.2 protocol=icmp priority=json:110
+fragata-cli sdnController.addRule vifId=15f1a9ec-4348-0cca-d2b8-e536db043298 direction=from ipRange=1.1.1.3 protocol=tcp port=json:4242 allow=false priority=json:100
+fragata-cli sdnController.deleteRule vifId=15f1a9ec-4348-0cca-d2b8-e536db043298 direction=from ipRange=1.1.1.3 protocol=tcp port=json:4242 priority=json:100
+fragata-cli sdnController.addRule vifId=e9a7914a-9518-82e2-7052-42cb16cc9724 direction=to ipRange=1.1.1.2 protocol=icmp allow=false priority=json:110
+fragata-cli sdnController.deleteRule vifId=e9a7914a-9518-82e2-7052-42cb16cc9724 direction=to ipRange=1.1.1.2 protocol=icmp priority=json:110
 `}</Terminal>
 
 <Terminal shell title="network-wide rules">{`
-xo-cli sdnController.addNetworkRule networkId=9334aa83-6960-62e5-a463-5acc05295af4 direction=to ipRange=1.1.1.2 protocol=icmp allow=false priority=json:200
-xo-cli sdnController.deleteNetworkRule networkId=9334aa83-6960-62e5-a463-5acc05295af4 direction=to ipRange=1.1.1.2 protocol=icmp priority=json:200
-xo-cli sdnController.addNetworkRule networkId=9334aa83-6960-62e5-a463-5acc05295af4 direction=from ipRange=1.1.1.2 protocol=tcp allow=false port=json:4242 priority=json:210
-xo-cli sdnController.deleteNetworkRule networkId=9334aa83-6960-62e5-a463-5acc05295af4 direction=from ipRange=1.1.1.2 protocol=tcp port=json:4242 priority=json:210
+fragata-cli sdnController.addNetworkRule networkId=9334aa83-6960-62e5-a463-5acc05295af4 direction=to ipRange=1.1.1.2 protocol=icmp allow=false priority=json:200
+fragata-cli sdnController.deleteNetworkRule networkId=9334aa83-6960-62e5-a463-5acc05295af4 direction=to ipRange=1.1.1.2 protocol=icmp priority=json:200
+fragata-cli sdnController.addNetworkRule networkId=9334aa83-6960-62e5-a463-5acc05295af4 direction=from ipRange=1.1.1.2 protocol=tcp allow=false port=json:4242 priority=json:210
+fragata-cli sdnController.deleteNetworkRule networkId=9334aa83-6960-62e5-a463-5acc05295af4 direction=from ipRange=1.1.1.2 protocol=tcp port=json:4242 priority=json:210
 `}</Terminal>
 
 ### Migration path
@@ -270,10 +270,10 @@ python3 sdn-migration.py restore
 
 ## OpenSSL 3 + SDN upgrade path
 
-With OpenSSL 3 arriving in XCP-ng 8.3, the certificates previously generated by the Xen Orchestra SDN Controller plugin will no longer work. **You must regenerate the certificates before updating your XCP-ng pools.** The steps below only cover certificate regeneration: updating your XCP-ng pools is a separate operation that you perform as you normally would, after the certificates are in place.
+With OpenSSL 3 arriving in XCP-ng 8.3, the certificates previously generated by the Fragata Fleet SDN Controller plugin will no longer work. **You must regenerate the certificates before updating your XCP-ng pools.** The steps below only cover certificate regeneration: updating your XCP-ng pools is a separate operation that you perform as you normally would, after the certificates are in place.
 
 :::warning
-We remind you that the self-signed certificates generated by Xen Orchestra’s SDN Controller plugin are a workaround. **They are neither safe nor recommended**. You should provide your own certificates.
+We remind you that the self-signed certificates generated by Fragata Fleet’s SDN Controller plugin are a workaround. **They are neither safe nor recommended**. You should provide your own certificates.
 :::
 
 ### Are you impacted?
@@ -281,7 +281,7 @@ We remind you that the self-signed certificates generated by Xen Orchestra’s S
 This only applies to you if you meet **all of the following requirements:**
 
 - One of your pools is using our **Global Private Network** (VxLAN or GRE tunnels) or the **VIF Traffic Rules**.
-- The SDN Controller plugin is enabled in **Xen Orchestra → Settings → Plugins**.
+- The SDN Controller plugin is enabled in **Fragata Fleet → Settings → Plugins**.
 - You’re not providing your own certificates.
 - You’re using the `override-cert` option (shown when clicking the `+` button of the SDN Controller plugin).
 
@@ -319,7 +319,7 @@ It will then print a summary letting you know if there are using features that r
 
 ##### Method 2: Check manually
 
-Alternatively, you can check manually in Xen Orchestra’s interface:
+Alternatively, you can check manually in Fragata Fleet’s interface:
 
 - For **Global Private Networks**: Go to the **Pool → Network** tab, and check for tunnelX PIFs, note that the search field is looking at the name of the network (not the PIF) so you can’t filter with that.
 - For **VIF Traffic Rules**: Go to the **VM → Network** tab and look for the “eye” icon under the traffic rule column.
@@ -330,12 +330,12 @@ If you did the previous check and confirm you’re using the SDN Controller feat
 
 There are 3 cases here:
 
-- You’re using the `latest` channel of Xen Orchestra Appliance.
-- You’re using the `stable` channel of Xen Orchestra Appliance.
-- You run Xen Orchestra from sources.
+- You’re using the `latest` channel of Fragata Fleet Appliance.
+- You’re using the `stable` channel of Fragata Fleet Appliance.
+- You run Fragata Fleet from sources.
 
 :::warning
-We recommend doing this right before updating Xen Orchestra Appliance, or you’ll need to restart the `xo-server` again manually.
+We recommend doing this right before updating Fragata Fleet Appliance, or you’ll need to restart the `fragata-server` again manually.
 :::
 
 #### Latest Channel
@@ -347,17 +347,17 @@ We suggest doing a backup of the certificates in case anything goes wrong:
 
 <Terminal shell title="back up the current certificates, on your XOA">{`
 today=$(date +%Y%m%d)
-sudo mkdir /var/lib/xo-server/data/sdn-controller/$today-backup
-sudo mv /var/lib/xo-server/data/sdn-controller/*.pem /var/lib/xo-server/data/sdn-controller/$today-backup
+sudo mkdir /var/lib/fragata-server/data/sdn-controller/$today-backup
+sudo mv /var/lib/fragata-server/data/sdn-controller/*.pem /var/lib/fragata-server/data/sdn-controller/$today-backup
 `}</Terminal>
 
 :::
 
-Finally, update your XOA. On next restart, `xo-server` will regenerate the certificates and push them to your hosts automatically. You can then update your XCP-ng pools as you normally would.
+Finally, update your XOA. On next restart, `fragata-server` will regenerate the certificates and push them to your hosts automatically. You can then update your XCP-ng pools as you normally would.
 
 #### Stable Channel
 
-The update present in the `latest` channel will probably be available later than the XCP-ng 8.3 update (March 2026) that will include OpenSSL 3. In that case, you need to actually generate certificates yourself, then restart `xo-server`.
+The update present in the `latest` channel will probably be available later than the XCP-ng 8.3 update (March 2026) that will include OpenSSL 3. In that case, you need to actually generate certificates yourself, then restart `fragata-server`.
 
 We provide a helper script to run on your XOA VM:
 
@@ -366,19 +366,19 @@ We provide a helper script to run on your XOA VM:
 <Terminal shell title="regenerate the certificates, on your XOA">{`
 sudo bash -e ./regenerate-certs.sh
 # if you have available updates, just update XOA, otherwise:
-sudo systemctl restart xo-server
+sudo systemctl restart fragata-server
 `}</Terminal>
 
-Once `xo-server` is back up, the new certificates are pushed to your hosts. You can then update your XCP-ng pools as you normally would.
+Once `fragata-server` is back up, the new certificates are pushed to your hosts. You can then update your XCP-ng pools as you normally would.
 
 #### Running from sources
 
 If you have auto-updates from master, you likely already are in a case similar to people using the `latest` channel and already have the updated certificate generation.
 
-1. You need to find where your xo-server's data folder lives.
+1. You need to find where your fragata-server's data folder lives.
 2. Move or remove your certificates.
-3. Restart xo-server.
+3. Restart fragata-server.
 
-If for any reason you’re pinning xen-orchestra to a specific release, you can use the `regenerate-certs.sh` as an insipration. However, be sure to adjust it to your installation (xo-server’s data folder, permission…). Then, you can restart `xo-server` with your distribution service manager.
+If for any reason you’re pinning xen-orchestra to a specific release, you can use the `regenerate-certs.sh` as an insipration. However, be sure to adjust it to your installation (fragata-server’s data folder, permission…). Then, you can restart `fragata-server` with your distribution service manager.
 
-Once `xo-server` is back up, the new certificates are pushed to your hosts. You can then update your XCP-ng pools as you normally would.
+Once `fragata-server` is back up, the new certificates are pushed to your hosts. You can then update your XCP-ng pools as you normally would.

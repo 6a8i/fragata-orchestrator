@@ -6,7 +6,7 @@ const { strict: assert } = require('assert')
 const { rimraf } = require('rimraf')
 const tmp = require('tmp')
 const { Disposable, pFromCallback } = require('promise-toolbox')
-const { getSyncedHandler } = require('@xen-orchestra/fs')
+const { getSyncedHandler } = require('@fragata/fs')
 
 const { SECTOR_SIZE, PLATFORMS } = require('../_constants')
 const { createRandomFile, convertFromRawToVhd } = require('../tests/utils')

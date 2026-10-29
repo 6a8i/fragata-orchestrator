@@ -3,7 +3,7 @@ import styles from './styles.module.css'
 
 /**
  * Browser reimplementation of the retention logic from
- * `@xen-orchestra/backups/_getOldEntries.mjs`, plus the full-backup-chain
+ * `@fragata/backups/_getOldEntries.mjs`, plus the full-backup-chain
  * accounting, so users can explore how LTR + full-backup interval drive the
  * number of full backups stored on the remote.
  *

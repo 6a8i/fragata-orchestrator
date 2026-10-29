@@ -1,0 +1,1143 @@
+import {
+  Body,
+  Delete,
+  Example,
+  Extension,
+  Get,
+  Middlewares,
+  Patch,
+  Path,
+  Post,
+  Put,
+  Query,
+  Request,
+  Response,
+  Route,
+  Security,
+  SuccessResponse,
+  Tags,
+} from 'tsoa'
+import { Request as ExRequest, json } from 'express'
+import { inject } from 'inversify'
+import { incorrectState, invalidParameters } from 'fragata-common/api-errors.js'
+import { provide } from 'inversify-binding-decorators'
+import type {
+  XapiStatsGranularity,
+  XapiVmStats,
+  XenApiVm,
+  XoAlarm,
+  XoVmBackupJob,
+  XoHost,
+  XoTask,
+  XoVdi,
+  XoVm,
+  XoVmSnapshot,
+  XoMessage,
+  XoNetwork,
+  XoVif,
+  XoSr,
+} from '@fragata/types'
+import { PassThrough, Readable } from 'node:stream'
+
+import { SUPPORTED_ACTIONS_BY_RESOURCE, type SupportedActions } from '@fragata/acl'
+
+import { acl, actionsFromBody } from '../middlewares/acl.middleware.mjs'
+import {
+  asynchronousActionResp,
+  badRequestResp,
+  createdResp,
+  forbiddenOperationResp,
+  incorrectStateResp,
+  internalServerErrorResp,
+  invalidParameters as invalidParametersResp,
+  noContentResp,
+  notFoundResp,
+  unauthorizedResp,
+  type Unbrand,
+} from '../open-api/common/response.common.mjs'
+import { BASE_URL, limitAndFilterArray, NDJSON_CONTENT_TYPE } from '../helpers/utils.helper.mjs'
+import { genericAlarmsExample } from '../open-api/oa-examples/alarm.oa-example.mjs'
+import { partialVms, vm, vmDashboard, vmIds, vmStatsExample, vmVdis } from '../open-api/oa-examples/vm.oa-example.mjs'
+import { RestApi } from '../rest-api/rest-api.mjs'
+import { partialTasks, taskIds, taskLocation } from '../open-api/oa-examples/task.oa-example.mjs'
+import type { AuthenticatedRequest, SendObjects } from '../helpers/helper.type.mjs'
+import { XapiXoController } from '../abstract-classes/xapi-xo-controller.mjs'
+import { VmService } from './vm.service.mjs'
+import { BackupJobService } from '../backup-jobs/backup-job.service.mjs'
+import type { UnbrandXoVmBackupJob } from '../backup-jobs/backup-job.type.mjs'
+import { partialVmBackupJobs, vmBackupJobIds } from '../open-api/oa-examples/backup-job.oa-example.mjs'
+import { messageIds, partialMessages } from '../open-api/oa-examples/message.oa-example.mjs'
+import type { UnbrandedVmDashboard, UpdateVmRequestBody } from './vm.type.mjs'
+import type { CreateActionReturnType } from '../abstract-classes/base-controller.mjs'
+import { Task } from '@fragata/task'
+import { vmExportCompressDeprecated } from '../middlewares/deprecated.middleware.mjs'
+
+const IGNORED_VDIS_TAG = '[NOSNAP]'
+
+// `datasources` is managed through the dedicated `/vms/{id}/stats/data_source`
+// endpoints, not as a direct VM property, so it cannot be updated via PATCH /vms.
+const UPDATE_VM_ACTIONS = Object.keys(SUPPORTED_ACTIONS_BY_RESOURCE.vm.update)
+  .filter(action => action !== 'datasources')
+  .map(k => `update:${k}` as SupportedActions<'vm'>)
+
+@Route('vms')
+@Security('*')
+@Response(badRequestResp.status, badRequestResp.description)
+@Response(unauthorizedResp.status, unauthorizedResp.description)
+@Tags('vms')
+// the `provide` decorator is mandatory on class that injects/receives dependencies.
+// It automatically bind the class to the IOC container that handles dependency injection
+@provide(VmController)
+export class VmController extends XapiXoController<XoVm> {
+  #vmService: VmService
+  #backupJobService: BackupJobService
+
+  constructor(
+    @inject(RestApi) restApi: RestApi,
+    @inject(VmService) vmService: VmService,
+    @inject(BackupJobService) backupJobService: BackupJobService
+  ) {
+    super('VM', restApi)
+    this.#vmService = vmService
+    this.#backupJobService = backupJobService
+  }
+
+  /**
+   * Returns all VMs that match the following privilege:
+   * - resource: vm, action: read
+   *
+   * @example fields "name_label,power_state,uuid"
+   * @example filter "power_state:Running"
+   * @example limit 42
+   */
+  @Example(vmIds)
+  @Example(partialVms)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('')
+  @Security('*', ['acl'])
+  getVms(
+    @Request() req: ExRequest,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<Unbrand<XoVm>>> {
+    return this.sendObjects(Object.values(this.getObjects({ filter })), req, {
+      limit,
+      privilege: { action: 'read', resource: 'vm' },
+    })
+  }
+
+  /**
+   *
+   * Export VM. Compress is only used for XVA format
+   *
+   * Required privilege:
+   * - resource: vm, action: export
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   */
+  @Extension('x-mcp-exposure', 'deny')
+  @Get('{id}.{format}')
+  @Middlewares([acl({ resource: 'vm', action: 'export', objectId: 'params.id' }), vmExportCompressDeprecated])
+  @SuccessResponse(200, 'Download started', 'application/octet-stream')
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(422, 'Invalid format, Invalid compress')
+  async exportVm(
+    @Request() req: ExRequest,
+    @Path() id: string,
+    @Path() format: Parameters<VmService['export']>[2]['format'],
+    @Query() compress?: Parameters<VmService['export']>[2]['compress']
+  ): Promise<Readable> {
+    const stream = await this.#vmService.export(id as XoVm['id'], 'VM', { compress, format, response: req.res })
+    process.on('SIGTERM', () => req.destroy())
+    req.on('close', () => stream.destroy())
+
+    return stream
+  }
+
+  /**
+   * Required privilege:
+   * - resource: vm, action: read
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   */
+  @Example(vm)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}')
+  @Middlewares(acl({ resource: 'vm', action: 'read', objectId: 'params.id' }))
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  getVm(@Path() id: string): Unbrand<XoVm> {
+    return this.getObject(id as XoVm['id'])
+  }
+
+  /**
+   * Partial update of a VM. Only the fields present in the body are modified;
+   * everything else is left untouched.
+   *
+   * Operations are applied sequentially: if one fails, previously applied
+   * changes are not rolled back.
+   *
+   * Required privilege per field provided in the body:
+   * - resource: vm, action: update:&lt;field&gt; (e.g. update:nameLabel, update:cpus, ...)
+   *
+   * Special fields:
+   * - `xenStoreData` keys are automatically prefixed with `vm-data/` when missing
+   * - `cpus` automatically set `cpusStaticMax` to the `cpus` value if `cpus` is higher than `vm.CPUs.max`
+   * - If `cpusStaticMax` is updated to a value that is incompatible with the VM topology, `vm.platform['cores-per-socket']` will be set to 1, unless `coresPerSocket` is explicitly specified
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   * @example body {
+   *    "nameLabel": "web-prod-01",
+   *    "nameDescription": "Production web frontend — managed by n8n",
+   *    "notes": "Docker containers: nginx, app-1, app-2"
+   * }
+   */
+  @Patch('{id}')
+  @Middlewares([
+    json(),
+    acl({
+      resource: 'vm',
+      actions: actionsFromBody(UPDATE_VM_ACTIONS),
+      objectId: 'params.id',
+    }),
+  ])
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async updateVm(@Path() id: string, @Body() body: UpdateVmRequestBody): Promise<void> {
+    await this.#vmService.updateVm(id as XoVm['id'], body)
+  }
+
+  /**
+   * Required privilege:
+   * - resource: vm, action: delete
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Delete('{id}')
+  @Middlewares(acl({ resource: 'vm', action: 'delete', objectId: 'params.id' }))
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(incorrectStateResp.status, incorrectStateResp.description)
+  async deleteVm(@Path() id: string): Promise<void> {
+    const xapiVm = this.getXapiObject(id as XoVm['id'])
+    await xapiVm.$xapi.VM_destroy(xapiVm.$ref)
+  }
+
+  /**
+   *
+   *  VM must be running
+   *
+   * Required privilege:
+   * - resource: vm, action: read
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   */
+  @Example(vmStatsExample)
+  @Extension('x-mcp-exposure', 'deny')
+  @Get('{id}/stats')
+  @Middlewares(acl({ resource: 'vm', action: 'read', objectId: 'params.id' }))
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(422, 'Invalid granularity, VM is halted or host could not be found')
+  async getVmStats(@Path() id: string, @Query() granularity?: XapiStatsGranularity): Promise<XapiVmStats> {
+    try {
+      return await this.restApi.xoApp.getXapiVmStats(id as XoVm['id'], granularity)
+    } catch (error) {
+      if (
+        incorrectState.is(error, {
+          property: 'resident_on',
+        })
+      ) {
+        throw invalidParameters(`VM ${id} is halted or host could not be found.`, error)
+      }
+      throw error
+    }
+  }
+
+  /**
+   * The VM must be running
+   *
+   * List of possible data_source (Based on [Xenserver doc](https://docs.xenserver.com/en-us/xenserver/8/monitor-performance#available-vm-metrics))
+   * - **cpu#** : Utilization of vCPU cpu (fraction). Enabled by default. *Condition*: vCPU cpu exists.
+   * - **cpu_usage** : Domain CPU usage. *Condition*: None.
+   * - **memory** : Memory currently allocated to VM (Bytes). Enabled by default. *Condition*: None.
+   * - **memory_target** : Target of VM balloon driver (Bytes). Enabled by default. *Condition*: None.
+   * - **memory_internal_free** : Memory used as reported by the guest agent (KiB). Enabled by default. *Condition*: None.
+   * - **runstate_fullrun** : Fraction of time that all vCPUs are running. *Condition*: None.
+   * - **runstate_full_contention** : Fraction of time that all vCPUs are runnable (waiting for CPU). *Condition*: None.
+   * - **runstate_concurrency_hazard** : Fraction of time that some vCPUs are running and some are runnable. *Condition*: None.
+   * - **runstate_blocked** : Fraction of time that all vCPUs are blocked or offline. *Condition*: None.
+   * - **runstate_partial_run** : Fraction of time that some vCPUs are running, and some are blocked. *Condition*: None.
+   * - **runstate_partial_contention** : Fraction of time that some vCPUs are runnable and some are blocked. *Condition*: None.
+   * - **vbd_#_write** : Writes to device vbd in bytes per second. Enabled by default. *Condition*: VBD vbd exists.
+   * - **vbd_#_read** : Reads from device vbd in bytes per second. Enabled by default. *Condition*: VBD vbd exists.
+   * - **vbd_#_write_latency** : Writes to device vbd in microseconds. *Condition*: VBD vbd exists.
+   * - **vbd_#_read_latency** : Reads from device vbd in microseconds. *Condition*: VBD vbd exists.
+   * - **vbd_#_iops_read** : Read requests per second. *Condition*: At least one plugged VBD for non-ISO VDI on the host.
+   * - **vbd_#_iops_write** : Write requests per second. *Condition*: At least one plugged VBD for non-ISO VDI on the host.
+   * - **vbd_#_iops_total** : I/O requests per second. *Condition*: At least one plugged VBD for non-ISO VDI on the host.
+   * - **vbd_#_iowait** : Percentage of time waiting for I/O. *Condition*: At least one plugged VBD for non-ISO VDI on the host.
+   * - **vbd_#_inflight** : Number of I/O requests currently in flight. *Condition*: At least one plugged VBD for non-ISO VDI on the host.
+   * - **vbd_#_avgqu_sz** : Average I/O queue size. *Condition*: At least one plugged VBD for non-ISO VDI on the host.
+   * - **vif_#_rx** : Bytes per second received on virtual interface number vif. Enabled by default. *Condition*: VIF vif exists.
+   * - **vif_#_tx** : Bytes per second transmitted on virtual interface vif. Enabled by default. *Condition*: VIF vif exists.
+   * - **vif_#_rx_errors** : Receive errors per second on virtual interface vif. Enabled by default. *Condition*: VIF vif exists.
+   * - **vif_#_tx_errors** : Transmit errors per second on virtual interface vif. Enabled by default. *Condition*: VIF vif exists.
+   *
+   * Required privilege:
+   * - resource: vm, action: update:datasources
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   * @example dataSource "cpu0"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Put('{id}/stats/data_source/{data_source}')
+  @Middlewares(acl({ resource: 'vm', action: 'update:datasources', objectId: 'params.id' }))
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async addDataSource(@Path() id: string, @Path('data_source') dataSource: string) {
+    await this.getXapiObject(id as XoVm['id']).$call('record_data_source', dataSource)
+  }
+
+  /**
+   * The VM must be running
+   *
+   * For a list of possible data sources, see the endpoint documentation: `GET {id}/stats/data_source/{data_source}`
+   *
+   * Required privilege:
+   * - resource: vm, action: update:datasources
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   * @example dataSource "cpu0"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Delete('{id}/stats/data_source/{data_source}')
+  @Middlewares(acl({ resource: 'vm', action: 'update:datasources', objectId: 'params.id' }))
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async deleteDataSource(@Path() id: string, @Path('data_source') dataSource: string) {
+    await this.getXapiObject(id as XoVm['id']).$call('forget_data_source_archives', dataSource)
+  }
+
+  /**
+   * The VM must be halted
+   *
+   * Required privileges:
+   * - resource: vm, action: start
+   * - resource: host, action: allow-vm (if an hostId is specified)
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   * @example body { "hostId": "b61a5c92-700e-4966-a13b-00633f03eea8" }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/start')
+  @Middlewares([
+    json(),
+    acl([
+      { resource: 'vm', action: 'start', objectId: 'params.id' },
+      { resource: 'host', action: 'allow-vm', objectId: 'body.hostId' },
+    ]),
+  ])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async startVm(
+    @Path() id: string,
+    @Body() body?: { hostId?: string },
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const vmId = id as XoVm['id']
+    const action = async () => {
+      await this.getXapi(vmId).startVm(vmId, { startOnly: true, hostId: body?.hostId as XoHost['id'] })
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        args: body,
+        name: 'start VM',
+        objectId: vmId,
+      },
+    })
+  }
+
+  /**
+   * Requires guest tools to be installed
+   *
+   * Required privilege:
+   * - resource: vm, action: shutdown:clean
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/clean_shutdown')
+  @Middlewares(acl({ resource: 'vm', action: 'shutdown:clean', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async cleanShutdownVm(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const vmId = id as XoVm['id']
+    const action = async () => {
+      await this.getXapiObject(vmId).$callAsync('clean_shutdown')
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'clean shutdown VM',
+        objectId: vmId,
+      },
+    })
+  }
+
+  /**
+   * Requires guest tools to be installed
+   *
+   * Required privilege:
+   * - resource: vm, action: reboot:clean
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/clean_reboot')
+  @Middlewares(acl({ resource: 'vm', action: 'reboot:clean', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async cleanRebootVm(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const vmId = id as XoVm['id']
+    const action = async () => {
+      await this.getXapiObject(vmId).$callAsync('clean_reboot')
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'clean reboot VM',
+        objectId: vmId,
+      },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: vm, action: shutdown:hard
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/hard_shutdown')
+  @Middlewares(acl({ resource: 'vm', action: 'shutdown:hard', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async hardShutdownVm(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const vmId = id as XoVm['id']
+    const action = async () => {
+      await this.getXapiObject(vmId).$callAsync('hard_shutdown')
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'hard shutdown VM',
+        objectId: vmId,
+      },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: vm, action: reboot:hard
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/hard_reboot')
+  @Middlewares(acl({ resource: 'vm', action: 'reboot:hard', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async hardRebootVm(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const vmId = id as XoVm['id']
+    const action = async () => {
+      await this.getXapiObject(vmId).$callAsync('hard_reboot')
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'hard reboot VM',
+        objectId: vmId,
+      },
+    })
+  }
+
+  /**
+   * The VM must be running
+   *
+   * Required privilege:
+   * - resource: vm, action: pause
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/pause')
+  @Middlewares(acl({ resource: 'vm', action: 'pause', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async pauseVm(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const vmId = id as XoVm['id']
+    const action = async () => {
+      await this.getXapiObject(vmId).$callAsync('pause')
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'pause VM',
+        objectId: vmId,
+      },
+    })
+  }
+
+  /**
+   * The VM must be running
+   *
+   * Required privilege:
+   * - resource: vm, action: suspend
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/suspend')
+  @Middlewares(acl({ resource: 'vm', action: 'suspend', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async suspendVm(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const vmId = id as XoVm['id']
+    const action = async () => {
+      await this.getXapiObject(vmId).$callAsync('suspend')
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'suspend VM',
+        objectId: vmId,
+      },
+    })
+  }
+
+  /**
+   * The VM must be suspended
+   *
+   * Required privilege:
+   * - resource: vm, action: resume
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/resume')
+  @Middlewares(acl({ resource: 'vm', action: 'resume', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async resumeVm(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const vmId = id as XoVm['id']
+    const action = async () => {
+      await this.getXapi(vmId).resumeVm(vmId)
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'resume VM',
+        objectId: vmId,
+      },
+    })
+  }
+
+  /**
+   * The VM must be paused
+   *
+   * Required privilege:
+   * - resource: vm, action: unpause
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/unpause')
+  @Middlewares(acl({ resource: 'vm', action: 'unpause', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async unpauseVm(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const vmId = id as XoVm['id']
+    const action = async () => {
+      await this.getXapi(vmId).unpauseVm(vmId)
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'unpause VM',
+        objectId: vmId,
+      },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: vm, action: revert-snapshot
+   * - resource: vm, action: snapshot (if `snapshotBefore: true`)
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   * @example body { "snapshotId": "f07ab729-c0e8-721c-45ec-f11276377030", "snapshotBefore": true }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/revert_snapshot')
+  @Middlewares([
+    json(),
+    acl([
+      { resource: 'vm', action: 'revert-snapshot', objectId: 'params.id' },
+      {
+        resource: 'vm',
+        action: ({ req }) => (req.body.snapshotBefore ? 'snapshot' : undefined),
+        objectId: 'params.id',
+      },
+    ]),
+  ])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async revertSnapshotVm(
+    @Path() id: string,
+    @Body() body: { snapshotId: string; snapshotBefore?: boolean },
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const vmId = id as XoVm['id']
+    const action = async () => {
+      const snapshotId = body.snapshotId as XoVmSnapshot['id']
+
+      // Ensure the snapshot belongs to this VM
+      const vm = this.getObject(vmId)
+      if (!vm.snapshots.includes(snapshotId)) {
+        throw invalidParameters(`snapshot ${snapshotId} does not belong to VM ${vmId}`)
+      }
+
+      if (body.snapshotBefore) {
+        await Task.run({ properties: { name: 'snapshot VM', objectId: vmId, objectType: 'VM' } }, () =>
+          this.getXapiObject(vmId).$snapshot({ ignoredVdisTag: IGNORED_VDIS_TAG })
+        )
+
+        await Task.run({ properties: { name: 'revert snapshot', objectId: vmId, objectType: 'VM' } }, () =>
+          this.getXapi(vmId).revertVm(snapshotId)
+        )
+      } else {
+        await this.getXapi(vmId).revertVm(snapshotId)
+      }
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: {
+        name: 'revert VM snapshot',
+        objectId: vmId,
+      },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: vm, action: snapshot
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   * @example body { "name_label": "my_awesome_snapshot" }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/snapshot')
+  @Middlewares([json(), acl({ resource: 'vm', action: 'snapshot', objectId: 'params.id' })])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(createdResp.status, 'Snapshot created')
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async snapshotVm(
+    @Path() id: string,
+    @Body() body?: { name_label?: XoVmSnapshot['name_label'] },
+    @Query() sync?: boolean
+  ): CreateActionReturnType<{ id: XenApiVm['uuid'] }> {
+    const vmId = id as XoVm['id']
+    const action = async () => {
+      const xapiVm = this.getXapiObject(vmId)
+      const ref = await xapiVm.$snapshot({ ignoredVdisTag: IGNORED_VDIS_TAG, name_label: body?.name_label })
+      const snapshotId = await xapiVm.$xapi.getField<XenApiVm, 'uuid'>('VM', ref, 'uuid')
+
+      if (sync) {
+        this.setHeader('Location', `${BASE_URL}/vm-snapshots/${snapshotId}`)
+      }
+
+      return { id: snapshotId }
+    }
+
+    return this.createAction<{ id: XenApiVm['uuid'] }>(action, {
+      sync,
+      statusCode: createdResp.status,
+      taskProperties: {
+        name: 'snapshot VM',
+        objectId: vmId,
+      },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: vm, action: clone
+   *
+   * - For fast clone on the same SR, omit `srId` and set `fast` to `true`.
+   * - For full copy on the same SR, omit `srId` and set `fast` to `false`.
+   * - To copy the VM to a different SR (always a full copy), provide `srId`. Supports cross-pool copy. Optionally use `compress: "gzip"` or `compress: "zstd"` to compress the export stream during cross-pool copy.
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   * @example body { "name_label": "cloned_vm", "fast": true }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/clone')
+  @Middlewares([json(), acl({ resource: 'vm', action: 'clone', objectId: 'params.id' })])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(createdResp.status, createdResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  async cloneVm(
+    @Path() id: string,
+    @Body()
+    body?: { name_label?: string; fast?: boolean } | { name_label?: string; srId?: string; compress?: 'gzip' | 'zstd' },
+    @Query() sync?: boolean
+  ): CreateActionReturnType<{ id: XenApiVm['uuid'] }> {
+    const vmId = id as XoVm['id']
+
+    const action = async () => {
+      const xapi = this.getXapi(vmId)
+      let clonedVmUuid: string
+
+      if (body !== undefined && 'srId' in body && body.srId !== undefined) {
+        const srId = body.srId as XoSr['id']
+        const vm = this.getObject(vmId)
+        const sr = this.restApi.getObject<XoSr>(srId, 'SR')
+
+        if (vm.$pool === sr.$pool) {
+          clonedVmUuid = (await xapi.copyVm(vmId, { nameLabel: body.name_label, srOrSrId: srId })).uuid
+        } else {
+          const targetXapi = this.restApi.xoApp.getXapi(srId)
+          clonedVmUuid = (
+            await xapi.remoteCopyVm(vmId, targetXapi, srId, { compress: body.compress, nameLabel: body.name_label })
+          ).vm.uuid
+        }
+      } else {
+        const fast = body !== undefined && 'fast' in body ? body.fast : undefined
+        clonedVmUuid = (await xapi.cloneVm(vmId, { nameLabel: body?.name_label, fast })).uuid
+      }
+
+      if (sync) {
+        this.setHeader('Location', `${BASE_URL}/vms/${clonedVmUuid}`)
+      }
+
+      return { id: clonedVmUuid }
+    }
+
+    return this.createAction<{ id: XenApiVm['uuid'] }>(action, {
+      sync,
+      statusCode: createdResp.status,
+      taskProperties: {
+        name: 'clone VM',
+        objectId: vmId,
+        params: body,
+      },
+    })
+  }
+
+  /**
+   * Returns all alarms that match the following privilege:
+   * - resource: alarm, action: read
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   * @example fields "id,time"
+   * @example filter "time:>1747053793"
+   * @example limit 42
+   */
+  @Example(genericAlarmsExample)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/alarms')
+  @Security('*', ['acl'])
+  @Tags('alarms')
+  @Response(notFoundResp.status, notFoundResp.description)
+  getVmAlarms(
+    @Request() req: ExRequest,
+    @Path() id: string,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<Unbrand<XoAlarm>>> {
+    const alarms = this.#vmService.getVmAlarms(id as XoVm['id'], { filter })
+
+    return this.sendObjects(Object.values(alarms), req, {
+      path: 'alarms',
+      limit,
+      privilege: { action: 'read', resource: 'alarm' },
+    })
+  }
+
+  /**
+   * Returns all VDIs that match the following privilege:
+   * - resource: vdi, action: read
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   * @example fields "VDI_type,id,name_label"
+   * @example filter "VDI_type:user"
+   * @example limit 42
+   */
+  @Example(vmVdis)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/vdis')
+  @Security('*', ['acl'])
+  @Tags('vdis')
+  @Response(notFoundResp.status, notFoundResp.description)
+  getVmVdis(
+    @Request() req: ExRequest,
+    @Path() id: string,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<Unbrand<XoVdi>>> {
+    const vdis = this.#vmService.getVmVdis(id as XoVm['id'], 'VM')
+    return this.sendObjects(limitAndFilterArray(vdis, { filter }), req, {
+      path: obj => obj.type.toLowerCase() + 's',
+      limit,
+      privilege: { action: 'read', resource: 'vdi' },
+    })
+  }
+
+  /**
+   * Returns all backup jobs that match the following privilege:
+   * - resource: backup-job, action: read
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   * @example fields "mode,name,type,id"
+   * @example filter "mode:full"
+   * @example limit 42
+   */
+  @Example(vmBackupJobIds)
+  @Example(partialVmBackupJobs)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/backup-jobs')
+  @Security('*', ['acl'])
+  @Tags('backup-jobs')
+  @Response(notFoundResp.status, notFoundResp.description)
+  async vmGetVmBackupJobs(
+    @Request() req: ExRequest,
+    @Path() id: string,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<UnbrandXoVmBackupJob>> {
+    const backupJobs = await this.restApi.xoApp.getAllJobs('backup')
+
+    const vmBackupJobs: XoVmBackupJob[] = []
+    for (const backupJob of backupJobs) {
+      if (await this.#backupJobService.isVmInBackupJob(backupJob.id, id as XoVm['id'])) {
+        vmBackupJobs.push(backupJob)
+      }
+    }
+
+    return this.sendObjects(limitAndFilterArray(vmBackupJobs, { filter }), req, {
+      path: '/backup-jobs',
+      limit,
+      privilege: { action: 'read', resource: 'backup-job' },
+    })
+  }
+
+  /**
+   * Returns all messages that match the following privilege:
+   * - resource: message, action: read
+   *
+   * @example id "cef5f68c-61ae-3831-d2e6-1590d4934acf"
+   * @example fields "name,id,$object"
+   * @example filter "name:VM_STARTED"
+   * @example limit 42
+   */
+  @Example(messageIds)
+  @Example(partialMessages)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/messages')
+  @Security('*', ['acl'])
+  @Tags('messages')
+  @Response(notFoundResp.status, notFoundResp.description)
+  getVmMessages(
+    @Request() req: ExRequest,
+    @Path() id: string,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<Unbrand<XoMessage>>> {
+    const messages = this.getMessagesForObject(id as XoVm['id'], { filter })
+
+    return this.sendObjects(Object.values(messages), req, {
+      path: 'messages',
+      limit,
+      privilege: { action: 'read', resource: 'message' },
+    })
+  }
+
+  /**
+   * Returns all tasks that match the following privilege:
+   * - resource: task, action: read
+   *
+   * @example id "613f541c-4bed-fc77-7ca8-2db6b68f079c"
+   * @example fields "id,status,properties"
+   * @example filter "status:failure"
+   * @example limit 42
+   */
+  @Example(taskIds)
+  @Example(partialTasks)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/tasks')
+  @Security('*', ['acl'])
+  @Tags('tasks')
+  @Response(notFoundResp.status, notFoundResp.description)
+  async getVmTasks(
+    @Request() req: ExRequest,
+    @Path() id: string,
+    @Query() fields?: string,
+    @Query() ndjson?: boolean,
+    @Query() markdown?: boolean,
+    @Query() filter?: string,
+    @Query() limit?: number
+  ): SendObjects<Partial<Unbrand<XoTask>>> {
+    const tasks = await this.getTasksForObject(id as XoVm['id'], { filter })
+
+    return this.sendObjects(Object.values(tasks), req, {
+      path: 'tasks',
+      limit,
+      privilege: { action: 'read', resource: 'task' },
+    })
+  }
+
+  /**
+   * Required privilege:
+   * - resource: vm, action: update:tags
+   *
+   * @example id "613f541c-4bed-fc77-7ca8-2db6b68f079c"
+   * @example tag "from-rest-api"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Put('{id}/tags/{tag}')
+  @Middlewares(acl({ resource: 'vm', action: 'update:tags', objectId: 'params.id' }))
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async putVmTag(@Path() id: string, @Path() tag: string): Promise<void> {
+    const vm = this.getXapiObject(id as XoVm['id'])
+    await vm.$call('add_tags', tag)
+  }
+
+  /**
+   * Required privilege:
+   * - resource: vm, action: update:tags
+   *
+   * @example id "613f541c-4bed-fc77-7ca8-2db6b68f079c"
+   * @example tag "from-rest-api"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Delete('{id}/tags/{tag}')
+  @Middlewares(acl({ resource: 'vm', action: 'update:tags', objectId: 'params.id' }))
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async deleteVmTag(@Path() id: string, @Path() tag: string): Promise<void> {
+    const vm = this.getXapiObject(id as XoVm['id'])
+    await vm.$call('remove_tags', tag)
+  }
+
+  /**
+   * Required privilege:
+   * - resource: vm, action: read
+   *
+   * @example id "613f541c-4bed-fc77-7ca8-2db6b68f079c"
+   */
+  @Example(vmDashboard)
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/dashboard')
+  @Middlewares(acl({ resource: 'vm', action: 'read', objectId: 'params.id' }))
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  async getVmDashboard(
+    @Request() req: AuthenticatedRequest,
+    @Path() id: string,
+    @Query() ndjson?: boolean
+  ): Promise<UnbrandedVmDashboard | undefined> {
+    const vm = this.getObject(id as XoVm['id'])
+
+    const stream = ndjson ? new PassThrough() : undefined
+    const isStream = stream !== undefined
+
+    if (isStream) {
+      const res = req.res
+      res.setHeader('Content-Type', NDJSON_CONTENT_TYPE)
+      stream.pipe(res)
+    }
+
+    try {
+      const dashboard = await this.#vmService.getVmDashboard(vm.id, { stream })
+
+      if (!isStream) {
+        return dashboard
+      }
+    } finally {
+      stream?.end()
+    }
+  }
+
+  /**
+   * Required privileges:
+   * - resource: vm, action: migrate-send
+   * - resource: host, action: migrate-receive (on the destination host)
+   *
+   * VIF mapping is not allowed for intra-pool migration
+   *
+   * Networks and SRs must belong to the same pool as the destination host
+   *
+   * Set `bypassCpuCheck` to `true` to retry a migration refused with `VM_INCOMPATIBLE_WITH_THIS_HOST`
+   * (e.g. CPU features mismatch between the source and the destination host)
+   *
+   * **Warning**: when `bypassCpuCheck` is used, the VM may crash after the migration
+   *
+   * @example id "613f541c-4bed-fc77-7ca8-2db6b68f079c"
+   * @example body { "hostId": "b61a5c92-700e-4966-a13b-00633f03eea8" }
+   * @example body { "hostId": "b61a5c92-700e-4966-a13b-00633f03eea8", "bypassCpuCheck": true }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/migrate')
+  @Middlewares([
+    json(),
+    // Two separate checks allow independent control so a user can be allowed to migrate a VM away
+    // without being allowed to place VMs on any specific host, and vice versa.
+    acl([
+      { resource: 'vm', action: 'migrate-send', objectId: 'params.id' },
+      { resource: 'host', action: 'migrate-receive', objectId: 'body.hostId' },
+    ]),
+  ])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  migrateVm(
+    @Path() id: string,
+    @Body()
+    body:
+      | { hostId: string; migrationNetworkId?: string; bypassCpuCheck?: boolean }
+      | {
+          hostId: string
+          migrationNetworkId?: string
+          bypassCpuCheck?: boolean
+          srId?: string
+          srIdByVdiId?: { [key: string]: string }
+          networkIdByVifId?: { [key: string]: string }
+        },
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const vmId = id as XoVm['id']
+    const hostId = body.hostId as XoHost['id']
+    const bypassCpuCheck = body.bypassCpuCheck ?? false
+
+    const action = async () => {
+      const { migrationNetworkId } = body
+      const xapiVm = this.getXapiObject(vmId)
+
+      await xapiVm.$xapi.migrateVm(vmId, this.getXapi(hostId), hostId, {
+        force: bypassCpuCheck,
+        mapVdisSrs: 'srIdByVdiId' in body ? (body.srIdByVdiId as Record<XoVdi['id'], XoSr['id']>) : undefined,
+        mapVifsNetworks:
+          'networkIdByVifId' in body ? (body.networkIdByVifId as Record<XoVif['id'], XoNetwork['id']>) : undefined,
+        migrationNetworkId: migrationNetworkId as XoNetwork['id'] | undefined,
+        sr: 'srId' in body ? (body.srId as XoSr['id']) : undefined,
+      })
+      return
+    }
+
+    return this.createAction(action, {
+      sync,
+      statusCode: 204,
+      taskProperties: { name: 'Migrate VM', objectId: vmId, params: body },
+    })
+  }
+}

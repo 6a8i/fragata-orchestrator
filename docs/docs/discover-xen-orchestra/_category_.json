@@ -1,8 +1,8 @@
 {
-    "label": "Discover Xen Orchestra",
+    "label": "Discover Fragata Fleet",
     "position": 3,
     "link": {
       "type": "generated-index",
-      "description": "General information on Xen Orchestra"
+      "description": "General information on Fragata Fleet"
     }
   }

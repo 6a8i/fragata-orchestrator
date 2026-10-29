@@ -7,7 +7,7 @@ const { readChangelogPackages } = require('./_readChangelogPackages.js')
 const invert = require('lodash/invert')
 const keyBy = require('lodash/keyBy')
 
-const { debug } = require('../@xen-orchestra/log').createLogger('gen-deps-list')
+const { debug } = require('../@fragata/log').createLogger('gen-deps-list')
 const computeDepOrder = require('./_computeDepOrder.js')
 
 const RELEASE_WEIGHT = { PATCH: 1, MINOR: 2, MAJOR: 3 }
@@ -82,7 +82,7 @@ async function main(args, scriptName) {
   const releaseOrder = computeDepOrder(allPackages)
 
   Object.entries(toRelease).forEach(([packageName, releaseType]) => {
-    if (packageName === '@xen-orchestra/lite') {
+    if (packageName === '@fragata/lite') {
       throw new Error(`Package ${packageName} should not be listed, it's released separately`)
     }
 
@@ -182,7 +182,7 @@ function shouldPackageBeReleased(name, dependencies, depName, depVersion) {
     return false
   }
 
-  if (['xo-web', 'xo-server', '@xen-orchestra/proxy', '@xen-orchestra/web'].includes(name)) {
+  if (['fragata-web-classic', 'fragata-server', '@fragata/proxy', '@fragata/web'].includes(name)) {
     debug('forced release due to dependency update', {
       package: name,
       dependency: depName,
@@ -194,7 +194,7 @@ function shouldPackageBeReleased(name, dependencies, depName, depVersion) {
     return false
   }
 
-  if (name === '@xen-orchestra/lite') {
+  if (name === '@fragata/lite') {
     debug('ignoring release despite dependency update', {
       package: name,
       dependency: depName,

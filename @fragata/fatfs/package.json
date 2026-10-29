@@ -1,0 +1,34 @@
+{
+  "private": false,
+  "name": "@fragata/fatfs",
+  "version": "0.11.1",
+  "description": "fs implementation on top of raw FAT16/FAT32 block source",
+  "main": "index.js",
+  "scripts": {
+    "postversion": "npm publish --access public"
+  },
+  "repository": {
+    "directory": "@fragata/fatfs",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "keywords": [
+    "filesystem",
+    "fs",
+    "fat",
+    "fat32",
+    "fat16"
+  ],
+  "author": "Vates SAS",
+  "license": "Apache-2.0",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/fatfs",
+  "dependencies": {
+    "fifolock": "^1.0.0",
+    "struct-fu": "^1.2.1",
+    "xok": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

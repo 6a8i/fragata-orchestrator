@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * @typedef {import('@xen-orchestra/disk-transform').Disk} Disk
+ * @typedef {import('@fragata/disk-transform').Disk} Disk
  */
 
 import computeGeometryForSize from '../_computeGeometryForSize.js'

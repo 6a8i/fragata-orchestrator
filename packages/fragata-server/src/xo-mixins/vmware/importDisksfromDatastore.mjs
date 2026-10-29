@@ -1,0 +1,224 @@
+import { Task } from '@fragata/mixins/Tasks.mjs'
+import { QCOW2_CLUSTER_SIZE, VDI_FORMAT_QCOW2, VDI_FORMAT_VHD, VHD_BLOCK_SIZE, VHD_MAX_SIZE } from '@fragata/xapi'
+import { ReadAhead } from '@fragata/disk-transform'
+import { toVhdStream } from 'vhd-lib/disk-consumer/index.mjs'
+import { NbdDisk } from '@fragata/nbd-client/NbdDisk.mjs'
+import { NbdStdioClient } from '@fragata/nbd-client'
+import { createLogger } from '@fragata/log'
+import { toQcow2Stream } from '@fragata/qcow2'
+import { TaskProgressHandler } from '@fragata/backups/_runners/_vmRunners/_TaskProgressHandler.mjs'
+import {
+  diskIsAlreadyImported,
+  findPreviouslyImportedIndex,
+  VDI_DISK_PATH_KEY,
+  VDI_LEGACY_CID_KEY,
+} from './_diskIdentity.mjs'
+
+const { warn } = createLogger('xo:importdiskfromdatastore')
+
+export async function importStream(
+  {
+    esxi,
+    disk,
+    // vectura serves the disk and nothing else: there is no block map to fall back on, so the
+    // whole disk is read. `capacity` and not the aligned size, reading past the export would fail
+    dataMap = [{ offset: 0, length: disk.capacity, type: 0 }],
+    vmId,
+    format,
+  },
+  consumerCallback
+) {
+  const signal = Task.abortSignal
+  const { datastore: datastoreName, diskPath } = disk
+
+  // `NbdStdioClient` spawns vectura on connect and kills it on disconnect
+  // we read the data from the full chain to ensure we don't have partial blocks ( blocks with 0 when clusters are in parent only)
+  const vecturaSettings = await esxi.getVecturaSpawnSettings(vmId, `[${datastoreName}] ${diskPath}`)
+
+  let vmdk
+  let stream
+  try {
+    signal?.throwIfAborted()
+    vmdk = new NbdDisk(vecturaSettings, READ_BLOCK_SIZE, { dataMap, ClientClass: NbdStdioClient })
+
+    await vmdk.init()
+    signal?.throwIfAborted()
+    vmdk = new ReadAhead(vmdk)
+
+    vmdk.addProgressHandler(new TaskProgressHandler())
+
+    if (format === VDI_FORMAT_QCOW2) {
+      stream = await toQcow2Stream(vmdk, { signal })
+    } else {
+      stream = await toVhdStream(vmdk, { signal })
+    }
+    Task.info(`got source stream for ${diskPath}`)
+    await consumerCallback(stream)
+    // bytes read from the source
+    return vmdk.getNbGeneratedBlock() * vmdk.getBlockSize()
+  } catch (err) {
+    stream?.destroy(err)
+    // a failure to start the server belongs in the report too, e.g. vectura not being installed
+    Task.warning(err)
+    throw err
+  } finally {
+    // this is what stops the vectura process
+    await vmdk?.close().catch(err => warn('error while closing source vmdk', err))
+  }
+}
+
+// default size that give a correct compromise between read speed
+// and reading empty bits
+// as a bonus this is aligned with VHD block size, thus removing
+// any block size conversion for transfer to VHD
+const READ_BLOCK_SIZE = VHD_BLOCK_SIZE
+
+async function importDiskChain({ esxi, sr, vm, chainByNode, changeTracking, userdevice, vmId }) {
+  if (chainByNode.length === 0) {
+    Task.info('Empty chain')
+    return
+  }
+  const xapi = vm.$xapi
+  const existingVdis = await xapi.getRecords('VDI', await vm.$getDisks())
+
+  const start = Date.now()
+  const activeDisk = chainByNode[chainByNode.length - 1]
+  const { capacity, datastore: datastoreName, diskPath, descriptionLabel, nameLabel, uid } = activeDisk
+  let format
+  let blockSize
+  if (capacity > VHD_MAX_SIZE) {
+    format = VDI_FORMAT_QCOW2
+    blockSize = QCOW2_CLUSTER_SIZE
+  } else {
+    format = VDI_FORMAT_VHD
+    blockSize = VHD_BLOCK_SIZE
+  }
+
+  Task.info(`Importing disk in ${format} format, with block of ${blockSize} bytes`)
+
+  let baseDiskPath
+  const previouslyImportedIndex = findPreviouslyImportedIndex(existingVdis, chainByNode)
+  let existingVdi
+  if (previouslyImportedIndex === chainByNode.length - 1) {
+    Task.info(`Nothing to import in this chain, ${diskPath} has already been imported`)
+    return
+  }
+  if (previouslyImportedIndex !== -1) {
+    if (previouslyImportedIndex < chainByNode.length - 2) {
+      throw new Error(
+        'the import does not support importing multiple snapshots. Coalesce the non imported snapshot into one or force a full import'
+      )
+    }
+
+    // get the changed blocks of the next snapshot
+    const existingDisk = chainByNode[previouslyImportedIndex]
+    existingVdi = diskIsAlreadyImported(existingVdis, existingDisk)
+    Task.info(`found a previous import`, { vdiRef: existingVdi.$ref })
+
+    // the disk the previous import read is the point in time the delta is computed from
+    baseDiskPath = existingDisk.diskPath
+  } else {
+    Task.info(`no reference disk found, fall back a full import`)
+  }
+
+  // asked in both cases: the blocks written since `baseDiskPath`, or every block the disk uses.
+  // `undefined` when the host cannot answer for a whole disk, `importStream` then reads all of it
+  const dataMap = await esxi.getDataMap(vmId, datastoreName, diskPath, {
+    baseDiskPath,
+    changeTracking,
+    signal: Task.abortSignal,
+  })
+  try {
+    if (!existingVdi) {
+      Task.info(`create a new VDI for ${diskPath}`)
+      const alignedSize = Math.ceil(capacity / blockSize) * blockSize
+      const delta = alignedSize - capacity
+      if (delta > 0) {
+        Task.info(`aligning disk size from ${capacity} to ${alignedSize} (adding ${delta} bytes at the end)`)
+      }
+
+      const vdiMetadata = {
+        name_description: descriptionLabel,
+        name_label: '[ESXI]' + nameLabel,
+        SR: sr.$ref,
+        virtual_size: alignedSize,
+      }
+      const vdiRef = await sr.$xapi.VDI_create(vdiMetadata)
+      existingVdi = sr.$xapi.getObject(vdiRef, undefined) ?? (await sr.$xapi.waitObject(vdiRef))
+
+      Task.info(
+        `vdi created  `,
+        diskPath,
+        'will create vbd',
+        userdevice,
+        `xvd${String.fromCharCode('a'.charCodeAt(0) + userdevice)}`
+      )
+      await sr.$xapi.VBD_create({
+        VDI: vdiRef,
+        VM: vm.$ref,
+        device: `xvd${String.fromCharCode('a'.charCodeAt(0) + userdevice)}`,
+        userdevice: String(userdevice < 3 ? userdevice : userdevice + 1),
+      })
+      Task.info(`vbd created `, diskPath)
+    }
+
+    const transferedBytes = await importStream({ esxi, dataMap, disk: activeDisk, vmId, format }, async stream => {
+      await existingVdi.$importContent(stream, { format })
+    })
+    const transfered = Math.round(transferedBytes / 1024 / 1024)
+
+    Task.info(`import of ${diskPath} content done`, { datastoreName, diskPath, sourceVmId: vmId })
+    const duration = Math.round((Date.now() - start) / 1000)
+    const speed = Math.round(transfered / duration)
+    await sr.$xapi.setField(
+      'VDI',
+      existingVdi.$ref,
+      'name_description',
+      `${existingVdi.name_description} 
+     ${transfered} MB in ${duration} s (${speed}MB/s) from  ${previouslyImportedIndex === -1 ? 'base' : 'snapshot'}`
+    )
+    await sr.$xapi.setFieldEntries('VDI', existingVdi.$ref, 'other_config', {
+      [VDI_DISK_PATH_KEY]: diskPath,
+      [VDI_LEGACY_CID_KEY]: uid,
+    })
+    // the progress follows the blocks read, a disk without any block to read never moves it
+    Task.set('progress', 100)
+    // same shape as the backup writers: becomes the result of the task
+    return { size: transferedBytes }
+  } catch (err) {
+    Task.warning(err)
+    throw err
+  }
+}
+
+export const importDisksFromDatastore = async function importDisksFromDatastore({ esxi, vm, vmId, chainsByNodes, sr }) {
+  // what the change tracking of the host is addressed by is the same for every disk of a VM:
+  // reading it here costs a few calls once, where every disk used to issue the same ones at the
+  // same time. A VM the host cannot answer for simply imports as it did before
+  const changeTracking = await esxi.getChangeTracking(vmId, { signal: Task.abortSignal }).catch(error => {
+    warn('could not read the change tracking of the VM, its disks will be read to find their blocks', {
+      error,
+      vmId,
+    })
+    // `null`, and not `undefined`: the host was already asked and did not answer, every disk asking
+    // it again would only repeat the same failing reads before falling back
+    return null
+  })
+
+  return await Promise.all(
+    Object.keys(chainsByNodes).map(async (node, userdevice) =>
+      Task.run({ properties: { name: `Import of disks ${node}` } }, async () => {
+        const chainByNode = chainsByNodes[node]
+        return importDiskChain({
+          esxi,
+          vm,
+          chainByNode,
+          changeTracking,
+          userdevice,
+          sr,
+          vmId,
+        })
+      })
+    )
+  )
+}

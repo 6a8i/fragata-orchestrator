@@ -1,0 +1,58 @@
+{
+  "private": false,
+  "name": "@fragata/mcp",
+  "version": "1.4.3",
+  "description": "MCP server for Fragata Fleet — allows AI assistants to query and manage XO infrastructure",
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "bin": {
+    "fragata-mcp": "./bin/fragata-mcp.mjs"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist/",
+    "lint": "eslint src/",
+    "postversion": "npm publish --access public",
+    "prebuild": "npm run clean",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/index.mjs",
+    "test": "tsc && cd dist && node --test"
+  },
+  "keywords": [
+    "xen-orchestra",
+    "xcp-ng",
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "virtualization"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "undici": "^6.5.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "@types/node": "^22.3.0",
+    "@fragata/types": "^2.5.0",
+    "rimraf": "^6.0.0",
+    "typescript": "~5.6.3",
+    "typescript-eslint": "^8.61.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/mcp",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/mcp",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "license": "AGPL-3.0-or-later",
+  "preferGlobal": true
+}

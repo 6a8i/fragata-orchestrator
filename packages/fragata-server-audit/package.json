@@ -1,0 +1,60 @@
+{
+  "name": "fragata-server-audit",
+  "version": "0.15.3",
+  "license": "AGPL-3.0-or-later",
+  "description": "Audit plugin for XO-Server",
+  "keywords": [
+    "audit",
+    "log",
+    "logs",
+    "orchestra",
+    "plugin",
+    "xen-orchestra",
+    "xen",
+    "fragata-server"
+  ],
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-server-audit",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "packages/fragata-server-audit",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "preferGlobal": false,
+  "main": "dist/",
+  "engines": {
+    "node": ">=6"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.29.0",
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "cross-env": "^7.0.2",
+    "rimraf": "^6.0.1"
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production babel --source-maps --out-dir=dist/ src/",
+    "dev": "cross-env NODE_ENV=development babel --watch --source-maps --out-dir=dist/ src/",
+    "prebuild": "rimraf dist/",
+    "predev": "yarn run prebuild",
+    "prepublishOnly": "yarn run build"
+  },
+  "dependencies": {
+    "@fragata/decorate-with": "^2.1.0",
+    "@fragata/audit-core": "^0.4.0",
+    "@fragata/cron": "^1.0.7",
+    "@fragata/log": "^0.7.2",
+    "async-iterator-to-stream": "^1.1.0",
+    "complex-matcher": "^1.1.1",
+    "golike-defer": "^0.5.1",
+    "ndjson": "^2.0.0",
+    "promise-toolbox": "^0.21.0",
+    "readable-stream": "^4.7.0",
+    "fragata-common": "^0.11.0"
+  },
+  "private": true
+}

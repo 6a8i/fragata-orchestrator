@@ -9,7 +9,7 @@ const {
   PARENT_LOCATOR_ENTRIES,
 } = require('../_constants')
 const { computeBatSize, sectorsToBytes, unpackHeader, unpackFooter, BUF_BLOCK_UNUSED } = require('./_utils')
-const { createLogger } = require('@xen-orchestra/log')
+const { createLogger } = require('@fragata/log')
 const { fuFooter, fuHeader, checksumStruct } = require('../_structs')
 const { set: mapSetBit } = require('../_bitmap')
 const { VhdAbstract } = require('./VhdAbstract')

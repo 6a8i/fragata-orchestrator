@@ -1,6 +1,6 @@
 #!/bin/bash -e
 # Navigate to the SDN Controller data directory
-cd /var/lib/xo-server/data/sdn-controller/
+cd /var/lib/fragata-server/data/sdn-controller/
 
 # dumping Openssl version for debugging purposes
 openssl version

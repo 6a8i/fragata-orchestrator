@@ -1,0 +1,37 @@
+{
+  "private": false,
+  "name": "@fragata/predicates",
+  "description": "Utilities to compose predicates",
+  "keywords": [
+    "and",
+    "combine",
+    "compose",
+    "every",
+    "function",
+    "functions",
+    "or",
+    "predicate",
+    "predicates",
+    "some"
+  ],
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/predicates",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/predicates",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "license": "ISC",
+  "version": "1.1.0",
+  "engines": {
+    "node": ">=6"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public",
+    "test": "node --test"
+  }
+}

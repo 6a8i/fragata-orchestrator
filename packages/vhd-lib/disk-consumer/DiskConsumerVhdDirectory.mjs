@@ -1,13 +1,13 @@
 // @ts-check
 
 /**
- * @typedef {import('@xen-orchestra/disk-transform').FileAccessor} FileAccessor
- * @typedef {import('@xen-orchestra/disk-transform').Disk} Disk
+ * @typedef {import('@fragata/disk-transform').FileAccessor} FileAccessor
+ * @typedef {import('@fragata/disk-transform').Disk} Disk
  */
 
 import { BaseVhd } from './BaseVhd.mjs'
 import { basename, dirname } from 'node:path'
-import { asyncEach } from '@vates/async-each'
+import { asyncEach } from '@fragata/async-each'
 import { VhdDirectory, VhdAbstract } from 'vhd-lib'
 import { unpackFooter, unpackHeader } from 'vhd-lib/Vhd/_utils.js'
 import { DEFAULT_BLOCK_SIZE } from '../_constants.js'
@@ -72,7 +72,7 @@ export class DiskConsumerVhdDirectory extends BaseVhd {
         vhd.header.parentUnicodeName = parentPath
       }
       /**
-       * @type {import('@xen-orchestra/disk-transform').DiskBlock | null}
+       * @type {import('@fragata/disk-transform').DiskBlock | null}
        */
       let truncatedBlock = null
       await asyncEach(

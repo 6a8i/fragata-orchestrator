@@ -1,0 +1,32 @@
+import { useWatchCollection } from '@/shared/composables/watch-collection.composable.ts'
+import { useXoCollectionState } from '@/shared/composables/xo-collection-state/use-xo-collection-state.ts'
+import { BASE_URL } from '@/shared/utils/fetch.util.ts'
+import { defineRemoteResource } from '@core/packages/remote-resource/define-remote-resource.ts'
+import type { XoVbd } from '@fragata/types'
+
+export type FrontXoVbd = Pick<XoVbd, (typeof vbdFields)[number]>
+
+const vbdFields = [
+  'id',
+  'VDI',
+  'VM',
+  'is_cd_drive',
+  'position',
+  'type',
+  'attached',
+  'device',
+  'read_only',
+  'bootable',
+] as const satisfies readonly (keyof XoVbd)[]
+
+export const useXoVbdCollection = defineRemoteResource({
+  url: `${BASE_URL}/vbds?fields=${vbdFields.join(',')}&ndjson=true`,
+  stream: true,
+  initWatchCollection: () => useWatchCollection({ resource: 'VBD', fields: vbdFields }),
+  initialData: () => [] as FrontXoVbd[],
+  state: (vbds, context) =>
+    useXoCollectionState(vbds, {
+      context,
+      baseName: 'vbd',
+    }),
+})

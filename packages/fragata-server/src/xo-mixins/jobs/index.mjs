@@ -1,0 +1,452 @@
+import asyncMapSettled from '@fragata/async-map/legacy.js'
+import emitAsync from '@fragata/emit-async'
+import groupBy from 'lodash/groupBy.js'
+import { createLogger } from '@fragata/log'
+import { decorateWith } from '@fragata/decorate-with'
+
+import { CancelToken, ignoreErrors } from 'promise-toolbox'
+import { defer } from 'golike-defer'
+import { noSuchObject } from 'fragata-common/api-errors.js'
+
+import Collection from '../../collection/redis.mjs'
+import patch from '../../patch.mjs'
+import { noop, serializeError } from '../../utils.mjs'
+
+import executeCall from './execute-call.mjs'
+import backupGuard from '../../api/_backupGuard.mjs'
+import { REMOVE_CACHE_ENTRY } from '../../_pDebounceWithKey.mjs'
+import { EventEmitter } from 'node:events'
+import { taskFormatAdapter } from '../backups-ng-logs.mjs'
+
+// ===================================================================
+
+const log = createLogger('xo:jobs')
+
+// -----------------------------------------------------------------------------
+
+class JobsDb extends Collection {
+  _serialize(job) {
+    Object.keys(job).forEach(key => {
+      const value = job[key]
+      if (typeof value !== 'string') {
+        job[key] = JSON.stringify(job[key])
+      }
+    })
+  }
+
+  _unserialize(job) {
+    Object.keys(job).forEach(key => {
+      try {
+        const value = (job[key] = JSON.parse(job[key]))
+
+        // userId are always strings, even if the value is numeric, which might to
+        // them being parsed as numbers.
+        //
+        // The issue has been introduced by
+        // 48b2297bc151df582160be7c1bf1e8ee160320b8.
+        if (key === 'userId' && typeof value === 'number') {
+          job[key] = String(value)
+        }
+      } catch (_) {}
+    })
+  }
+}
+
+// -----------------------------------------------------------------------------
+
+export default class Jobs {
+  #backupLogsEe = new EventEmitter()
+  get runningJobs() {
+    return this._runningJobs
+  }
+
+  get backupLogsEe() {
+    return this.#backupLogsEe
+  }
+
+  constructor(app) {
+    /** @type {import('@fragata/types').XoApp} */
+    this._app = app
+    const executors = (this._executors = { __proto__: null })
+    this._logger = undefined
+    this._runningJobs = { __proto__: null }
+    this._runs = { __proto__: null }
+
+    executors.call = executeCall
+
+    app.hooks.on('clean', () => this._jobs.rebuildIndexes())
+    app.hooks.on('core started', () => {
+      const jobsDb = (this._jobs = new JobsDb({
+        connection: app._redis,
+        namespace: 'job',
+        indexes: ['user_id', 'key'],
+        crypto: app.cryptoCredentials,
+      }))
+      app.hooks.emit('registerCollection', { collection: jobsDb, type: 'job', decorate: this.#normalizeJob.bind(this) })
+
+      app.addConfigManager(
+        'jobs',
+        () => jobsDb.get(),
+        jobs => jobsDb.update(jobs),
+        ['users']
+      )
+    })
+    app.hooks.on('start', async () => {
+      this._logger = await app.getLogger('jobs')
+    })
+    // it sends a report for the interrupted backup jobs
+    app.on('plugins:registered', () =>
+      asyncMapSettled(this._jobs.get(), job => {
+        // only the interrupted backup jobs have the runId property
+        if (job.runId === undefined) {
+          return
+        }
+
+        app.emit(
+          'job:terminated',
+          // This cast can be removed after merging the PR: https://github.com/6a8i/fragata-fleet/pull/3209
+          String(job.runId),
+          {
+            type: job.type,
+          }
+        )
+        return this.updateJob({ id: job.id, runId: null })
+      })
+    )
+  }
+
+  cancelJobRun(id) {
+    const run = this._runs[id]
+    if (run !== undefined) {
+      return run.cancel()
+    }
+  }
+
+  #normalizeJob(job) {
+    job.runId = this._runningJobs[job.id]
+
+    if (this.isJobSequence(job)) {
+      job.createdBy ??= job.userId
+      job.updatedBy ??= job.userId
+    }
+
+    return job
+  }
+
+  async getAllJobs(type) {
+    const jobs = await this._jobs.get()
+    const result = []
+    jobs.forEach(job => {
+      if (type === undefined || job.type === type) {
+        result.push(this.#normalizeJob(job))
+      }
+    })
+    return result
+  }
+
+  async getJob(id, type) {
+    const job = await this._jobs.first(id)
+    if (job === undefined || (type !== undefined && job.type !== type)) {
+      throw noSuchObject(id, 'job')
+    }
+
+    return this.#normalizeJob(job)
+  }
+
+  createJob(job) {
+    return this._jobs.add(job)
+  }
+
+  async updateJob(job, merge = true) {
+    if (merge) {
+      const { id, ...props } = job
+      job = await this.getJob(id)
+      patch(job, props)
+    }
+    await this._jobs.update(job)
+  }
+
+  registerJobExecutor(type, executor) {
+    const executors = this._executors
+    if (type in executors) {
+      throw new Error(`there is already a job executor for type ${type}`)
+    }
+    executors[type] = executor
+  }
+
+  async removeJob(id) {
+    const promises = [this._jobs.remove(id)]
+    ;(await this._app.getAllSchedules()).forEach(schedule => {
+      if (schedule.jobId === id) {
+        promises.push(this._app.deleteSchedule(schedule.id))
+      }
+    })
+    return Promise.all(promises)
+  }
+
+  @decorateWith(defer)
+  async runJob($defer, job, schedule, data_) {
+    const logger = this._logger
+    let unwatchBackupTask = noop
+
+    const { id, type } = job
+
+    const jobData = {
+      data:
+        type === 'backup' || type === 'metadataBackup' || type === 'mirrorBackup'
+          ? {
+              mode: job.mode,
+              reportWhen: job.settings['']?.reportWhen ?? 'failure',
+              backupReportTpl: job.settings['']?.backupReportTpl,
+              hideSuccessfulItems: job.settings['']?.hideSuccessfulItems,
+            }
+          : undefined,
+      event: 'job.start',
+      userId: job.userId,
+      jobId: id,
+      jobName: job.name,
+      proxyId: job.proxy,
+      scheduleId: schedule?.id,
+      key: job.key,
+      type,
+    }
+    const runJobId = await logger.notice(`Starting execution of ${id}.`, jobData, true)
+    const app = this._app
+    // Links the backup log to the job run
+    // We keep the jobs for this because of some mechanism related to jobs, like preventing double execution.
+    jobData.runJobId = runJobId
+
+    let previousBackupLog
+    let startBackupLog
+    // ensure we don't stop a backup job due to an issue when trying to fetch backup logs
+    async function safeGetBackupLog(runJobId, { bypassCache = false } = {}) {
+      try {
+        if (bypassCache) {
+          app.getBackupNgLogs(REMOVE_CACHE_ENTRY, runJobId)
+        }
+        return await app.getBackupNgLogs(runJobId)
+      } catch (error) {
+        log.error('cannot get backup-log', { error, runJobId })
+        return undefined
+      }
+    }
+
+    if (type === 'backup' || job.key === undefined) {
+      const safeBackupLog = await safeGetBackupLog(runJobId)
+      if (safeBackupLog === undefined) {
+        log.warn('SSE ignored to not interrupt the backup-job')
+      } else {
+        startBackupLog = {
+          ...safeBackupLog,
+          status: 'pending', // overwrite the status, because `getBackupNgLogs` return a `interrupted` status here. see `handleLog`
+        }
+        app.backupLogsEe.emit('add', startBackupLog)
+        previousBackupLog = startBackupLog
+      }
+    }
+
+    function emitBackupLogUpdate(backupLog) {
+      app.backupLogsEe.emit('update', backupLog, previousBackupLog)
+      previousBackupLog = backupLog
+    }
+
+    try {
+      let executor = this._executors[type]
+      if (executor === undefined) {
+        throw new Error(`cannot run job (${id}): no executor for type ${type}`)
+      }
+
+      const runningJobs = this._runningJobs
+
+      if (id in runningJobs) {
+        throw new Error(`the job (${id}) is already running`)
+      }
+
+      // runId is a temporary property used to check if the report is sent after the server interruption
+      this.updateJob({ id, runId: runJobId })::ignoreErrors()
+
+      runningJobs[id] = runJobId
+
+      $defer(() => {
+        this.updateJob({ id, runId: null })::ignoreErrors()
+        delete runningJobs[id]
+      })
+
+      if (type === 'backup') {
+        const hookData = {
+          callId: Math.random().toString(36).slice(2),
+          method: 'backupNg.runJob',
+          params: {
+            id: job.id,
+            proxy: job.proxy,
+            schedule: schedule?.id,
+            settings: job.settings,
+            vms: job.vms,
+          },
+          timestamp: Date.now(),
+          userId: job.userId,
+          userName:
+            (
+              await app.getUser(job.userId).catch(error => {
+                if (!noSuchObject.is(error)) {
+                  throw error
+                }
+              })
+            )?.name ?? '(unknown user)',
+        }
+
+        executor = (executor =>
+          async function () {
+            await emitAsync.call(
+              app,
+              {
+                onError(error) {
+                  log.warn('backup:preCall listener failure', { error })
+                },
+              },
+              'backup:preCall',
+              hookData
+            )
+
+            try {
+              const result = await executor.apply(this, arguments)
+
+              // Result of runJobSequence()
+              hookData.result = true
+
+              return result
+            } catch (error) {
+              hookData.error = serializeError(error)
+
+              throw error
+            } finally {
+              const now = Date.now()
+              hookData.duration = now - hookData.timestamp
+              hookData.timestamp = now
+              app.emit('backup:postCall', hookData)
+            }
+          })(executor)
+      }
+
+      const connection = app.createApiConnection()
+      $defer.call(connection, 'close')
+      connection.set('user_id', job.userId)
+
+      const { cancel, token } = CancelToken.source()
+
+      const runs = this._runs
+      runs[runJobId] = { cancel }
+      $defer(() => delete runs[runJobId])
+
+      // Links the job run to its backup log
+      const jobUpdateFct = async backupTaskId => {
+        if (startBackupLog !== undefined) {
+          function onBackupTaskUpdate(task) {
+            const backupLog = { ...startBackupLog, tasks: [structuredClone(task)] }
+            taskFormatAdapter(backupLog)
+            emitBackupLogUpdate(backupLog)
+          }
+
+          app.tasks.on(backupTaskId, onBackupTaskUpdate)
+          unwatchBackupTask = () => app.tasks.off(backupTaskId, onBackupTaskUpdate)
+        }
+
+        await logger.notice(`Adding backupTaskId to job run ${runJobId}`, {
+          backupTaskId,
+          event: 'job.backupTaskStart',
+          runJobId,
+        })
+      }
+      await executor({
+        app,
+        cancelToken: token,
+        connection,
+        data: data_,
+        job,
+        jobUpdateFct,
+        jobData,
+        logger,
+        runJobId,
+        schedule,
+      })
+
+      await logger.notice(
+        `Execution terminated for ${job.id}.`,
+        {
+          event: 'job.end',
+          runJobId,
+        },
+        true
+      )
+
+      app.emit('job:terminated', runJobId, { type })
+    } catch (error) {
+      await logger.error(
+        `The execution of ${id} has failed.`,
+        {
+          event: 'job.end',
+          runJobId,
+          error: serializeError(error),
+        },
+        true
+      )
+      app.emit('job:terminated', runJobId, { type })
+      throw error
+    } finally {
+      if (startBackupLog !== undefined) {
+        unwatchBackupTask()
+        const safeBackupLog = await safeGetBackupLog(runJobId, { bypassCache: true })
+        if (safeBackupLog === undefined) {
+          log.warn('skip SSE event due to a not found backup-log')
+        } else {
+          emitBackupLogUpdate(safeBackupLog)
+        }
+      }
+    }
+  }
+
+  async runJobSequence(idSequence, schedule, data) {
+    const jobs = await Promise.all(idSequence.map(id => this.getJob(id)))
+
+    for (const job of jobs) {
+      await this.runJob(job, schedule, data)
+    }
+  }
+
+  isJobSequence(job) {
+    if (job.type !== 'call') {
+      return false
+    }
+
+    return job.method === 'schedule.runSequence'
+  }
+
+  async findEnabledScheduleSequenceFromSchedule(scheduleId) {
+    const jobs = await this.getAllJobs('call')
+    const schedulesByJobId = groupBy(await this._app.getAllSchedules(), 'jobId')
+
+    for (const job of jobs) {
+      if (!this.isJobSequence(job)) {
+        continue
+      }
+
+      const includesSchedule = (job.paramsVector?.items ?? []).some(item =>
+        (item.values ?? []).some(value => value.schedules?.includes(scheduleId))
+      )
+
+      if (includesSchedule) {
+        const schedules = schedulesByJobId[job.id]
+        const schedule = schedules.find(schedule => schedule.enabled)
+        if (schedule !== undefined) {
+          return schedule
+        }
+      }
+
+      delete schedulesByJobId[job.id]
+    }
+  }
+
+  backupGuard(objectId, opts) {
+    return backupGuard.call(this._app, objectId, opts)
+  }
+}

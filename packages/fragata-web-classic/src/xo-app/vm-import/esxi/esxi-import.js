@@ -1,0 +1,447 @@
+import _, { messages } from 'intl'
+import ActionButton from 'action-button'
+import Button from 'button'
+import Collapse from 'collapse'
+import Component from 'base-component'
+import Icon from 'icon'
+import Link from 'link'
+import React from 'react'
+import { connectStore, resolveId } from 'utils'
+import { createGetObjectsOfType, createSelector } from 'selectors'
+import { esxiCheckInstall, esxiListVms, importVmsFromEsxi, isSrWritable } from 'xo'
+import { find, forEach, isEmpty, keyBy, map, pick } from 'lodash'
+import { injectIntl } from 'react-intl'
+import { Input } from 'debounce-input-decorator'
+import { InputCol, LabelCol, Row } from 'form-grid'
+import { Password, Select, Toggle } from 'form'
+import { SelectNetwork, SelectPool, SelectSr, SelectVmTemplate } from 'select-objects'
+
+import VmData from './vm-data'
+import { getRedirectionUrl } from '../utils'
+
+const N_IMPORT_VMS_IN_PARALLEL = 2
+function EsxiCheckResults({ esxiCheck }) {
+  return (
+    <ul className='list-group'>
+      {Object.entries(esxiCheck).map(([name, value]) => {
+        const { status, error } = value
+        return (
+          <li key={name}>
+            <Icon icon={status} size='lg' fixedWidth />
+            &nbsp;
+            {name} : {status === 'success' && ' ok'}
+            {status === 'error' && `"${error}"`}
+            &nbsp;
+            {status === 'error' && _('esxiCheckingPrerequisiteError')}
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+@injectIntl
+@connectStore({
+  hostsById: createGetObjectsOfType('host'),
+  pifsById: createGetObjectsOfType('PIF'),
+  xoVmsById: createGetObjectsOfType('VM'),
+  vbdsById: createGetObjectsOfType('VBD'),
+  vdisById: createGetObjectsOfType('VDI'),
+  srsById: createGetObjectsOfType('SR'),
+  poolsById: createGetObjectsOfType('pool'),
+})
+class EsxiImport extends Component {
+  state = {
+    concurrency: N_IMPORT_VMS_IN_PARALLEL,
+    hostIp: window.localStorage.getItem('esxi_host') ?? '',
+    importing: false,
+    isConnected: false,
+    password: window.localStorage.getItem('esxi_password') ?? '',
+    skipSslVerify: true,
+    stopSource: true,
+    stopOnError: true,
+    template: undefined,
+    user: window.localStorage.getItem('esxi_user') ?? '',
+    esxiCheck: undefined,
+    rememberConnection: !!window.localStorage.getItem('esxi_host'),
+  }
+
+  componentWillMount() {
+    this._esxiCheck()
+  }
+  _esxiCheck() {
+    this.setState({ esxiCheck: undefined }, async () => {
+      const esxiCheck = await esxiCheckInstall()
+      this.setState({ esxiCheck })
+    })
+  }
+  _getDefaultNetwork = createSelector(
+    () => this.state.pool?.master,
+    () => this.props.hostsById,
+    () => this.props.pifsById,
+    (master, hostsById, pifsById) =>
+      master === undefined ? undefined : find(pick(pifsById, hostsById[master].$PIFs), pif => pif.management)?.$network
+  )
+
+  _getSelectVmOptions = createSelector(
+    () => this.state.vmsById,
+    vmsById =>
+      map(vmsById, vm => ({
+        label: vm.nameLabel,
+        value: vm.id,
+      }))
+  )
+
+  _getNetworkPredicate = createSelector(
+    () => this.state.pool?.id,
+    poolId => (poolId === undefined ? undefined : network => network.$poolId === poolId)
+  )
+
+  _getSrPredicate = createSelector(
+    () => this.state.pool?.id,
+    poolId => (poolId === undefined ? undefined : sr => isSrWritable(sr) && sr.$poolId === poolId)
+  )
+
+  // A VM previously imported from the same source ESXi VM that can be used as
+  // the base of a delta transfer. It still has its `sourceVmId` set and its
+  // `start` operation blocked: the lock is only removed once the VM has been
+  // fully imported (see fragata-server vmware mixin).
+  _getReferenceVmBySourceId = createSelector(
+    () => this.props.xoVmsById,
+    xoVmsById => {
+      const referenceVmBySourceId = {}
+      forEach(xoVmsById, vm => {
+        const sourceVmId = vm.other?.sourceVmId
+        const blockedStart = vm.blockedOperations?.start
+        if (sourceVmId !== undefined && blockedStart !== undefined && blockedStart !== '') {
+          referenceVmBySourceId[sourceVmId] = vm
+        }
+      })
+      return referenceVmBySourceId
+    }
+  )
+
+  // Returns the import status of a source ESXi VM, or `undefined` while no
+  // target SR is selected:
+  // { status: 'none' }                : no previous import found, the whole VM will be transferred
+  // { status: 'sameSr' }              : reference VM found, its disks are on the target SR -> delta transfer
+  // { status: 'otherSr', srLabel }    : reference VM found, but (at least) one disk is on another SR -> full transfer
+  _getReferenceVmStatus(esxiVmId) {
+    const targetSrId = resolveId(this.state.sr)
+    if (!targetSrId) {
+      return
+    }
+    const referenceVm = this._getReferenceVmBySourceId()[esxiVmId]
+    if (referenceVm === undefined) {
+      return { status: 'none' }
+    }
+
+    const { poolsById, srsById, vbdsById, vdisById } = this.props
+    // first disk (CDROM excluded) that is not on the target SR will cause a full  transfer
+    // can only reuse the reference VM if all its disks are already on the target SR
+    let offTargetSr
+    for (const vbdId of referenceVm.$VBDs ?? []) {
+      const vbd = vbdsById[vbdId]
+      if (vbd === undefined || vbd.is_cd_drive || vbd.VDI === undefined) {
+        continue
+      }
+      const vdi = vdisById[vbd.VDI]
+      if (vdi !== undefined && vdi.$SR !== targetSrId) {
+        offTargetSr = srsById[vdi.$SR]
+        break
+      }
+    }
+
+    if (offTargetSr === undefined) {
+      return { status: 'sameSr' }
+    }
+
+    const pool = poolsById[offTargetSr.$poolId]
+    const srLabel = pool === undefined ? offTargetSr.name_label : `${pool.name_label} - ${offTargetSr.name_label}`
+    return { status: 'otherSr', srLabel }
+  }
+
+  _importVms = () => {
+    const { concurrency, hostIp, network, password, skipSslVerify, sr, stopSource, stopOnError, user, template, vms } =
+      this.state
+    this.setState({ importing: true })
+    return importVmsFromEsxi({
+      concurrency: +concurrency,
+      host: hostIp,
+      network: network?.id ?? this._getDefaultNetwork(),
+      password,
+      sr: resolveId(sr),
+      sslVerify: !skipSslVerify,
+      stopOnError,
+      stopSource,
+      template: template.id,
+      user,
+      vms: vms.map(vm => vm.value),
+    })
+  }
+
+  _connect = async () => {
+    const { hostIp, skipSslVerify, password, rememberConnection, user } = this.state
+    const vms = await esxiListVms(hostIp, user, password, !skipSslVerify)
+    if (rememberConnection) {
+      window.localStorage.setItem('esxi_host', hostIp)
+      window.localStorage.setItem('esxi_password', password)
+      window.localStorage.setItem('esxi_user', user)
+    } else {
+      window.localStorage.removeItem('esxi_host')
+      window.localStorage.removeItem('esxi_password')
+      window.localStorage.removeItem('esxi_user')
+    }
+    this.setState({ isConnected: true, vmsById: keyBy(vms, 'id') })
+  }
+
+  _disconnect = () => {
+    this.setState({ isConnected: false })
+  }
+
+  _onChangePool = pool => {
+    this.setState({ pool, sr: pool.default_SR })
+  }
+
+  _resetConnectForm = () => {
+    this.setState({
+      skipSslVerify: false,
+      hostIp: '',
+      isConnected: false,
+      password: '',
+      user: '',
+    })
+  }
+
+  _resetImportForm = () => {
+    this.setState({
+      concurrency: N_IMPORT_VMS_IN_PARALLEL,
+      importing: false,
+      network: undefined,
+      pool: undefined,
+      sr: undefined,
+      stopSource: false,
+      stopOnError: true,
+      vms: undefined,
+    })
+  }
+
+  render() {
+    const { intl } = this.props
+    const {
+      concurrency,
+      esxiCheck,
+      hostIp,
+      importing,
+      isConnected,
+      network = this._getDefaultNetwork(),
+      password,
+      pool,
+      rememberConnection,
+      skipSslVerify,
+      sr,
+      stopSource,
+      stopOnError,
+      user,
+      vms,
+      vmsById,
+    } = this.state
+
+    if (esxiCheck === undefined) {
+      return <div>checking</div>
+    }
+
+    // vectura is the only prerequisite: one binary, shipped with fragata-server
+    if (esxiCheck.vectura.status !== 'success') {
+      return (
+        <Row>
+          <EsxiCheckResults esxiCheck={esxiCheck} />
+        </Row>
+      )
+    }
+
+    if (!isConnected) {
+      return (
+        <form>
+          <Row>
+            <EsxiCheckResults esxiCheck={esxiCheck} />
+          </Row>
+          <Row>
+            <LabelCol>{_('hostIp')}</LabelCol>
+            <InputCol>
+              <Input
+                className='form-control'
+                onChange={this.linkState('hostIp')}
+                placeholder='192.168.2.20'
+                required
+                value={hostIp}
+              />
+            </InputCol>
+          </Row>
+          <Row>
+            <LabelCol>{_('user')}</LabelCol>
+            <InputCol>
+              <Input
+                className='form-control'
+                onChange={this.linkState('user')}
+                placeholder={intl.formatMessage(messages.user)}
+                required
+                value={user}
+              />
+            </InputCol>
+          </Row>
+          <Row>
+            <LabelCol>{_('password')}</LabelCol>
+            <InputCol>
+              <Password
+                onChange={this.linkState('password')}
+                placeholder={intl.formatMessage(messages.password)}
+                required
+                value={password}
+              />
+            </InputCol>
+          </Row>
+          <Row>
+            <LabelCol>{_('esxiImportSslCertificate')}</LabelCol>
+            <InputCol>
+              <Toggle onChange={this.toggleState('skipSslVerify')} value={skipSslVerify} />
+            </InputCol>
+          </Row>
+          <Row>
+            <LabelCol>{_('esxiImportRememberLogin')}</LabelCol>
+            <InputCol>
+              <Toggle onChange={this.toggleState('rememberConnection')} value={rememberConnection} />
+            </InputCol>
+            <p className='text-warning'>{_('esxiImportRememberWarning')}</p>
+          </Row>
+          <div className='form-group pull-right'>
+            <ActionButton btnStyle='primary' className='mr-1' handler={this._connect} icon='connect' type='submit'>
+              {_('serverConnect')}
+            </ActionButton>
+            <Button onClick={this._resetConnectForm}>{_('formReset')}</Button>
+          </div>
+        </form>
+      )
+    }
+
+    return (
+      <form>
+        <Row>
+          <LabelCol>{_('nImportVmsInParallel')}</LabelCol>
+          <InputCol>
+            <input
+              className='form-control'
+              onChange={this.linkState('concurrency')}
+              type='number'
+              value={concurrency}
+            />
+          </InputCol>
+        </Row>
+        <Row>
+          <LabelCol>{_('vms')}</LabelCol>
+          <InputCol>
+            <Select
+              disabled={isEmpty(vmsById)}
+              multi
+              onChange={this.linkState('vms')}
+              options={this._getSelectVmOptions()}
+              required
+              value={vms}
+            />
+          </InputCol>
+        </Row>
+        <Row>
+          <LabelCol>{_('vmImportToPool')}</LabelCol>
+          <InputCol>
+            <SelectPool onChange={this._onChangePool} required value={pool} />
+          </InputCol>
+        </Row>
+        <Row>
+          <LabelCol>{_('vmImportToSr')}</LabelCol>
+          <InputCol>
+            <SelectSr
+              disabled={pool === undefined}
+              onChange={this.linkState('sr')}
+              predicate={this._getSrPredicate()}
+              required
+              value={sr}
+            />
+          </InputCol>
+        </Row>
+        <Row>
+          <LabelCol>{_('network')}</LabelCol>
+          <InputCol>
+            <SelectNetwork
+              disabled={pool === undefined}
+              onChange={this.linkState('network')}
+              predicate={this._getNetworkPredicate()}
+              required
+              value={network}
+            />
+          </InputCol>
+        </Row>
+        <Row>
+          <LabelCol>{_('esxiImportStopSource')}</LabelCol>
+          <InputCol>
+            <Toggle onChange={this.toggleState('stopSource')} value={stopSource} />
+            <small className='form-text text-muted'>{_('esxiImportStopSourceDescription')}</small>
+          </InputCol>
+        </Row>
+        <Row>
+          <LabelCol>{_('stopOnError')}</LabelCol>
+          <InputCol>
+            <Toggle onChange={this.toggleState('stopOnError')} value={stopOnError} />
+            <small className='form-text text-muted'>{_('esxiImportStopOnErrorDescription')}</small>
+          </InputCol>
+        </Row>
+        <Row>
+          <LabelCol>{_('originalTemplate')}</LabelCol>
+          <InputCol>
+            <SelectVmTemplate
+              autoSelectSingleOption={false}
+              disabled={isEmpty(pool)}
+              hasSelectAll
+              multi={false}
+              onChange={this.linkState('template')}
+              required
+            />
+          </InputCol>
+        </Row>
+
+        {!isEmpty(vms) && (
+          <div>
+            <hr />
+            <h5>{_('vmsToImport', { nVms: vms.length })}</h5>
+            {vms.map(vm => (
+              <Collapse className='mt-1 mb-1' buttonText={vm.label} key={vm.value} size='small'>
+                <div className='mt-1'>
+                  <VmData data={vmsById[vm.value]} referenceVmStatus={this._getReferenceVmStatus(vm.value)} />
+                </div>
+              </Collapse>
+            ))}
+          </div>
+        )}
+        <div className='form-group pull-right'>
+          {importing && <Link to='/home?p=1&s="[Importing...]"&t=VM'>{_('esxiProgressLinkText')}</Link>}
+          <br />
+          <ActionButton
+            btnStyle='primary'
+            className='mr-1'
+            disabled={isEmpty(vms)}
+            handler={this._importVms}
+            icon='import'
+            redirectOnSuccess={getRedirectionUrl}
+            type='submit'
+          >
+            {_('newImport')}
+          </ActionButton>
+          <Button className='mr-1' onClick={this._disconnect}>
+            {_('disconnectServer')}
+          </Button>
+          <Button onClick={this._resetImportForm}>{_('formReset')}</Button>
+        </div>
+      </form>
+    )
+  }
+}
+
+export default EsxiImport

@@ -1,0 +1,31 @@
+{
+  "private": false,
+  "name": "@fragata/cr-seed-cli",
+  "version": "1.0.3",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/cr-seed-cli",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/cr-seed-cli",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "bin": {
+    "fragata-cr-seed": "./index.mjs"
+  },
+  "preferGlobal": true,
+  "dependencies": {
+    "golike-defer": "^0.5.1",
+    "xen-api": "^5.1.0"
+  },
+  "scripts": {
+    "postversion": "npm publish"
+  },
+  "license": "AGPL-3.0-or-later",
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  }
+}

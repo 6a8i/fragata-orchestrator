@@ -1,0 +1,81 @@
+<template>
+  <VtsStateHero v-if="!isHostConsoleRunning" format="page" type="offline" size="large" class="state-hero">
+    <span>{{ t('console-offline') }}</span>
+    <span class="title typo-h1">{{ t('host-not-running') }}</span>
+    <div class="description typo-body-bold">
+      <span>{{ t('console-unavailable-reason', { type: 'host' }) }}</span>
+      <span>{{ t('start-console', { type: 'host' }) }}</span>
+    </div>
+  </VtsStateHero>
+  <VtsLayoutConsole v-else>
+    <VtsRemoteConsole
+      ref="console-element"
+      :url
+      :is-console-available="isHostConsoleAvailable"
+      @clipboard="clipboardText = $event"
+    />
+    <template #actions>
+      <VtsActionsConsole :send-ctrl-alt-del="sendCtrlAltDel" />
+      <VtsDivider type="stretch" />
+      <VtsClipboardConsole
+        v-model="clipboardText"
+        :is-console-connected="isConsoleConnected"
+        :send-to-console="sendToConsole"
+        is-keyboard-layout-disabled
+      />
+    </template>
+  </VtsLayoutConsole>
+</template>
+
+<script lang="ts" setup>
+import type { FrontXoHost } from '@/modules/host/remote-resources/use-xo-host-collection.ts'
+import { isHostOperationPending } from '@/modules/host/utils/xo-host.util.ts'
+import VtsActionsConsole from '@core/components/console/VtsActionsConsole.vue'
+import VtsClipboardConsole from '@core/components/console/VtsClipboardConsole.vue'
+import VtsLayoutConsole from '@core/components/console/VtsLayoutConsole.vue'
+import VtsRemoteConsole from '@core/components/console/VtsRemoteConsole.vue'
+import VtsDivider from '@core/components/divider/VtsDivider.vue'
+import VtsStateHero from '@core/components/state-hero/VtsStateHero.vue'
+import { useRemoteConsole } from '@core/composables/remote-console.composable.ts'
+import { HOST_ALLOWED_OPERATIONS } from '@fragata/types'
+import { computed, useTemplateRef } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const props = defineProps<{
+  host: FrontXoHost
+}>()
+
+const { t } = useI18n()
+
+const STOP_OPERATIONS = [HOST_ALLOWED_OPERATIONS.SHUTDOWN, HOST_ALLOWED_OPERATIONS.REBOOT]
+
+const url = computed(
+  () => new URL(`/api/consoles/${props.host.controlDomain}`, window.location.origin.replace(/^http/, 'ws'))
+)
+
+const isHostConsoleRunning = computed(() => props.host.power_state === 'Running')
+
+const isHostConsoleAvailable = computed(() =>
+  props.host.controlDomain !== undefined ? !isHostOperationPending(props.host!, STOP_OPERATIONS) : false
+)
+const { clipboardText, isConsoleConnected, sendCtrlAltDel, sendToConsole } = useRemoteConsole(
+  useTemplateRef('console-element')
+)
+</script>
+
+<style scoped lang="postcss">
+.state-hero {
+  padding: 0.8rem;
+
+  .title {
+    color: var(--color-neutral-txt-primary);
+  }
+
+  .description {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+    color: var(--color-neutral-txt-secondary);
+  }
+}
+</style>

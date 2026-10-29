@@ -4,40 +4,40 @@ sidebar_position: 5
 
 # Configuration
 
-Once Xen Orchestra is installed, you can configure some parameters in the configuration file. Let's see how to do that.
+Once Fragata Fleet is installed, you can configure some parameters in the configuration file. Let's see how to do that.
 
 :::tip
-The configuration file is located at `/etc/xo-server/config.toml`.
+The configuration file is located at `/etc/fragata-server/config.toml`.
 :::
 
 If you need to do any configuration on the system itself (firewall, NTP, service restart…), see [the XOA appliance settings](#xoa-appliance) at the end of this page.
 
-## Using XO 5 as the Default Interface
+## Using Fleet Classic as the Default Interface
 
-Starting with **Xen Orchestra 6**, the XO 6 UI becomes the default interface. That said, you can still switch back to XO 5, temporarily or by default.
+Starting with **Fragata Fleet 6**, the Fragata Fleet UI becomes the default interface. That said, you can still switch back to Fleet Classic, temporarily or by default.
 
-### Temporary Switch to XO 5
+### Temporary Switch to Fleet Classic
 
 To quickly access the old UI without changing any configuration, `/v5` to your URL (e.g., `https://xo.example.com/v5`).
 
-### Making XO 5 the default UI
+### Making Fleet Classic the default UI
 
-To permanently use XO 5 as the default interface, create a new config file (you can call it `config.mounts.toml`). This configuration file can be placed either in `~/.config/xo-server/` of the process running xo-server or if you are using a xoa in `/etc/xo-server/`. This file will contain :
+To permanently use Fleet Classic as the default interface, create a new config file (you can call it `config.mounts.toml`). This configuration file can be placed either in `~/.config/fragata-server/` of the process running fragata-server or if you are using a xoa in `/etc/fragata-server/`. This file will contain :
 
 ```toml
 [http.mounts]
-'/' = '/usr/local/lib/node_modules/xo-web/dist/'
-'/v5' = '/usr/local/lib/node_modules/xo-web/dist/'
-'/v6' = '/usr/local/lib/node_modules/@xen-orchestra/web/dist/'
+'/' = '/usr/local/lib/node_modules/fragata-web-classic/dist/'
+'/v5' = '/usr/local/lib/node_modules/fragata-web-classic/dist/'
+'/v6' = '/usr/local/lib/node_modules/@fragata/web/dist/'
 ```
 
 If you are not using a xoa, replace the path `/usr/local/lib/node_modules/` with the real path of the modules.
 
 This configuration ensures:
 
-- Accessing `/` loads **XO 5**.
-- Accessing `/v5` loads **XO 5**.
-- Accessing `/v6` loads **XO 6**.
+- Accessing `/` loads **Fleet Classic**.
+- Accessing `/v5` loads **Fleet Classic**.
+- Accessing `/v6` loads **Fragata Fleet**.
 
 ### Where to Place the Configuration File
 
@@ -48,11 +48,11 @@ If changing a user-specific configuration, make sure the file belongs to the use
 Place your `config.toml` (or any `config.*.toml` override) in one of the following:
 
 - **System-wide configuration**:
-  `/etc/xo-server/config.toml`
+  `/etc/fragata-server/config.toml`
   (or any file matching `config.<name>.toml`)
 
 - **User-specific configuration**:
-  `~/.config/xo-server/config.toml`
+  `~/.config/fragata-server/config.toml`
 
 The order of the loading and overriding values in multiple config files is the following:
 
@@ -65,15 +65,15 @@ The order of the loading and overriding values in multiple config files is the f
 
 There is no guarantee on the order of the config file loading in the same location.
 
-- `~` is the home directory of the user running xo-server (`/root` for xoa)
-- `appDir` is the application installation directory (`/usr/local/lib/node_modules/xo-server` for xo-server on XOA, `/usr/local/lib/node_modules/@xen-orchestra/proxy` for a proxy)
-- appName is `xo-proxy` for proxy, `xo-server` for xo-server
-- local configuration is not used in xo-server nor proxy
+- `~` is the home directory of the user running fragata-server (`/root` for xoa)
+- `appDir` is the application installation directory (`/usr/local/lib/node_modules/fragata-server` for fragata-server on XOA, `/usr/local/lib/node_modules/@fragata/proxy` for a proxy)
+- appName is `fragata-proxy` for proxy, `fragata-server` for fragata-server
+- local configuration is not used in fragata-server nor proxy
 
 a basic cli can be used to explore the configuration by installing the package `app-conf`, more information in [the official documentation](https://github.com/JsCommunity/app-conf?tab=readme-ov-file#cli)
 
 :::tip
-The update feature of XOA can reset any `local` config. Use `/etc/xo-server/config.*` as the preferred config place for XOA.
+The update feature of XOA can reset any `local` config. Use `/etc/fragata-server/config.*` as the preferred config place for XOA.
 :::
 
 ### Apply the changes
@@ -81,10 +81,10 @@ The update feature of XOA can reset any `local` config. Use `/etc/xo-server/conf
 After updating the configuration, restart the XO server process:
 
 <Terminal shell title="xoa — apply the configuration">{`
-sudo systemctl restart xo-server
+sudo systemctl restart fragata-server
 `}</Terminal>
 
-XO 5 will now be served as the default UI.
+Fleet Classic will now be served as the default UI.
 
 ## User to run XO-server as
 
@@ -133,13 +133,13 @@ redirectToHttps = true
 
 This should be written just before the `mount` option, inside the `http:` block.
 
-## Link to xo-web
+## Link to fragata-web-classic
 
-You shouldn't have to change this. It's the path where `xo-web` files are served by `xo-server`.
+You shouldn't have to change this. It's the path where `fragata-web-classic` files are served by `fragata-server`.
 
 ```toml
 [http.mounts]
-'/' = '../xo-web/dist/'
+'/' = '../fragata-web-classic/dist/'
 ```
 
 ## SDN Controller mode
@@ -147,7 +147,7 @@ You shouldn't have to change this. It's the path where `xo-web` files are served
 The SDN Controller plugin has 2 modes for the OpenFlow rule management. The default mode uses a direct channel to talk through the OpenFlow protocol. The other mode uses a XAPI plugin on XCP-ng side.
 
 :::tip
-For this kind of setting, we recommend using something like `/etc/xo-server/config.sdncontroller.toml` and not to modify the main configuration file.
+For this kind of setting, we recommend using something like `/etc/fragata-server/config.sdncontroller.toml` and not to modify the main configuration file.
 :::
 
 ```toml
@@ -161,27 +161,27 @@ See [SDN Controller: OpenFlow rules](../manage-your-infrastructure/sdn_controlle
 
 ## Custom certificate authority
 
-If you use certificates signed by an in-house CA for your XCP-ng or XenServer hosts, and want to have Xen Orchestra connect to them without rejection, you can use the [`NODE_EXTRA_CA_CERTS`](https://nodejs.org/api/cli.html#cli_node_extra_ca_certs_file) environment variable.
+If you use certificates signed by an in-house CA for your XCP-ng or XenServer hosts, and want to have Fragata Fleet connect to them without rejection, you can use the [`NODE_EXTRA_CA_CERTS`](https://nodejs.org/api/cli.html#cli_node_extra_ca_certs_file) environment variable.
 
-To enable this option in your XOA, create `/etc/systemd/system/xo-server.service.d/ca.conf` with the following content:
+To enable this option in your XOA, create `/etc/systemd/system/fragata-server.service.d/ca.conf` with the following content:
 
 ```ini
 [Service]
 Environment=NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/my-cert.crt
 ```
 
-Don't forget to reload `systemd` conf and restart `xo-server`:
+Don't forget to reload `systemd` conf and restart `fragata-server`:
 
 <Terminal shell title="xoa — reload systemd">{`
 systemctl daemon-reload
 `}</Terminal>
 
-<Terminal shell title="xoa — restart xo-server">{`
-systemctl restart xo-server.service
+<Terminal shell title="xoa — restart fragata-server">{`
+systemctl restart fragata-server.service
 `}</Terminal>
 
 :::note
-For XO Proxy, the process is almost the same: the file to create is `/etc/systemd/system/xo-proxy.service.d/ca.conf` and the service to restart is `xo-proxy.service`.
+For XO Proxy, the process is almost the same: the file to create is `/etc/systemd/system/fragata-proxy.service.d/ca.conf` and the service to restart is `fragata-proxy.service`.
 :::
 
 ### Let's Encrypt support
@@ -198,11 +198,11 @@ Although Let's Encrypt is the most popular free public certificate authority (CA
 
 #### What can it do for me?
 
-Xen Orchestra Appliance (XOA) can **automatically request and renew HTTPS certificates from Let's Encrypt**. This lets you use a free, publicly trusted certificate instead of manually installing your own or relying on self-signed ones.
+Fragata Fleet Appliance (XOA) can **automatically request and renew HTTPS certificates from Let's Encrypt**. This lets you use a free, publicly trusted certificate instead of manually installing your own or relying on self-signed ones.
 
 :::tip
 
-Let's Encrypt will automatically renew your certificate **30 days** before expiration. And unlike "normal" certificates, no need to restart `xo-server` to enjoy your renewed certificate!
+Let's Encrypt will automatically renew your certificate **30 days** before expiration. And unlike "normal" certificates, no need to restart `fragata-server` to enjoy your renewed certificate!
 
 :::
 
@@ -212,7 +212,7 @@ In order for XOA to work with Let's Encrypt, follow these prerequisites:
 
 - Make sure your server is listening on HTTP on **port 80** and on **HTTPS 443**.
 
-- In `xo-server`, to prevent HTTP access, enable the redirection to HTTPs:
+- In `fragata-server`, to prevent HTTP access, enable the redirection to HTTPs:
 
 ```toml
 [http]
@@ -309,10 +309,10 @@ And to download the patches, we need access to `https://fileservice.citrix.com/d
 
 To do that behind a corporate proxy, just add the `httpProxy` variable to match your current proxy configuration.
 
-You can add this at the end of your config file (`/etc/xo-server/config.toml`):
+You can add this at the end of your config file (`/etc/fragata-server/config.toml`):
 
 ```toml
-# HTTP proxy configuration used by xo-server to fetch resources on the Internet.
+# HTTP proxy configuration used by fragata-server to fetch resources on the Internet.
 #
 # See: https://github.com/TooTallNate/node-proxy-agent#maps-proxy-protocols-to-httpagent-implementations
 
@@ -321,9 +321,9 @@ httpProxy = 'http://username:password@proxyAddress:port'
 
 ## Reverse proxy
 
-If you don't want to have Xen Orchestra exposed directly outside, or just integrating it with your existing infrastructure, you can use a Reverse Proxy.
+If you don't want to have Fragata Fleet exposed directly outside, or just integrating it with your existing infrastructure, you can use a Reverse Proxy.
 
-First of all you need to allow Xen Orchestra to use `X-Forwarded-*` headers to determine the IP addresses of clients:
+First of all you need to allow Fragata Fleet to use `X-Forwarded-*` headers to determine the IP addresses of clients:
 
 ```toml
 [http]
@@ -341,17 +341,17 @@ useForwardedHeaders = ['127.0.0.1']
 
 ### Apache
 
-As `xo-web` and `xo-server` communicate with _WebSockets_, you need to have the [`mod_proxy`](http://httpd.apache.org/docs/2.4/mod/mod_proxy.html), [`mod_proxy_http`](http://httpd.apache.org/docs/2.4/mod/mod_proxy_http.html), [`mod_proxy_wstunnel`](http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html) and [`mod_rewrite`](http://httpd.apache.org/docs/2.4/mod/mod_rewrite.html) modules enabled.
+As `fragata-web-classic` and `fragata-server` communicate with _WebSockets_, you need to have the [`mod_proxy`](http://httpd.apache.org/docs/2.4/mod/mod_proxy.html), [`mod_proxy_http`](http://httpd.apache.org/docs/2.4/mod/mod_proxy_http.html), [`mod_proxy_wstunnel`](http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html) and [`mod_rewrite`](http://httpd.apache.org/docs/2.4/mod/mod_rewrite.html) modules enabled.
 
 Please use this configuration in this order or it will not work. Do not forget the trailing slashes:
 
 ```apacheconf
 RewriteEngine On
 RewriteCond %{HTTP:upgrade} websocket [NC]
-RewriteRule /[<path>]/(.*) ws://<xo-server ip>:<xo-server port>/$1 [L,P]
+RewriteRule /[<path>]/(.*) ws://<fragata-server ip>:<fragata-server port>/$1 [L,P]
 
-ProxyPass /[<path>]/ http://<xo-server ip>:<xo-server port>/
-ProxyPassReverse /[<path>]/ http://<xo-server ip>:<xo-server port>/
+ProxyPass /[<path>]/ http://<fragata-server ip>:<fragata-server port>/
+ProxyPassReverse /[<path>]/ http://<fragata-server ip>:<fragata-server port>/
 ```
 
 ### NGINX
@@ -375,7 +375,7 @@ location /[<path>] {
 
   proxy_redirect default;
 
-  # Issue https://github.com/vatesfr/xen-orchestra/issues/1471
+  # Issue https://github.com/6a8i/fragata-fleet/issues/1471
   proxy_read_timeout 1800; # Error will be only every 30m
 
   # For the VM import feature, this size must be larger than the file we want to upload.
@@ -386,7 +386,7 @@ location /[<path>] {
 
 ### Caddy
 
-[Caddy](https://caddyserver.com/) is the simplest option: WebSockets are proxied natively (no module or upgrade headers to configure) and HTTPS certificates are obtained and renewed automatically. Serving Xen Orchestra on a dedicated domain takes two lines:
+[Caddy](https://caddyserver.com/) is the simplest option: WebSockets are proxied natively (no module or upgrade headers to configure) and HTTPS certificates are obtained and renewed automatically. Serving Fragata Fleet on a dedicated domain takes two lines:
 
 ```
 xo.company.net {
@@ -469,26 +469,26 @@ systemctl restart systemd-timesyncd.service
 
 ### Restart the service {#restart-the-service}
 
-You can restart Xen Orchestra by accessing XOA via SSH (or console):
+You can restart Fragata Fleet by accessing XOA via SSH (or console):
 
-<Terminal shell title="restart xo-server">{`
-systemctl restart xo-server.service
+<Terminal shell title="restart fragata-server">{`
+systemctl restart fragata-server.service
 `}</Terminal>
 
-To check the status of `xo-server`:
+To check the status of `fragata-server`:
 
 <Terminal title="check the service">{`
-systemctl status xo-server.service
-xo-server.service - XO Server
-   Loaded: loaded (/etc/systemd/system/xo-server.service; enabled)
+systemctl status fragata-server.service
+fragata-server.service - XO Server
+   Loaded: loaded (/etc/systemd/system/fragata-server.service; enabled)
    Active: active (running) since Thu 2014-08-14 10:59:46 BST; 21min ago
  Main PID: 394 (node)
-   CGroup: /system.slice/xo-server.service
-           └─394 node /usr/local/bin/xo-server
+   CGroup: /system.slice/fragata-server.service
+           └─394 node /usr/local/bin/fragata-server
 
 Aug 14 10:59:46 xoa systemd[1]: Starting XO Server...
 Aug 14 10:59:46 xoa systemd[1]: Started XO Server.
-Aug 14 10:59:48 xoa xo-server[394]: WebServer listening on http://0.0.0.0:80
+Aug 14 10:59:48 xoa fragata-server[394]: WebServer listening on http://0.0.0.0:80
 `}</Terminal>
 
 That's all!

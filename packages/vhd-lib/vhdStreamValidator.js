@@ -1,7 +1,7 @@
 'use strict'
 
-const diff = require('@vates/diff')
-const StreamReader = require('@vates/stream-reader')
+const diff = require('@fragata/diff')
+const StreamReader = require('@fragata/stream-reader')
 
 const { FOOTER_SIZE, HEADER_SIZE } = require('./_constants.js')
 const { unpackFooter, unpackHeader } = require('./Vhd/_utils.js')

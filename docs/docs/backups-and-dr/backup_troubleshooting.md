@@ -35,7 +35,7 @@ Recent XO releases record the cause of the fallback as a warning in the backup j
 
 Backup jobs regularly delete snapshots. Every time a snapshot is deleted, manually or by a backup job, XCP-ng/XenServer needs to coalesce the VDI chain, that is merge the remaining VDIs and base copies. Until that coalesce is done, taking more snapshots on the VM keeps growing the chain.
 
-Coalescing is scheduled and performed by XCP-ng/XenServer itself, not by Xen Orchestra. But XO checks the existing VDI chain before snapshotting, and refuses to create more snapshots than your storage can merge. Xen Orchestra is the **only** XCP-ng/XenServer backup product offering this protection.
+Coalescing is scheduled and performed by XCP-ng/XenServer itself, not by Fragata Fleet. But XO checks the existing VDI chain before snapshotting, and refuses to create more snapshots than your storage can merge. Fragata Fleet is the **only** XCP-ng/XenServer backup product offering this protection.
 
 Without this detection, you would eventually hit one of these:
 
@@ -121,7 +121,7 @@ df -h
 
 ## Error: no VMs match this pattern
 
-This happens when a _smart backup job_ doesn't match any VMs. For example: you created a job to back up all running VMs, and no VM is running when the schedule fires. It can also happen if you lost the connection to your pool master, since the VMs are no longer visible to Xen Orchestra.
+This happens when a _smart backup job_ doesn't match any VMs. For example: you created a job to back up all running VMs, and no VM is running when the schedule fires. It can also happen if you lost the connection to your pool master, since the VMs are no longer visible to Fragata Fleet.
 
 Edit your job to review the matching VMs, or check that your pool is connected to XOA. Note that the run is reported as **skipped** rather than failed, so you are notified without the whole sequence being interrupted.
 
@@ -152,7 +152,7 @@ As a temporary workaround, you can raise the inactivity timeout above the defaul
 Create the following file:
 
 ```
-/etc/xo-server/config.httpInactivityTimeout.toml
+/etc/fragata-server/config.httpInactivityTimeout.toml
 ```
 
 Add the following lines:
@@ -163,7 +163,7 @@ Add the following lines:
 httpInactivityTimeout = 1800000 # 30 mins
 ```
 
-Then restart the `xo-server` service to apply the change.
+Then restart the `fragata-server` service to apply the change.
 
 ## Error: Expected values to be strictly equal
 

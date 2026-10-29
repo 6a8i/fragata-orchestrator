@@ -1,0 +1,50 @@
+{
+  "name": "fragata-server-auth-saml",
+  "version": "0.12.0",
+  "license": "AGPL-3.0-or-later",
+  "description": "SAML authentication plugin for XO-Server",
+  "keywords": [
+    "authentication",
+    "orchestra",
+    "plugin",
+    "saml",
+    "xen",
+    "xen-orchestra",
+    "fragata-server"
+  ],
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-server-auth-saml",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "packages/fragata-server-auth-saml",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "preferGlobal": false,
+  "main": "dist/",
+  "engines": {
+    "node": ">=12"
+  },
+  "dependencies": {
+    "@node-saml/passport-saml": "^5.1.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.29.0",
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "cross-env": "^7.0.2",
+    "rimraf": "^6.0.1"
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production babel --source-maps --out-dir=dist/ src/",
+    "clean": "rimraf dist/",
+    "dev": "cross-env NODE_ENV=development babel --watch --source-maps --out-dir=dist/ src/",
+    "prebuild": "yarn run clean",
+    "predev": "yarn run prebuild",
+    "prepublishOnly": "yarn run build"
+  },
+  "private": true
+}

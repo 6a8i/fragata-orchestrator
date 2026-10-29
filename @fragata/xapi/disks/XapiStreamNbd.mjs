@@ -1,0 +1,101 @@
+// @ts-check
+/**
+ * @typedef {import('@fragata/disk-transform').DiskBlock} DiskBlock
+ * @typedef {import('@fragata/disk-transform').Disk} Disk
+ * @typedef {import('@fragata/disk-transform').RandomAccessDisk} RandomAccessDisk
+ * @typedef {import('@fragata/nbd-client/multi.mjs').default} MultiNbdClient
+ */
+
+import { RandomDiskPassthrough } from '@fragata/disk-transform'
+import { createLogger } from '@fragata/log'
+import { connectNbdClientIfPossible } from './utils.mjs'
+
+const { warn } = createLogger('xo:xapi:XapiStreamNbd')
+
+export class XapiStreamNbdSource extends RandomDiskPassthrough {
+  /** @type {MultiNbdClient|undefined} */
+  #nbdClient
+  /** @type {number } */
+  #nbdConcurrency
+
+  /**
+   * @type {import('@fragata/types').Xapi}
+   */
+  #xapi
+  /**
+   * @type {string}
+   */
+  #vdiRef
+
+  /** @type {boolean} */
+  #onlyListChangedBlocks = false
+
+  /**
+   * @param {Disk} streamSourceDisk
+   * @param {Object} params
+   * @param {string} params.vdiRef
+   * @param {any} params.xapi
+   * @param {number} params.nbdConcurrency
+   * @param {boolean} [params.onlyListChangedBlocks=false] When true, skips NBD client creation; only getBlockIndexes() may be called, readBlock() will throw.
+   */
+  constructor(streamSourceDisk, { vdiRef, xapi, nbdConcurrency = 4, onlyListChangedBlocks = false }) {
+    if (streamSourceDisk === undefined) {
+      throw new Error(`A stream source must be given`)
+    }
+    // streamSourceDisk is only ever used here for its plain-Disk metadata (getBlockSize,
+    // getBlockIndexes, getVirtualSize, close) — readBlock is fully overridden below to go
+    // through NBD instead, so it never needs streamSourceDisk to be a RandomAccessDisk
+    // @ts-ignore
+    super(streamSourceDisk)
+    this.#nbdConcurrency = nbdConcurrency
+    this.#vdiRef = vdiRef
+    this.#xapi = xapi
+    this.#onlyListChangedBlocks = onlyListChangedBlocks
+  }
+  /**
+   * @returns {Promise<RandomAccessDisk>}
+   */
+  openSource() {
+    //
+    throw new Error('Method not implemented.')
+  }
+  /** @returns {Promise<void>} */
+  async init() {
+    await super.init()
+    if (!this.#onlyListChangedBlocks) {
+      const client = await connectNbdClientIfPossible(this.#xapi, this.#vdiRef, this.#nbdConcurrency)
+      this.#nbdClient = client
+    }
+    // we won't use the stream anymore
+    await super.close()
+  }
+  /**
+   * @param {number} index
+   * @returns {Promise<DiskBlock>}
+   */
+  async readBlock(index) {
+    if (this.#onlyListChangedBlocks) {
+      throw new Error(`Disk ${this.#vdiRef} is open in "only list block mode"`)
+    }
+    if (this.#nbdClient === undefined) {
+      throw new Error(`Can't use the nbd client of a XapiVhdStreamNbdSource before init`)
+    }
+    const data = await this.#nbdClient.readBlock(index, this.getBlockSize())
+    return { index, data }
+  }
+
+  async *buildDiskBlockGenerator() {
+    for (const index of this.getBlockIndexes()) {
+      yield this.readBlock(index)
+    }
+  }
+  /** @returns {Promise<void>} */
+  async close() {
+    try {
+      await super.close()
+    } catch (err) {
+      warn('error while closing stream source', { vdiRef: this.#vdiRef, err })
+    }
+    await this.#nbdClient?.disconnect()
+  }
+}

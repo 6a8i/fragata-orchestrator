@@ -43,12 +43,12 @@ require('exec-promise')(() =>
     }
 
     pkg.name = name
-    pkg.homepage = `https://github.com/vatesfr/xen-orchestra/tree/master/${relativeDir}`
-    pkg.bugs = `https://github.com/vatesfr/xen-orchestra/issues`
+    pkg.homepage = `https://github.com/6a8i/fragata-fleet/tree/master/${relativeDir}`
+    pkg.bugs = `https://github.com/6a8i/fragata-fleet/issues`
     pkg.repository = {
       directory: relativeDir,
       type: 'git',
-      url: 'https://github.com/vatesfr/xen-orchestra.git',
+      url: 'https://github.com/6a8i/fragata-fleet.git',
     }
 
     if (!('author' in pkg)) {
@@ -58,7 +58,7 @@ require('exec-promise')(() =>
       }
     }
     if (!('license' in pkg)) {
-      pkg.license = name.startsWith('@vates/') ? 'ISC' : 'AGPL-3.0-or-later'
+      pkg.license = name.startsWith('@fragata/') ? 'ISC' : 'AGPL-3.0-or-later'
     }
     if (!('version' in pkg)) {
       pkg.version = '0.0.0'

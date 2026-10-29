@@ -16,7 +16,7 @@ npm install --global vhd-cli
 
 ## Usage
 
-> **Deprecated:** This package is no longer maintained. Use [`@xen-orchestra/disk-cli`](https://npmjs.org/package/@xen-orchestra/disk-cli) instead.
+> **Deprecated:** This package is no longer maintained. Use [`@fragata/disk-cli`](https://npmjs.org/package/@fragata/disk-cli) instead.
 
 ## Contributions
 
@@ -25,7 +25,7 @@ the code.
 
 You may:
 
-- report any [issue](https://github.com/vatesfr/xen-orchestra/issues)
+- report any [issue](https://github.com/6a8i/fragata-fleet/issues)
   you've encountered;
 - fork and create a pull request.
 

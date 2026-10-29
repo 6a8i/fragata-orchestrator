@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 64" width="360" height="64">
+  <title>Fragata Deck</title>
+  <rect width="64" height="64" rx="14" fill="#0b2545"/>
+  <path d="M12 44h40l-6 8H18z" fill="#f4f6fa"/>
+  <path d="M33 9v31H14z" fill="#2ec4b6"/>
+  <path d="M37 16v24h15z" fill="#f4f6fa"/>
+  <text x="80" y="43" font-family="Poppins, Segoe UI, Helvetica, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="2" fill="currentColor">FRAGATA <tspan fill="#2ec4b6">DECK</tspan></text>
+</svg>

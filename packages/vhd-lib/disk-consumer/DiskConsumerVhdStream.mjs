@@ -25,7 +25,7 @@ export class DiskConsumerVhdStream extends BaseVhd {
   #target
 
   /**
-   * @param {import('@xen-orchestra/disk-transform').Disk} source
+   * @param {import('@fragata/disk-transform').Disk} source
    * @param {VhdStreamTarget} [target]
    */
   constructor(source, target = {}) {

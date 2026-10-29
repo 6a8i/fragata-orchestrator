@@ -5,13 +5,13 @@ sidebar_position: 4
 
 # Installing XO from source
 
-Xen Orchestra is fully open source: you can build and run it yourself, for free, from its Git repository. This is the method of choice for home labs and evaluation on your own terms.
+Fragata Fleet is fully open source: you can build and run it yourself, for free, from its Git repository. This is the method of choice for home labs and evaluation on your own terms.
 
 :::warning
 There is no professional support for this installation method, and no QA beyond what the community reports. For production, use [XOA](installation.md). Use the sources at your own risk!
 :::
 
-What you are about to build: a single `xen-orchestra` checkout containing the server (`xo-server`) and the web interfaces, running as one Node.js process, with Redis as its database. Total time on a fresh VM: about fifteen minutes.
+What you are about to build: a single `xen-orchestra` checkout containing the server (`fragata-server`) and the web interfaces, running as one Node.js process, with Redis as its database. Total time on a fresh VM: about fifteen minutes.
 
 This procedure is validated against a fresh **Debian 12 x64** install and works nearly identically on any dpkg-based system. RPM-based systems are close too, since most dependencies come from npm rather than the OS.
 
@@ -19,7 +19,7 @@ This procedure is validated against a fresh **Debian 12 x64** install and works 
 
 ### Node.js
 
-Xen Orchestra requires [Node.js](https://nodejs.org/), **always the [latest LTS version](https://github.com/nodejs/release?tab=readme-ov-file#release-schedule)**. Check what you have:
+Fragata Fleet requires [Node.js](https://nodejs.org/), **always the [latest LTS version](https://github.com/nodejs/release?tab=readme-ov-file#release-schedule)**. Check what you have:
 
 <Terminal title="check your Node.js version">{`
 node -v
@@ -72,10 +72,10 @@ PONG
 Everything lives in one repository. Ideally, work as a **non-root user** (see [the sudo section](#sudo) for NFS mounts):
 
 <Terminal shell title="fetch the code">{`
-git clone -b master https://github.com/vatesfr/xen-orchestra
+git clone -b master https://github.com/6a8i/fragata-fleet
 `}</Terminal>
 
-Install the dependencies and build, as the same user that will run Xen Orchestra (a few minutes):
+Install the dependencies and build, as the same user that will run Fragata Fleet (a few minutes):
 
 <Terminal shell title="build">{`
 cd xen-orchestra
@@ -85,24 +85,24 @@ yarn build
 
 ## Configure
 
-Create the `xo-server` configuration file from the provided sample:
+Create the `fragata-server` configuration file from the provided sample:
 
 <Terminal shell title="create the configuration">{`
-cd packages/xo-server
-mkdir -p ~/.config/xo-server
-cp sample.config.toml ~/.config/xo-server/config.toml
+cd packages/fragata-server
+mkdir -p ~/.config/fragata-server
+cp sample.config.toml ~/.config/fragata-server/config.toml
 `}</Terminal>
 
 Two things you may want to change in that file:
 
 - **Ports**: defaults are 80 and 443. A non-root user cannot bind ports below 1024, so pick 1024 or higher in that case.
-- If you install `xo-server` as a system-wide service, place the file in `/etc/xo-server/config.toml` instead.
+- If you install `fragata-server` as a system-wide service, place the file in `/etc/fragata-server/config.toml` instead.
 
 ## First run {#running-xo}
 
-From the `xen-orchestra/packages/xo-server` directory:
+From the `xen-orchestra/packages/fragata-server` directory:
 
-<Terminal title="start Xen Orchestra">{`
+<Terminal title="start Fragata Fleet">{`
 yarn start
 WebServer listening on localhost:80
 [INFO] Default user: "admin@admin.net" with password "admin"
@@ -112,7 +112,7 @@ Open the server's IP in your browser, log in with `admin@admin.net` / `admin`, a
 
 ## Run it at boot {#always-running}
 
-The clean way is a **systemd service**. Create `/etc/systemd/system/xo-server.service` with the following (adapt the two paths to your Node and your checkout):
+The clean way is a **systemd service**. Create `/etc/systemd/system/fragata-server.service` with the following (adapt the two paths to your Node and your checkout):
 
 ```ini
 [Unit]
@@ -122,10 +122,10 @@ After=network-online.target
 [Service]
 Environment="DEBUG=xo:main"
 Restart=always
-SyslogIdentifier=xo-server
+SyslogIdentifier=fragata-server
 
 # Adapt the paths to your Node binary and your xen-orchestra checkout!
-ExecStart=/usr/bin/node /home/username/xen-orchestra/packages/xo-server/dist/cli.mjs
+ExecStart=/usr/bin/node /home/username/xen-orchestra/packages/fragata-server/dist/cli.mjs
 
 [Install]
 WantedBy=multi-user.target
@@ -133,15 +133,15 @@ WantedBy=multi-user.target
 
 <Terminal shell title="enable and start the service">{`
 systemctl daemon-reload
-systemctl enable --now xo-server
+systemctl enable --now fragata-server
 `}</Terminal>
 
 <Terminal shell title="check it">{`
-systemctl status xo-server
+systemctl status fragata-server
 `}</Terminal>
 
 :::warning Security
-With this unit, `xo-server` runs as `root`: make sure the checkout files are not editable by other users, or they become an attack vector.
+With this unit, `fragata-server` runs as `root`: make sure the checkout files are not editable by other users, or they become an attack vector.
 :::
 
 <details>
@@ -154,11 +154,11 @@ yarn global add forever
 forever start dist/cli.mjs
 `}</Terminal>
 
-Or install it as a service (run as root, from the xo-server directory, adapting path and username):
+Or install it as a service (run as root, from the fragata-server directory, adapting path and username):
 
 <Terminal shell title="install as a service with forever-service">{`
 yarn global add forever forever-service
-cd /home/username/xen-orchestra/packages/xo-server/
+cd /home/username/xen-orchestra/packages/fragata-server/
 forever-service install orchestra -r username -s dist/cli.mjs
 `}</Terminal>
 
@@ -177,7 +177,7 @@ yarn
 yarn build
 `}</Terminal>
 
-Then restart Xen Orchestra if it was running. Always update to the latest `master` before reporting an issue: it is the only supported state for source installations.
+Then restart Fragata Fleet if it was running. Always update to the latest `master` before reporting an issue: it is the only supported state for source installations.
 
 ## Build troubleshooting {#troubleshooting}
 
@@ -191,7 +191,7 @@ yarn build
 
 ## sudo {#sudo}
 
-Running `xo-server` as a non-root user requires `sudo` for mounting NFS remotes. Enable it near the end of the configuration file:
+Running `fragata-server` as a non-root user requires `sudo` for mounting NFS remotes. Enable it near the end of the configuration file:
 
 ```toml
 useSudo = true
@@ -216,7 +216,7 @@ Exceptional individual contributors are awarded a free XOA Premium subscription.
 ## FreeBSD and OpenBSD
 
 :::note Community territory
-We do not test Xen Orchestra on FreeBSD or OpenBSD at all: everything below comes purely from community feedback, and may lag behind reality. If you run XO on these systems and want to help maintain these instructions, [contact us](../support-and-licencing/community.md): we would be happy to have more testers and maintainers for these targets.
+We do not test Fragata Fleet on FreeBSD or OpenBSD at all: everything below comes purely from community feedback, and may lag behind reality. If you run XO on these systems and want to help maintain these instructions, [contact us](../support-and-licencing/community.md): we would be happy to have more testers and maintainers for these targets.
 :::
 
 ### FreeBSD

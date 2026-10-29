@@ -9,18 +9,18 @@ name: Vectura
 on:
   pull_request:
     paths:
-      - '@xen-orchestra/vmware-explorer/vectura/**'
+      - '@fragata/vmware-explorer/vectura/**'
       - .github/workflows/vectura.yml
   push:
     branches:
       - master
     paths:
-      - '@xen-orchestra/vmware-explorer/vectura/**'
+      - '@fragata/vmware-explorer/vectura/**'
       - .github/workflows/vectura.yml
 
 defaults:
   run:
-    working-directory: '@xen-orchestra/vmware-explorer/vectura'
+    working-directory: '@fragata/vmware-explorer/vectura'
 
 jobs:
   checks:
@@ -46,7 +46,7 @@ jobs:
         run: cargo test --locked --test coverage -- --ignored
 
   # builds the binary as release.sh does, checks it, then checks the one in git,
-  # which xo-server runs, is that build
+  # which fragata-server runs, is that build
   binary:
     runs-on: ubuntu-latest
     steps:

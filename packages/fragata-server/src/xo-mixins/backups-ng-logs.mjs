@@ -1,0 +1,342 @@
+import isEmpty from 'lodash/isEmpty.js'
+import iteratee from 'lodash/iteratee.js'
+import ms from 'ms'
+import sortedIndexBy from 'lodash/sortedIndexBy.js'
+import { noSuchObject } from 'fragata-common/api-errors.js'
+
+import { debounceWithKey } from '../_pDebounceWithKey.mjs'
+
+const isSkippedError = error =>
+  error != null &&
+  (error.message === 'no disks found' ||
+    error.message === 'no VMs match this pattern' ||
+    error.message === 'unhealthy VDI chain')
+
+const getStatus = (error, status) => (status === 'failure' && isSkippedError(error) ? 'skipped' : status)
+
+// check if an error subtask was successful after retry
+const isSupersededByRetry = (subtask, siblings) =>
+  siblings.some(
+    other =>
+      other !== subtask &&
+      other.status === 'success' &&
+      other.properties?.name === subtask.properties?.name &&
+      // disambiguates subtasks with the same name but different targets, e.g. two export subtasks for different SRs
+      other.properties?.id === subtask.properties?.id
+  )
+
+export const computeStatusAndSortSubtasks = task => {
+  let status = getStatus(task.result, task.status)
+
+  if (status === 'failure' || task.tasks === undefined) {
+    return status
+  }
+
+  // A retried subtask leaves a warning at the VM task level.
+  // If the initial try fails but a retry succeeds, the failure must not affect the parent task status.
+  const wasRetried = task.warnings?.some(({ data }) => data?.isRetry === true) ?? false
+
+  for (let i = 0, n = task.tasks.length; i < n; ++i) {
+    const subtask = task.tasks[i]
+    if (subtask.status === 'failure') {
+      if (wasRetried && isSupersededByRetry(subtask, task.tasks)) {
+        continue
+      }
+      return 'failure'
+    }
+    if (subtask.status === 'skipped') {
+      status = subtask.status
+    }
+  }
+
+  task.tasks.sort(taskTimeComparator)
+
+  return status
+}
+
+const taskTimeComparator = ({ start: s1, end: e1 }, { start: s2, end: e2 }) => {
+  if (e1 !== undefined) {
+    if (e2 !== undefined) {
+      // finished tasks are ordered by their end times
+      return e1 - e2
+    }
+    // finished task before unfinished tasks
+    return -1
+  } else if (e2 === undefined) {
+    // unfinished tasks are ordered by their start times
+    return s1 - s2
+  }
+  // unfinished task after finished tasks
+  return 1
+}
+
+function adaptTask(task) {
+  let { name, metadata, ...data } = task.properties
+  task.message = name
+  if (metadata !== undefined) {
+    data = { ...data, ...metadata }
+  }
+  if (Object.keys(data).length > 0) {
+    task.data = data
+  }
+  delete task.properties
+  task.tasks?.forEach(adaptTask)
+}
+
+export function taskFormatAdapter(log) {
+  const isXoTask = log.tasks?.length > 0 && !!log.tasks[0].properties
+  if (isXoTask) {
+    adaptTask(log.tasks[0])
+    if (log.tasks[0].infos !== undefined && log.tasks[0].infos.length > 0) {
+      log.infos = [...(log.infos ?? []), ...log.tasks[0].infos]
+    }
+    if (log.tasks[0].warnings !== undefined && log.tasks[0].warnings.length !== 0) {
+      log.warnings = [...(log.warnings ?? []), ...log.tasks[0].warnings]
+    }
+    log.tasks = log.tasks[0].tasks
+  }
+}
+
+async function getRestoreLogs(store) {
+  return new Promise((resolve, reject) => {
+    const restoreLogs = {}
+    const metadataRestoreLogs = {}
+
+    store
+      .createReadStream()
+      .on('data', data => {
+        if (data.value.properties?.name === 'restore') {
+          restoreLogs[data.key] = data.value
+        } else if (data.value.properties?.name === 'metadataRestore') {
+          metadataRestoreLogs[data.key] = data.value
+        }
+      })
+      .on('end', () => {
+        resolve({ restoreLogs, metadataRestoreLogs })
+      })
+      .on('error', reject)
+  })
+}
+
+const statusFromError = error => (error === undefined ? 'success' : 'failure')
+
+// type Task = {
+//   data: any,
+//   end?: number,
+//   id: string,
+//   jobId?: string,
+//   jobName?: string,
+//   message?:  'backup' | 'metadataRestore' | 'restore',
+//   proxyId?: string,
+//   scheduleId?: string,
+//   start: number,
+//   status: 'pending' | 'failure' | 'interrupted' | 'skipped' | 'success',
+//   tasks?: Task[],
+// }
+export default {
+  getBackupNgLogs: debounceWithKey(
+    async function getBackupNgLogs(runId) {
+      const [jobLogs, oldRestoreLogs, oldMetadataRestoreLogs] = await Promise.all([
+        this.getLogs('jobs'),
+        this.getLogs('restore'),
+        this.getLogs('metadataRestore'),
+      ])
+      const taskStore = await this.getStore('tasks')
+      const { restoreLogs, metadataRestoreLogs } = await getRestoreLogs(taskStore)
+
+      const { runningJobs, runningRestores, runningMetadataRestores } = this
+      const consolidated = {}
+      const started = {}
+
+      const handleLog = async ({ data, time, message }, id) => {
+        const { event } = data
+        if (event === 'job.start') {
+          if ((data.type === 'backup' || data.key === undefined) && (runId === undefined || runId === id)) {
+            const { scheduleId, jobId } = data
+            consolidated[id] = started[id] = {
+              data: data.data,
+              id,
+              jobId,
+              jobName: data.jobName,
+              message: 'backup',
+              proxyId: data.proxyId,
+              scheduleId,
+              start: time,
+              status: runningJobs[jobId] === id ? 'pending' : 'interrupted',
+            }
+          }
+        } else if (event === 'job.end') {
+          const { runJobId } = data
+          const log = started[runJobId]
+          if (log !== undefined) {
+            delete started[runJobId]
+            log.end = time
+            log.result = data.error
+            log.status = statusFromError(data.error)
+            // computeStatusAndSortSubtasks reads log.status
+            log.status = computeStatusAndSortSubtasks(log)
+          }
+        } else if (event === 'job.backupTaskStart') {
+          // happens once, only for backups using XO Tasks
+          const { runJobId } = data
+          const log = started[runJobId]
+          if (log !== undefined && (await taskStore.has(data.backupTaskId))) {
+            log.tasks = [await taskStore.get(data.backupTaskId)]
+          }
+        } else if (event === 'task.start') {
+          const task = {
+            data: data.data,
+            id,
+            message,
+            start: time,
+          }
+          const { parentId } = data
+          let parent
+          if (parentId === undefined && (runId === undefined || runId === id)) {
+            // top level task
+            task.status =
+              (message === 'restore' && !runningRestores.has(id)) ||
+              (message === 'metadataRestore' && !runningMetadataRestores.has(id))
+                ? 'interrupted'
+                : 'pending'
+            consolidated[id] = started[id] = task
+          } else if ((parent = started[parentId]) !== undefined) {
+            // sub-task for which the parent exists
+            task.status = parent.status
+            started[id] = task
+            ;(parent.tasks || (parent.tasks = [])).push(task)
+          }
+        } else if (event === 'task.end') {
+          const { taskId } = data
+          const log = started[taskId]
+          if (log !== undefined) {
+            // TODO: merge/transfer work-around
+            delete started[taskId]
+            log.end = time
+            log.result = data.result
+            log.status = data.status
+            // computeStatusAndSortSubtasks reads log.status
+            log.status = computeStatusAndSortSubtasks(log)
+          }
+        } else if (event === 'task.warning') {
+          const parent = started[data.taskId]
+          parent !== undefined &&
+            (parent.warnings || (parent.warnings = [])).push({
+              data: data.data,
+              message,
+            })
+        } else if (event === 'task.info') {
+          const parent = started[data.taskId]
+          parent !== undefined &&
+            (parent.infos || (parent.infos = [])).push({
+              data: data.data,
+              message,
+            })
+        } else if (event === 'jobCall.start') {
+          const parent = started[data.runJobId]
+          if (parent !== undefined) {
+            ;(parent.tasks || (parent.tasks = [])).push(
+              (started[id] = {
+                data: {
+                  type: 'VM',
+                  id: data.params.id,
+                },
+                id,
+                start: time,
+                status: parent.status,
+              })
+            )
+          }
+        } else if (event === 'jobCall.end') {
+          const { runCallId } = data
+          const log = started[runCallId]
+          if (log !== undefined) {
+            delete started[runCallId]
+            log.end = time
+            log.result = data.error
+            log.status = statusFromError(data.error)
+            // computeStatusAndSortSubtasks reads log.status
+            log.status = computeStatusAndSortSubtasks(log)
+          }
+        }
+      }
+
+      for (const [logId, log] of Object.entries(jobLogs)) {
+        await handleLog(log, logId)
+      }
+      for (const [logId, log] of Object.entries(oldRestoreLogs)) {
+        await handleLog(log, logId)
+      }
+      for (const [logId, log] of Object.entries(oldMetadataRestoreLogs)) {
+        await handleLog(log, logId)
+      }
+
+      // adapt new backup logs to the old backup log structure
+      for (const log of Object.values(consolidated)) {
+        taskFormatAdapter(log)
+      }
+
+      for (const [logId, log] of Object.entries(restoreLogs)) {
+        adaptTask(log)
+        consolidated[logId] = log
+      }
+
+      for (const [logId, log] of Object.entries(metadataRestoreLogs)) {
+        adaptTask(log)
+        consolidated[logId] = log
+      }
+
+      if (runId !== undefined) {
+        if (consolidated[runId] === undefined) {
+          throw noSuchObject(runId, 'backup-ng-log')
+        }
+        return consolidated[runId]
+      }
+
+      return consolidated
+    },
+    10e3,
+    function keyFn(runId) {
+      return [this, runId]
+    }
+  ),
+
+  async getBackupNgLogsSorted({ after, before, filter, limit }) {
+    let logs = await this.getBackupNgLogs()
+
+    // convert to array
+    logs = Object.values(logs)
+
+    if (typeof filter === 'function' || !isEmpty(filter)) {
+      logs = logs.filter(iteratee(filter))
+    }
+
+    logs.sort((a, b) => a.start - b.start)
+
+    // only extract the range we are interested in
+    const i =
+      after === undefined
+        ? 0
+        : sortedIndexBy(
+            logs,
+            {
+              start: typeof after === 'number' ? after : Date.now() - ms(after),
+            },
+            'start'
+          )
+    const j =
+      before === undefined
+        ? logs.length
+        : sortedIndexBy(
+            logs,
+            {
+              start: typeof before === 'number' ? before : Date.now() - ms(before),
+            },
+            'start'
+          )
+
+    logs = logs.slice(limit === undefined ? i : Math.max(i, j - limit), j)
+
+    return logs
+  },
+}

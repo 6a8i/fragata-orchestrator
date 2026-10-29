@@ -20,7 +20,7 @@ xoa check
 ✔ Disk space for /var
 ✔ Disk space for /
 ✔ XOA version
-✔ xo-server config syntax
+✔ fragata-server config syntax
 ✔ Appliance registration
 ✔ Internet connectivity
 `}</Terminal>
@@ -64,26 +64,26 @@ Restart the VM, then log in over SSH with the `xoa` user and that password.
 From the XOA CLI (see [first console connection](installation.md#first-console-connection)):
 
 <Terminal shell title="xoa — reset a web account password">{`
-sudo xo-server-recover-account youremail@here.com
+sudo fragata-server-recover-account youremail@here.com
 `}</Terminal>
 
 It prompts for a new password. If the email does not exist in XO yet, an admin account is created with it: handy as a rescue account.
 
 ### Empty page after login
 
-Your antivirus or firewall is blocking WebSockets, the protocol XO clients use to talk to `xo-server` (see [architecture](architecture.md)). Switch to **HTTPS**: WebSockets are then encapsulated in TLS, out of reach of the interception.
+Your antivirus or firewall is blocking WebSockets, the protocol XO clients use to talk to `fragata-server` (see [architecture](architecture.md)). Switch to **HTTPS**: WebSockets are then encapsulated in TLS, out of reach of the interception.
 
 ### User login failures
 
-Look at the `xo-server` [logs](#logs) while reproducing the login attempt: the reason is displayed there.
+Look at the `fragata-server` [logs](#logs) while reproducing the login attempt: the reason is displayed there.
 
 ## Logs
 
 - **From the web interface**: Settings, then Logs.
 - **From the CLI**, with `journalctl`:
 
-<Terminal shell title="xoa — tail xo-server logs">{`
-journalctl -u xo-server -f -n 50
+<Terminal shell title="xoa — tail fragata-server logs">{`
+journalctl -u fragata-server -f -n 50
 `}</Terminal>
 
 <Terminal shell title="xoa — tail updater logs">{`
@@ -105,11 +105,11 @@ Internal error: Xenops_interface.Internal_error("Domain.Xenguest_failure(\"Error
 
 Reduce the static max memory of the XOA VM to a lower value and migrate again.
 
-### xo-server out of memory
+### fragata-server out of memory
 
-If `xo-server` crashes with `FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory` in its logs, give the XOA VM more memory (see [Sizing your XOA](installation.md#sizing)) and restart it.
+If `fragata-server` crashes with `FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory` in its logs, give the XOA VM more memory (see [Sizing your XOA](installation.md#sizing)) and restart it.
 
-Since Xen Orchestra 6.8, `xo-server` sets its Node.js memory limit to 70% of the VM's RAM (1 GiB minimum), recalculated at each start: no manual setting is needed. If you previously added `--max-old-space-size` to `/etc/systemd/system/xo-server.service` by hand, you can remove it: the automatic limit makes it unnecessary.
+Since Fragata Fleet 6.8, `fragata-server` sets its Node.js memory limit to 70% of the VM's RAM (1 GiB minimum), recalculated at each start: no manual setting is needed. If you previously added `--max-old-space-size` to `/etc/systemd/system/fragata-server.service` by hand, you can remove it: the automatic limit makes it unnecessary.
 
 ### Stats not showing on a pool
 
@@ -122,7 +122,7 @@ If ghost tasks accumulate, try in order:
 1. refresh the web page
 2. disconnect and reconnect the pool owning the tasks
 3. restart the XAPI toolstack of the XCP-ng pool master
-4. restart `xo-server`
+4. restart `fragata-server`
 
 ## Network issues
 
@@ -161,17 +161,17 @@ cd /etc/ssl
 cp cert.pem cert.pem-old
 cp key.pem key.pem-old
 openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -nodes -days 360
-systemctl restart xo-server.service
+systemctl restart fragata-server.service
 `}</Terminal>
 
 ## Reset the configuration
 
-Last resort: reset the `xo-server` database. **This deletes all configured users, servers and backup jobs.**
+Last resort: reset the `fragata-server` database. **This deletes all configured users, servers and backup jobs.**
 
 <Terminal shell title="xoa — full reset">{`
 redis-cli
 FLUSHALL
-systemctl restart xo-server.service
+systemctl restart fragata-server.service
 `}</Terminal>
 
 You can then log in again with `admin@admin.net` / `admin`.

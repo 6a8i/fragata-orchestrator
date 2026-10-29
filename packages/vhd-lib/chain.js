@@ -1,6 +1,6 @@
 'use strict'
 
-const { relativeFromFile } = require('@xen-orchestra/fs/path')
+const { relativeFromFile } = require('@fragata/fs/path')
 
 const { openVhd } = require('./openVhd')
 const { DISK_TYPES } = require('./_constants')

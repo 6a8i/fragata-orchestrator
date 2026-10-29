@@ -3,7 +3,7 @@
 A full backup exports the complete VM, all of its disks and its configuration, to a backup repository (BR) on every run. Each run produces a single, self-contained XVA archive: no chain, no dependencies between runs. The mental model is simple, and so is the restore, since any one archive is enough to bring the whole VM back.
 
 :::note
-In the XO 5 interface, backup repositories are still labeled **Remotes**. A BR can be local to XOA, or an NFS or SMB share.
+In the Fleet Classic interface, backup repositories are still labeled **Remotes**. A BR can be local to XOA, or an NFS or SMB share.
 :::
 
 <Schema label="Full backup: snapshot the VM, export it as an XVA archive to the BR, rotate out the oldest archive" legend={[["#56c288", "VM"], ["#e0a94a", "XVA archive"], ["#ef6a5f", "Deleted by retention"]]} maxWidth="640px">
@@ -42,7 +42,7 @@ In the XO 5 interface, backup repositories are still labeled **Remotes**. A BR c
 
 ## How it works
 
-1. **Snapshot first.** Xen Orchestra takes a snapshot of the VM, so the VM keeps running during the whole backup.
+1. **Snapshot first.** Fragata Fleet takes a snapshot of the VM, so the VM keeps running during the whole backup.
 2. **Export as XVA.** The snapshot is exported to the BR as an XVA archive. Only allocated blocks are transferred, not the full virtual size of the disks.
 3. **Snapshot cleanup.** Once the export is complete, the snapshot is deleted from the host.
 4. **Retention.** Each schedule has a retention setting: when the number of archives on the BR exceeds it, the oldest export is deleted.
@@ -60,7 +60,7 @@ Compression reduces the size of each archive on the BR at the cost of some CPU t
 
 Every archive is self-contained, so any backup restores on its own: there is no chain to rebuild and no dependency on other backups. Pick the archive you want in the Restore view and import it on the pool and SR of your choice.
 
-Since the result is a plain XVA file, it can also be imported anywhere, even without the backup job: download the file from the BR and use the **Import** menu in Xen Orchestra (or any other XVA import method) to recreate the VM.
+Since the result is a plain XVA file, it can also be imported anywhere, even without the backup job: download the file from the BR and use the **Import** menu in Fragata Fleet (or any other XVA import method) to recreate the VM.
 
 ## Backup without snapshot
 

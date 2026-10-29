@@ -1,0 +1,170 @@
+import { proxyFetch, type FetchFn } from './utils/proxy.mjs'
+
+const REQUEST_TIMEOUT_MS = 30_000
+const BOOT_CHECK_TIMEOUT_MS = 10_000
+
+// Identifies outgoing requests as coming from the MCP binary so the
+// fragata-server `mcp-gate` middleware can apply the global kill-switch.
+export const MCP_CLIENT_HEADER: Readonly<Record<string, string>> = Object.freeze({ 'X-XO-Client': 'mcp' })
+
+// Wire-level error code returned by fragata-server when the MCP kill-switch is on.
+const MCP_DISABLED_ERROR = 'mcp_disabled'
+
+export type XoClientConfig =
+  | { url: string; username: string; password: string; fetch?: FetchFn }
+  | { url: string; token: string; fetch?: FetchFn }
+
+export class XoClient {
+  private readonly baseUrl: string
+  private readonly authHeaders: Record<string, string>
+  private readonly authMode: 'token' | 'basic'
+  /** Transport shared by every outbound request of the process (XO API, OpenAPI spec, docs). */
+  readonly fetchFn: FetchFn
+
+  /**
+   * Probes the XO server's `/rest/v0/mcp/status` endpoint to verify that the
+   * MCP kill-switch is not engaged. Throws with a human-readable error when
+   * the server is unreachable or when MCP has been disabled by the admin.
+   */
+  static async assertMcpEnabled(xoUrl: string, fetchFn: FetchFn = proxyFetch): Promise<void> {
+    const url = `${xoUrl.replace(/\/$/, '')}/rest/v0/mcp/status`
+
+    let response: Response
+    try {
+      const init: RequestInit = {
+        headers: { ...MCP_CLIENT_HEADER },
+        signal: AbortSignal.timeout(BOOT_CHECK_TIMEOUT_MS),
+      }
+      response = await fetchFn(url, init)
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : String(cause)
+      throw new Error(`Unable to reach XO server at ${xoUrl} to verify MCP status: ${message}`, { cause })
+    }
+
+    if (response.ok) {
+      return
+    }
+
+    // A fetch Response body can only be read once, so read it as text first and
+    // then attempt to parse it as JSON instead of chaining `.json()` and `.text()`
+    // — the second call would throw "Body is unusable".
+    const text = await response.text().catch(() => '')
+    let body: { data?: { error?: string } } | undefined
+    try {
+      body = text === '' ? undefined : (JSON.parse(text) as { data?: { error?: string } })
+    } catch {
+      body = undefined
+    }
+
+    // fragata-server serializes ApiError as `{ error: <human message>, data: { error: 'mcp_disabled' } }`,
+    // so the machine-readable code lives under `data.error`, not at the top level.
+    if (response.status === 503 && body?.data?.error === MCP_DISABLED_ERROR) {
+      throw new Error('MCP disabled by admin')
+    }
+
+    throw new Error(`Unable to verify MCP status (HTTP ${response.status}): ${text || response.statusText}`)
+  }
+
+  constructor(config: XoClientConfig) {
+    this.baseUrl = config.url.replace(/\/$/, '')
+    this.fetchFn = config.fetch ?? proxyFetch
+
+    if ('token' in config) {
+      this.authHeaders = { cookie: `authenticationToken=${config.token}` }
+      this.authMode = 'token'
+    } else {
+      const credentials = Buffer.from(`${config.username}:${config.password}`).toString('base64')
+      this.authHeaders = { Authorization: `Basic ${credentials}` }
+      this.authMode = 'basic'
+    }
+  }
+
+  private async fetch(endpoint: string, options: RequestInit = {}): Promise<Response> {
+    const url = `${this.baseUrl}/rest/v0${endpoint}`
+
+    let response: Response
+    try {
+      const init: RequestInit = {
+        ...options,
+        headers: { ...MCP_CLIENT_HEADER, ...this.authHeaders, ...options.headers },
+        signal: options.signal ?? AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      }
+      response = await this.fetchFn(url, init)
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : String(cause)
+      if (message.includes('ECONNREFUSED') || message.includes('fetch failed')) {
+        throw new Error(
+          `Cannot connect to XO server at ${this.baseUrl}. Verify the server is running and XO_URL is correct.`,
+          { cause }
+        )
+      }
+      if (message.includes('TimeoutError') || message.includes('abort')) {
+        throw new Error(`Request to XO server timed out after ${REQUEST_TIMEOUT_MS}ms.`, { cause })
+      }
+      throw new Error(`Network error connecting to XO server: ${message}`, { cause })
+    }
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error(
+          this.authMode === 'token'
+            ? 'Authentication failed: check XO_TOKEN — the token may have expired or been revoked.'
+            : 'Authentication failed: check XO_USERNAME and XO_PASSWORD.'
+        )
+      }
+      const errorText = await response.text().catch(() => response.statusText)
+      throw new Error(`XO API error (${response.status} ${response.statusText}): ${errorText}`)
+    }
+
+    return response
+  }
+
+  /**
+   * Generic REST call. Returns a string for text/markdown responses, a parsed
+   * object/array for JSON responses. Callers that want markdown should set
+   * `query.markdown = 'true'`; the server ignores it when the endpoint does
+   * not support markdown rendering.
+   */
+  async apiRequest(
+    method: string,
+    path: string,
+    options?: { query?: Record<string, string>; body?: unknown }
+  ): Promise<unknown> {
+    let endpoint = path.startsWith('/') ? path : `/${path}`
+    if (options?.query) {
+      const params = new URLSearchParams()
+      for (const [k, v] of Object.entries(options.query)) {
+        if (v !== undefined && v !== '') params.set(k, v)
+      }
+      const qs = params.toString()
+      if (qs) endpoint += `?${qs}`
+    }
+
+    const init: RequestInit = { method: method.toUpperCase() }
+    if (options?.body !== undefined) {
+      init.headers = { 'Content-Type': 'application/json' }
+      init.body = JSON.stringify(options.body)
+    }
+
+    const response = await this.fetch(endpoint, init)
+    const contentType = response.headers.get('content-type') ?? ''
+    return contentType.includes('application/json') ? ((await response.json()) as unknown) : await response.text()
+  }
+
+  getAuthHeaders(): Record<string, string> {
+    return { ...this.authHeaders }
+  }
+
+  getBaseUrl(): string {
+    return this.baseUrl
+  }
+
+  async testConnection(): Promise<{ ok: boolean; error?: string }> {
+    try {
+      await this.fetch('/pools?limit=1')
+      return { ok: true }
+    } catch (error) {
+      return { ok: false, error: error instanceof Error ? error.message : 'Unknown error' }
+    }
+  }
+}

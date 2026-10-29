@@ -10,9 +10,9 @@ If your backup repository is an S3-compatible bucket, immutability is provided b
 
 In backup systems, immutability means that once a backup is created, it cannot be altered or deleted for a set period. This safeguards your backups against ransomware attacks, accidental deletion, or data corruption.
 
-Here is how it works: you designate a backup repository (BR) that Xen Orchestra can write to, but cannot modify during the specified immutability period. Even if an attacker compromises XO, your backups remain untouched. The goal is to ensure that your backup data cannot be deleted, encrypted, or tampered with, unless someone with direct physical or root access to the storage intervenes.
+Here is how it works: you designate a backup repository (BR) that Fragata Fleet can write to, but cannot modify during the specified immutability period. Even if an attacker compromises XO, your backups remain untouched. The goal is to ensure that your backup data cannot be deleted, encrypted, or tampered with, unless someone with direct physical or root access to the storage intervenes.
 
-Immutability can be implemented using external services like AWS S3 Object Lock, but Xen Orchestra also offers a native, on-premises solution that doesn't rely on third-party infrastructure.
+Immutability can be implemented using external services like AWS S3 Object Lock, but Fragata Fleet also offers a native, on-premises solution that doesn't rely on third-party infrastructure.
 
 ## Why it matters {#why-it-matters}
 
@@ -37,7 +37,7 @@ The second model, and the subject of the rest of this page, is an **on-premises 
 The protection follows a **governance** model: the local root account of the BR host can still lift immutability. This is by design, so that an administrator with direct access to the storage always keeps control.
 
 :::tip
-The immutability engine was rewritten in 2026 on native filesystem APIs. It uses roughly 7 times less memory and locks and unlocks files much faster on large repositories, so it scales to BRs holding many VMs and disks. The new engine shipped with the XO 6.3 release.
+The immutability engine was rewritten in 2026 on native filesystem APIs. It uses roughly 7 times less memory and locks and unlocks files much faster on large repositories, so it scales to BRs holding many VMs and disks. The new engine shipped with the Fragata Fleet.3 release.
 :::
 
 ## Configuring on-prem immutability {#configuring-on-prem-immutability}
@@ -49,7 +49,7 @@ To set up immutability on your local infrastructure, follow these steps:
 1. Make sure **Node.js** (version 20 or later) is installed on your BR machine
 2. Install the dedicated XO package globally:
 
-<Terminal shell title="On the backup repository host">{`npm install -g @xen-orchestra/immutable-backups`}</Terminal>
+<Terminal shell title="On the backup repository host">{`npm install -g @fragata/immutable-backups`}</Terminal>
 
 The host must also meet these requirements:
 
@@ -73,18 +73,18 @@ immutabilityDuration = "7d"
 
 - **`liftEvery`**: Defines how often the service checks for expired protection and lifts immutability (e.g., `1h` for every hour).
 - Per backup repository (the `remotes` key in the configuration file keeps the legacy name):
-  - **`root`**: Absolute path to the directory where Xen Orchestra stores backups.
+  - **`root`**: Absolute path to the directory where Fragata Fleet stores backups.
   - **`immutabilityDuration`**: Defines how long files remain protected from deletion (e.g., `7d` for 7 days). The minimum accepted value is `1d`.
 
 You can declare as many `[remotes.<id>]` sections as you have repositories to protect on the host.
 
 ### 3. Start the service {#3-start-the-service}
 
-Launch the `xo-immutable-remote` daemon and check its logs (with `journalctl`, for example) to confirm it is running correctly. For persistent operation, configure it as a `systemd` service so it starts at boot and keeps running: the daemon must stay up to protect new backups as they are written.
+Launch the `fragata-immutable-remote` daemon and check its logs (with `journalctl`, for example) to confirm it is running correctly. For persistent operation, configure it as a `systemd` service so it starts at boot and keeps running: the daemon must stay up to protect new backups as they are written.
 
 ## How it works {#how-it-works}
 
-Once active, any backups written by Xen Orchestra to this repository will be protected for the specified duration. Even if Xen Orchestra is compromised, the immutability configuration remains secure, as it is managed entirely on the backup host. On startup, the service verifies that the filesystem actually supports the immutable attribute, then writes a locked `immutability.json` marker at the repository root before it starts watching for new backups.
+Once active, any backups written by Fragata Fleet to this repository will be protected for the specified duration. Even if Fragata Fleet is compromised, the immutability configuration remains secure, as it is managed entirely on the backup host. On startup, the service verifies that the filesystem actually supports the immutable attribute, then writes a locked `immutability.json` marker at the repository root before it starts watching for new backups.
 
 <Schema label="A backup's life on an immutable BR: written, locked for immutabilityDuration, lifted, then rotated out by retention" legend={[["#56c288", "written, still mutable"], ["#e0a94a", "locked backup"], ["#ef6a5f", "deleted by retention"], ["#5ac8c8", "liftEvery scan"]]} maxWidth="640px">
 <svg viewBox="0 0 640 200" role="img" aria-label="Timeline of a backup on an immutable repository: written unlocked, locked with chattr +i for the immutability duration, lifted back to mutable, then deleted by retention, with periodic liftEvery scans ticking along the time axis">
@@ -129,7 +129,7 @@ Once active, any backups written by Xen Orchestra to this repository will be pro
 
 ### Locking {#locking}
 
-The service watches the backup directory tree in real time. When a backup completes, it waits until the final file (the metadata `.json`, always written last by XO) has been fully written to disk, then locks all files belonging to that backup run with the Linux `chattr +i` attribute. This prevents any process, including Xen Orchestra, from modifying or deleting them.
+The service watches the backup directory tree in real time. When a backup completes, it waits until the final file (the metadata `.json`, always written last by XO) has been fully written to disk, then locks all files belonging to that backup run with the Linux `chattr +i` attribute. This prevents any process, including Fragata Fleet, from modifying or deleting them.
 
 ### Lifting {#lifting}
 
@@ -141,7 +141,7 @@ On the first scan after the service starts, all files are checked unconditionall
 
 ## Working with immutable backups {#working-with-immutable-backups}
 
-When setting up backup jobs in Xen Orchestra, select your configured immutable backup repository. Define your retention and rotation policies as you normally would. Immutability ensures that existing backups cannot be deleted or altered before their protection period expires, while still allowing new backups to be added.
+When setting up backup jobs in Fragata Fleet, select your configured immutable backup repository. Define your retention and rotation policies as you normally would. Immutability ensures that existing backups cannot be deleted or altered before their protection period expires, while still allowing new backups to be added.
 
 Retention and immutability are two independent mechanisms, and they only coexist peacefully within a specific range of settings. The [retention calculator](../calculator.md) models both, and shows what a given combination of retention, full backup interval and immutability duration actually protects. Run it before enabling immutability on a job.
 
@@ -180,9 +180,9 @@ Store encryption keys **separately** from your backup data.
 Losing encryption keys will render backups **permanently unrecoverable**.
 :::
 
-### Maintain independence from Xen Orchestra {#maintain-independence-from-xen-orchestra}
+### Maintain independence from Fragata Fleet {#maintain-independence-from-xen-orchestra}
 
-The immutability enforcement mechanism **must** operate independently of Xen Orchestra. This ensures that even if an attacker compromises XO, they **cannot** delete or alter existing backups.
+The immutability enforcement mechanism **must** operate independently of Fragata Fleet. This ensures that even if an attacker compromises XO, they **cannot** delete or alter existing backups.
 
 ### Monitor storage and test recovery {#monitor-storage-and-test-recovery}
 
@@ -198,10 +198,10 @@ Cloud-based solutions such as S3 Object Lock depend on your provider's implement
 
 ## Troubleshooting {#troubleshooting}
 
-For troubleshooting, refer to the [package README on GitHub](https://github.com/vatesfr/xen-orchestra/blob/master/%40xen-orchestra/immutable-backups/README.md). It covers the most common situations: files still immutable after the duration expired, making a repository or a single VM mutable again for manual cleanup, changing the immutability duration, and why incremental backups are only marked as protected in XO once their whole chain is inside the immutability window.
+For troubleshooting, refer to the [package README on GitHub](https://github.com/6a8i/fragata-fleet/blob/master/%40xen-orchestra/immutable-backups/README.md). It covers the most common situations: files still immutable after the duration expired, making a repository or a single VM mutable again for manual cleanup, changing the immutability duration, and why incremental backups are only marked as protected in XO once their whole chain is inside the immutability window.
 
 ## Conclusion {#conclusion}
 
-Immutability adds a critical layer of protection to your backups in Xen Orchestra. Whether you use Amazon S3 or an on-premises repository, the core principle is simple: once a backup is created, you cannot change or delete it until the protection period expires.
+Immutability adds a critical layer of protection to your backups in Fragata Fleet. Whether you use Amazon S3 or an on-premises repository, the core principle is simple: once a backup is created, you cannot change or delete it until the protection period expires.
 
 By integrating immutability with strong encryption, proactive monitoring, and regular testing, you ensure that your backup data stays secure, reliable, and recoverable, even in the face of ransomware, human error, or malicious attacks. This approach transforms your backup strategy into a robust defense against data loss and corruption.

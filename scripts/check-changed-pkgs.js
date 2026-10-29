@@ -27,10 +27,10 @@ const MAX_REPORTED_FILES = 5
 // packages which are never listed in `CHANGELOG.unreleased.md`
 const IGNORED_PACKAGES = new Set([
   // build-time only configuration, never published
-  '@xen-orchestra/babel-config',
+  '@fragata/babel-config',
 
   // released separately, `gen-deps-list.js` rejects it if listed
-  '@xen-orchestra/lite',
+  '@fragata/lite',
 ])
 
 // files which don't change what is shipped to users: a package whose changes
@@ -58,7 +58,7 @@ function isIgnoredFile(file) {
 
 /**
  * @param {readonly string[]} changedFiles Paths relative to the repository root
- * @param {ReadonlyMap<string, string>} packageNamesByDir A mapping of package directories (e.g. `@vates/types`) to package names
+ * @param {ReadonlyMap<string, string>} packageNamesByDir A mapping of package directories (e.g. `@fragata/types`) to package names
  * @returns {Map<string, string[]>} A mapping of package names to the changed files which require their release
  */
 function getChangedPackages(changedFiles, packageNamesByDir) {
@@ -67,7 +67,7 @@ function getChangedPackages(changedFiles, packageNamesByDir) {
   for (const file of changedFiles) {
     const parts = file.split('/')
 
-    // a package file is always at least at the third level, e.g. `@vates/types/index.mts`
+    // a package file is always at least at the third level, e.g. `@fragata/types/index.mts`
     if (parts.length < 3) {
       continue
     }
@@ -90,7 +90,7 @@ function getChangedPackages(changedFiles, packageNamesByDir) {
 /**
  * Mirrors `getPackages()` from `./utils`, without its dependencies
  *
- * @returns {Map<string, string>} A mapping of package directories (e.g. `@vates/types`) to package names
+ * @returns {Map<string, string>} A mapping of package directories (e.g. `@fragata/types`) to package names
  */
 function getPackageNamesByDir() {
   const packageNamesByDir = new Map()

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Dynamic inventory is a powerful Ansible feature that discovers the hosts to manage from an external source instead of a static file. The [`community.general.xen_orchestra`](https://docs.ansible.com/ansible/latest/collections/community/general/xen_orchestra_inventory.html) inventory plugin connects to your **Xen Orchestra** instance and builds an inventory from the virtual machines (VMs) it manages, so your automation always targets the real state of your infrastructure.
+Dynamic inventory is a powerful Ansible feature that discovers the hosts to manage from an external source instead of a static file. The [`community.general.xen_orchestra`](https://docs.ansible.com/ansible/latest/collections/community/general/xen_orchestra_inventory.html) inventory plugin connects to your **Fragata Fleet** instance and builds an inventory from the virtual machines (VMs) it manages, so your automation always targets the real state of your infrastructure.
 
 :::tip
 With dynamic inventory, there is no need to manually maintain static inventory files. Your VMs are automatically discovered and classified into groups based on their properties.
@@ -10,7 +10,7 @@ With dynamic inventory, there is no need to manually maintain static inventory f
 
 ## Prerequisites {#installing-prerequisites}
 
-- a running **Xen Orchestra** instance connected to an **XCP-ng** pool
+- a running **Fragata Fleet** instance connected to an **XCP-ng** pool
 - Ansible with the `community.general` collection, version 4.1.0 or newer (the version that introduced the plugin)
 - the `websocket-client` Python library, version 1.0.0 or newer (the plugin talks to the XO JSON-RPC API over a websocket)
 - an XO **user account**: this plugin authenticates with a username and password (it does not support API tokens)
@@ -203,5 +203,5 @@ The [plugin documentation](https://docs.ansible.com/ansible/latest/collections/c
 - [xen_orchestra inventory plugin documentation](https://docs.ansible.com/ansible/latest/collections/community/general/xen_orchestra_inventory.html)
 - [Plugin source code](https://github.com/ansible-collections/community.general/blob/main/plugins/inventory/xen_orchestra.py)
 - [Ansible documentation on dynamic inventories](https://docs.ansible.com/ansible/latest/inventory_guide/intro_dynamic_inventory.html)
-- [VirtOps #3: Ansible with Xen Orchestra (blog post)](https://xen-orchestra.com/blog/virtops3-ansible-with-xen-orchestra/)
+- [VirtOps #3: Ansible with Fragata Fleet (blog post)](https://xen-orchestra.com/blog/virtops3-ansible-with-xen-orchestra/)
 - [XCP-ng Forum](https://xcp-ng.org/forum/)

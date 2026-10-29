@@ -1,0 +1,47 @@
+{
+  "name": "fragata-server-perf-alert",
+  "version": "1.1.2",
+  "license": "AGPL-3.0-or-later",
+  "description": "Sends alerts based on performance criteria",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-server-perf-alert",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "packages/fragata-server-perf-alert",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "preferGlobal": true,
+  "main": "dist/",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@fragata/async-each": "^1.0.3",
+    "@fragata/cron": "^1.0.7",
+    "@fragata/log": "^0.7.2",
+    "d3-time-format": "^3.0.0",
+    "handlebars": "^4.7.8",
+    "json5": "^2.0.1",
+    "mjml": "^4.15.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.29.0",
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "cross-env": "^7.0.2",
+    "rimraf": "^6.0.1"
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production babel --source-maps --copy-files --out-dir=dist/ src/",
+    "clean": "rimraf dist/",
+    "dev": "cross-env NODE_ENV=development babel --watch --source-maps --copy-files --out-dir=dist/ src/",
+    "prebuild": "yarn run clean",
+    "predev": "yarn run prebuild",
+    "prepublishOnly": "yarn run build"
+  },
+  "private": true,
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  }
+}

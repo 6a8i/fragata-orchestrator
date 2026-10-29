@@ -3,7 +3,7 @@
 const UUID = require('uuid')
 const cloneDeep = require('lodash/cloneDeep.js')
 const Disposable = require('promise-toolbox/Disposable')
-const { asyncMap } = require('@xen-orchestra/async-map')
+const { asyncMap } = require('@fragata/async-map')
 
 const assert = require('assert')
 const { DISK_TYPES, FOOTER_SIZE, HEADER_SIZE } = require('../_constants')

@@ -1,0 +1,20 @@
+{
+  "private": true,
+  "name": "@fragata/babel-config",
+  "version": "0.0.0",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/babel-config",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/babel-config",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "engines": {
+    "node": ">=8.3"
+  },
+  "license": "AGPL-3.0-or-later",
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  }
+}

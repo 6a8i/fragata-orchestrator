@@ -5,18 +5,18 @@ import https from 'node:https'
 import ms from 'ms'
 import map from 'lodash/map.js'
 import noop from 'lodash/noop.js'
-import Obfuscate from '@vates/obfuscate'
+import Obfuscate from '@fragata/obfuscate'
 import { Agent, interceptors, ProxyAgent, request } from 'undici'
-import { coalesceCalls } from '@vates/coalesce-calls'
-import { Collection } from 'xo-collection'
-import { compose } from '@vates/compose'
-import { createLogger } from '@xen-orchestra/log'
+import { coalesceCalls } from '@fragata/coalesce-calls'
+import { Collection } from 'fragata-collection'
+import { compose } from '@fragata/compose'
+import { createLogger } from '@fragata/log'
 import { EventEmitter } from 'events'
-import { Index } from 'xo-collection/index.js'
-import { jsonHash } from '@vates/json-hash'
+import { Index } from 'fragata-collection/index.js'
+import { jsonHash } from '@fragata/json-hash'
 import { cancelable, defer, fromCallback, ignoreErrors, pDelay, pRetry, pTimeout } from 'promise-toolbox'
 import { limitConcurrency } from 'limit-concurrency-decorator'
-import { decorateClass } from '@vates/decorate-with'
+import { decorateClass } from '@fragata/decorate-with'
 import { pipeline } from 'node:stream'
 import { ProxyAgent as HttpProxyAgent } from 'proxy-agent'
 
@@ -28,7 +28,7 @@ import parseUrl from './_parseUrl.mjs'
 import Ref from './_Ref.mjs'
 import transports from './transports/index.mjs'
 import XapiError from './_XapiError.mjs'
-import { noSuchObject } from 'xo-common/api-errors.js'
+import { noSuchObject } from 'fragata-common/api-errors.js'
 
 const { debug } = createLogger('xen-api')
 
@@ -303,7 +303,7 @@ export class Xapi extends EventEmitter {
     // Addresses of known pool members, used to fail over to a surviving host
     // when the master becomes unreachable (e.g. HA promoted a new master after
     // the old one died). Seeded with the configured target and any addresses
-    // passed by the caller (xo-server can persist these across restarts), then
+    // passed by the caller (fragata-server can persist these across restarts), then
     // refreshed from `host.get_all_records` on every successful session open.
     this._candidateHostnames = new Set([this._url.hostname])
     if (Array.isArray(opts.candidateHostnames)) {
@@ -551,7 +551,7 @@ export class Xapi extends EventEmitter {
       return this.call(`${type}.remove_from_${field}`, ref, entry).then(noop)
     }
 
-    // `cores-per-socket` is always present in `platform`, see https://github.com/vatesfr/xen-orchestra/pull/9136
+    // `cores-per-socket` is always present in `platform`, see https://github.com/6a8i/fragata-fleet/pull/9136
     // so, updating `platform` is the only way to change the `cores-per-socket` value
     // this is a workaround, waiting for the XAPI to fix the `cores-per-socket: undefined` bug
     if (type === 'VM' && field === 'platform' && entry === 'cores-per-socket') {

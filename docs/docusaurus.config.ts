@@ -3,8 +3,8 @@ import type { Config } from '@docusaurus/types'
 import type * as Preset from '@docusaurus/preset-classic'
 
 export default {
-  title: 'Xen Orchestra | XO Documentation',
-  tagline: 'Discover how to use Xen Orchestra',
+  title: 'Fragata Fleet | XO Documentation',
+  tagline: 'Discover how to use Fragata Fleet',
   favicon: 'img/favicon.ico',
   trailingSlash: false,
   // Set the production url of your site here
@@ -331,7 +331,7 @@ export default {
           showLastUpdateTime: true,
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/vatesfr/xen-orchestra/tree/master/docs',
+          editUrl: 'https://github.com/6a8i/fragata-fleet/tree/master/docs',
         },
         blog: false,
         theme: {
@@ -367,14 +367,14 @@ export default {
       contextualSearch: false,
     },
     // Replace with your project's social card
-    image: 'img/vates-xo-logo-smol-new-baseline.png',
+    image: 'img/logo.png',
     navbar: {
-      title: 'Xen Orchestra Documentation',
-      logo: { alt: 'Xen Orchestra logo', src: 'img/logo.png', href: '/' },
+      title: 'Fragata Fleet Documentation',
+      logo: { alt: 'Fragata Fleet logo', src: 'img/logo.png', href: '/' },
       items: [
         { to: 'https://docs.vates.tech/', label: 'Vates VMS', position: 'right', target: '_self' },
         { to: 'https://docs.xcp-ng.org/', label: 'XCP-ng', position: 'right', target: '_self' },
-        { href: '/', label: 'Xen Orchestra', position: 'right' },
+        { href: '/', label: 'Fragata Fleet', position: 'right' },
       ],
     },
     footer: {
@@ -384,7 +384,7 @@ export default {
           title: 'Learn',
           items: [
             {
-              label: 'About Xen Orchestra',
+              label: 'About Fragata Fleet',
               href: 'https://xen-orchestra.com/#!/xo-home',
             },
             {
@@ -432,7 +432,7 @@ export default {
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/vatesfr/xen-orchestra',
+              href: 'https://github.com/6a8i/fragata-fleet',
             },
           ],
         },

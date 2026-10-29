@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * @typedef {import('@xen-orchestra/disk-transform').DiskBlock} DiskBlock
+ * @typedef {import('@fragata/disk-transform').DiskBlock} DiskBlock
  */
 
 /**

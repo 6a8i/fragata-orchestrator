@@ -10,7 +10,7 @@ _Short explanation of this PR (feel free to re-use commit message)_
   - If bug fix, add `Introduced by <commit|PR>`
 - Changelog
   - If visible by XOA users, add changelog entry to `CHANGELOG.unreleased.md`
-  - If visible by XO Lite users, add changelog entry to `@xen-orchestra/lite/CHANGELOG.md`
+  - If visible by Fragata Deck users, add changelog entry to `@fragata/lite/CHANGELOG.md`
   - Update "Packages to release" in `CHANGELOG.unreleased.md`
 - PR
   - If UI changes, add a `### Screenshots` section above this checklist

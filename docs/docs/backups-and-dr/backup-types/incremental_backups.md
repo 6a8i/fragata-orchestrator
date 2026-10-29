@@ -97,7 +97,7 @@ The merge is performed on the files stored on the BR: the hosts are not involved
 
 ## Create an incremental backup {#create-delta-backup}
 
-In the Backup view, create a new VM backup job and enable the **Delta Backup** mode: this is the incremental mode (the XO 5 interface still uses the historical Delta Backup name for this toggle). Everything else (VM selection, schedules, retention, choice of backup repository) works like a normal backup job.
+In the Backup view, create a new VM backup job and enable the **Delta Backup** mode: this is the incremental mode (the Fleet Classic interface still uses the historical Delta Backup name for this toggle). Everything else (VM selection, schedules, retention, choice of backup repository) works like a normal backup job.
 
 ## Snapshots
 
@@ -137,7 +137,7 @@ You have the option to use the NBD network protocol for data transfer instead of
 
 ### Network requirements {#nbd-network-requirements}
 
-NBD is a direct connection from the machine running the backup (XOA, or the xo-proxy the job is delegated to) to the **host currently running the VM** — not to the pool master, and not through XAPI. The backup runner must therefore have **at least one network** that meets **all** of these conditions:
+NBD is a direct connection from the machine running the backup (XOA, or the fragata-proxy the job is delegated to) to the **host currently running the VM** — not to the pool master, and not through XAPI. The backup runner must therefore have **at least one network** that meets **all** of these conditions:
 
 - **NBD is enabled on it.** Select the pool, navigate to the **Network** tab and enable NBD on the network. Data is then transferred over an encrypted (TLS) NBD connection.
 - **It is routable from the backup runner to the host running the VM.** Routing and firewalling must allow the runner to open a connection to that host on this network.

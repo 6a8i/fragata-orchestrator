@@ -1,6 +1,6 @@
 'use strict'
 
-const { getSyncedHandler } = require('@xen-orchestra/fs')
+const { getSyncedHandler } = require('@fragata/fs')
 const { openVhd, VhdFile, VhdDirectory } = require('vhd-lib')
 const Disposable = require('promise-toolbox/Disposable')
 const getopts = require('getopts')

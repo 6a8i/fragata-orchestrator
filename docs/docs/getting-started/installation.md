@@ -5,7 +5,7 @@ sidebar_position: 3
 
 # Installing XOA
 
-Deploying Xen Orchestra takes a few minutes: you deploy the **Xen Orchestra Appliance (XOA)**, a pre-built VM with everything configured, directly on one of your hosts. Nothing is installed on the hosts themselves, and nothing changes in your infrastructure: XOA is just another VM.
+Deploying Fragata Fleet takes a few minutes: you deploy the **Fragata Fleet Appliance (XOA)**, a pre-built VM with everything configured, directly on one of your hosts. Nothing is installed on the hosts themselves, and nothing changes in your infrastructure: XOA is just another VM.
 
 This page walks the whole journey: deploy, first login, registration, and the first console and network settings. If you prefer building from the sources instead, the community method has [its own page](install-from-sources.md).
 
@@ -44,7 +44,7 @@ The default preset targets large infrastructures running backup jobs, which is w
 - **16 GiB and 8 vCPUs** for large infrastructures or a heavy backup load: transfers and compression are parallel workloads, so they benefit from more vCPUs.
 - You can always give more, but **measure** afterwards to check the improvement is real before going further.
 
-You can resize the VM at any time: shut it down, change its vCPUs and RAM, and start it again. Since Xen Orchestra 6.8, `xo-server` sets its own memory limit to 70% of the VM's RAM at each start, so there is nothing else to change. If you deployed with another method, the VM starts with 2 vCPUs and 2 GiB: resize it right after deployment.
+You can resize the VM at any time: shut it down, change its vCPUs and RAM, and start it again. Since Fragata Fleet 6.8, `fragata-server` sets its own memory limit to 70% of the VM's RAM at each start, so there is nothing else to change. If you deployed with another method, the VM starts with 2 vCPUs and 2 GiB: resize it right after deployment.
 
 ## First login
 
@@ -64,7 +64,7 @@ or check your router's DHCP leases for an `xoa` entry.
 <UiDetail src="/img/xoa/register.png" alt="Registering the appliance from the Updates view" width={520} />
 
 :::tip
-Appliance images are not rebuilt every month, unlike Xen Orchestra itself: right after deploying, an update is usually available. Register, update, then explore.
+Appliance images are not rebuilt every month, unlike Fragata Fleet itself: right after deploying, an update is usually available. Register, update, then explore.
 :::
 
 To try everything XO can do, start the trial from the same view ("Start Trial", the green button), and click Upgrade: your appliance runs the complete **Premium** feature set for 30 days.
@@ -77,9 +77,9 @@ When the trial ends, the appliance keeps working and simply returns to the Free 
 
 Use these when the web deploy form is not an option (no Internet access from the browser, automation, restricted environments).
 
-### Via XO Lite
+### Via Fragata Deck
 
-If your hosts run XCP-ng 8.3 or later, [XO Lite](https://docs.vates.tech/products/add-ons/xo-lite) is already waiting on every host: open `https://your-host-ip` in a browser, log in with the host `root` credentials, and use its **Deploy XOA** action. Nothing to download, nothing to install: XO Lite is served directly by the host.
+If your hosts run XCP-ng 8.3 or later, [Fragata Deck](https://docs.vates.tech/products/add-ons/xo-lite) is already waiting on every host: open `https://your-host-ip` in a browser, log in with the host `root` credentials, and use its **Deploy XOA** action. Nothing to download, nothing to install: Fragata Deck is served directly by the host.
 
 ### Via a bash script
 
@@ -95,7 +95,7 @@ On old XCP-ng or XenServer versions, HTTPS may fail with an SSL error (`SSL23_GE
 
 ### Via a manual XVA download
 
-Download the XOA as an XVA file from [xen-orchestra.com](https://xen-orchestra.com), then import it from your host CLI (or from XO Lite):
+Download the XOA as an XVA file from [xen-orchestra.com](https://xen-orchestra.com), then import it from your host CLI (or from Fragata Deck):
 
 <Terminal shell title="host — import the appliance">{`xe vm-import filename=xoa_unified.xva`}</Terminal>
 
@@ -134,7 +134,7 @@ XOA uses **DHCP** by default. To switch to a static address, run `xoa network st
 ? Gateway 192.168.100.254
 ? IP of the DNS server 192.168.100.254`}</Terminal>
 
-Xen Orchestra is then available at `https://your-vm-ip`.
+Fragata Fleet is then available at `https://your-vm-ip`.
 
 To configure another interface than the default one, pass its name as an argument (`xoa network static enX1`, `xoa network dhcp enX1`). To add more IP addresses on an already configured interface, use the `--add` flag:
 
@@ -143,4 +143,4 @@ To configure another interface than the default one, pass its name as an argumen
 
 ## From the sources {#from-the-sources}
 
-Xen Orchestra is fully open source and can also be built from its sources, without professional support. This community installation method has [its own dedicated page](install-from-sources.md).
+Fragata Fleet is fully open source and can also be built from its sources, without professional support. This community installation method has [its own dedicated page](install-from-sources.md).

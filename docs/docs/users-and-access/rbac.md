@@ -4,10 +4,10 @@ sidebar_label: RBAC
 
 # RBAC: Role-Based Access Control
 
-RBAC is the access control system for the Xen Orchestra [REST API](automation/restapi.md) and the XO 6 interface. It lets you define exactly what each user or group can see and do, down to individual objects, without granting them full administrator access.
+RBAC is the access control system for the Fragata Fleet [REST API](automation/restapi.md) and the Fragata Fleet interface. It lets you define exactly what each user or group can see and do, down to individual objects, without granting them full administrator access.
 
 :::note Where RBAC applies, and why it was once called "ACL v2"
-RBAC covers the **[REST API](automation/restapi.md)** and **XO 6**. The JSON-RPC API behind the XO 5 interface keeps the original [ACL system](./users.md#acls), and those ACLs are not available on the REST API.
+RBAC covers the **[REST API](automation/restapi.md)** and **Fragata Fleet**. The JSON-RPC API behind the Fleet Classic interface keeps the original [ACL system](./users.md#acls), and those ACLs are not available on the REST API.
 
 You may still come across this feature under the name **ACL v2**. That was only a working name while it was being built. It is a full rewrite of the original ACLs into a much broader model, so it is now called by what it actually is: RBAC. Same feature, current name.
 :::
@@ -73,7 +73,7 @@ The reverse is not true: granting `shutdown:clean` does **not** grant `shutdown:
 
 ## Built-in template roles
 
-Xen Orchestra ships with eight ready-to-use role templates. They are **immutable** and automatically kept up to date on startup: they cannot be modified, deleted, or assigned directly.
+Fragata Fleet ships with eight ready-to-use role templates. They are **immutable** and automatically kept up to date on startup: they cannot be modified, deleted, or assigned directly.
 
 To use them, **copy** a template into a new role and assign that copy to your users or groups. This ensures the built-in templates always stay up to date without affecting your custom configuration.
 
@@ -88,7 +88,7 @@ To use them, **copy** a template into a new role and assign that copy to your us
 | **Storage administrator**   | Scoped admin for storage: full control over SRs, VDIs, VBDs, PBDs and backup repositories, read access to unmanaged VDIs and storage managers. |
 | **Administrator**           | Full access to the entire infrastructure and all XO objects.                                                                                |
 
-The **Administrator** template and the two scoped administrator roles below were introduced in Xen Orchestra 6.6.
+The **Administrator** template and the two scoped administrator roles below were introduced in Fragata Fleet 6.6.
 
 ### Scoped administrator roles
 
@@ -299,15 +299,15 @@ Everything shown in the walkthrough (and more) is available as plain REST calls,
 | `GET /acl-roles/:id/privileges`                | List the privileges of a role                                  |
 | `PUT` / `DELETE /acl-roles/:id/users/:userId`  | Assign the role to a user / remove it                          |
 | `PUT` / `DELETE /acl-roles/:id/groups/:groupId`| Assign the role to a group / remove it                         |
-| `GET /acl-roles/:id/users`                     | List the users holding a role _(XO 6.7)_                       |
-| `GET /acl-roles/:id/groups`                    | List the groups holding a role _(XO 6.7)_                      |
-| `GET /groups/:id/acl-roles`                    | List the roles of a group _(XO 6.7)_                           |
+| `GET /acl-roles/:id/users`                     | List the users holding a role _(Fragata Fleet.7)_                       |
+| `GET /acl-roles/:id/groups`                    | List the groups holding a role _(Fragata Fleet.7)_                      |
+| `GET /groups/:id/acl-roles`                    | List the roles of a group _(Fragata Fleet.7)_                           |
 | `GET` / `POST /acl-privileges`                 | List privileges / create a privilege inside a role             |
 | `GET` / `PATCH` / `DELETE /acl-privileges/:id` | Read, update or delete a privilege                             |
 
-In the XO 6 interface, the **Administration** section of the sidebar covers users and groups; role and privilege management itself currently happens through the REST API, as shown above. See [Users and administration](../manage-your-infrastructure/management.md#users-and-administration).
+In the Fragata Fleet interface, the **Administration** section of the sidebar covers users and groups; role and privilege management itself currently happens through the REST API, as shown above. See [Users and administration](../manage-your-infrastructure/management.md#users-and-administration).
 
-<UiShot light="/img/xo6/administration-light.png" dark="/img/xo6/administration-dark.png" alt="The Administration section in XO 6, where users and groups are managed" url="https://your-xo/v6/#/admin/user-management/users" />
+<UiShot light="/img/xo6/administration-light.png" dark="/img/xo6/administration-dark.png" alt="The Administration section in Fragata Fleet, where users and groups are managed" url="https://your-xo/v6/#/admin/user-management/users" />
 
 ---
 

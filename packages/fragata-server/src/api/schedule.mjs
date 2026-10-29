@@ -1,0 +1,97 @@
+// FIXME so far, no acls for schedules
+
+import { createLogger } from '@fragata/log'
+import { Task } from '@fragata/mixins/Tasks.mjs'
+
+const log = createLogger('xo:schedule')
+
+export async function getAll() {
+  return /* await */ this.getAllSchedules()
+}
+
+getAll.permission = 'admin'
+getAll.description = 'Gets all existing schedules'
+
+export async function get(id) {
+  return /* await */ this.getSchedule(id)
+}
+
+get.permission = 'admin'
+get.description = 'Gets an existing schedule'
+get.params = {
+  id: { type: 'string' },
+}
+
+export function create({ cron, enabled, jobId, name, timezone }) {
+  return this.createSchedule({
+    cron,
+    enabled,
+    jobId,
+    name,
+    timezone,
+    userId: this.apiContext.user.id,
+  })
+}
+
+create.permission = 'admin'
+create.description = 'Creates a new schedule'
+create.params = {
+  cron: { type: 'string' },
+  enabled: { type: 'boolean', optional: true },
+  jobId: { type: 'string' },
+  name: { type: 'string', minLength: 0, optional: true },
+  timezone: { type: 'string', optional: true },
+}
+
+export async function set({ cron, enabled, id, jobId, name, timezone }) {
+  await this.updateSchedule({ cron, enabled, id, jobId, name, timezone })
+}
+
+set.permission = 'admin'
+set.description = 'Modifies an existing schedule'
+set.params = {
+  cron: { type: 'string', optional: true },
+  enabled: { type: 'boolean', optional: true },
+  id: { type: 'string' },
+  jobId: { type: 'string', optional: true },
+  name: { type: ['string', 'null'], minLength: 0, optional: true },
+  timezone: { type: 'string', optional: true },
+}
+
+async function delete_({ id }) {
+  await this.deleteSchedule(id)
+}
+
+delete_.permission = 'admin'
+delete_.description = 'Deletes an existing schedule'
+delete_.params = {
+  id: { type: 'string' },
+}
+
+export { delete_ as delete }
+
+export async function runSequence({ schedules }) {
+  const t = this.tasks.create({ type: 'xo:schedule:sequence', name: 'Schedule sequence' })
+  await t.run(async () => {
+    const nb = schedules.length
+    const signal = Task.abortSignal
+    for (let i = 0; i < nb; i++) {
+      signal.throwIfAborted()
+      Task.set('progress', Math.round((i * 100) / nb))
+      const idSchedule = schedules[i]
+      // we can't auto resolve array parameters, we have to resolve them by hand
+      const schedule = await this.getSchedule(idSchedule)
+      const job = await this.getJob(schedule.jobId)
+      // a failing job must not prevent the next jobs in the sequence from running
+      await this.runJob(job, schedule).catch(error =>
+        log.warn('job failed, continuing sequence', { error, jobId: job.id })
+      )
+      Task.set('progress', Math.round(((i + 1) * 100) / nb))
+    }
+  })
+}
+runSequence.permission = 'admin'
+runSequence.description = 'Run a sequence of schedules, one after the other'
+runSequence.params = {
+  schedules: { type: 'array', items: { type: 'string' } },
+}

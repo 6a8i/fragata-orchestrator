@@ -1,0 +1,53 @@
+{
+  "name": "fragata-server-netbox",
+  "version": "1.14.0",
+  "license": "AGPL-3.0-or-later",
+  "description": "Synchronizes pools managed by Fragata Fleet with Netbox",
+  "keywords": [
+    "netbox",
+    "orchestra",
+    "plugin",
+    "web",
+    "xen",
+    "xen-orchestra",
+    "fragata-server"
+  ],
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-server-netbox",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "packages/fragata-server-netbox",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "preferGlobal": false,
+  "main": "dist/",
+  "engines": {
+    "node": ">=14.6"
+  },
+  "dependencies": {
+    "@fragata/log": "^0.7.2",
+    "ipaddr.js": "^2.0.1",
+    "lodash": "^4.18.0",
+    "semver": "^7.3.5"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.29.0",
+    "@babel/core": "^7.29.0",
+    "@babel/plugin-proposal-export-default-from": "^7.18.10",
+    "@babel/preset-env": "^7.29.0",
+    "cross-env": "^7.0.3",
+    "rimraf": "^6.0.1"
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production babel --source-maps --out-dir=dist/ src/",
+    "dev": "cross-env NODE_ENV=development babel --watch --source-maps --out-dir=dist/ src/",
+    "prebuild": "rimraf dist/",
+    "predev": "yarn run prebuild",
+    "prepublishOnly": "yarn run build"
+  },
+  "private": true
+}

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pipeline } from 'node:stream/promises'
 import execa from 'execa'
-import { RandomAccessDisk } from '@xen-orchestra/disk-transform'
+import { RandomAccessDisk } from '@fragata/disk-transform'
 import computeGeometryForSize from '../_computeGeometryForSize.js'
 
 import { toVhdStream } from './index.mjs'

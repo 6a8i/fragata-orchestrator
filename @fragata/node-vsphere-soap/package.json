@@ -1,0 +1,37 @@
+{
+  "name": "@fragata/node-vsphere-soap",
+  "version": "2.2.0",
+  "description": "interface to vSphere SOAP/WSDL from node for interfacing with vCenter or ESXi, forked from node-vsphere-soap",
+  "main": "lib/client.mjs",
+  "author": "reedog117",
+  "repository": {
+    "directory": "@fragata/node-vsphere-soap",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "dependencies": {
+    "@fragata/log": "^0.7.2",
+    "axios": "^1.15.0",
+    "soap": "^1.0.0",
+    "soap-cookie": "^0.10.1"
+  },
+  "keywords": [
+    "vsphere",
+    "vcenter",
+    "api",
+    "soap",
+    "wsdl"
+  ],
+  "preferGlobal": false,
+  "license": "MIT",
+  "private": false,
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/node-vsphere-soap",
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public",
+    "test": "node --test lib/*.test.mjs"
+  }
+}

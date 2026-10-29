@@ -1,0 +1,83 @@
+{
+  "private": true,
+  "name": "@fragata/proxy",
+  "version": "0.34.0",
+  "license": "AGPL-3.0-or-later",
+  "description": "XO Proxy used to remotely execute backup jobs",
+  "keywords": [
+    "backup",
+    "proxy",
+    "xen-orchestra",
+    "xo"
+  ],
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/proxy",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/proxy",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "preferGlobal": true,
+  "bin": {
+    "fragata-proxy": "./index.mjs"
+  },
+  "engines": {
+    "node": ">=14.18"
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.0",
+    "@koa/router": "^12.0.0",
+    "@fragata/async-each": "^1.0.3",
+    "@fragata/cached-dns.lookup": "^1.0.0",
+    "@fragata/compose": "^2.1.0",
+    "@fragata/decorate-with": "^2.1.0",
+    "@fragata/disposable": "^0.1.6",
+    "@fragata/task": "^0.7.0",
+    "@fragata/async-map": "^0.1.5",
+    "@fragata/backups": "^0.78.0",
+    "@fragata/fs": "^4.10.0",
+    "@fragata/log": "^0.7.2",
+    "@fragata/mixin": "^0.2.1",
+    "@fragata/mixins": "^0.23.0",
+    "@fragata/self-signed": "^0.2.1",
+    "@fragata/xapi": "^9.1.0",
+    "ajv": "^8.0.3",
+    "app-conf": "^3.0.0",
+    "async-iterator-to-stream": "^1.1.0",
+    "fs-extra": "^11.1.0",
+    "get-stream": "^7.0.1",
+    "getopts": "^2.2.3",
+    "golike-defer": "^0.5.1",
+    "http-server-plus": "^1.0.0",
+    "http2-proxy": "^5.0.53",
+    "json-rpc-protocol": "^0.13.1",
+    "jsonrpc-websocket-client": "^0.7.2",
+    "koa": "^2.5.1",
+    "koa-compress": "^5.0.1",
+    "koa-helmet": "^6.1.0",
+    "lodash": "^4.18.0",
+    "node-zone": "^0.4.0",
+    "parse-pairs": "^2.0.0",
+    "promise-toolbox": "^0.21.0",
+    "source-map-support": "^0.5.16",
+    "stoppable": "^1.0.6",
+    "xdg-basedir": "^5.1.0",
+    "xen-api": "^5.1.0",
+    "fragata-common": "^0.11.0"
+  },
+  "devDependencies": {
+    "@fragata/toggle-scripts": "^1.0.0",
+    "ws": "^8.5.0"
+  },
+  "scripts": {
+    "_postinstall": "./scripts/systemd-service-installer",
+    "postpack": "toggle-scripts -postinstall -preuninstall",
+    "prepack": "toggle-scripts +postinstall +preuninstall",
+    "_preuninstall": "./scripts/systemd-service-installer",
+    "start": "./index.mjs"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  }
+}

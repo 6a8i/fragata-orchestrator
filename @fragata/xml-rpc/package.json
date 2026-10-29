@@ -1,0 +1,32 @@
+{
+  "private": false,
+  "name": "@fragata/xml-rpc",
+  "description": "Parse and format XML-RPC messages, do not handle transport or XML",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/xml-rpc",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/xml-rpc",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "license": "ISC",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=12"
+  },
+  "devDependencies": {
+    "@fragata/xml": "^2.0.0"
+  },
+  "exports": {
+    "./formatter": "./formatter.js",
+    "./parser": "./parser.js"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public",
+    "test": "node --test"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "private": false,
+  "name": "@fragata/read-chunk",
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/read-chunk",
+  "description": "Read a chunk of a Node stream",
+  "license": "ISC",
+  "keywords": [
+    "async",
+    "chunk",
+    "data",
+    "node",
+    "promise",
+    "read",
+    "stream"
+  ],
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/read-chunk",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "version": "1.2.1",
+  "engines": {
+    "node": ">=8.10"
+  },
+  "scripts": {
+    "postversion": "npm publish --access public",
+    "test": "node --test"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "dependencies": {
+    "isutf8": "^4.0.0"
+  }
+}

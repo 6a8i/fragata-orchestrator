@@ -1,7 +1,7 @@
 'use strict'
 
 const { pipeline, Transform } = require('readable-stream')
-const { readChunkStrict } = require('@vates/read-chunk')
+const { readChunkStrict } = require('@fragata/read-chunk')
 
 const checkFooter = require('./checkFooter')
 const checkHeader = require('./_checkHeader')

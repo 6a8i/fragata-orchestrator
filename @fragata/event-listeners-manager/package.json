@@ -1,0 +1,46 @@
+{
+  "engines": {
+    "node": ">=6"
+  },
+  "private": false,
+  "name": "@fragata/event-listeners-manager",
+  "descriptions": "Easy way to clean up event listeners",
+  "keywords": [
+    "add",
+    "addEventListener",
+    "addListener",
+    "browser",
+    "clear",
+    "DOM",
+    "emitter",
+    "event",
+    "EventEmitter",
+    "EventTarget",
+    "management",
+    "manager",
+    "node",
+    "remove",
+    "removeEventListener",
+    "removeListener"
+  ],
+  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/event-listeners-manager",
+  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "repository": {
+    "directory": "@fragata/event-listeners-manager",
+    "type": "git",
+    "url": "https://github.com/6a8i/fragata-fleet.git"
+  },
+  "author": {
+    "name": "Vates SAS",
+    "url": "https://vates.fr"
+  },
+  "license": "ISC",
+  "version": "1.0.1",
+  "scripts": {
+    "postversion": "npm publish --access public",
+    "test": "tap --allow-incomplete-coverage"
+  },
+  "devDependencies": {
+    "tap": "^18.7.0"
+  }
+}

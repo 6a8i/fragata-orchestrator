@@ -1,5 +1,5 @@
 {
-  "name": "xen-orchestra",
+  "name": "fragata-fleet",
   "version": "0.0.0",
   "devDependencies": {
     "@babel/core": "^7.29.0",
@@ -11,7 +11,7 @@
     "@limegrass/eslint-plugin-import-alias": "^1.1.0",
     "@typescript-eslint/eslint-plugin": "^7.12.0",
     "@typescript-eslint/parser": "^7.12.0",
-    "@vates/async-each": "^1.0.0",
+    "@fragata/async-each": "^1.0.0",
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/eslint-config-typescript": "^12.0.0",
     "benchmark": "^2.1.4",
@@ -58,21 +58,21 @@
       "eslint"
     ],
     ".USAGE.md": "scripts/usage-to-readme.js --git-add",
-    "@xen-orchestra/vmware-explorer/vectura/**/*.rs": "sh -c 'cd @xen-orchestra/vmware-explorer/vectura && cargo fmt --all --check' --",
+    "@fragata/vmware-explorer/vectura/**/*.rs": "sh -c 'cd @fragata/vmware-explorer/vectura && cargo fmt --all --check' --",
     "./CHANGELOG.unreleased.md": "sh -c 'scripts/gen-deps-list.js --check-order' --"
   },
   "private": true,
   "scripts": {
-    "build": "TURBO_TELEMETRY_DISABLED=1 turbo run build --filter xo-server --filter xo-server-'*' --filter xo-web --filter @xen-orchestra/web --filter @xen-orchestra/backup-archive && yarn build:doc",
-    "build:doc": "yarn --cwd docs install && yarn --cwd docs build:xo-server",
-    "build:xo-lite": "turbo run build --filter @xen-orchestra/lite",
+    "build": "TURBO_TELEMETRY_DISABLED=1 turbo run build --filter fragata-server --filter fragata-server-'*' --filter fragata-web-classic --filter @fragata/web --filter @fragata/backup-archive && yarn build:doc",
+    "build:doc": "yarn --cwd docs install && yarn --cwd docs build:fragata-server",
+    "build:xo-lite": "turbo run build --filter @fragata/lite",
     "clean": "scripts/run-script.js --parallel clean",
     "dev": "scripts/run-script.js --parallel --concurrency 0 --verbose dev",
     "prepare": "husky install",
     "prettify": "prettier --ignore-unknown --write .",
     "test": "npm run test-lint && npm run test-unit",
     "test-integration": "scripts/run-script.js --parallel test-integration",
-    "test-lint": "eslint --ignore-path .gitignore --ignore-pattern packages/xo-web .",
+    "test-lint": "eslint --ignore-path .gitignore --ignore-pattern packages/fragata-web-classic .",
     "test-unit": "node --test 'scripts/**/*.test.mjs' && scripts/run-script.js --bail test"
   },
   "workspaces": [

@@ -1,7 +1,7 @@
 // @ts-check
 /**
- * @typedef {import('@xen-orchestra/disk-transform').FileAccessor} FileAccessor
- * @typedef {import('@xen-orchestra/disk-transform').Disk} Disk
+ * @typedef {import('@fragata/disk-transform').FileAccessor} FileAccessor
+ * @typedef {import('@fragata/disk-transform').Disk} Disk
  * @typedef {import('node:stream').Readable} Readable
  *
  * @typedef {Object} VhdRemoteTarget
