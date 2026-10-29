@@ -3,7 +3,7 @@
     <UiTitle>
       {{ t('storage-repositories') }}
     </UiTitle>
-    <UiQuerySearchBar @search="value => (searchQuery = value)" />
+    <VtsQueryBuilder v-model="filter" :schema />
     <div class="container">
       <VtsTable :state :pagination-bindings sticky="right">
         <thead>
@@ -26,19 +26,21 @@ import type { XenApiPool, XenApiSr } from '@/libs/xen-api/xen-api.types.ts'
 import { useGetPbdsInScope, useSrUtils } from '@/modules/storage-repository/composables/sr-utils.composable.ts'
 import { useSrConnection } from '@/modules/storage-repository/composables/use-sr-connection.composable.ts'
 import { useSrDelete } from '@/modules/storage-repository/composables/use-sr-delete.composable.ts'
+import { useSrQueryBuilderSchema } from '@/modules/storage-repository/composables/use-sr-query-builder-schema.composable.ts'
 import { useSrStore } from '@/stores/xen-api/sr.store.ts'
+import VtsQueryBuilder from '@core/components/query-builder/VtsQueryBuilder.vue'
 import VtsRow from '@core/components/table/VtsRow.vue'
 import VtsTable from '@core/components/table/VtsTable.vue'
-import UiQuerySearchBar from '@core/components/ui/query-search-bar/UiQuerySearchBar.vue'
 import UiTitle from '@core/components/ui/title/UiTitle.vue'
 import { usePagination } from '@core/composables/pagination.composable.ts'
 import { useRouteQuery } from '@core/composables/route-query.composable.ts'
 import { useTableState } from '@core/composables/table-state.composable.ts'
 import { icon } from '@core/icons'
+import { useQueryBuilderFilter } from '@core/packages/query-builder/use-query-builder-filter.ts'
 import { useSrColumns } from '@core/tables/column-sets/sr-columns.ts'
 import { type SrScope } from '@core/types/storage-repository.type.ts'
 import { shouldShowTargetCount } from '@core/utils/sr.utils.ts'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const {
@@ -61,17 +63,9 @@ const { isReady, hasError, isDefaultSr } = useSrStore().subscribe()
 
 const selectedSrId = useRouteQuery('id')
 
-const searchQuery = ref('')
+const { items: filteredSrs, filter } = useQueryBuilderFilter('sr', () => rawSrs)
 
-const filteredSrs = computed(() => {
-  const searchTerm = searchQuery.value.trim().toLocaleLowerCase()
-
-  if (!searchTerm) {
-    return rawSrs
-  }
-
-  return rawSrs.filter(sr => Object.values(sr).some(value => String(value).toLocaleLowerCase().includes(searchTerm)))
-})
+const schema = useSrQueryBuilderSchema()
 
 const state = useTableState({
   busy: () => busy ?? !isReady.value,
