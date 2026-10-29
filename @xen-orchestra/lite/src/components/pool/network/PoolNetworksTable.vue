@@ -7,7 +7,7 @@
       </template>
     </UiTitle>
     <div class="container">
-      <UiQuerySearchBar @search="value => (searchQuery = value)" />
+      <VtsQueryBuilder v-model="filter" :schema />
       <VtsTable :state :pagination-bindings sticky="right">
         <thead>
           <tr>
@@ -32,15 +32,20 @@
 import type { XenApiNetwork } from '@/libs/xen-api/xen-api.types.ts'
 import { useNetworkUtils } from '@/modules/network/composables/network-utils.composable.ts'
 import { usePifStore } from '@/stores/xen-api/pif.store.ts'
+import VtsQueryBuilder from '@core/components/query-builder/VtsQueryBuilder.vue'
 import VtsRow from '@core/components/table/VtsRow.vue'
 import VtsTable from '@core/components/table/VtsTable.vue'
-import UiQuerySearchBar from '@core/components/ui/query-search-bar/UiQuerySearchBar.vue'
 import UiTitle from '@core/components/ui/title/UiTitle.vue'
 import { usePagination } from '@core/composables/pagination.composable.ts'
 import { useRouteQuery } from '@core/composables/route-query.composable.ts'
 import { useTableState } from '@core/composables/table-state.composable.ts'
+import { useQueryBuilderSchema } from '@core/packages/query-builder/schema/use-query-builder-schema.ts'
+import { useQueryBuilderFilter } from '@core/packages/query-builder/use-query-builder-filter.ts'
 import { useNetworkColumns } from '@core/tables/column-sets/network-columns.ts'
-import { computed, ref } from 'vue'
+import { useNumberSchema } from '@core/utils/query-builder/use-number-schema.ts'
+import { useStringSchema } from '@core/utils/query-builder/use-string-schema.ts'
+import { NETWORK_DEFAULT_LOCKING_MODE } from '@vates/types'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { networks, busy, error } = defineProps<{
@@ -70,18 +75,17 @@ const getNetworkVlan = (network: XenApiNetwork) => {
 
 const getLockingMode = (lockingMode: string) => (lockingMode === 'disabled' ? t('disabled') : t('unlocked'))
 
-const searchQuery = ref('')
+const { items: filteredNetworks, filter } = useQueryBuilderFilter('nw', () => networks)
 
-const filteredNetworks = computed(() => {
-  const searchTerm = searchQuery.value.trim().toLocaleLowerCase()
-
-  if (!searchTerm) {
-    return networks
-  }
-
-  return networks.filter(network =>
-    Object.values(network).some(value => String(value).toLocaleLowerCase().includes(searchTerm))
-  )
+const schema = useQueryBuilderSchema<XenApiNetwork>({
+  '': useStringSchema(t('any-property')),
+  name_label: useStringSchema(t('name')),
+  name_description: useStringSchema(t('description')),
+  MTU: useNumberSchema(t('mtu')),
+  default_locking_mode: useStringSchema(t('default-locking-mode'), {
+    [NETWORK_DEFAULT_LOCKING_MODE.DISABLED]: t('disabled'),
+    [NETWORK_DEFAULT_LOCKING_MODE.UNLOCKED]: t('unlocked'),
+  } satisfies Record<NETWORK_DEFAULT_LOCKING_MODE, string>),
 })
 
 const { pageRecords: paginatedNetworks, paginationBindings } = usePagination('networks', filteredNetworks)
