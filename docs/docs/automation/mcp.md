@@ -4,9 +4,9 @@
 
 [MCP](https://modelcontextprotocol.io/) (Model Context Protocol) is an open standard that lets AI assistants interact with external tools and data sources. Think of it as a universal adapter between AI assistants (like Claude) and your infrastructure.
 
-With the [`@fragata/mcp`](https://github.com/6a8i/fragata-fleet/tree/master/@fragata/mcp) package, your AI assistant can directly query your Fragata Fleet instance and answer questions about your virtualization infrastructure in natural language.
+With the [`@fragata/mcp`](https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/mcp) package, your AI assistant can directly query your Fragata instance and answer questions about your virtualization infrastructure in natural language.
 
-## Why MCP with Fragata Fleet?
+## Why MCP with Fragata?
 
 MCP enables new ways to interact with your infrastructure:
 
@@ -22,11 +22,11 @@ All operations are **read-only by default**, ensuring safe interaction with your
 ### Prerequisites
 
 - **Node.js** 20 or later
-- A **Fragata Fleet** instance, version **6.5 or later**, with [REST API](restapi.md) enabled
+- A **Fragata** instance, version **6.5 or later**, with [REST API](restapi.md) enabled
 - An **AI assistant** that supports MCP (Claude Desktop, Claude Code, etc.)
 
 :::warning
-The MCP server requires **Fragata Fleet 6.5 or later**. On an older XO it stops at startup with an error such as `Unable to verify MCP status (HTTP 404)`. Upgrade your Fragata Fleet to use it.
+The MCP server requires **Fragata 6.5 or later**. On an older XO it stops at startup with an error such as `Unable to verify MCP status (HTTP 404)`. Upgrade your Fragata to use it.
 :::
 
 ### Install the MCP server
@@ -43,11 +43,11 @@ npx @fragata/mcp
 
 ### Configure authentication
 
-The MCP server connects to Fragata Fleet via the REST API. Two authentication modes are supported: **token** (recommended) or **username/password**.
+The MCP server connects to Fragata via the REST API. Two authentication modes are supported: **token** (recommended) or **username/password**.
 
 | Variable                | Required                | Description                                                                                   |
 | ----------------------- | ----------------------- | --------------------------------------------------------------------------------------------- |
-| `XO_URL`                | Yes                     | Fragata Fleet server URL (e.g. `https://xo.example.com`)                                      |
+| `XO_URL`                | Yes                     | Fragata server URL (e.g. `https://xo.example.com`)                                      |
 | `XO_TOKEN`              | If no username/password | Authentication token                                                                          |
 | `XO_USERNAME`           | If no token             | XO user with admin privileges                                                                 |
 | `XO_PASSWORD`           | If no token             | XO password                                                                                   |
@@ -227,7 +227,7 @@ The server exposes:
 
 Stats endpoints and binary downloads (`.xva`, `.vhd`, ...) are deliberately not exposed: their payloads are unsuitable for LLM context. Use the REST API directly when you need them.
 
-The exact tool list depends on your XO version, since it is generated at startup. For the complete, current reference (tool arguments, deny list, all environment variables), see the [`@fragata/mcp` README](https://github.com/6a8i/fragata-fleet/tree/master/@fragata/mcp), which is the source of truth.
+The exact tool list depends on your XO version, since it is generated at startup. For the complete, current reference (tool arguments, deny list, all environment variables), see the [`@fragata/mcp` README](https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/mcp), which is the source of truth.
 
 **Example questions:**
 
@@ -283,5 +283,5 @@ The fragata-server administrator has set `[mcp] enabled = false` in the server c
 :::
 
 :::note Unable to verify MCP status (HTTP 404)
-Your Fragata Fleet is older than **6.5**. Upgrade XO to 6.5 or later to use the MCP server, see [Prerequisites](#prerequisites).
+Your Fragata is older than **6.5**. Upgrade XO to 6.5 or later to use the MCP server, see [Prerequisites](#prerequisites).
 :::

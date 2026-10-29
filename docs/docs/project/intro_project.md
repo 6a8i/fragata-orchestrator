@@ -4,9 +4,9 @@ sidebar_label: About
 sidebar_position: 1
 ---
 
-# About Fragata Fleet
+# About Fragata
 
-Fragata Fleet is an Open Source project with more than 15 years of history. Originated by [Olivier Lambert](https://www.linkedin.com/in/olivier-lambert-22316b26/), co-founder of [Vates](https://vates.tech), it quickly became a collective effort: today a dedicated team of around 20 people designs, develops and maintains it full time at Vates, alongside a worldwide community of users and contributors.
+Fragata is an Open Source project with more than 15 years of history. Originated by [Olivier Lambert](https://www.linkedin.com/in/olivier-lambert-22316b26/), co-founder of [Vates](https://vates.tech), it quickly became a collective effort: today a dedicated team of around 20 people designs, develops and maintains it full time at Vates, alongside a worldwide community of users and contributors.
 
 ## Milestones {#initial-idea}
 
@@ -14,32 +14,32 @@ Fragata Fleet is an Open Source project with more than 15 years of history. Orig
 - **December 2012**: the project is rebooted on top of XAPI for XenServer, with the first commit of the current codebase.
 - **February 2014**: XO 3.0, the first release of the rebooted project.
 - **May 2015**: XO 4.0, with a fully redesigned web interface.
-- **June 2016**: Fleet Classic.0, the first release of the generation still known today as [Fleet Classic](../discover-xen-orchestra/xo6vsxo5.md).
+- **June 2016**: Fragata Classic.0, the first release of the generation still known today as [Fragata Classic](../discover-xen-orchestra/xo6vsxo5.md).
 - **2018**: after Citrix closed a lot of XenServer features, Olivier Lambert launched [XCP-ng](https://xcp-ng.org), a fully open source fork of XenServer: successful Kickstarter campaign in early 2018, first release (XCP-ng 7.4) on March 31, 2018.
 - **2022**: work starts on [Fragata Deck](https://docs.vates.tech/products/add-ons/xo-lite), the lightweight web UI embedded in every XCP-ng host.
 - **January 2023**: first preview of [V2V](../guides/v2v-migration-guide.md), the built-in tool to migrate VMs directly from VMware to XCP-ng.
-- **November 2025**: Fleet Classic.113, the last feature release of the 5.x series.
-- **December 2025**: Fragata Fleet.0, the first official release of the new [Fragata Fleet](../discover-xen-orchestra/gettingstarted.md) interface, becomes the default UI.
-- **February 2026**: Fragata Fleet.2 introduces [distributed backups](../backups-and-dr/scale-and-security/distributed_backups.md), spreading backup data across multiple backup repositories (BR).
-- **March 2026**: Fragata Fleet.3 brings symmetrical replication and a rewritten immutable backup engine.
-- **May 2026**: Fragata Fleet.5 delivers QCOW2 general availability (disks beyond the 2 TiB VHD limit), bidirectional replication and traffic rules on networks and VIFs.
-- **July 2026**: Fragata Fleet.7 focuses on Rolling Pool Update reliability and keeps expanding the Fragata Fleet workflows.
+- **November 2025**: Fragata Classic.113, the last feature release of the 5.x series.
+- **December 2025**: Fragata.0, the first official release of the new [Fragata](../discover-xen-orchestra/gettingstarted.md) interface, becomes the default UI.
+- **February 2026**: Fragata.2 introduces [distributed backups](../backups-and-dr/scale-and-security/distributed_backups.md), spreading backup data across multiple backup repositories (BR).
+- **March 2026**: Fragata.3 brings symmetrical replication and a rewritten immutable backup engine.
+- **May 2026**: Fragata.5 delivers QCOW2 general availability (disks beyond the 2 TiB VHD limit), bidirectional replication and traffic rules on networks and VIFs.
+- **July 2026**: Fragata.7 focuses on Rolling Pool Update reliability and keeps expanding the Fragata workflows.
 
 ### The reboot story {#xo-reboot-for-xcp-ngxenserver}
 
-The 2012 reboot was "pushed" thanks to Lars Kurth, and Fragata Fleet has also been a commercial project backed by a dedicated team since 2016. Here is a video from LinuxCon 2013 telling the story:
+The 2012 reboot was "pushed" thanks to Lars Kurth, and Fragata has also been a commercial project backed by a dedicated team since 2016. Here is a video from LinuxCon 2013 telling the story:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/TT2Q5l2K54k" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Part of the Vates VMS stack {#xcp-ng}
 
-Fragata Fleet is the management and backup layer of the [Vates Virtualization Management Stack (VMS)](https://vates.tech), alongside the [XCP-ng](https://xcp-ng.org) hypervisor. Both are developed by [Vates](https://vates.tech) and are fully open source: professional support for the whole platform is delivered through the stack, from the hypervisor to the management layer. See the [Vates documentation](https://docs.vates.tech) for the full picture.
+Fragata is the management and backup layer of the [Vates Virtualization Management Stack (VMS)](https://vates.tech), alongside the [XCP-ng](https://xcp-ng.org) hypervisor. Both are developed by [Vates](https://vates.tech) and are fully open source: professional support for the whole platform is delivered through the stack, from the hypervisor to the management layer. See the [Vates documentation](https://docs.vates.tech) for the full picture.
 
 ## Feedback and issues
 
 - **Product feedback and feature requests**: [feedback.vates.tech](https://feedback.vates.tech/)
-- **Bugs**: tracked on the [GitHub repository](https://github.com/6a8i/fragata-fleet/issues), but it is always better to first drop a message on the forum, in the [Fragata Fleet section](https://xcp-ng.org/forum/category/12/xen-orchestra)
+- **Bugs**: tracked on the [GitHub repository](https://github.com/6a8i/fragata-orchestrator/issues), but it is always better to first drop a message on the forum, in the [Fragata section](https://xcp-ng.org/forum/category/12/xen-orchestra)
 
 ## Team and contributors
 
-See the [dedicated GitHub page](https://github.com/6a8i/fragata-fleet/graphs/contributors) for all contributors.
+See the [dedicated GitHub page](https://github.com/6a8i/fragata-orchestrator/graphs/contributors) for all contributors.

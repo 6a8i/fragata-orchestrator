@@ -6,7 +6,7 @@ export function registerCheckConnection(server: McpServer, getClient: () => XoCl
     'check_connection',
     {
       title: 'Check Connection',
-      description: 'Test the connection to the Fragata Fleet server. Use this to validate your setup.',
+      description: 'Test the connection to the Fragata server. Use this to validate your setup.',
       inputSchema: {},
     },
     async () => {

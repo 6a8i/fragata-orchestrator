@@ -441,7 +441,7 @@ const methods = {
     }
 
     // XCP-ng hosts need to be updated one at a time starting with the pool master
-    // https://github.com/6a8i/fragata-fleet/issues/4468
+    // https://github.com/6a8i/fragata-orchestrator/issues/4468
     hosts = hosts.sort(({ $ref }) => ($ref === this.pool.master ? -1 : 1))
     for (const host of hosts) {
       // With throw in case of error with XCP-ng>=8.2.1

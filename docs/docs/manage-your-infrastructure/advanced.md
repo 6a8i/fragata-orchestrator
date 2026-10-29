@@ -6,7 +6,7 @@ sidebar_position: 4
 
 <InterfaceNote />
 
-This section is dedicated to all other Fragata Fleet features.
+This section is dedicated to all other Fragata features.
 
 ## Live Telemetry
 
@@ -48,9 +48,9 @@ Firewall:
 
 ### Disk Health Monitoring
 
-Fragata Fleet makes it easy to monitor disk health using a XAPI plugin for XCP-ng that leverages `smartctl`. You can check the status of your disks directly in the interface.
+Fragata makes it easy to monitor disk health using a XAPI plugin for XCP-ng that leverages `smartctl`. You can check the status of your disks directly in the interface.
 
-- **Healthy Disks:** If all disks are in good condition, Fragata Fleet shows: **All disks are healthy ✅**.
+- **Healthy Disks:** If all disks are in good condition, Fragata shows: **All disks are healthy ✅**.
 - **Unhealthy Disks:** If any issues are detected, a warning icon appears, indicating how many disks are affected:
 
 <UiDetail src="/img/disk-health-warning.png" alt="A host with disks reporting SMART issues" width={480} />
@@ -65,7 +65,7 @@ We need your feedback on this feature!
 
 The plugin "web-hooks" needs to be installed and loaded for this feature to work.
 
-You can trigger an HTTP POST request to a URL when a Fragata Fleet API method is called or when a backup job runs.
+You can trigger an HTTP POST request to a URL when a Fragata API method is called or when a backup job runs.
 
 - Go to Settings > Plugins > Web hooks
 - Add new hooks
@@ -256,9 +256,9 @@ When the power outage is over, all you need to do is:
 
 ## Terraform provider
 
-Terraform is a cloud/platform agnostic tool for building, changing, and versioning infrastructure. Terraform can manage existing and popular service providers as well as custom in-house solutions (like Fragata Fleet). It can manage resources through their entire lifecycle or even manage infrastructure it didn't initially create.
+Terraform is a cloud/platform agnostic tool for building, changing, and versioning infrastructure. Terraform can manage existing and popular service providers as well as custom in-house solutions (like Fragata). It can manage resources through their entire lifecycle or even manage infrastructure it didn't initially create.
 
-We sponsored a developer to build a [Fragata Fleet provider for Terraform](https://registry.terraform.io/providers/vatesfr/xenorchestra/latest), so you can use it as a central point for your whole virtualized infrastructure. The source code is [available on GitHub](https://github.com/vatesfr/terraform-provider-xenorchestra/), and contributions are welcome!
+We sponsored a developer to build a [Fragata provider for Terraform](https://registry.terraform.io/providers/vatesfr/xenorchestra/latest), so you can use it as a central point for your whole virtualized infrastructure. The source code is [available on GitHub](https://github.com/vatesfr/terraform-provider-xenorchestra/), and contributions are welcome!
 
 :::tip
 Don't miss [our blog post series about it](https://xen-orchestra.com/blog/author/ddelnano/), written by Dom Del Nano, the original developer of this provider!
@@ -352,9 +352,9 @@ For testing purposes, you can create an API token bound to a Netbox superuser ac
 In Netbox 2.x, custom fields can be created from the Admin panel > Custom fields > Add custom field.
 :::
 
-### In Fragata Fleet
+### In Fragata
 
-- Go to Fragata Fleet > Settings > Plugins > Netbox and fill out the configuration:
+- Go to Fragata > Settings > Plugins > Netbox and fill out the configuration:
   - Endpoint: the URL of your Netbox instance (e.g.: `https://netbox.company.net`)
   - Unauthorized certificate: only for HTTPS, enable this option if your Netbox instance uses a self-signed SSL certificate
   - Token: the token you generated earlier
@@ -372,7 +372,7 @@ If you get a `403 Forbidden` error when testing the plugin, make sure you correc
 
 ### What are recipes?
 
-In Fragata Fleet, recipes are ready-to-use automation templates that make it easy to deploy complex infrastructures. You don’t need to configure each virtual machine manually.
+In Fragata, recipes are ready-to-use automation templates that make it easy to deploy complex infrastructures. You don’t need to configure each virtual machine manually.
 
 With just a few clicks, you can launch a complete multi-VM environment, where all nodes are automatically set up and connected.
 
@@ -388,7 +388,7 @@ Recipes are currently available for:
 For more information on the integration between Vates and EasyVirt, refer to the dedicated page on the [Vates VMS documentation](https://docs.vates.tech/compatible-solutions/monitoring-optimization#dc-scope-and-dc-netscope-easyvirt), or our [dedicated blog post](https://vates.tech/blog/expanding-the-vates-ecosystem-with-easyvirt/).
 :::
 
-![List of recipes available in Fleet Classic. Includes Kubernetes and EasyVirt solutions.](../../static/img/xo5/k8s-easyvirt-recipes.png)
+![List of recipes available in Fragata Classic. Includes Kubernetes and EasyVirt solutions.](../../static/img/xo5/k8s-easyvirt-recipes.png)
 
 Each recipe guides you through the deployment process and automatically creates and configures the required infrastructure:
 
@@ -409,13 +409,13 @@ The OpenMetrics plugin exposes a `/metrics` endpoint that Prometheus can scrape 
 
 ### Requirements
 
-- Fragata Fleet with Premium license
+- Fragata with Premium license
 - Prometheus server (or compatible: Victoria Metrics, Mimir, etc.)
 - (Optional) Grafana for visualization
 
 ### Plugin Configuration
 
-1. Go to **Settings → Plugins** in Fragata Fleet.
+1. Go to **Settings → Plugins** in Fragata.
 2. Find and enable the **OpenMetrics** plugin.
 3. Configure the following options:
 
@@ -523,7 +523,7 @@ Infrastructure metrics are prefixed with `xcp_` and XO management plane metrics 
 
 #### Power Consumption Metrics
 
-XCP-ng/XenServer only measures power draw at the **host** level, through the server's BMC (IPMI/DCMI). Fragata Fleet uses it to expose two metrics:
+XCP-ng/XenServer only measures power draw at the **host** level, through the server's BMC (IPMI/DCMI). Fragata uses it to expose two metrics:
 
 - **`xcp_host_power_consumption_watts`**: the host's measured power. When the host has an IPMI device, the value is read through the `ipmitool.py` XAPI plugin and carries a `source="ipmi"` label. In that case it replaces the RRD `DCMI-power-reading` series, so each host exposes a single power value. Hosts without IPMI keep the RRD DCMI value, if any. The IPMI reading is cached and refreshed every 60 s.
 - **`xcp_vm_power_consumption_watts`**: an **estimate** of each running VM's power consumption. Each host's measured power is split among the VMs running on it, in proportion to their CPU load:
@@ -1120,7 +1120,7 @@ curl http://your-xoa-ip/openmetrics/health
 
 **No metrics returned:**
 
-- Verify pools are connected in Fragata Fleet
+- Verify pools are connected in Fragata
 - Check fragata-server logs: `DEBUG=xo:fragata-server-openmetrics* yarn start`
 - Ensure the license includes the OpenMetrics feature
 

@@ -106,7 +106,7 @@ describe('the priority of a rule', () => {
     }
   })
 
-  // Fleet Classic and Fragata Fleet send none yet
+  // Fragata Classic and Fragata send none yet
   it('is optional with the XAPI plugin', async () => {
     const controller = createController()
     controller._addNetworkRule = noop

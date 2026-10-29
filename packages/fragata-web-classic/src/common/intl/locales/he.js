@@ -206,7 +206,7 @@ export default {
   // Original text: "Fetching data…"
   homeFetchingData: 'מקבל נתונים, נא להמתין…',
 
-  // Original text: "Welcome on Fragata Fleet!"
+  // Original text: "Welcome on Fragata!"
   homeWelcome: 'ברוכים הבאים',
 
   // Original text: "Add your XCP-ng hosts or pools"
@@ -2714,7 +2714,7 @@ export default {
   // Original text: 'No host selected to be added'
   addHostNoHostMessage: undefined,
 
-  // Original text: 'Fragata Fleet'
+  // Original text: 'Fragata'
   xenOrchestra: undefined,
 
   // Original text: 'No pro support provided!'
@@ -2885,7 +2885,7 @@ export default {
   // Original text: 'Your XOA has successfully upgraded, and your browser must reload the application. Do you want to reload now ?'
   promptUpgradeReloadMessage: undefined,
 
-  // Original text: 'Fragata Fleet from the sources'
+  // Original text: 'Fragata from the sources'
   disclaimerTitle: undefined,
 
   // Original text: "You are using XO from the sources! That's great for a personal/non-profit usage."

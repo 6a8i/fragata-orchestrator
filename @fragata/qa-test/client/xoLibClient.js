@@ -6,14 +6,14 @@ const log = createLogger('ws')
 const XoConnection = Xo.default
 
 /**
- * Creates and authenticates a WebSocket connection to Fragata Fleet using fragata-lib.
+ * Creates and authenticates a WebSocket connection to Fragata using fragata-lib.
  *
- * This function establishes a persistent WebSocket connection to the Fragata Fleet server
- * and handles authentication. The connection uses Fragata Fleet's native JSON-RPC protocol
+ * This function establishes a persistent WebSocket connection to the Fragata server
+ * and handles authentication. The connection uses Fragata's native JSON-RPC protocol
  * over WebSocket for efficient real-time communication.
  *
  * @param {Object} config - Connection configuration object
- * @param {string} config.xoUrl - Fragata Fleet server URL (e.g., 'https://xo.example.com' or 'wss://xo.example.com')
+ * @param {string} config.xoUrl - Fragata server URL (e.g., 'https://xo.example.com' or 'wss://xo.example.com')
  * @param {string} config.username - Username for authentication
  * @param {string} config.password - Password for authentication
  * @param {boolean} [config.allowUnauthorized=false] - Allow unauthorized SSL certificates (optional, use with caution)
@@ -38,7 +38,7 @@ export async function xoConnection(config) {
     // Authenticate with credentials
     await xo.signIn({ username, password })
 
-    log.debug('Successfully connected to Fragata Fleet', { url: xoUrl })
+    log.debug('Successfully connected to Fragata', { url: xoUrl })
 
     return xo
   } catch (error) {

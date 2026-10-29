@@ -1,10 +1,10 @@
-# Fragata Fleet Web [![Chat with us](https://storage.crisp.im/plugins/images/936925df-f37b-4ba8-bab0-70cd2edcb0be/badge.svg)](https://go.crisp.im/chat/embed/?website_id=-JzqzzwddSV7bKGtEyAQ) [![Build Status](https://travis-ci.org/vatesfr/xen-orchestra.png?branch=master)](https://travis-ci.org/vatesfr/xen-orchestra)
+# Fragata Web [![Chat with us](https://storage.crisp.im/plugins/images/936925df-f37b-4ba8-bab0-70cd2edcb0be/badge.svg)](https://go.crisp.im/chat/embed/?website_id=-JzqzzwddSV7bKGtEyAQ) [![Build Status](https://travis-ci.org/vatesfr/xen-orchestra.png?branch=master)](https://travis-ci.org/vatesfr/xen-orchestra)
 
 ![](http://i.imgur.com/tRffA5y.png)
 
-XO-Web is part of [Fragata Fleet](https://github.com/6a8i/fragata-fleet), a web interface for XenServer or XAPI enabled hosts.
+XO-Web is part of [Fragata](https://github.com/6a8i/fragata-orchestrator), a web interface for XenServer or XAPI enabled hosts.
 
-It is a web client for [XO-Server](https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-server).
+It is a web client for [XO-Server](https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server).
 
 ---
 
@@ -53,7 +53,7 @@ if (process.env.XOA_PLAN > 3) {
 
 ## How to report a bug?
 
-Please consider using the [bugtracker](https://github.com/6a8i/fragata-fleet/issues).
+Please consider using the [bugtracker](https://github.com/6a8i/fragata-orchestrator/issues).
 
 ## Process for new release
 

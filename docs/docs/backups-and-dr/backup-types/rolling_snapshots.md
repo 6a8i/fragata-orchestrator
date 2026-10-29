@@ -12,7 +12,7 @@ Because everything stays on the SR, snapshots are created in seconds and reverti
 
 ## How it works
 
-Every time the schedule fires, Fragata Fleet:
+Every time the schedule fires, Fragata:
 
 1. Takes a snapshot of each VM in the job.
 2. Counts the snapshots previously created by this job.
@@ -80,7 +80,7 @@ To roll back, open the VM's **Snapshots** tab and revert to the restore point yo
 On thick-provisioned storage (LVM-based SRs: iSCSI, HBA, local LVM), every snapshot reserves the full virtual size of the disk on the SR. Seven rolling snapshots of a 200 GiB disk can claim more than 1.4 TiB. Avoid rolling snapshots for large VMs on these SRs, or keep the retention very low. Thin-provisioned storage (local ext, NFS, XOSTOR) only consumes space for the actual changes.
 :::
 
-- **Coalesce load**: deleting a snapshot triggers coalesce work on the SR to merge the disk chain back together. If snapshots rotate faster than the SR can coalesce (very frequent schedules on slow storage), chains pile up and Fragata Fleet will skip the VM to protect it. See [VDI chain protection](..//backup_troubleshooting.md#vdi-chain-protection) for details.
+- **Coalesce load**: deleting a snapshot triggers coalesce work on the SR to merge the disk chain back together. If snapshots rotate faster than the SR can coalesce (very frequent schedules on slow storage), chains pile up and Fragata will skip the VM to protect it. See [VDI chain protection](..//backup_troubleshooting.md#vdi-chain-protection) for details.
 - **Reverting is destructive**: rolling a VM back to a snapshot discards everything that happened after that snapshot was taken. If you are not sure you want to lose the current state, snapshot it first, then revert.
 
 ## When to use it

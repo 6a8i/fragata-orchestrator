@@ -284,7 +284,7 @@ class XoaUpdater extends EventEmitter {
     try {
       const token = await this._call('isRegistered')
       if (token.registrationToken === undefined) {
-        throw new NotRegistered('Your Fragata Fleet Appliance is not registered')
+        throw new NotRegistered('Your Fragata Appliance is not registered')
       } else {
         this.registerState = 'registered'
         this.token = token

@@ -4,12 +4,12 @@
   "version": "2.0.0",
   "license": "AGPL-3.0-or-later",
   "description": "Parse and format XO remote URLs",
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-remote-parser",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-remote-parser",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-remote-parser",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "author": {
     "name": "Vates SAS",

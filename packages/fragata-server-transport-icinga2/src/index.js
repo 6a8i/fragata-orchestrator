@@ -101,7 +101,7 @@ class XoServerIcinga2 {
 
   test() {
     return this._sendIcinga2Status({
-      message: 'The server-icinga2 plugin for Fragata Fleet server seems to be working fine, nicely done :)',
+      message: 'The server-icinga2 plugin for Fragata server seems to be working fine, nicely done :)',
       status: 'OK',
     })
   }

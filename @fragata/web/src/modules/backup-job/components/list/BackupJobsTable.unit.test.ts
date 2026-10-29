@@ -54,7 +54,7 @@ function findCell(wrapper: VueWrapper, headerLabel: string) {
 }
 
 describe('backup job', () => {
-  it('links the backup job to the Fleet Classic backup overview, with the backup job icon', () => {
+  it('links the backup job to the Fragata Classic backup overview, with the backup job icon', () => {
     const link = findCell(mountTable([createVmBackupJob({ name: 'Nightly backup' })]), t('backup-job')).getComponent(
       UiLink
     )

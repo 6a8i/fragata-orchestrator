@@ -1,12 +1,12 @@
 {
   "name": "fragata-server-sdn-controller",
   "description": "Creates pool-wide and cross-pool private networks",
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-server-sdn-controller",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server-sdn-controller",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-server-sdn-controller",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "main": "./dist",
   "scripts": {

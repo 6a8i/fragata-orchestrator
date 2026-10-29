@@ -43,12 +43,12 @@ require('exec-promise')(() =>
     }
 
     pkg.name = name
-    pkg.homepage = `https://github.com/6a8i/fragata-fleet/tree/master/${relativeDir}`
-    pkg.bugs = `https://github.com/6a8i/fragata-fleet/issues`
+    pkg.homepage = `https://github.com/6a8i/fragata-orchestrator/tree/master/${relativeDir}`
+    pkg.bugs = `https://github.com/6a8i/fragata-orchestrator/issues`
     pkg.repository = {
       directory: relativeDir,
       type: 'git',
-      url: 'https://github.com/6a8i/fragata-fleet.git',
+      url: 'https://github.com/6a8i/fragata-orchestrator.git',
     }
 
     if (!('author' in pkg)) {

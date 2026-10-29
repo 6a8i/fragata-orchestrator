@@ -1,6 +1,6 @@
 import { SUPPORTED_VDI_EXPORT_FORMAT } from '@fragata/types'
 
-export const XOA_NAME = 'Fragata Fleet Appliance'
+export const XOA_NAME = 'Fragata Appliance'
 export const IS_XOA_BUILD = import.meta.env.VITE_XOA_BUILD === 'true'
 
 export const XO_LINKS = {

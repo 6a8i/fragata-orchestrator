@@ -65,7 +65,7 @@ class XoServerTransportSlack {
     return this._sendSlack({
       message: `Hi there,
 
-The transport-slack plugin for Fragata Fleet server seems to be working fine, nicely done :)`,
+The transport-slack plugin for Fragata server seems to be working fine, nicely done :)`,
     })
   }
 

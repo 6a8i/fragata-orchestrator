@@ -67,7 +67,7 @@ function findValues(wrapper: ReturnType<typeof mountInfosCard>) {
   return wrapper.findAll('.vts-card-row-key-value').map(row => row.get('.value').text())
 }
 
-it('titles the card with the backup job, linked to the Fleet Classic backup overview', () => {
+it('titles the card with the backup job, linked to the Fragata Classic backup overview', () => {
   const backupJob = createVmBackupJob({ name: 'Nightly backup' })
   const title = mountInfosCard(backupJob).getComponent(UiPanelCardTitle)
 

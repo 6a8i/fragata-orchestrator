@@ -20,7 +20,7 @@ export function validateEnv(): EnvConfig {
     throw new Error(
       'Missing required environment variable: XO_URL\n\n' +
         'Please set:\n' +
-        '  XO_URL - Fragata Fleet server URL (e.g., http://xo.local:9000)'
+        '  XO_URL - Fragata server URL (e.g., http://xo.local:9000)'
     )
   }
 

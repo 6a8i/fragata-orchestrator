@@ -26,7 +26,7 @@ export type ParsedFileBackupRepositoryUrl = BackupRepositoryUrlOptions & {
 }
 
 // invalidUrl is set when the path could not be fully parsed and part of it was dropped.
-// Fleet Classic uses it to offer rewriting the stored URL.
+// Fragata Classic uses it to offer rewriting the stored URL.
 export type ParsedNfsBackupRepositoryUrl = BackupRepositoryUrlOptions & {
   type: 'nfs'
   host: string

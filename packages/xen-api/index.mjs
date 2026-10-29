@@ -551,7 +551,7 @@ export class Xapi extends EventEmitter {
       return this.call(`${type}.remove_from_${field}`, ref, entry).then(noop)
     }
 
-    // `cores-per-socket` is always present in `platform`, see https://github.com/6a8i/fragata-fleet/pull/9136
+    // `cores-per-socket` is always present in `platform`, see https://github.com/6a8i/fragata-orchestrator/pull/9136
     // so, updating `platform` is the only way to change the `cores-per-socket` value
     // this is a workaround, waiting for the XAPI to fix the `cores-per-socket: undefined` bug
     if (type === 'VM' && field === 'platform' && entry === 'cores-per-socket') {

@@ -6,7 +6,7 @@ import { assertNonEmptyString } from '../../utils/index.js'
 const log = createLogger('xo:qa-test:vdi')
 
 /**
- * Specialized request handler for Fragata Fleet VDI (Virtual Disk Image) operations.
+ * Specialized request handler for Fragata VDI (Virtual Disk Image) operations.
  *
  * Provides VDI export/import operations with REST API streaming for efficient
  * handling of large disk files. Supports VHD format export and NBD protocol options.

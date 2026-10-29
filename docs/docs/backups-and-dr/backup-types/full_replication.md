@@ -5,7 +5,7 @@ sidebar_label: Full replication (DR)
 # Full replication
 
 :::note
-**Full replication** is the current name of the job type formerly called **Disaster Recovery (DR)**. Both names describe the same thing, and you will still meet the old one: Fragata Fleet labels this mode **Full replication**, while the Fleet Classic interface still labels it **Disaster Recovery**, and replicas keep a `Disaster Recovery` tag.
+**Full replication** is the current name of the job type formerly called **Disaster Recovery (DR)**. Both names describe the same thing, and you will still meet the old one: Fragata labels this mode **Full replication**, while the Fragata Classic interface still labels it **Disaster Recovery**, and replicas keep a `Disaster Recovery` tag.
 
 Don't confuse it with disaster recovery in the general sense (the practice of surviving the loss of a site), which is used throughout this page and which both replication modes serve.
 :::
@@ -14,10 +14,10 @@ Full replication keeps a complete, ready-to-boot copy of your VMs on another sto
 
 If the production side is lost (hosts, storage or the entire site), you start the replicas on the destination and you are back in business.
 
-<Schema label="Full replication: a ready-to-boot copy of your production VMs, refreshed at each run" legend={[["#56c288", "Production VM"], ["#e0a94a", "Standby replica"], ["#6aabf0", "Fragata Fleet"], ["#8e83fe", "XCP-ng pool"]]} maxWidth="640px">
-<svg viewBox="0 0 640 270" role="img" aria-label="Fragata Fleet orchestrates a full replication job: the production VM is streamed to a DR pool where dated standby replicas are kept, with start blocked">
+<Schema label="Full replication: a ready-to-boot copy of your production VMs, refreshed at each run" legend={[["#56c288", "Production VM"], ["#e0a94a", "Standby replica"], ["#6aabf0", "Fragata"], ["#8e83fe", "XCP-ng pool"]]} maxWidth="640px">
+<svg viewBox="0 0 640 270" role="img" aria-label="Fragata orchestrates a full replication job: the production VM is streamed to a DR pool where dated standby replicas are kept, with start blocked">
   <rect x="250" y="12" width="140" height="34" rx="6" fill="rgba(255,255,255,0.04)" stroke="#6aabf0" strokeWidth="1.5" />
-  <text x="320" y="34" fill="#6aabf0" fontSize="13" textAnchor="middle" fontWeight="600">Fragata Fleet</text>
+  <text x="320" y="34" fill="#6aabf0" fontSize="13" textAnchor="middle" fontWeight="600">Fragata</text>
 
   <line x1="285" y1="46" x2="150" y2="88" stroke="#6aabf0" strokeWidth="1" strokeDasharray="3 4" opacity="0.7" />
   <line x1="355" y1="46" x2="490" y2="88" stroke="#6aabf0" strokeWidth="1" strokeDasharray="3 4" opacity="0.7" />
@@ -62,7 +62,7 @@ You don't have to test replicas by hand: the backup health check feature can aut
 
 ## Schedule a full replication job {#schedule-a-dr-task}
 
-Planning a full replication job is very similar to planning a backup or a snapshot: create a new backup job, select the **Full replication** mode (still labelled **Disaster Recovery** in the Fleet Classic interface), pick the VMs, set a schedule, and choose the destination storage repository (any SR that XO can reach, on any connected pool).
+Planning a full replication job is very similar to planning a backup or a snapshot: create a new backup job, select the **Full replication** mode (still labelled **Disaster Recovery** in the Fragata Classic interface), pick the VMs, set a schedule, and choose the destination storage repository (any SR that XO can reach, on any connected pool).
 
 Your replicated VMs will be visible "on the other side" as soon as the first run is done, named after the original VM, the job and the run date, for example: `web01 - DR job - (20260801T040000Z)`.
 

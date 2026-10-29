@@ -289,8 +289,8 @@ export default {
   // Original text: 'Fetching data…'
   homeFetchingData: 'واکشی داده…',
 
-  // Original text: 'Welcome to Fragata Fleet!'
-  homeWelcome: 'به Fragata Fleet خوش آمدید!',
+  // Original text: 'Welcome to Fragata!'
+  homeWelcome: 'به Fragata خوش آمدید!',
 
   // Original text: 'Add your XenServer hosts or pools'
   homeWelcomeText: 'میزبان ها یا استخرهای XenServer خود را اضافه کنید',
@@ -4092,14 +4092,14 @@ export default {
   // Original text: 'No host selected to be added'
   addHostNoHostMessage: 'هیچ میزبانی برای اضافه شدن انتخاب نشده است',
 
-  // Original text: 'Fragata Fleet'
-  xenOrchestra: 'Fragata Fleet',
+  // Original text: 'Fragata'
+  xenOrchestra: 'Fragata',
 
-  // Original text: 'Fragata Fleet server'
-  xenOrchestraServer: 'سرور Fragata Fleet',
+  // Original text: 'Fragata server'
+  xenOrchestraServer: 'سرور Fragata',
 
-  // Original text: 'Fragata Fleet web client'
-  xenOrchestraWeb: 'سرویس گیرنده وب Fragata Fleet',
+  // Original text: 'Fragata web client'
+  xenOrchestraWeb: 'سرویس گیرنده وب Fragata',
 
   // Original text: 'No pro support provided!'
   noProSupport: 'هیچ پشتیبانی حرفه ای ارائه نمی شود!',
@@ -4287,8 +4287,8 @@ export default {
   upgradeWarningMessage:
     'شما چند کار پشتیبان گیری در حال انجام دارید. اگر همین الان ارتقا دهید، این کارها قطع می شود! آیا مطمئن هستید که میخواهید ادامه دهید؟',
 
-  // Original text: 'Fragata Fleet from the sources'
-  disclaimerTitle: 'Fragata Fleet از منابع',
+  // Original text: 'Fragata from the sources'
+  disclaimerTitle: 'Fragata از منابع',
 
   // Original text: "You are using XO from the sources! That's great for a personal/non-profit usage."
   disclaimerText1: 'شما از XO از منابع استفاده می کنید! این برای استفاده شخصی/غیرانتفاعی عالی است.',

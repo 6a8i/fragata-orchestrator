@@ -4,12 +4,12 @@
   "version": "1.0.0",
   "license": "ISC",
   "description": "Emit an event for async listeners to settle",
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/emit-async",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/emit-async",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/emit-async",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "author": {
     "name": "Vates SAS",

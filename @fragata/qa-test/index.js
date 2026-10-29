@@ -22,7 +22,7 @@ async function main() {
   const dispatchClient = new DispatchClient()
 
   try {
-    log.debug('Testing Fragata Fleet connections')
+    log.debug('Testing Fragata connections')
     await dispatchClient.initialize()
 
     log.debug('Testing WebSocket connection')

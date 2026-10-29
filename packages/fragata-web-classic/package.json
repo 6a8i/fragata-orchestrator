@@ -10,12 +10,12 @@
     "xen-orchestra",
     "web"
   ],
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-web-classic",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-web-classic",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-web-classic",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "author": {
     "name": "Vates SAS",

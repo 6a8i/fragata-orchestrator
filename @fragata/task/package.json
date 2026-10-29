@@ -1,12 +1,12 @@
 {
   "private": false,
   "name": "@fragata/task",
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/task",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/task",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/task",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "author": {
     "name": "Vates SAS",

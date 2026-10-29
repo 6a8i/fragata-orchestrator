@@ -562,7 +562,7 @@ export default class Menu extends Component {
             <span>
               <a className={styles.brand} href='#'>
                 <span className={styles.hiddenUncollapsed}>XO</span>
-                <span className={styles.hiddenCollapsed}>Fragata Fleet</span>
+                <span className={styles.hiddenCollapsed}>Fragata</span>
               </a>
             </span>
           </li>

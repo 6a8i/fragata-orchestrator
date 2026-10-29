@@ -97,7 +97,7 @@ The merge is performed on the files stored on the BR: the hosts are not involved
 
 ## Create an incremental backup {#create-delta-backup}
 
-In the Backup view, create a new VM backup job and enable the **Delta Backup** mode: this is the incremental mode (the Fleet Classic interface still uses the historical Delta Backup name for this toggle). Everything else (VM selection, schedules, retention, choice of backup repository) works like a normal backup job.
+In the Backup view, create a new VM backup job and enable the **Delta Backup** mode: this is the incremental mode (the Fragata Classic interface still uses the historical Delta Backup name for this toggle). Everything else (VM selection, schedules, retention, choice of backup repository) works like a normal backup job.
 
 ## Snapshots
 

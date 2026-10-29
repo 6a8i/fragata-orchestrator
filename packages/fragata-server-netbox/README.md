@@ -2,7 +2,7 @@
 
 # fragata-server-netbox
 
-> Synchronizes pools managed by Fragata Fleet with Netbox
+> Synchronizes pools managed by Fragata with Netbox
 
 ## Usage
 
@@ -16,7 +16,7 @@ the code.
 
 You may:
 
-- report any [issue](https://github.com/6a8i/fragata-fleet/issues)
+- report any [issue](https://github.com/6a8i/fragata-orchestrator/issues)
   you've encountered;
 - fork and create a pull request.
 

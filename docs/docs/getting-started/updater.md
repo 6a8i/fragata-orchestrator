@@ -5,7 +5,7 @@ sidebar_position: 6
 
 # Updating XOA
 
-All updates are pushed through the updater, which is the central piece that keeps your XO Appliance running the latest Fragata Fleet code.
+All updates are pushed through the updater, which is the central piece that keeps your XO Appliance running the latest Fragata code.
 
 It also allows you to change your current version into another (Free, Starter, Enterprise or Premium) **without downloading a new XOA**.
 
@@ -13,8 +13,8 @@ It also allows you to change your current version into another (Free, Starter, E
 By design, the updater is only available in XOA. If you are using XO from the sources, [update with `git` and rebuild](install-from-sources.md#updating).
 :::
 
-:::info Updating from Fragata Fleet
-Updates are not managed from the Fragata Fleet interface yet. From Fragata Fleet, click the **Fleet Classic** link in the top-right corner, then open the **XOA → Updates** view: everything below happens there. Your appliance and both interfaces update together.
+:::info Updating from Fragata
+Updates are not managed from the Fragata interface yet. From Fragata, click the **Fragata Classic** link in the top-right corner, then open the **XOA → Updates** view: everything below happens there. Your appliance and both interfaces update together.
 :::
 
 ## Requirements
@@ -53,15 +53,15 @@ However, if you want to start a manual check, you can do it by clicking on the "
 
 ### Release channel
 
-In Fragata Fleet, you can make a choice between two different release channels.
+In Fragata, you can make a choice between two different release channels.
 
 #### Stable ![](https://badgen.net/badge/channel/stable/green)
 
-The stable channel is intended to be a version of Fragata Fleet that is already **one month old** (and therefore will benefit from one month of community feedback and various fixes). This way, users more concerned with the stability of their appliance will have the option to stay on a slightly older (and tested) version of XO (still supported by our pro support).
+The stable channel is intended to be a version of Fragata that is already **one month old** (and therefore will benefit from one month of community feedback and various fixes). This way, users more concerned with the stability of their appliance will have the option to stay on a slightly older (and tested) version of XO (still supported by our pro support).
 
 #### Latest ![](https://badgen.net/badge/channel/latest/yellow)
 
-The latest channel will include all the latest improvements available in Fragata Fleet. The version available in latest has already been QA'd by our team, but issues may still occur once deployed in vastly varying environments, such as our user base has.
+The latest channel will include all the latest improvements available in Fragata. The version available in latest has already been QA'd by our team, but issues may still occur once deployed in vastly varying environments, such as our user base has.
 
 :::tip
 To select the release channel of your choice, go to the XOA > Updates view:
@@ -94,7 +94,7 @@ Please enter your xen-orchestra.com identifiers to register your XOA:
 ? Email: myemail@example.net
 ? Password: *****
 
-ℹ Your Fragata Fleet Appliance has been successfully registered
+ℹ Your Fragata Appliance has been successfully registered
 `}</Terminal>
 
 #### Check for new versions
@@ -141,11 +141,11 @@ If you can't fetch updates, perform a few checks from your XOA:
 
 ## XenServer updates {#xenserver-updates}
 
-Fragata Fleet can install XenServer hotfixes on your pools directly, from a pool's **Patches** view. Since September 2023, XenServer requires authentication to download hotfixes, so XO needs your **XenServer Client ID** credentials to fetch them on your behalf:
+Fragata can install XenServer hotfixes on your pools directly, from a pool's **Patches** view. Since September 2023, XenServer requires authentication to download hotfixes, so XO needs your **XenServer Client ID** credentials to fetch them on your behalf:
 
 1. Make sure your XenServer hosts have [the proper licenses](https://docs.xenserver.com/en-us/xenserver/8/overview-licensing).
 2. Get your Client ID file (`xencenter_client_id.json`), which contains the username and API key XO will use.
-3. In Fragata Fleet, open your **User Settings** page (bottom left-hand corner) and upload the file in the "XenServer Client ID" section:
+3. In Fragata, open your **User Settings** page (bottom left-hand corner) and upload the file in the "XenServer Client ID" section:
 
 <UiDetail src="/img/xoa/xs-client-id-upload.png" alt="Uploading xencenter_client_id.json in your XO user settings" width={520} />
 
@@ -156,5 +156,5 @@ Citrix removed the self-service Client ID download page from its support portal.
 :::
 
 :::tip
-This authentication story only concerns XenServer. XCP-ng updates are plain RPM repositories, fully handled from Fragata Fleet: see the [XCP-ng updates documentation](https://docs.xcp-ng.org/management/updates/).
+This authentication story only concerns XenServer. XCP-ng updates are plain RPM repositories, fully handled from Fragata: see the [XCP-ng updates documentation](https://docs.xcp-ng.org/management/updates/).
 :::

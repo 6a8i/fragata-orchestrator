@@ -1,7 +1,7 @@
 /**
  * Infrastructure Tests - Node.js Native Tests
  *
- * Tests Fragata Fleet connectivity using the native Node.js test runner
+ * Tests Fragata connectivity using the native Node.js test runner
  * This validates the basic infrastructure setup for PR #1
  */
 

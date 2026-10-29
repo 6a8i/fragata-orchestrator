@@ -75,7 +75,7 @@ export function registerSearchDocs(server: McpServer, getClient: () => XoClient)
     {
       title: 'Search XO Documentation',
       description:
-        'Search and retrieve Fragata Fleet documentation. Use this to help users understand XO features, configuration, and best practices.',
+        'Search and retrieve Fragata documentation. Use this to help users understand XO features, configuration, and best practices.',
       inputSchema: {
         topic: z.enum(DOC_TOPICS).describe('Documentation topic to retrieve'),
       },

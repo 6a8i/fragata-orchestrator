@@ -2,7 +2,7 @@
   "name": "fragata-server-netbox",
   "version": "1.14.0",
   "license": "AGPL-3.0-or-later",
-  "description": "Synchronizes pools managed by Fragata Fleet with Netbox",
+  "description": "Synchronizes pools managed by Fragata with Netbox",
   "keywords": [
     "netbox",
     "orchestra",
@@ -12,12 +12,12 @@
     "xen-orchestra",
     "fragata-server"
   ],
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-server-netbox",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server-netbox",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-server-netbox",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "author": {
     "name": "Vates SAS",

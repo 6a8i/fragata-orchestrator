@@ -34,7 +34,7 @@ const COLUMNS = [
     name: _('item'),
     itemRenderer: ({ data }, { pools }) =>
       data.pool === undefined ? (
-        'Fragata Fleet'
+        'Fragata'
       ) : pools[data.pool.uuid] !== undefined ? (
         <Pool id={data.pool.uuid} link newTab />
       ) : (

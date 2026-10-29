@@ -146,7 +146,7 @@ function createOutputStream(path) {
 
 // patch stdout and stderr to stop writing after an EPIPE error
 //
-// See https://github.com/6a8i/fragata-fleet/issues/6680
+// See https://github.com/6a8i/fragata-orchestrator/issues/6680
 ;[process.stdout, process.stderr].forEach(stream => {
   let write = stream.write
   stream.on('error', function onError(error) {

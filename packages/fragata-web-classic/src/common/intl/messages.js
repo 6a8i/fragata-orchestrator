@@ -273,7 +273,7 @@ const messages = {
   userPage: 'User',
   xoa: 'XOA',
   restApiDoc: 'REST API doc',
-  tryXo6: 'Try Fragata Fleet',
+  tryXo6: 'Try Fragata',
   // ----- Support -----
   noSupport: 'No support',
   freeUpgrade: 'Free upgrade!',
@@ -283,7 +283,7 @@ const messages = {
   createSupportTicket: 'Create a support ticket',
   restartXoServer: 'Restart XO Server',
   restartXoServerConfirm:
-    'Restarting XO Server will interrupt any backup job or XO task that is currently running. Fragata Fleet will also be unavailable for a few seconds. Are you sure you want to restart XO Server?',
+    'Restarting XO Server will interrupt any backup job or XO task that is currently running. Fragata will also be unavailable for a few seconds. Are you sure you want to restart XO Server?',
   openTunnel: 'Open tunnel',
   supportCommunity: 'The XOA check and the support tunnel are available in XOA.',
   supportTunnel: 'Support tunnel',
@@ -308,7 +308,7 @@ const messages = {
   backedUpVms: 'Backed up VMs',
   notBackedUpVms: 'Not backed up VMs',
   homeFetchingData: 'Fetching data…',
-  homeWelcome: 'Welcome to Fragata Fleet!',
+  homeWelcome: 'Welcome to Fragata!',
   homeWelcomeText: 'Add your XCP-ng hosts or pools',
   homeConnectServerText: 'Some XCP-ng hosts have been registered but are not connected',
   homeHelp: 'Want some help?',
@@ -2390,7 +2390,7 @@ const messages = {
   failedToFetchLatestMasterCommit: 'Failed to fetch latest master commit',
   noProSupport: 'Professional support missing!',
   productionUse: 'Want to use in production?',
-  getSupport: 'Get pro support with the Fragata Fleet Appliance at {website}',
+  getSupport: 'Get pro support with the Fragata Appliance at {website}',
   bugTracker: 'Bug Tracker',
   bugTrackerText: 'Issues? Report it!',
   community: 'Community',
@@ -2405,7 +2405,7 @@ const messages = {
   xoAccount: 'Access your XO Account',
   openTicket: 'Report a problem',
   openTicketText: 'Problem? Open a ticket!',
-  xoUpToDate: 'Your Fragata Fleet is up to date',
+  xoUpToDate: 'Your Fragata is up to date',
   xoFromSourceNotUpToDate:
     'You are not up to date with master. {nBehind} commit{nBehind, plural, one {} other {s}} behind {nAhead, plural, =0 {} other {and {nAhead, number} commit{nAhead, plural, one {} other {s}} ahead}}',
 
@@ -2465,7 +2465,7 @@ const messages = {
   xoaBuild: 'XOA build:',
 
   // ----- OS Disclaimer -----
-  disclaimerTitle: 'Fragata Fleet from the sources',
+  disclaimerTitle: 'Fragata from the sources',
   disclaimerText1: "You are using XO from the sources! That's great for a personal/non-profit usage.",
   disclaimerText2: "If you are a company, it's better to use it with our appliance + pro support included:",
   disclaimerText3: 'This version is not bundled with any support nor updates. Use it with caution.',
@@ -2798,9 +2798,9 @@ const messages = {
   recipeSearchesExample: 'domain.com,search.org',
   recipeLabelAllowInsecureXoConnection: 'Allow insecure XO connection',
   recipeTooltipAcceptInsecureXoConnection: 'Check if you want to accept self signed certificates',
-  recipeXoFqdn: 'Fragata Fleet FQDN / IP',
+  recipeXoFqdn: 'Fragata FQDN / IP',
   recipeXoFqdnTooltip:
-    'FQDN or IP address of the Fragata Fleet instance reachable by the Kubernetes cluster for the XO CCM',
+    'FQDN or IP address of the Fragata instance reachable by the Kubernetes cluster for the XO CCM',
   recipeUseCustomClusterCIDR: 'Use a custom cluster CIDR',
   recipeClusterPodCIDR: 'Cluster CIDR',
   recipeClusterServiceCIDR: 'Service CIDR',
@@ -2809,10 +2809,10 @@ const messages = {
   vmNameCompleteLabel: 'VM Name',
   easyVirtVmLabel: 'EasyVirt VM',
   easyVirtDescription: 'Creates a DC Scope or a DC NetScope VM with parameters and application inside',
-  xoPassword: 'Fragata Fleet Password',
-  xoUsername: 'Fragata Fleet Username',
+  xoPassword: 'Fragata Password',
+  xoUsername: 'Fragata Username',
   dcNetscopePassword: 'Password for DC Netscope web interface',
-  xoFqdn: 'Fragata Fleet FQDN / IP',
+  xoFqdn: 'Fragata FQDN / IP',
   dcScopeVm: 'DC Scope VM',
   dcNetScopeVm: 'DC NetScope VM',
   recipeEasyVirt: 'EasyVirt VM to deploy',
@@ -2906,9 +2906,9 @@ const messages = {
   premiumLicense: 'Premium license',
   trialLicenseInfo: 'You are currently in a {edition} trial period that will end on {date, date, medium}',
   licenseNearlyExpired:
-    'Your current Fragata Fleet license is about to expire (less than {duration} to {date, date, medium}). Please reach out to your vendor.',
+    'Your current Fragata license is about to expire (less than {duration} to {date, date, medium}). Please reach out to your vendor.',
   licenseExpired:
-    'Your current Fragata Fleet license has expired ({date, date, medium}). Please reach out to your vendor.',
+    'Your current Fragata license has expired ({date, date, medium}). Please reach out to your vendor.',
   proxyMultipleLicenses: 'This proxy has more than 1 license!',
   proxyUnknownVm: 'Unknown proxy VM.',
   xostorProSupportEnabled: 'XOSTOR Pro Support enabled',

@@ -1,13 +1,13 @@
 {
   "private": false,
   "name": "@fragata/disposable",
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/disposable",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/disposable",
   "description": "Utilities for disposables",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/disposable",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "author": {
     "name": "Vates SAS",

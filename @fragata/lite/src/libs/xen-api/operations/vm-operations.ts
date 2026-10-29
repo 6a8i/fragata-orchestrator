@@ -106,7 +106,7 @@ export function createVmOperations(xenApi: XenApi) {
 
     // XAPI may re-add `cores-per-socket` between `remove_from_platform` and `add_to_platform` (e.g. when setting the
     // VCPUs), which fails with `MAP_DUPLICATE_KEY`, so the whole `platform` map is replaced instead, like xen-api does:
-    // https://github.com/6a8i/fragata-fleet/blob/493aa7f15d51f60e34d0f76db2b033ccfc56737b/packages/xen-api/index.mjs#L542-L549
+    // https://github.com/6a8i/fragata-orchestrator/blob/493aa7f15d51f60e34d0f76db2b033ccfc56737b/packages/xen-api/index.mjs#L542-L549
     setCoresPerSocket: async (vmRef: XenApiVm['$ref'], coresPerSocket: number | null) => {
       const platform = await xenApi.getField<XenApiVm['platform']>('VM', vmRef, 'platform')
 

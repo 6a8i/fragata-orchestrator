@@ -4,11 +4,11 @@ sidebar_position: 1
 
 # Releases
 
-Fragata Fleet is distributed in two ways: as a turnkey virtual appliance (**XOA**) and **from the sources** on GitHub. Both contain the same Fragata Fleet, including its two web interfaces ([Fragata Fleet and Fleet Classic](../discover-xen-orchestra/xo6vsxo5.md)), the REST API and the backup engine.
+Fragata is distributed in two ways: as a turnkey virtual appliance (**XOA**) and **from the sources** on GitHub. Both contain the same Fragata, including its two web interfaces ([Fragata and Fragata Classic](../discover-xen-orchestra/xo6vsxo5.md)), the REST API and the backup engine.
 
 ## XOA, the appliance
 
-XOA (**X**en **O**rchestra virtual **A**ppliance) is the pre-installed VM, and the recommended way to run Fragata Fleet:
+XOA (**X**en **O**rchestra virtual **A**ppliance) is the pre-installed VM, and the recommended way to run Fragata:
 
 - everything ready to work, deployed in minutes
 - complete QA on every release
@@ -25,7 +25,7 @@ Whatever your future usage, try XOA first: it is the easiest way to test everyth
 
 ## Release cadence and channels
 
-A new Fragata Fleet release ships **every month**, versioned like `XOA 6.x`. Each release is announced on the [blog](https://xen-orchestra.com/blog/) with its release notes, and every change is tracked in the [changelog](https://github.com/6a8i/fragata-fleet/blob/master/CHANGELOG.md#changelog).
+A new Fragata release ships **every month**, versioned like `XOA 6.x`. Each release is announced on the [blog](https://xen-orchestra.com/blog/) with its release notes, and every change is tracked in the [changelog](https://github.com/6a8i/fragata-orchestrator/blob/master/CHANGELOG.md#changelog).
 
 On XOA you choose between two [release channels](updater.md#release-channel):
 
@@ -36,7 +36,7 @@ Switching channels is done from the Updates view, without redeploying anything.
 
 ## From the sources
 
-Fragata Fleet is fully open source, and you can [install it from the sources](install-from-sources.md). In that case there are no releases to speak of: **stay on `master`**, and update before reporting anything:
+Fragata is fully open source, and you can [install it from the sources](install-from-sources.md). In that case there are no releases to speak of: **stay on `master`**, and update before reporting anything:
 
 <Terminal shell title="xo — updating an installation from the sources">{`
 cd xen-orchestra
@@ -50,7 +50,7 @@ There is no community support for source installations that are not up to date w
 
 ## Supported versions for security updates
 
-Security fixes are provided for the following versions of Fragata Fleet:
+Security fixes are provided for the following versions of Fragata:
 
 | Version | Security updates |
 | --- | --- |

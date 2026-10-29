@@ -5,7 +5,7 @@ import { AbstractRequest } from './abstract.js'
 const log = createLogger('xo:qa-test:backup')
 
 /**
- * Specialized request handler for Fragata Fleet backup operations.
+ * Specialized request handler for Fragata backup operations.
  *
  * Provides comprehensive backup job management with REST API for read operations
  * and WebSocket for creation/execution operations. Handles job lifecycle,
@@ -23,7 +23,7 @@ export class BackupRequest extends AbstractRequest {
   endpoint = 'backup-jobs'
 
   /**
-   * Creates a new backup job in Fragata Fleet.
+   * Creates a new backup job in Fragata.
    *
    * Backup job creation is only available via WebSocket API.
    * REST API doesn't support backup job creation operations.
@@ -242,7 +242,7 @@ export class BackupRequest extends AbstractRequest {
   // ===========================================================================
 
   /**
-   * Creates a new mirror backup job in Fragata Fleet.
+   * Creates a new mirror backup job in Fragata.
    *
    * Mirror backup replicates backups from one remote to another.
    * Uses `mirrorBackup.createJob` WebSocket API.
@@ -369,7 +369,7 @@ export class BackupRequest extends AbstractRequest {
   // ===========================================================================
 
   /**
-   * Creates a new metadata backup job in Fragata Fleet.
+   * Creates a new metadata backup job in Fragata.
    *
    * Accepts a caller-friendly shape:
    *   { name, pools: { [poolId]: true }, remotes: { [remoteId]: true },

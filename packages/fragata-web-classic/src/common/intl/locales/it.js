@@ -506,8 +506,8 @@ export default {
   // Original text: 'Fetching data…'
   homeFetchingData: 'Recupero dei dati…',
 
-  // Original text: 'Welcome to Fragata Fleet!'
-  homeWelcome: 'Benvenuti in Fragata Fleet!',
+  // Original text: 'Welcome to Fragata!'
+  homeWelcome: 'Benvenuti in Fragata!',
 
   // Original text: 'Add your XCP-ng hosts or pools'
   homeWelcomeText: 'Aggiungi i tuoi hosts o pools XCP-ng',
@@ -4693,8 +4693,8 @@ export default {
   // Original text: 'Want to use in production?'
   productionUse: 'Vuoi usare in produzione?',
 
-  // Original text: 'Get pro support with the Fragata Fleet Appliance at {website}'
-  getSupport: 'Ottieni supporto professionale con Fragata Fleet Appliance su {website}',
+  // Original text: 'Get pro support with the Fragata Appliance at {website}'
+  getSupport: 'Ottieni supporto professionale con Fragata Appliance su {website}',
 
   // Original text: 'Bug Tracker'
   bugTracker: 'Bug Tracker',
@@ -4880,7 +4880,7 @@ export default {
   // Original text: 'XOA build:'
   xoaBuild: 'XOA build:',
 
-  // Original text: 'Fragata Fleet from the sources'
+  // Original text: 'Fragata from the sources'
   disclaimerTitle: 'Stai usando XO dai sorgenti!',
 
   // Original text: "You are using XO from the sources! That's great for a personal/non-profit usage."

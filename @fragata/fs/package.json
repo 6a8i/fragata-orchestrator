@@ -3,13 +3,13 @@
   "name": "@fragata/fs",
   "version": "4.10.0",
   "license": "AGPL-3.0-or-later",
-  "description": "The File System for Fragata Fleet backups.",
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/fs",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "description": "The File System for Fragata backups.",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/fs",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/fs",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "preferGlobal": true,
   "main": "dist/",

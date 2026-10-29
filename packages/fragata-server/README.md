@@ -1,15 +1,15 @@
-# Fragata Fleet Server
+# Fragata Server
 
 ![](http://i.imgur.com/HVFMrTk.png)
 
-XO-Server is part of [Fragata Fleet](https://github.com/6a8i/fragata-fleet/), a web interface for XenServer or XAPI enabled hosts.
+XO-Server is part of [Fragata](https://github.com/6a8i/fragata-orchestrator/), a web interface for XenServer or XAPI enabled hosts.
 
 It contains all the logic of XO and handles:
 
 - connections to all XAPI servers/pools;
 - a cache system to provide the best response time possible;
 - users authentication and authorizations (work in progress);
-- a JSON-RPC based interface for XO clients (i.e. [XO-Web](https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-web-classic)).
+- a JSON-RPC based interface for XO clients (i.e. [XO-Web](https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-web-classic)).
 
 [![Build Status](https://travis-ci.org/vatesfr/xen-orchestra.svg?branch=next-release)](https://travis-ci.org/vatesfr/xen-orchestra)
 [![Dependency Status](https://david-dm.org/vatesfr/xen-orchestra.svg?theme=shields.io)](https://david-dm.org/vatesfr/xen-orchestra)
@@ -37,4 +37,4 @@ yarn run dev
 
 ## How to report a bug?
 
-All bug reports should go into the [bugtracker of fragata-web-classic](https://github.com/6a8i/fragata-fleet/issues).
+All bug reports should go into the [bugtracker of fragata-web-classic](https://github.com/6a8i/fragata-orchestrator/issues).

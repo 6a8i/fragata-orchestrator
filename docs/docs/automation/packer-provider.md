@@ -2,12 +2,12 @@
 
 ## Introduction
 
-[Packer](https://developer.hashicorp.com/packer) automates the creation of machine images: describe an image once in code, and rebuild it identically whenever needed. In an XCP-ng/Fragata Fleet environment, that means building **golden VM templates** (base OS, updates, guest tools, your provisioning) instead of preparing them by hand.
+[Packer](https://developer.hashicorp.com/packer) automates the creation of machine images: describe an image once in code, and rebuild it identically whenever needed. In an XCP-ng/Fragata environment, that means building **golden VM templates** (base OS, updates, guest tools, your provisioning) instead of preparing them by hand.
 
-Vates maintains the [XenServer Packer plugin](https://github.com/vatesfr/packer-plugin-xenserver), a builder that installs an OS from an ISO on an XCP-ng host and turns the result into a reusable image. It was revived from an abandoned upstream project and is developed alongside the [Terraform provider](./terraform-provider.md) to ensure interoperability: templates built with Packer can then be cloned into VMs through the Terraform provider, the [REST API](restapi.md), or the Fragata Fleet web interface.
+Vates maintains the [XenServer Packer plugin](https://github.com/vatesfr/packer-plugin-xenserver), a builder that installs an OS from an ISO on an XCP-ng host and turns the result into a reusable image. It was revived from an abandoned upstream project and is developed alongside the [Terraform provider](./terraform-provider.md) to ensure interoperability: templates built with Packer can then be cloned into VMs through the Terraform provider, the [REST API](restapi.md), or the Fragata web interface.
 
 :::note
-The plugin talks **directly to an XCP-ng host** (via XAPI and SSH), not to the Fragata Fleet API. You point it at a host with its credentials; Fragata Fleet then sees and manages the resulting templates like any other.
+The plugin talks **directly to an XCP-ng host** (via XAPI and SSH), not to the Fragata API. You point it at a host with its credentials; Fragata then sees and manages the resulting templates like any other.
 :::
 
 ## Installation

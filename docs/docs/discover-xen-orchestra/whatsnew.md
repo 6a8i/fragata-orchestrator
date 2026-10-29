@@ -3,25 +3,25 @@ sidebar_label: What's new
 sidebar_position: 1
 ---
 
-# What's new in Fragata Fleet
+# What's new in Fragata
 
-Fragata Fleet is a complete redesign of the Fragata Fleet interface, built as a modern web application on a dedicated design system. It is not a reskin of Fleet Classic: the navigation, the information architecture and the visual language were rebuilt from scratch around how infrastructures are actually operated.
+Fragata is a complete redesign of the Fragata interface, built as a modern web application on a dedicated design system. It is not a reskin of Fragata Classic: the navigation, the information architecture and the visual language were rebuilt from scratch around how infrastructures are actually operated.
 
-<UiShot dark="/img/xo6/lab-dashboard.webp" alt="Fragata Fleet: one dashboard for every pool, host and VM you manage" url="https://myxoa.domain.tld/v6/#/dashboard" />
+<UiShot dark="/img/xo6/lab-dashboard.webp" alt="Fragata: one dashboard for every pool, host and VM you manage" url="https://myxoa.domain.tld/v6/#/dashboard" />
 
 ## Highlights
 
 - **A tree view of your whole infrastructure**: every pool, host and VM in one always-visible, searchable tree. No more jumping between list pages to find an object.
-- **Dashboards at every level**: Fragata Fleet, pool, host and VM each open on a dashboard that summarizes status, alarms, patches, resources and backup health at that scale.
+- **Dashboards at every level**: Fragata, pool, host and VM each open on a dashboard that summarizes status, alarms, patches, resources and backup health at that scale.
 - **Consistent pages**: every object follows the same tab pattern, every table has the same query builder and details side panel. Learn one page, know them all.
 - **First-class consoles**: VM and host consoles in the browser, with fullscreen, a chrome-less dedicated tab mode and Ctrl+Alt+Del.
 - **Make it yours**: light and dark color modes, five interface themes, and 21 languages.
 - **Task visibility**: a Tasks tab at every level records operations, API calls and authentications with their outcomes.
 - **Backup awareness everywhere**: protection status is visible from the global dashboard down to each VM, including the VMs that no job protects.
-- **Side-by-side with Fleet Classic**: both interfaces run on the same Fragata Fleet and the same data. Anything not yet in Fragata Fleet is one clearly marked click away.
+- **Side-by-side with Fragata Classic**: both interfaces run on the same Fragata and the same data. Anything not yet in Fragata is one clearly marked click away.
 
 ## An interface that grows release by release
 
-Fragata Fleet reached its first official release with a deliberately focused scope, and new capabilities are added continuously: more actions on objects, user management, backup features and more. The [Fragata Fleet and Fleet Classic](xo6vsxo5.md) page tracks what lives where today, and the best way to see what is new is simply to keep your Fragata Fleet up to date.
+Fragata reached its first official release with a deliberately focused scope, and new capabilities are added continuously: more actions on objects, user management, backup features and more. The [Fragata and Fragata Classic](xo6vsxo5.md) page tracks what lives where today, and the best way to see what is new is simply to keep your Fragata up to date.
 
-To explore the interface, start with [Fragata Fleet at a glance](gettingstarted.md).
+To explore the interface, start with [Fragata at a glance](gettingstarted.md).

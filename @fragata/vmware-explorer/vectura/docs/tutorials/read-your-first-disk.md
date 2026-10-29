@@ -18,7 +18,7 @@ transcript of the session.
 - A virtual machine that is powered off. The disk a running virtual
   machine writes to cannot be opened; the section "Pick a disk" says why.
 - The Vectura binary, `vectura`, from
-  `@fragata/vmware-explorer/vectura/` in Fragata Fleet.
+  `@fragata/vmware-explorer/vectura/` in Fragata.
 - `libnbd-bin`, which provides `nbdsh`, an NBD client that can start a
   server as a child process and talk to it over its pipes.
 

@@ -1,7 +1,7 @@
 /**
- * Builder class for constructing Fragata Fleet REST API filters.
+ * Builder class for constructing Fragata REST API filters.
  *
- * Handles the complex syntax and encoding requirements for Fragata Fleet's
+ * Handles the complex syntax and encoding requirements for Fragata's
  * REST API filtering system, providing a clean interface for different
  * filter types and operators.
  *

@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@fragata/read-chunk",
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/read-chunk",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/read-chunk",
   "description": "Read a chunk of a Node stream",
   "license": "ISC",
   "keywords": [
@@ -13,11 +13,11 @@
     "read",
     "stream"
   ],
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/read-chunk",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "version": "1.2.1",
   "engines": {

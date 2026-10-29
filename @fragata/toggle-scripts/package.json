@@ -15,12 +15,12 @@
     "scripts",
     "toggle"
   ],
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/toggle-scripts",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/toggle-scripts",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/toggle-scripts",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "author": {
     "name": "Vates SAS",

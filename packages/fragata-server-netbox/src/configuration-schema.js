@@ -1,6 +1,6 @@
 const configurationSchema = {
   description:
-    'Synchronize pools managed by Fragata Fleet with Netbox. Configuration steps and supported versions: https://docs.xen-orchestra.com/advanced#netbox.',
+    'Synchronize pools managed by Fragata with Netbox. Configuration steps and supported versions: https://docs.xen-orchestra.com/advanced#netbox.',
   type: 'object',
   properties: {
     endpoint: {

@@ -2,13 +2,13 @@
 
 # @fragata/qa-test
 
-> Fragata Fleet QA Test Suite
+> Fragata QA Test Suite
 
 ## Usage
 
 # @fragata/qa-test
 
-End-to-end QA test suite for Fragata Fleet. Tests core features (VM, backup, export) against a real XO instance.
+End-to-end QA test suite for Fragata. Tests core features (VM, backup, export) against a real XO instance.
 
 ## Prerequisites
 
@@ -17,7 +17,7 @@ End-to-end QA test suite for Fragata Fleet. Tests core features (VM, backup, exp
     - QA test suite, isolated from the main repo build
     - Avoids installation failures on Node 22
     - TODO: Revert to >=24 once XOA officially uses Node 24
-- A running Fragata Fleet instance (REST API + WebSocket)
+- A running Fragata instance (REST API + WebSocket)
 - A reference VM to clone for tests
 - An available Storage Repository
 - ~20 GB of disk space on the XO server for backups
@@ -235,7 +235,7 @@ the code.
 
 You may:
 
-- report any [issue](https://github.com/6a8i/fragata-fleet/issues)
+- report any [issue](https://github.com/6a8i/fragata-orchestrator/issues)
   you've encountered;
 - fork and create a pull request.
 

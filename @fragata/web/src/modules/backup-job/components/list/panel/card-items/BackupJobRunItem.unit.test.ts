@@ -70,7 +70,7 @@ it('dates a run still in progress by its start', () => {
 })
 
 describe('schedule', () => {
-  it('links the schedule of the run to the Fleet Classic backup overview', () => {
+  it('links the schedule of the run to the Fragata Classic backup overview', () => {
     const scheduleLink = findScheduleRow(mountRun(createBackupLog()))?.findComponent(UiLink)
 
     expect(scheduleLink?.text()).toBe('Nightly')

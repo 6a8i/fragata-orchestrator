@@ -4,12 +4,12 @@
   "version": "0.2.0",
   "license": "ISC",
   "description": "Simple pattern matching for plain values and objects",
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/packages/value-matcher",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/value-matcher",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/value-matcher",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "author": {
     "name": "Vates SAS",

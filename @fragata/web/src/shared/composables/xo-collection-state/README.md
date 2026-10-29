@@ -1,6 +1,6 @@
 # `useXoCollectionState` documentation
 
-This composable is used to manage the state of a collection of resources in Fragata Fleet, such as VMs, hosts, etc.
+This composable is used to manage the state of a collection of resources in Fragata, such as VMs, hosts, etc.
 
 It is meant to be used in conjunction with the `defineRemoteResource` utility from the Web Core library.
 

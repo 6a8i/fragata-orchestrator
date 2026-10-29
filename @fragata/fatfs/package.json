@@ -10,7 +10,7 @@
   "repository": {
     "directory": "@fragata/fatfs",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "keywords": [
     "filesystem",
@@ -21,8 +21,8 @@
   ],
   "author": "Vates SAS",
   "license": "Apache-2.0",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/fatfs",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/fatfs",
   "dependencies": {
     "fifolock": "^1.0.0",
     "struct-fu": "^1.2.1",

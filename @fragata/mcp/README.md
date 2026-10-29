@@ -4,7 +4,7 @@
 
 [![Package Version](https://badgen.net/npm/v/@fragata/mcp)](https://npmjs.org/package/@fragata/mcp) ![License](https://badgen.net/npm/license/@fragata/mcp) [![PackagePhobia](https://badgen.net/bundlephobia/minzip/@fragata/mcp)](https://bundlephobia.com/result?p=@fragata/mcp) [![Node compatibility](https://badgen.net/npm/node/@fragata/mcp)](https://npmjs.org/package/@fragata/mcp)
 
-> MCP server for Fragata Fleet — allows AI assistants to query and manage XO infrastructure
+> MCP server for Fragata — allows AI assistants to query and manage XO infrastructure
 
 ## Install
 
@@ -16,7 +16,7 @@ npm install --global @fragata/mcp
 
 ## Usage
 
-[MCP](https://modelcontextprotocol.io/) (Model Context Protocol) is an open standard that lets AI assistants interact with external tools. This package provides an MCP server that connects AI assistants like Claude to your [Fragata Fleet](https://xen-orchestra.com/) infrastructure, allowing natural language queries about your pools, hosts, and VMs.
+[MCP](https://modelcontextprotocol.io/) (Model Context Protocol) is an open standard that lets AI assistants interact with external tools. This package provides an MCP server that connects AI assistants like Claude to your [Fragata](https://xen-orchestra.com/) infrastructure, allowing natural language queries about your pools, hosts, and VMs.
 
 ### Quick Start
 
@@ -83,10 +83,10 @@ See the [full documentation](https://docs.xen-orchestra.com/mcp) for configurati
 ### Prerequisites
 
 - **Node.js** >= 20
-- **Fragata Fleet** 6.5 or later, with the [REST API](https://docs.xen-orchestra.com/restapi) enabled
+- **Fragata** 6.5 or later, with the [REST API](https://docs.xen-orchestra.com/restapi) enabled
 - An **AI assistant** that supports MCP (Claude Desktop, Claude Code, etc.)
 
-> **Note:** this MCP server requires **Fragata Fleet 6.5 or later**. On an older XO it stops at startup with an error such as `Unable to verify MCP status (HTTP 404)` — upgrade your Fragata Fleet to use it.
+> **Note:** this MCP server requires **Fragata 6.5 or later**. On an older XO it stops at startup with an error such as `Unable to verify MCP status (HTTP 404)` — upgrade your Fragata to use it.
 
 ### Configuration
 
@@ -94,7 +94,7 @@ Two authentication modes are supported: **token** (recommended) or **username/pa
 
 | Variable                | Required                | Description                                                                                   |
 | ----------------------- | ----------------------- | --------------------------------------------------------------------------------------------- |
-| `XO_URL`                | Yes                     | Fragata Fleet server URL (e.g., `https://xo.example.com`)                                     |
+| `XO_URL`                | Yes                     | Fragata server URL (e.g., `https://xo.example.com`)                                     |
 | `XO_TOKEN`              | If no username/password | Authentication token                                                                          |
 | `XO_USERNAME`           | If no token             | XO user with admin privileges                                                                 |
 | `XO_PASSWORD`           | If no token             | XO password                                                                                   |
@@ -139,8 +139,8 @@ At startup, the server fetches the OpenAPI spec from your XO instance (`/rest/v0
 
 | Tool                         | Description                                                                 |
 | ---------------------------- | --------------------------------------------------------------------------- |
-| `check_connection`           | Test the connection to the Fragata Fleet server                             |
-| `search_documentation`       | Search and retrieve Fragata Fleet documentation                             |
+| `check_connection`           | Test the connection to the Fragata server                             |
+| `search_documentation`       | Search and retrieve Fragata documentation                             |
 | `get_infrastructure_summary` | Aggregate pools/hosts/VMs across the infrastructure into a markdown summary |
 
 **Domain query tools** (generated, read-only). Each tool accepts an `operation` enum (the OpenAPI `operationId`) plus optional `id`, `filter`, `fields`, `limit`. On a current fragata-server the generated domains are:
@@ -190,7 +190,7 @@ the code.
 
 You may:
 
-- report any [issue](https://github.com/6a8i/fragata-fleet/issues)
+- report any [issue](https://github.com/6a8i/fragata-orchestrator/issues)
   you've encountered;
 - fork and create a pull request.
 

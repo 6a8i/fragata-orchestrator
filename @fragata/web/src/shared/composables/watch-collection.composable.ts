@@ -17,7 +17,7 @@ function eventFnLogError(error: unknown, event: 'add' | 'update' | 'remove', obj
 }
 
 // TODO: move into a composable
-// https://github.com/6a8i/fragata-fleet/pull/9183#discussion_r2561650429
+// https://github.com/6a8i/fragata-orchestrator/pull/9183#discussion_r2561650429
 export function useWatchCollection<T extends Partial<XoRecord>>({
   resource,
   fields,

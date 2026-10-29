@@ -5,19 +5,19 @@ sidebar_position: 5
 
 # Backup features and settings
 
-<InterfaceNote>This page describes the backup configuration in the Fleet Classic interface. Fragata Fleet already shows your jobs, their runs and each VM's protection status; creating, editing and restoring still happens here.</InterfaceNote>
+<InterfaceNote>This page describes the backup configuration in the Fragata Classic interface. Fragata already shows your jobs, their runs and each VM's protection status; creating, editing and restoring still happens here.</InterfaceNote>
 
-This section is dedicated to all general concepts about Fragata Fleet backups.
+This section is dedicated to all general concepts about Fragata backups.
 
 :::note Replication modes have been renamed
-The two replication job types now have clearer names, but the Fleet Classic screens below still show the former ones:
+The two replication job types now have clearer names, but the Fragata Classic screens below still show the former ones:
 
-| Current name                                                       | Former name, still shown in Fleet Classic |
+| Current name                                                       | Former name, still shown in Fragata Classic |
 | ------------------------------------------------------------------ | -------------------------------- |
 | [Full replication](./backup-types/full_replication.md)                          | Disaster Recovery (DR)           |
 | [Incremental replication](./backup-types/incremental_replication.md)               | Continuous Replication (CR)      |
 
-Nothing changed in behaviour: only the labels differ. Fragata Fleet uses the current names, and the tags XO puts on replicas (`Disaster Recovery`, `Continuous Replication`) kept the former ones.
+Nothing changed in behaviour: only the labels differ. Fragata uses the current names, and the tags XO puts on replicas (`Disaster Recovery`, `Continuous Replication`) kept the former ones.
 :::
 
 ## Interface
@@ -54,7 +54,7 @@ Here's an example:
 
 `<34>Jun 24 14:32:01 server1 CRON[1234]: (root) CMD (/usr/bin/backup.sh)`
 
-##### Using syslog with Fragata Fleet
+##### Using syslog with Fragata
 
 You can send all your XO logs to an external syslog server.
 
@@ -79,7 +79,7 @@ Each backup job execution is identified by a `runId`. You can find this `runId` 
 
 ## Backup encryption
 
-Fragata Fleet ensures robust data security for backups stored remotely, by leveraging advanced encryption algorithms. Here's a closer look at how encryption works and the technology behind it:
+Fragata ensures robust data security for backups stored remotely, by leveraging advanced encryption algorithms. Here's a closer look at how encryption works and the technology behind it:
 
 ### Authentication
 
@@ -103,7 +103,7 @@ Encryption is opt-in and requires configuring an encryption key on the backup re
 
 ### `ChaCha20-Poly1305`
 
-Since February 2025, Fragata Fleet encrypts backup repositories with the [`ChaCha20-Poly1305`](https://en.wikipedia.org/wiki/ChaCha20-Poly1305) algorithm. This update addresses the file size limitations of `AES-256-GCM` while maintaining a high level of security and compliance with ANSSI guidelines.
+Since February 2025, Fragata encrypts backup repositories with the [`ChaCha20-Poly1305`](https://en.wikipedia.org/wiki/ChaCha20-Poly1305) algorithm. This update addresses the file size limitations of `AES-256-GCM` while maintaining a high level of security and compliance with ANSSI guidelines.
 
 Backup repositories that were encrypted with `AES-256-GCM` remain accessible, to ensure a smooth transition.
 
@@ -150,7 +150,7 @@ To exclude a whole VM from every backup job, give the VM the `xo:no-bak` tag ins
 
 Automating your backups is key to ensuring the safety and recoverability of your virtual machines.
 
-By scheduling regular backups, you protect your infrastructure from accidental deletions, system failures, or data corruption. Fragata Fleet lets you easily set up flexible schedules for your backup jobs, making sure they run automatically at times and frequencies that work best for you.
+By scheduling regular backups, you protect your infrastructure from accidental deletions, system failures, or data corruption. Fragata lets you easily set up flexible schedules for your backup jobs, making sure they run automatically at times and frequencies that work best for you.
 
 ### Viewing schedules for a backup job
 
@@ -292,12 +292,12 @@ In order to use this functionality, the CPU of the host the VM is restored on sh
 ## Consistent backup
 
 :::warning
-Quiesced (VSS) snapshots are gone: the feature was removed from XCP-ng and Citrix Hypervisor, and Fragata Fleet no longer attempts them. Use [RAM enabled backup](#ram-enabled-backup) instead when you need consistency beyond a plain disk snapshot.
+Quiesced (VSS) snapshots are gone: the feature was removed from XCP-ng and Citrix Hypervisor, and Fragata no longer attempts them. Use [RAM enabled backup](#ram-enabled-backup) instead when you need consistency beyond a plain disk snapshot.
 :::
 
-All backup types rely on snapshots. But what about data consistency? Older XenServer releases could take a **quiesced snapshot** of a Windows VM: with the guest tools and the extra VSS provider installed, the operating system was notified and flushed its caches to disk before the snapshot, making backups of services like MS SQL or Exchange consistent. Fragata Fleet used to try a quiesced snapshot first and fall back to a normal snapshot when it wasn't possible.
+All backup types rely on snapshots. But what about data consistency? Older XenServer releases could take a **quiesced snapshot** of a Windows VM: with the guest tools and the extra VSS provider installed, the operating system was notified and flushed its caches to disk before the snapshot, making backups of services like MS SQL or Exchange consistent. Fragata used to try a quiesced snapshot first and fall back to a normal snapshot when it wasn't possible.
 
-Since the VSS provider was removed from the guest tools and the `snapshot_with_quiesce` capability was dropped from the platform, this mechanism no longer exists. Fragata Fleet now always takes normal snapshots, and offers two ways to get a stronger consistency level per VM:
+Since the VSS provider was removed from the guest tools and the `snapshot_with_quiesce` capability was dropped from the platform, this mechanism no longer exists. Fragata now always takes normal snapshots, and offers two ways to get a stronger consistency level per VM:
 
 - [RAM enabled backup](#ram-enabled-backup) (checkpoint): the memory is captured together with the disks, so caches and transient transactions are preserved.
 - Offline snapshot or offline backup: the VM is cleanly shut down before the export, guaranteeing on-disk consistency.
@@ -326,7 +326,7 @@ Two consequences to keep in mind:
 
 Backup repositories (BR), formerly called _remotes_, are places where your _backup_ and _delta backup_ files will be stored.
 
-To add one, go to the **Settings/Remotes** menu (the Fleet Classic screens still use the former name).
+To add one, go to the **Settings/Remotes** menu (the Fragata Classic screens still use the former name).
 
 Supported backup repository types:
 
@@ -385,7 +385,7 @@ Any Debian Linux mount point could be supported this way, until we add further o
 
 ### Amazon S3
 
-Fragata Fleet supports Amazon S3 storage and other S3-compatible providers, so you can back up your data to a variety of cloud storage services.
+Fragata supports Amazon S3 storage and other S3-compatible providers, so you can back up your data to a variety of cloud storage services.
 
 :::warning
 
@@ -396,14 +396,14 @@ Fragata Fleet supports Amazon S3 storage and other S3-compatible providers, so y
 :::
 
 :::note
-XO identifies itself to object storage providers with a `User-Agent: Fragata Fleet FS <version>` header, which helps S3-compatible services (Wasabi and others) with compatibility tracking.
+XO identifies itself to object storage providers with a `User-Agent: Fragata FS <version>` header, which helps S3-compatible services (Wasabi and others) with compatibility tracking.
 :::
 
 <UiDetail src="/img/xo5/s3-remote-settings.png" alt="New file system remote form with the Amazon Web Services S3 type selected: endpoint, region, bucket, directory, credentials and the optional encryption key" width={620} />
 
 ### Microsoft Azure
 
-Fragata Fleet supports Microsoft Azure Blob Storage as a backup repository, as well as [Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite) (the Azure Storage emulator) for testing purposes.
+Fragata supports Microsoft Azure Blob Storage as a backup repository, as well as [Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite) (the Azure Storage emulator) for testing purposes.
 
 To configure an Azure backup repository, you'll need:
 
@@ -433,7 +433,7 @@ It also works against a whole repository URL (including S3, Azure or encrypted o
 
 ## Restore a backup
 
-All your scheduled backups are accessible in Fragata Fleet's **Backup → Restore** view.
+All your scheduled backups are accessible in Fragata's **Backup → Restore** view.
 
 1. Search the VM name. On the line corresponding to your VM, click the **Restore** icon (the blue button with a white arrow).
 2. Choose the backup you want to restore.
@@ -469,7 +469,7 @@ A full backup has no per-disk choice: the whole VM is restored to the main SR.
 
 ## Live mount a disk {#live-mount}
 
-A live mount attaches a disk from an incremental backup to the restored VM **without copying it**. Fragata Fleet serves the disk from the backup repository (BR) as a read-only iSCSI LUN, which the host sees as a dedicated SR. Regardless of the disk size, it is usable as soon as the restore completes.
+A live mount attaches a disk from an incremental backup to the restored VM **without copying it**. Fragata serves the disk from the backup repository (BR) as a read-only iSCSI LUN, which the host sees as a dedicated SR. Regardless of the disk size, it is usable as soon as the restore completes.
 
 Typical uses:
 
@@ -478,40 +478,40 @@ Typical uses:
 
 ### How it works
 
-- Fragata Fleet (or the [proxy](./scale-and-security/proxy.md#live-mount) handling the BR) runs one iSCSI target per live mounted disk, protected by CHAP credentials generated for that mount.
+- Fragata (or the [proxy](./scale-and-security/proxy.md#live-mount) handling the BR) runs one iSCSI target per live mounted disk, protected by CHAP credentials generated for that mount.
 - An SR named `[XO live mount] <VM name> (<backup date>)` is introduced on the chosen host. It holds a single read-only VDI, named like the backed up disk, attached in read-only mode to the restored VM.
-- Every read done by the VM goes through Fragata Fleet to the BR. Nothing is ever written: neither to the backup, nor to the SR.
+- Every read done by the VM goes through Fragata to the BR. Nothing is ever written: neither to the backup, nor to the SR.
 - The restored VM is pinned (affinity) to the host the disk is mounted on: the SR is plugged on that host only.
 
 ### Requirements and limits
 
 :::warning Performance
-A live mounted disk is, by design, **much slower than the BR it is read from**. Each read done by the VM goes from the host to Fragata Fleet over iSCSI, then from Fragata Fleet to the BR, which must find the right blocks in the backup chain before answering. This is expected: a live mount is meant to get to your data quickly, not to run a production workload.
+A live mounted disk is, by design, **much slower than the BR it is read from**. Each read done by the VM goes from the host to Fragata over iSCSI, then from Fragata to the BR, which must find the right blocks in the backup chain before answering. This is expected: a live mount is meant to get to your data quickly, not to run a production workload.
 
 With a slow or distant BR, typically an S3 or Azure BR outside your network, reads can take so long that the host gives up on them: the mount can fail, or the VM can get I/O errors on that disk. In that case, restore the disk instead of live mounting it.
 :::
 
 - **Incremental backups only.** Live mount is not available for full backups, nor in [backup health checks](#backup-health-check).
-- **Fragata Fleet (or the proxy) must run in a VM of a pool connected to it.** Otherwise, the restore form shows the live actions as unavailable.
+- **Fragata (or the proxy) must run in a VM of a pool connected to it.** Otherwise, the restore form shows the live actions as unavailable.
 - **Read-only.** The VM sees a read-only disk. It is best suited for data disks: most operating systems need a writable system disk. For a writable disk, use a [live restore](#live-restore).
 - **One host per restore.** All the disks live mounted by one restore use the same host, and that host must be able to reach the main SR: its own host for a local SR, any host of its pool for a shared SR. The host selector only offers these hosts, and the most likely one is pre-selected.
-- **Network.** The hosts connect to Fragata Fleet (or the proxy) over iSCSI, on a TCP port picked for each mount. A firewall between the hosts and Fragata Fleet must let the hosts open TCP connections to it. For the firewall of XOA itself, see [Firewall of Fragata Fleet](#live-mount-firewall). The address given to the hosts is auto-detected; if they cannot reach it (NAT, several networks), set it in the [configuration file](../getting-started/configuration.md), for example `/etc/fragata-server/config.iscsi.toml`:
+- **Network.** The hosts connect to Fragata (or the proxy) over iSCSI, on a TCP port picked for each mount. A firewall between the hosts and Fragata must let the hosts open TCP connections to it. For the firewall of XOA itself, see [Firewall of Fragata](#live-mount-firewall). The address given to the hosts is auto-detected; if they cannot reach it (NAT, several networks), set it in the [configuration file](../getting-started/configuration.md), for example `/etc/fragata-server/config.iscsi.toml`:
 
   ```toml
   [iscsi]
-  # address of Fragata Fleet, as reachable from the hosts
+  # address of Fragata, as reachable from the hosts
   advertisedAddress = '192.168.0.1'
   # address the iSCSI targets listen on, all interfaces when unset
   #bindAddress = '0.0.0.0'
   ```
 
-- **Temporary.** A live mount only lasts as long as the Fragata Fleet process serving it: restarting or updating XOA ends it, and the disk becomes unavailable to the VM. Stop using the disk before restarting or updating XOA. If Fragata Fleet stopped unexpectedly, the `[XO live mount] <VM name> (<backup date>)` SR stays behind with nothing serving it: detach the disk from the VM and forget the SR.
+- **Temporary.** A live mount only lasts as long as the Fragata process serving it: restarting or updating XOA ends it, and the disk becomes unavailable to the VM. Stop using the disk before restarting or updating XOA. If Fragata stopped unexpectedly, the `[XO live mount] <VM name> (<backup date>)` SR stays behind with nothing serving it: detach the disk from the VM and forget the SR.
 
-### Firewall of Fragata Fleet {#live-mount-firewall}
+### Firewall of Fragata {#live-mount-firewall}
 
-Each live mounted disk is served on its own TCP port, picked when the disk is mounted, so it cannot be allowed in the firewall in advance. So when ufw is enabled on Fragata Fleet, as on XOA, **Fragata Fleet opens these ports in ufw itself, only when needed**. This is enabled by default.
+Each live mounted disk is served on its own TCP port, picked when the disk is mounted, so it cannot be allowed in the firewall in advance. So when ufw is enabled on Fragata, as on XOA, **Fragata opens these ports in ufw itself, only when needed**. This is enabled by default.
 
-To turn it off, and manage the firewall yourself, add to the [configuration file](../getting-started/configuration.md), for example `/etc/fragata-server/config.iscsi.toml`, then restart Fragata Fleet:
+To turn it off, and manage the firewall yourself, add to the [configuration file](../getting-started/configuration.md), for example `/etc/fragata-server/config.iscsi.toml`, then restart Fragata:
 
 ```toml
 [iscsi]
@@ -522,7 +522,7 @@ If a firewall still blocks the hosts, the restore fails with `the host cannot re
 
 How it works:
 
-- **One rule per mount.** When a disk is mounted, Fragata Fleet adds a rule allowing **only the host it is mounted on** to connect, **only on the port of that mount**. The rule is removed when the mount is released, or right away if the mount fails.
+- **One rule per mount.** When a disk is mounted, Fragata adds a rule allowing **only the host it is mounted on** to connect, **only on the port of that mount**. The rule is removed when the mount is released, or right away if the mount fails.
 - **Host address.** The rule uses the management address of the host. If `advertisedAddress` points to another network, such as a storage network, the host connects from another address and the rule does not match: allow that network in ufw yourself.
 - **Not saved.** The rules exist only in the running firewall: they are not written to the ufw configuration and do not appear in `ufw status`. To list them:
 
@@ -532,24 +532,24 @@ How it works:
   ip6tables -S ufw6-user-input | grep xo-live-mount
   ```
 
-- **Without ufw.** If iptables is not installed, if ufw is not enabled, or if Fragata Fleet does not run as root (XOA and the proxies do), no rule is added and the live mount goes on as usual: any other firewall must let the hosts in. When not running as root, a warning is logged for each mount, since ufw may be enabled and block the hosts.
+- **Without ufw.** If iptables is not installed, if ufw is not enabled, or if Fragata does not run as root (XOA and the proxies do), no rule is added and the live mount goes on as usual: any other firewall must let the hosts in. When not running as root, a warning is logged for each mount, since ufw may be enabled and block the hosts.
 - **Only ufw** is supported: any other value than `'ufw'` or `false` makes live mounts fail with `unsupported iscsi.manageFirewall`.
 
 **What happens if ufw is changed** (`ufw allow`, `ufw delete`, `ufw reload`, `ufw disable` then `ufw enable`, restarting the ufw service):
 
-- ufw rebuilds its rules and **drops those added by Fragata Fleet**. XOA and the proxies are appliances: their firewall is not meant to be changed by hand while disks are live mounted.
+- ufw rebuilds its rules and **drops those added by Fragata**. XOA and the proxies are appliances: their firewall is not meant to be changed by hand while disks are live mounted.
 - A disk in use keeps working, since ufw still accepts established connections. But the next time the host has to connect again (network outage, host reboot, SR unplugged then plugged again), the connection is blocked and the VM gets I/O errors on that disk.
 - The rules are not added back automatically. To be safe, [release](#release-live-mount) the mounts and live mount the disks again. Releasing a mount whose rule was already dropped works as usual, and logs a warning.
 - Disks live mounted after the change are not affected: their rules are added as usual.
 
-**What happens if Fragata Fleet crashes** (process killed, appliance lost power):
+**What happens if Fragata crashes** (process killed, appliance lost power):
 
 - Its rules can stay in the firewall. Nothing listens on their ports anymore, so a host trying to connect gets refused.
-- They are removed the **next time Fragata Fleet starts**, or when the appliance reboots, whichever comes first. Fragata Fleet and a proxy running on the same machine only remove their own rules.
-- If you set `manageFirewall = false` before restarting, Fragata Fleet no longer removes them. List them with the command above, then delete each one with `iptables -D`, followed by the rule as listed without its leading `-A`.
+- They are removed the **next time Fragata starts**, or when the appliance reboots, whichever comes first. Fragata and a proxy running on the same machine only remove their own rules.
+- If you set `manageFirewall = false` before restarting, Fragata no longer removes them. List them with the command above, then delete each one with `iptables -D`, followed by the rule as listed without its leading `-A`.
 - As with any crash, the `[XO live mount] <VM name> (<backup date>)` SR also stays behind (see **Temporary** above).
 
-A normal stop or restart of Fragata Fleet releases every mount, which removes their rules.
+A normal stop or restart of Fragata releases every mount, which removes their rules.
 
 ### Live restore: a writable live mounted disk {#live-restore}
 
@@ -560,11 +560,11 @@ A live restore is a live mount with a **cache**: the disk is copied, block by bl
 - **The backup is never modified.** What the VM writes lands in the cache VDI only.
 - **What is written is lost when the mount is released.** The cache VDI is created with the mount and destroyed with it. To keep the data, copy it elsewhere first, or restore the disk the usual way.
 
-The cache VDI is attached to the VM of Fragata Fleet (or of the [proxy](./scale-and-security/proxy.md#live-mount) handling the BR), named `[XO live restore] [NOBAK] [NOSNAP] <disk name>`: do not detach or delete it while the mount is in use. So the cache SR is chosen where Fragata Fleet (or the proxy) runs, not where the VM is restored, which can be another pool:
+The cache VDI is attached to the VM of Fragata (or of the [proxy](./scale-and-security/proxy.md#live-mount) handling the BR), named `[XO live restore] [NOBAK] [NOSNAP] <disk name>`: do not detach or delete it while the mount is in use. So the cache SR is chosen where Fragata (or the proxy) runs, not where the VM is restored, which can be another pool:
 
-- **The cache SR must belong to the pool running Fragata Fleet (or the proxy)**, and that pool must be connected to Fragata Fleet. Otherwise, the restore fails with `the SR … is not in the pool running this appliance`.
-- **The cache SR must be plugged on the host running Fragata Fleet (or the proxy).** A shared SR always is; a local SR only if it belongs to that host. Otherwise, the restore fails with `the SR … is not plugged on the host running this appliance`.
-- **Do not migrate Fragata Fleet (or the proxy) to another host while the mount is in use, if the cache SR is local:** the cache VDI cannot follow it.
+- **The cache SR must belong to the pool running Fragata (or the proxy)**, and that pool must be connected to Fragata. Otherwise, the restore fails with `the SR … is not in the pool running this appliance`.
+- **The cache SR must be plugged on the host running Fragata (or the proxy).** A shared SR always is; a local SR only if it belongs to that host. Otherwise, the restore fails with `the SR … is not plugged on the host running this appliance`.
+- **Do not migrate Fragata (or the proxy) to another host while the mount is in use, if the cache SR is local:** the cache VDI cannot follow it.
 
 The SR introduced on the host is then named `[XO live restore] <VM name> (<backup date>)`.
 
@@ -573,7 +573,7 @@ The SR introduced on the host is then named `[XO live restore] <VM name> (<backu
 1. Go to **Backup → Restore**, and click the **Restore** icon of the VM.
 2. Choose an incremental backup, and a main SR for the disks that are copied.
 3. Expand **For each VDI, choose what to do (optional)**.
-4. For the disk to mount, pick **Live mount (read only)** as the action, and check the host in the **Destination** column. For a [live restore](#live-restore), pick **Live restore (read/write)** instead, then also pick the SR holding the written data, in the pool running Fragata Fleet (or the proxy).
+4. For the disk to mount, pick **Live mount (read only)** as the action, and check the host in the **Destination** column. For a [live restore](#live-restore), pick **Live restore (read/write)** instead, then also pick the SR holding the written data, in the pool running Fragata (or the proxy).
 5. Click **OK**.
 
 The restored VM then has the live mounted disk on the `[XO live mount] <VM name> (<backup date>)` SR:
@@ -584,7 +584,7 @@ The restored VM then has the live mounted disk on the `[XO live mount] <VM name>
 
 A live mount remains active after the restore until you release it. Releasing the mount stops serving the disk and forgets its SR. The backup itself is never modified.
 
-Fragata Fleet releases a live mount on its own as soon as its disk is deleted:
+Fragata releases a live mount on its own as soon as its disk is deleted:
 
 - **Delete the restored VM with its disks**: the mount is released.
 - **Delete the live mounted disk** from the VM: the mount is released, the VM is kept.
@@ -602,7 +602,7 @@ Differential restores come in handy when you need to restore a VM to a storage u
 
 ### How it works
 
-Instead of performing a full restore, Fragata Fleet leverages the existing VM disk or snapshot as a foundation and restores only the differential data to a new disk. This method significantly cuts down on restore time, especially for large VMs. For instance, with a transfer rate of 60 MiB/s and a 200 GiB VM, a typical restore would take around an hour. However, with a differential restore, even a 600 GiB disk can be restored in just minutes.
+Instead of performing a full restore, Fragata leverages the existing VM disk or snapshot as a foundation and restores only the differential data to a new disk. This method significantly cuts down on restore time, especially for large VMs. For instance, with a transfer rate of 60 MiB/s and a 200 GiB VM, a typical restore would take around an hour. However, with a differential restore, even a 600 GiB disk can be restored in just minutes.
 
 Most importantly, this process prioritizes **data integrity**. The original VM disk remains untouched throughout the restore; we simply read from the latest snapshot to use it as a foundation for creating the new VM and disk.
 
@@ -663,7 +663,7 @@ You can also restore specific files and directories inside a VM. It works with a
 
 That's it! Your chosen file will be restored.
 
-Alternatively, administrators can also restore files with the command-line interface. See [this guide](https://github.com/6a8i/fragata-fleet/blob/master/%40vates/fuse-vhd/README.md#restore-a-file-from-a-vhd-using-fuse-vhd-cli) to know more.
+Alternatively, administrators can also restore files with the command-line interface. See [this guide](https://github.com/6a8i/fragata-orchestrator/blob/master/%40vates/fuse-vhd/README.md#restore-a-file-from-a-vhd-using-fuse-vhd-cli) to know more.
 
 ## About backup compression
 
@@ -678,7 +678,7 @@ Citrix Hypervisor uses Gzip compression, which is:
 However, XCP-ng is using `zstd`, which is far better.
 
 :::tip
-If you have compression on your NFS share (or destination filesystem like ZFS), you can disable compression in Fragata Fleet.
+If you have compression on your NFS share (or destination filesystem like ZFS), you can disable compression in Fragata.
 :::
 
 ## Add a disk for local backups
@@ -719,7 +719,7 @@ The tag won't be automatically removed by XO on the replicated VMs, even if HA i
 
 ## Backup concurrency
 
-Fragata Fleet 5.20 introduced new tools to manage backup concurrency. Below is an overview of the backup process and ways you can control concurrency in your own environment.
+Fragata 5.20 introduced new tools to manage backup concurrency. Below is an overview of the backup process and ways you can control concurrency in your own environment.
 
 ### Backup process
 
@@ -729,7 +729,7 @@ When you perform a backup in XCP-ng/XenServer, the first operation performed is 
 
 #### 2. Export
 
-Fragata Fleet will fetch the content of the snapshot made in step 1. This operation can be very long, obviously depending on the size of the snapshot to export: exporting 1TiB of data will take far longer than exporting 1GiB!
+Fragata will fetch the content of the snapshot made in step 1. This operation can be very long, obviously depending on the size of the snapshot to export: exporting 1TiB of data will take far longer than exporting 1GiB!
 
 #### 3. Snapshot removal
 
@@ -791,8 +791,8 @@ For example, you could have a regular backup job with 10 VMs configured with Nor
 
 Just a refresher/summary: You can select multiple backup methods for the same job:
 
-- Full: _Backup_ and _Full replication_ (the Fleet Classic button still reads _Disaster Recovery_)
-- Deltas: _Delta Backup_ and _Incremental replication_ (the Fleet Classic button still reads _Continuous Replication_)
+- Full: _Backup_ and _Full replication_ (the Fragata Classic button still reads _Disaster Recovery_)
+- Deltas: _Delta Backup_ and _Incremental replication_ (the Fragata Classic button still reads _Continuous Replication_)
 
 The Full and Delta options are mutually exclusive; Rolling Snapshots are compatible with both. The Backup and Delta Backup go to a backup repository (e.g. NFS); both replication modes write to another XCP-ng storage repository (i.e., not the one on which the VMs being backed up reside). In the Schedule configuration, you will have the option to select the number of "Backup Retention" if your backup includes a _Backup_ (or _Delta Backup_); you will have the option to select the number "Replication Retention" if you have selected a replication mode in the backup configuration.
 
@@ -822,11 +822,11 @@ It is often a good idea to configure retention of older backups with decreasing 
 - a weekly backup on Sunday (retaining 4)
 - a monthly backup (retaining 12)
 
-Again, all of these can be assigned to the same backup job. Note that if you do a weekly and a monthly backup, at some point, these will fall on the same day. Fragata Fleet is designed to fail gracefully (with an error message) if a backup job for a VM is already running. For this reason, you will want to set the time on the monthly job to run before the weekly job so that if one fails, it will be the weekly rather than the monthly one; if the weekly one fails, the monthly will be there for that spot in the retention plan; if the monthly one fails, the weekly one will only be retained for 4 weeks, and then there will be a gap in the monthly retention.
+Again, all of these can be assigned to the same backup job. Note that if you do a weekly and a monthly backup, at some point, these will fall on the same day. Fragata is designed to fail gracefully (with an error message) if a backup job for a VM is already running. For this reason, you will want to set the time on the monthly job to run before the weekly job so that if one fails, it will be the weekly rather than the monthly one; if the weekly one fails, the monthly will be there for that spot in the retention plan; if the monthly one fails, the weekly one will only be retained for 4 weeks, and then there will be a gap in the monthly retention.
 
 ### Long-term backup retention with GFS strategy
 
-Fragata Fleet supports the **Grandfather-Father-Son (GFS)** backup retention strategy, providing an efficient way to manage long-term backups. Backups are organized into daily, weekly, monthly and yearly intervals, optimizing storage while keeping important recovery points over time.
+Fragata supports the **Grandfather-Father-Son (GFS)** backup retention strategy, providing an efficient way to manage long-term backups. Backups are organized into daily, weekly, monthly and yearly intervals, optimizing storage while keeping important recovery points over time.
 
 <Schema label="GFS on a month of nightly runs, with 7 daily, 4 weekly and 1 monthly restore points kept" legend={[["#56c288", "daily"], ["#6aabf0", "weekly"], ["#e0a94a", "monthly"], ["#7a8699", "rotated out"]]} maxWidth="640px">
 <svg viewBox="0 0 640 232" role="img" aria-label="A calendar of 28 nightly backups: the last 7 are kept as daily restore points, the first backup of each week is kept as a weekly one, the first of the month as a monthly one, and every other backup is rotated out">
@@ -880,7 +880,7 @@ Fragata Fleet supports the **Grandfather-Father-Son (GFS)** backup retention str
 - **Is GFS retention applied globally or per repository?**\
   GFS retention is applied on a per-repository basis, allowing you to manage retention independently for different storage locations.
 
-- **How does Fragata Fleet decide which backups to retain?**\
+- **How does Fragata decide which backups to retain?**\
   The oldest backup within each retention period (daily, weekly, monthly or yearly) is preserved. For example, the first backup of the week is saved as the weekly backup.
 
 :::warning
@@ -888,7 +888,7 @@ Fragata Fleet supports the **Grandfather-Father-Son (GFS)** backup retention str
 - **Definition of a week:**\
   The start of the week is computed with the timezone set in the schedule.
 - **What GFS isn't:**\
-  GFS in Fragata Fleet stands for Grandfather-Father-Son. It's a backup strategy, and is not related to the file system called GFS2 (or Global File System 2), supported by XenServer.
+  GFS in Fragata stands for Grandfather-Father-Son. It's a backup strategy, and is not related to the file system called GFS2 (or Global File System 2), supported by XenServer.
 - GFS retention is defined per schedule. For example, if a backup has two schedules, two independent GFS backups will be created. This is why we recommend using a single schedule for any job utilizing GFS long-term retention.
 
 :::
@@ -910,11 +910,11 @@ To enable GFS retention:
 
 5. Click the **Save** button.
 
-During each backup run, Fragata Fleet evaluates existing backups and removes any excess backups based on the configured policy.
+During each backup run, Fragata evaluates existing backups and removes any excess backups based on the configured policy.
 
-### Implementation in Fragata Fleet
+### Implementation in Fragata
 
-To enable GFS retention, configure the settings in the backup job's "Long-term retention of backups" section. During each backup run, Fragata Fleet evaluates existing backups and removes any excess backups based on the configured policy.
+To enable GFS retention, configure the settings in the backup job's "Long-term retention of backups" section. During each backup run, Fragata evaluates existing backups and removes any excess backups based on the configured policy.
 
 ## Backup health check
 
@@ -978,7 +978,7 @@ The total timeout of a backup health check (boot + guest tools + scripts) is 10 
 
 The restored VM is then deleted.
 
-An example script in shell is available in the repository: [`@fragata/backups/docs/healthcheck/example.sh`](https://github.com/6a8i/fragata-fleet/blob/master/%40xen-orchestra/backups/docs/healthcheck/example.sh)
+An example script in shell is available in the repository: [`@fragata/backups/docs/healthcheck/example.sh`](https://github.com/6a8i/fragata-orchestrator/blob/master/%40xen-orchestra/backups/docs/healthcheck/example.sh)
 
 ### Running health checks
 

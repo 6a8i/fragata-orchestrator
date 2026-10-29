@@ -254,7 +254,7 @@ booleans) are assumed as strings by default, other types must be encoded as JSON
 
 ##### OVA VM import
 
-A separate utility, [`fragata-upload-ova`](https://github.com/6a8i/fragata-fleet/blob/master/@fragata/upload-ova/README.md), can be used to import `.ova` files.
+A separate utility, [`fragata-upload-ova`](https://github.com/6a8i/fragata-orchestrator/blob/master/@fragata/upload-ova/README.md), can be used to import `.ova` files.
 
 ## Contributions
 
@@ -263,7 +263,7 @@ the code.
 
 You may:
 
-- report any [issue](https://github.com/6a8i/fragata-fleet/issues)
+- report any [issue](https://github.com/6a8i/fragata-orchestrator/issues)
   you've encountered;
 - fork and create a pull request.
 

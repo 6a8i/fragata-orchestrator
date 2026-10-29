@@ -5,7 +5,7 @@
   },
   "main": "./dist/index.mjs",
   "name": "@fragata/rest-api",
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/rest-api",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/rest-api",
   "version": "0.41.1",
   "description": "REST API to manage your XOA",
   "license": "AGPL-3.0-or-later",
@@ -62,10 +62,10 @@
     "zod": "^4.3.6",
     "zod-openapi": "^5.4.6"
   },
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/rest-api",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   }
 }

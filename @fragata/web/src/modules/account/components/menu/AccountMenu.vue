@@ -41,7 +41,7 @@ defineProps<{
 const { t } = useI18n()
 const { buildXo5Route } = useXoRoutes()
 
-// TODO: Fetch the Fleet Classic mount path from API when available
+// TODO: Fetch the Fragata Classic mount path from API when available
 const logout = () => window.location.assign('/signout')
 
 const licenseUrl = computed(() => buildXo5Route('/xoa/licenses'))

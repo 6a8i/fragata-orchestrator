@@ -50,7 +50,7 @@ const getAllowedCleanupPaths = () => {
 }
 
 /**
- * Orchestration client for Fragata Fleet cleanup operations.
+ * Orchestration client for Fragata cleanup operations.
  *
  * Provides automated cleanup functionality for test resources including
  * VMs, backups, snapshots, and associated artifacts. Handles both individual

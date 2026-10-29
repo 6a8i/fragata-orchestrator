@@ -1,6 +1,6 @@
 # LICENSE INFORMATION
 
-Fragata Fleet is derived from Xen Orchestra, which Vates SAS develops and releases mostly under the (A)GPL v3; Fragata Fleet keeps the same licenses. The other license used is the ISC.
+Fragata is derived from Xen Orchestra, which Vates SAS develops and releases mostly under the (A)GPL v3; Fragata keeps the same licenses. The other license used is the ISC.
 (A)GPL v3 may be found here: https://www.gnu.org/licenses/agpl-3.0.en.html
 ISC License may be found here: https://www.isc.org/licenses/
 The texts of the two licenses are inserted at the root of this repo.

@@ -88,9 +88,9 @@ Using `!` is particularly dangerous in:
 
 ## Always validate your typing before committing
 
-It's a best practice to run the `type-check` command in a terminal for both `Fragata Fleet` and `Fragata Deck` projects during development.
+It's a best practice to run the `type-check` command in a terminal for both `Fragata` and `Fragata Deck` projects during development.
 
-For example, when working in `Fragata Fleet`, you can run this command in the root directory of `Fragata Fleet`:
+For example, when working in `Fragata`, you can run this command in the root directory of `Fragata`:
 
 ```bash
 yarn type-check --watch

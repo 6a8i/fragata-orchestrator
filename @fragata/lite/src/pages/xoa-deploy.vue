@@ -1,7 +1,7 @@
 <template>
   <TitleBar icon="fa:download">{{ t('action:deploy-xoa') }}</TitleBar>
   <div v-if="deploying" class="status">
-    <img src="@/assets/xo.svg" width="300" alt="Fragata Fleet" />
+    <img src="@/assets/xo.svg" width="300" alt="Fragata" />
 
     <!-- Error -->
     <template v-if="error !== undefined">

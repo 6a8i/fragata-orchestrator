@@ -41,7 +41,7 @@ export default function normalizeVmNetworks(networks) {
 
     // Old protocol: when there's more than 1 IP on an interface, the IPs
     // are space or newline delimited in the same `x/ip` field
-    // See https://github.com/6a8i/fragata-fleet/issues/5801#issuecomment-854337568
+    // See https://github.com/6a8i/fragata-orchestrator/issues/5801#issuecomment-854337568
     //
     // The `x/ip` field may have a `x/ipv4/0` alias
     // e.g:

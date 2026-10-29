@@ -1,15 +1,15 @@
-<h3 align="center"><b>Fragata Fleet</b></h3>
+<h3 align="center"><b>Fragata</b></h3>
 <p align="center"><b>Orquestração, backup e API para infraestruturas Fragata Host, XCP-ng e XenServer</b></p>
 
-Fragata Fleet é um hard fork do Xen Orchestra, iniciado em 29 de outubro de 2026 a partir do commit `a50776cb` do repositório `vatesfr/xen-orchestra`. A partir desse ponto o projeto segue roadmap, versionamento e identidade próprios.
+Fragata é um hard fork do Xen Orchestra, iniciado em 29 de outubro de 2026 a partir do commit `a50776cb` do repositório `vatesfr/xen-orchestra`. A partir desse ponto o projeto segue roadmap, versionamento e identidade próprios.
 
-Sem agente nos hosts: o Fleet conversa com os pools pela XAPI. Oferece interface web, CLI, API REST, servidor MCP e um motor de backup completo (full, incremental, replicação contínua, disaster recovery, remotes NFS, SMB e S3).
+Sem agente nos hosts: o Fragata conversa com os pools pela XAPI. Oferece interface web, CLI, API REST, servidor MCP e um motor de backup completo (full, incremental, replicação contínua, disaster recovery, remotes NFS, SMB e S3).
 
 ## Produtos
 
 | Produto | Papel | Origem |
 |---|---|---|
-| **Fragata Fleet** | orquestração, backup e API para um ou mais pools (este repositório) | Xen Orchestra |
+| **Fragata** | orquestração, backup e API para um ou mais pools (este repositório) | Xen Orchestra |
 | **Fragata Host** | hipervisor e host de virtualização | XCP-ng |
 | **Fragata Deck** | interface leve embutida no host (`@fragata/lite`) | XO Lite |
 

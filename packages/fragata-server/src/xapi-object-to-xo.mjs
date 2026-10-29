@@ -584,9 +584,9 @@ const TRANSFORMS = {
     if (coresPerSocket !== undefined) {
       vm.coresPerSocket = +coresPerSocket
     } else {
-      // https://github.com/6a8i/fragata-fleet/issues/9111
+      // https://github.com/6a8i/fragata-orchestrator/issues/9111
       // TODO: Remove when correctly handled by XCP-ng
-      // also remove the workaround here: https://github.com/6a8i/fragata-fleet/pull/10201
+      // also remove the workaround here: https://github.com/6a8i/fragata-orchestrator/pull/10201
       obj
         .update_platform('cores-per-socket', String(vm.CPUs.number))
         .catch(err => {

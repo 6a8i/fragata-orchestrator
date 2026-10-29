@@ -2,12 +2,12 @@
   "private": false,
   "name": "@fragata/xml-rpc",
   "description": "Parse and format XML-RPC messages, do not handle transport or XML",
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/xml-rpc",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/xml-rpc",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/xml-rpc",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "author": {
     "name": "Vates SAS",

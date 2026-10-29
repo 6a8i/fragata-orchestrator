@@ -5,7 +5,7 @@ import { FilterBuilder } from '../FilterBuilder.js'
 const log = createLogger('xo:qa-test:sr')
 
 /**
- * Specialized request handler for Fragata Fleet Storage Repository (SR) operations.
+ * Specialized request handler for Fragata Storage Repository (SR) operations.
  *
  * Handles SR resources with REST API for read operations. Storage Repositories
  * are needed for health check configuration where backups are restored to verify integrity.

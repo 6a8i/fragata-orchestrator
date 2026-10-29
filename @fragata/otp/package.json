@@ -9,13 +9,13 @@
     "otp",
     "totp"
   ],
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/otp",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/otp",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "main": "index.mjs",
   "repository": {
     "directory": "@fragata/otp",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "author": {
     "name": "Vates SAS",

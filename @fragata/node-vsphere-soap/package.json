@@ -7,9 +7,9 @@
   "repository": {
     "directory": "@fragata/node-vsphere-soap",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "dependencies": {
     "@fragata/log": "^0.7.2",
     "axios": "^1.15.0",
@@ -26,7 +26,7 @@
   "preferGlobal": false,
   "license": "MIT",
   "private": false,
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/node-vsphere-soap",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/node-vsphere-soap",
   "engines": {
     "node": ">=14"
   },

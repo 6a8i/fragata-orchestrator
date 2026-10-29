@@ -1,23 +1,23 @@
 # Metadata backups
 
-Every XCP-ng or XenServer pool keeps a database, the XAPI database, describing everything that isn't the data itself: VMs and their settings, storage repositories, networks, and how they all fit together. Fragata Fleet has an equivalent of its own: its configuration, holding users, authorizations and resource sets, backup jobs, and plugin settings.
+Every XCP-ng or XenServer pool keeps a database, the XAPI database, describing everything that isn't the data itself: VMs and their settings, storage repositories, networks, and how they all fit together. Fragata has an equivalent of its own: its configuration, holding users, authorizations and resource sets, backup jobs, and plugin settings.
 
 Metadata backup protects both layers, with two backup kinds you can enable independently or together in a single job:
 
 - **Pool metadata backup**: a dump of the pool's XAPI database (VMs, SRs, networks, etc.).
-- **XO config backup**: the configuration of your Fragata Fleet instance itself.
+- **XO config backup**: the configuration of your Fragata instance itself.
 
 This is the backup that saves you when the hardware dies but the storage survives: reinstall a host, restore the pool metadata, and the pool knows about its VMs and SRs again. Likewise, if you lose your XOA, restoring the XO config brings back your users, jobs, and settings without rebuilding them by hand.
 
 <Schema label="Metadata backup: XO dumps the pool's XAPI database and exports its own config to the BR" legend={[["#8e83fe", "Pool"], ["#6aabf0", "XO"], ["#e0a94a", "Backup repository"]]} maxWidth="640px">
-<svg viewBox="0 0 640 220" role="img" aria-label="A pool's XAPI database and Fragata Fleet's own configuration both flow into the backup repository, with Fragata Fleet driving the backup">
+<svg viewBox="0 0 640 220" role="img" aria-label="A pool's XAPI database and Fragata's own configuration both flow into the backup repository, with Fragata driving the backup">
   <text x="32" y="46" fill="#8e83fe" fontSize="12">Pool</text>
   <rect x="24" y="54" width="180" height="120" rx="10" fill="none" stroke="rgba(255,255,255,0.22)" strokeDasharray="6 5" />
   <rect x="44" y="86" width="140" height="52" rx="6" fill="rgba(255,255,255,0.04)" stroke="#8e83fe" />
   <text x="114" y="109" fill="#c6d2e1" fontSize="12" textAnchor="middle">XAPI database</text>
   <text x="114" y="125" fill="#7a8699" fontSize="10" textAnchor="middle">VMs, SRs, networks</text>
   <rect x="260" y="60" width="130" height="108" rx="8" fill="rgba(255,255,255,0.04)" stroke="#6aabf0" />
-  <text x="325" y="92" fill="#c6d2e1" fontSize="12" textAnchor="middle">Fragata Fleet</text>
+  <text x="325" y="92" fill="#c6d2e1" fontSize="12" textAnchor="middle">Fragata</text>
   <text x="325" y="126" fill="#7a8699" fontSize="10" textAnchor="middle">XO config:</text>
   <text x="325" y="140" fill="#7a8699" fontSize="10" textAnchor="middle">users, jobs,</text>
   <text x="325" y="154" fill="#7a8699" fontSize="10" textAnchor="middle">settings, plugins</text>
@@ -37,7 +37,7 @@ This is the backup that saves you when the hardware dies but the storage survive
 </Schema>
 
 :::note
-In the Fleet Classic interface, backup repositories are still labeled **Remotes**.
+In the Fragata Classic interface, backup repositories are still labeled **Remotes**.
 :::
 
 ## Performing a backup
@@ -66,7 +66,7 @@ Restoring pool metadata completely overwrites the XAPI database of a host. Only 
 
 Go to **Backup → Restore** and click the **Metadata** filter button: the list switches to the metadata backups available for restore, both XO config backups and pool metadata backups.
 
-<UiDetail src="/img/xo5/metadata-restore-list.png" alt="Restore view filtered on metadata, listing a Fragata Fleet config backup and a pool metadata backup" width={620} />
+<UiDetail src="/img/xo5/metadata-restore-list.png" alt="Restore view filtered on metadata, listing a Fragata config backup and a pool metadata backup" width={620} />
 
 To restore one, click the blue restore arrow on its row, choose the backup date to restore, and click **OK**.
 

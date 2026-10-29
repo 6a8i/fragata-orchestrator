@@ -16,10 +16,10 @@ npm install --save @fragata/backups
 
 ## Documentation
 
-- [VM backups](https://github.com/6a8i/fragata-fleet/blob/master/%40xen-orchestra/backups/docs/VM%20backups/README.md): file structure on a remote, XAPI attributes, task logs, run description object, writer API
-- [Incremental replication](https://github.com/6a8i/fragata-fleet/blob/master/%40xen-orchestra/backups/docs/VM%20backups/incrementalReplication.md): how CR selects its target VM and VDIs
-- [Metadata backups](https://github.com/6a8i/fragata-fleet/blob/master/%40xen-orchestra/backups/docs/Metadata%20backups/README.md): file structure on a remote, structure of `metadata.json`, task logs
-- [Health check](https://github.com/6a8i/fragata-fleet/blob/master/%40xen-orchestra/backups/docs/healthcheck/example.sh): example guest script reporting to xenstore
+- [VM backups](https://github.com/6a8i/fragata-orchestrator/blob/master/%40xen-orchestra/backups/docs/VM%20backups/README.md): file structure on a remote, XAPI attributes, task logs, run description object, writer API
+- [Incremental replication](https://github.com/6a8i/fragata-orchestrator/blob/master/%40xen-orchestra/backups/docs/VM%20backups/incrementalReplication.md): how CR selects its target VM and VDIs
+- [Metadata backups](https://github.com/6a8i/fragata-orchestrator/blob/master/%40xen-orchestra/backups/docs/Metadata%20backups/README.md): file structure on a remote, structure of `metadata.json`, task logs
+- [Health check](https://github.com/6a8i/fragata-orchestrator/blob/master/%40xen-orchestra/backups/docs/healthcheck/example.sh): example guest script reporting to xenstore
 
 ## Changing the default backup configuration
 
@@ -27,9 +27,9 @@ This library receives a backup configuration from `fragata-server` or `fragata-p
 
 - `config` contains values related to the general backup configuration
 - `config.defaultSettings`, `config.vm.defaultSettings` and `config.metadata.defaultSettings` contain values related to backup jobs default settings:
-  - `config.vm.defaultSettings` is related to VM backup jobs (see [DEFAULT_XAPI_VM_SETTINGS](https://github.com/6a8i/fragata-fleet/blob/568e14f7eec7c3ddf685d324ad4733a3ef577995/%40xen-orchestra/backups/_runners/VmsRemote.mjs#L15))
-  - `config.metadata.defaultSettings` is related to metadata backup jobs (see [DEFAULT_METADATA_SETTINGS](https://github.com/6a8i/fragata-fleet/blob/568e14f7eec7c3ddf685d324ad4733a3ef577995/%40xen-orchestra/backups/_runners/Metadata.mjs#L12))
-  - `config.defaultSettings` is related to all backup jobs (see [DEFAULT_SETTINGS](https://github.com/6a8i/fragata-fleet/blob/568e14f7eec7c3ddf685d324ad4733a3ef577995/%40xen-orchestra/backups/_runners/_Abstract.mjs#L7))
+  - `config.vm.defaultSettings` is related to VM backup jobs (see [DEFAULT_XAPI_VM_SETTINGS](https://github.com/6a8i/fragata-orchestrator/blob/568e14f7eec7c3ddf685d324ad4733a3ef577995/%40xen-orchestra/backups/_runners/VmsRemote.mjs#L15))
+  - `config.metadata.defaultSettings` is related to metadata backup jobs (see [DEFAULT_METADATA_SETTINGS](https://github.com/6a8i/fragata-orchestrator/blob/568e14f7eec7c3ddf685d324ad4733a3ef577995/%40xen-orchestra/backups/_runners/Metadata.mjs#L12))
+  - `config.defaultSettings` is related to all backup jobs (see [DEFAULT_SETTINGS](https://github.com/6a8i/fragata-orchestrator/blob/568e14f7eec7c3ddf685d324ad4733a3ef577995/%40xen-orchestra/backups/_runners/_Abstract.mjs#L7))
   - in case of duplicate value, `config.vm.defaultSettings` and `config.metadata.defaultSettings` will prevail over `config.defaultSettings`, and a defined job setting will prevail over any `defaultSettings`
 
 ## Contributions
@@ -39,7 +39,7 @@ the code.
 
 You may:
 
-- report any [issue](https://github.com/6a8i/fragata-fleet/issues)
+- report any [issue](https://github.com/6a8i/fragata-orchestrator/issues)
   you've encountered;
 - fork and create a pull request.
 

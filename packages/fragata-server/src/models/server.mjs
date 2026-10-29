@@ -35,7 +35,7 @@ export class Servers extends Collection {
       delete server.poolMembersAddresses
     }
 
-    // see https://github.com/6a8i/fragata-fleet/issues/6656
+    // see https://github.com/6a8i/fragata-orchestrator/issues/6656
     if (server.httpProxy === '') {
       delete server.httpProxy
     }

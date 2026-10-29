@@ -164,8 +164,8 @@ export default {
   // Original text: "Fetching data…"
   homeFetchingData: '获取数据',
 
-  // Original text: "Welcome on Fragata Fleet!"
-  homeWelcome: '欢迎使用Fragata Fleet',
+  // Original text: "Welcome on Fragata!"
+  homeWelcome: '欢迎使用Fragata',
 
   // Original text: "Add your XCP-ng hosts or pools"
   homeWelcomeText: '添加您的XenServer主机或资源池',
@@ -2061,8 +2061,8 @@ export default {
   // Original text: "Are you sure you want to delete this network?"
   deleteNetworkConfirm: '你确定要删除此网络',
 
-  // Original text: "Fragata Fleet"
-  xenOrchestra: 'Fragata Fleet',
+  // Original text: "Fragata"
+  xenOrchestra: 'Fragata',
 
   // Original text: "No pro support provided!"
   noProSupport: '不提供专业支持！',
@@ -2202,8 +2202,8 @@ export default {
   // Original text: "Your XOA has successfully upgraded, and your browser must reload the application. Do you want to reload now ?"
   promptUpgradeReloadMessage: '你的XOA已经成功更新，你的浏览器必须重新加载，你要现在重新加载吗？',
 
-  // Original text: "Fragata Fleet from the sources"
-  disclaimerTitle: 'Fragata Fleet 源码版',
+  // Original text: "Fragata from the sources"
+  disclaimerTitle: 'Fragata 源码版',
 
   // Original text: "You are using XO from the sources! That's great for a personal/non-profit usage."
   disclaimerText1: '你在使用XO的源码版！这非常适合个人/非商业用途',

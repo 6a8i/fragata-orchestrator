@@ -936,7 +936,7 @@ const setUpConsoleProxy = (webServer, xo, useForwardedHeaders) => {
 
 const USAGE = `Usage: ${APP_NAME} [--safe-mode]
 
-${APP_NAME} v${APP_VERSION} (https://github.com/6a8i/fragata-fleet/commit/${__GIT_COMMIT__})`
+${APP_NAME} v${APP_VERSION} (https://github.com/6a8i/fragata-orchestrator/commit/${__GIT_COMMIT__})`
 
 // ===================================================================
 
@@ -964,7 +964,7 @@ export default async function main(args) {
     log.warn('could not detect current commit', { error })
   }
 
-  log.info(`Starting ${APP_NAME} v${APP_VERSION} (https://github.com/6a8i/fragata-fleet/commit/${__GIT_COMMIT__})`)
+  log.info(`Starting ${APP_NAME} v${APP_VERSION} (https://github.com/6a8i/fragata-orchestrator/commit/${__GIT_COMMIT__})`)
 
   const config = await loadConfiguration()
 

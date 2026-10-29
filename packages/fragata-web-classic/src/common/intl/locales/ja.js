@@ -731,7 +731,7 @@ export default {
   // Original text: 'Restart XO Server'
   restartXoServer: undefined,
 
-  // Original text: 'Restarting XO Server will interrupt any backup job or XO task that is currently running. Fragata Fleet will also be unavailable for a few seconds. Are you sure you want to restart XO Server?'
+  // Original text: 'Restarting XO Server will interrupt any backup job or XO task that is currently running. Fragata will also be unavailable for a few seconds. Are you sure you want to restart XO Server?'
   restartXoServerConfirm: undefined,
 
   // Original text: 'Open tunnel'
@@ -788,8 +788,8 @@ export default {
   // Original text: "Fetching data…"
   homeFetchingData: 'データ取得中……',
 
-  // Original text: "Welcome to Fragata Fleet!"
-  homeWelcome: 'Fragata Fleetへようこそ!',
+  // Original text: "Welcome to Fragata!"
+  homeWelcome: 'Fragataへようこそ!',
 
   // Original text: "Add your XCP-ng hosts or pools"
   homeWelcomeText: 'XCP-ngのホスト、プールの追加',
@@ -5936,7 +5936,7 @@ export default {
   // Original text: 'Want to use in production?'
   productionUse: undefined,
 
-  // Original text: 'Get pro support with the Fragata Fleet Appliance at {website}'
+  // Original text: 'Get pro support with the Fragata Appliance at {website}'
   getSupport: undefined,
 
   // Original text: "Bug Tracker"
@@ -5981,7 +5981,7 @@ export default {
   // Original text: "Problem? Open a ticket!"
   openTicketText: 'Problem? Open a ticket!',
 
-  // Original text: 'Your Fragata Fleet is up to date'
+  // Original text: 'Your Fragata is up to date'
   xoUpToDate: undefined,
 
   // Original text: 'You are not up to date with master. {nBehind} commit{nBehind, plural, one {} other {s}} behind {nAhead, plural, =0 {} other {and {nAhead, number} commit{nAhead, plural, one {} other {s}} ahead}}'
@@ -6125,8 +6125,8 @@ export default {
   // Original text: 'XOA build:'
   xoaBuild: undefined,
 
-  // Original text: "Fragata Fleet from the sources"
-  disclaimerTitle: 'Fragata Fleet (ソースコードベースの開発版)',
+  // Original text: "Fragata from the sources"
+  disclaimerTitle: 'Fragata (ソースコードベースの開発版)',
 
   // Original text: "You are using XO from the sources! That's great for a personal/non-profit usage."
   disclaimerText1:

@@ -287,8 +287,8 @@ export default {
   // Original text: "Fetching data…"
   homeFetchingData: 'Veri getiriliyor...',
 
-  // Original text: "Welcome to Fragata Fleet!"
-  homeWelcome: "Fragata Fleet'ya Hoşgeldiniz!",
+  // Original text: "Welcome to Fragata!"
+  homeWelcome: "Fragata'ya Hoşgeldiniz!",
 
   // Original text: "Add your XCP-ng hosts or pools"
   homeWelcomeText: 'XenServer sunucu veya havuzunu ekle',
@@ -4002,8 +4002,8 @@ export default {
   // Original text: "No host selected to be added"
   addHostNoHostMessage: 'Eklemek için bir sunucu seçilmedi',
 
-  // Original text: "Fragata Fleet"
-  xenOrchestra: 'Fragata Fleet',
+  // Original text: "Fragata"
+  xenOrchestra: 'Fragata',
 
   // Original text: "No pro support provided!"
   noProSupport: 'Hiçbir profesyonel destek verilmez!',
@@ -4191,8 +4191,8 @@ export default {
   upgradeWarningMessage:
     'Devam eden bazı yedekleme işleriniz var. Şimdi yükseltirseniz, bu işler kesilecektir! Devam etmek istediğinize emin misiniz?',
 
-  // Original text: "Fragata Fleet from the sources"
-  disclaimerTitle: 'Kaynak koddan Fragata Fleet',
+  // Original text: "Fragata from the sources"
+  disclaimerTitle: 'Kaynak koddan Fragata',
 
   // Original text: "You are using XO from the sources! That's great for a personal/non-profit usage."
   disclaimerText1: "XO'yu kaynak koddan kullanıyorsunuz! Kişisel/kar amacı gütmeyen kullanım için mükemmeldir.",

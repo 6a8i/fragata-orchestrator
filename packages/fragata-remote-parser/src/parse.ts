@@ -58,7 +58,7 @@ function parseFileUrl(rest: string): ParsedFileBackupRepositoryUrl {
 function parseNfsUrl(rest: string): ParsedNfsBackupRepositoryUrl {
   const matches = NFS_RE.exec(rest)
 
-  // a colon in the path breaks NFS_RE and is still accepted by the Fleet Classic remote form: fall back to the legacy split (commit: https://github.com/6a8i/fragata-fleet/commit/fb1bf6a1e748b457f2d2b89ba02fa104554c03df)
+  // a colon in the path breaks NFS_RE and is still accepted by the Fragata Classic remote form: fall back to the legacy split (commit: https://github.com/6a8i/fragata-orchestrator/commit/fb1bf6a1e748b457f2d2b89ba02fa104554c03df)
   if (matches === null) {
     const [host = '', path = ''] = rest.split(':')
 

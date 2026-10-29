@@ -1,6 +1,6 @@
 # Backup proxies
 
-A Fragata Fleet proxy is a small appliance you deploy in your infrastructure to handle the data streams of your backup jobs locally, while your main Fragata Fleet appliance (XOA) keeps orchestrating everything. The two most common reasons to use a proxy are:
+A Fragata proxy is a small appliance you deploy in your infrastructure to handle the data streams of your backup jobs locally, while your main Fragata appliance (XOA) keeps orchestrating everything. The two most common reasons to use a proxy are:
 
 - **Large infrastructure**: spread the backup workload across several appliances and avoid saturating the main XOA
 - **Remote sites**: keep backup data inside the remote site and avoid a useless round trip across the WAN to the main XOA
@@ -90,7 +90,7 @@ XO proxies require the following resources:
 
 ## Backup repository through a proxy {#proxy-remote-creation}
 
-Once a proxy is deployed in your infrastructure, you can create a backup repository (BR) handled by that proxy, using the usual form (still labeled _Remotes_ in Fleet Classic). Simply pick the proxy in the **Proxy** selector: the proxy will mount the BR itself and handle all data streams to it.
+Once a proxy is deployed in your infrastructure, you can create a backup repository (BR) handled by that proxy, using the usual form (still labeled _Remotes_ in Fragata Classic). Simply pick the proxy in the **Proxy** selector: the proxy will mount the BR itself and handle all data streams to it.
 
 <UiDetail src="/img/xo5/proxy-remote-form.png" alt="The New file system remote form with an NFS type and Proxy 1 selected in the proxy field" width={700} />
 
@@ -100,7 +100,7 @@ The proxy handling each BR is then visible in the _Remotes_ list:
 
 ## Backup job with Proxies
 
-While creating a standard backup job from your main Fragata Fleet appliance, you can select a proxy in the job settings: the proxy will then execute the job and handle its data streams instead of the main appliance.
+While creating a standard backup job from your main Fragata appliance, you can select a proxy in the job settings: the proxy will then execute the job and handle its data streams instead of the main appliance.
 
 <UiDetail src="/img/xo5/proxy-job-select.png" alt="The backup job Settings panel with Proxy 1 selected in the Proxy field" width={700} />
 
@@ -116,7 +116,7 @@ A disk can be [live mounted](../backup-features-and-settings.md#live-mount) from
 
 - The hosts connect to the proxy over iSCSI, on a TCP port picked for each mount. If a firewall sits between the hosts and the proxy, that firewall must allow TCP connections from the hosts to the proxy.
 - The address provided to the hosts is the proxy's automatically detected address. If the hosts cannot reach it, set the address in the `[iscsi]` section of the proxy configuration (`/etc/fragata-proxy/config.toml`), using the same `advertisedAddress` and `bindAddress` settings as those configured for XOA.
-- If ufw is enabled on the proxy, the proxy opens the port of each mount itself, only for the host it is mounted on. This is enabled by default: set `manageFirewall = false` in the same `[iscsi]` section to turn it off. See [Firewall of Fragata Fleet](../backup-features-and-settings.md#live-mount-firewall) for how the rules behave, including when ufw is changed or the proxy crashes.
+- If ufw is enabled on the proxy, the proxy opens the port of each mount itself, only for the host it is mounted on. This is enabled by default: set `manageFirewall = false` in the same `[iscsi]` section to turn it off. See [Firewall of Fragata](../backup-features-and-settings.md#live-mount-firewall) for how the rules behave, including when ufw is changed or the proxy crashes.
 - The mount lasts as long as the proxy process: restarting or updating the proxy ends it.
 - Deleting the live mounted disk, or the VM with its disks, releases the mount, as without a proxy.
 

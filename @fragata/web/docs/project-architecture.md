@@ -4,7 +4,7 @@ This project is composed of three main parts:
 
 - The `/pages` directory: root components that define the main routes of the application.
 - The `/shared` directory: components, composables, and utilities that are shared between multiple pages.
-- The `/modules` directory: each subdirectory represents a distinct module (i.e. an Fragata Fleet object type such as Host, VM, SR, etc. or other "object" like Site, Account, etc.). Each module contains its own components, composables, and utilities specific to that module.
+- The `/modules` directory: each subdirectory represents a distinct module (i.e. an Fragata object type such as Host, VM, SR, etc. or other "object" like Site, Account, etc.). Each module contains its own components, composables, and utilities specific to that module.
 
 ## Pages
 

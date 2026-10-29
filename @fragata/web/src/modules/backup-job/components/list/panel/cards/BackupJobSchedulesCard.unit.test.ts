@@ -48,7 +48,7 @@ it('shows the name, id, status, cron pattern and next run of a schedule', () => 
   })
 })
 
-it('links the schedule to the Fleet Classic backup overview', () => {
+it('links the schedule to the Fragata Classic backup overview', () => {
   const link = mountSchedulesCard([createSchedule()]).getComponent(UiLink)
 
   expect(link.attributes('href')).toBe('https://xo5.example.com/#/backup/overview')

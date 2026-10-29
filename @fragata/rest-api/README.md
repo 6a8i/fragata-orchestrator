@@ -22,7 +22,7 @@ The user-facing documentation is available at [docs.xen-orchestra.com](https://d
 
 ## Development guidelines
 
-Any change to this package **must** follow the [REST API guidelines](https://github.com/6a8i/fragata-fleet/blob/master/%40xen-orchestra/rest-api/docs/guidelines.md), in addition to the [backend project guidelines](https://github.com/6a8i/fragata-fleet/blob/master/packages/fragata-server/docs/guidelines.md).
+Any change to this package **must** follow the [REST API guidelines](https://github.com/6a8i/fragata-orchestrator/blob/master/%40xen-orchestra/rest-api/docs/guidelines.md), in addition to the [backend project guidelines](https://github.com/6a8i/fragata-orchestrator/blob/master/packages/fragata-server/docs/guidelines.md).
 
 ## Contributions
 
@@ -31,7 +31,7 @@ the code.
 
 You may:
 
-- report any [issue](https://github.com/6a8i/fragata-fleet/issues)
+- report any [issue](https://github.com/6a8i/fragata-orchestrator/issues)
   you've encountered;
 - fork and create a pull request.
 

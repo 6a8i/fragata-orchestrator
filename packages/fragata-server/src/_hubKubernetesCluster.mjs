@@ -214,7 +214,7 @@ export async function createCluster({
       ]
     : ''
 
-  // Values for Fragata Fleet CCM (will be copied to the VM with cloud-init write_files)
+  // Values for Fragata CCM (will be copied to the VM with cloud-init write_files)
   // Get new token from XOA to use in the CCM
   const userId = this.apiContext.user.id
   const xoConnection = this.createApiConnection()
@@ -313,7 +313,7 @@ export async function createCluster({
         content: kubeVipValues,
       },
       {
-        // Fragata Fleet CCM values file
+        // Fragata CCM values file
         owner: 'root:root',
         path: '/home/debian/xo-ccm-values.yml',
         permissions: '0644',

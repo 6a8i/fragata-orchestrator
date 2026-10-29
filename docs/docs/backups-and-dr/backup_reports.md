@@ -4,7 +4,7 @@ sidebar_position: 7
 
 # Backup reports
 
-At the end of a backup job, Fragata Fleet can send you a report through the channel of your choice: email, XMPP, Slack or Mattermost, and even straight into your Nagios or Icinga 2 monitoring.
+At the end of a backup job, Fragata can send you a report through the channel of your choice: email, XMPP, Slack or Mattermost, and even straight into your Nagios or Icinga 2 monitoring.
 
 Whatever the channel, the logic is always the same, in three steps:
 
@@ -127,7 +127,7 @@ That's it: your next scheduled job will be recapped in a message:
 
 ## Slack or Mattermost
 
-Fragata Fleet is able to send backup reports to Slack or Mattermost. Both are handled by the same `transport-slack` plugin, which posts the report to an incoming webhook URL.
+Fragata is able to send backup reports to Slack or Mattermost. Both are handled by the same `transport-slack` plugin, which posts the report to an incoming webhook URL.
 
 ### Plugin configuration
 
@@ -181,7 +181,7 @@ Fill the plugin configuration with your webhook URL and channel, then use the te
 
 <UiDetail src="/img/xo5/slack-plugin-configuration.png" alt="The transport-slack plugin configuration filled with a Slack webhook URL and channel" width={700} />
 
-<UiDetail src="/img/xo5/slack-report-example.png" alt="The test message posted by the Fragata Fleet bot in a Slack channel" width={620} />
+<UiDetail src="/img/xo5/slack-report-example.png" alt="The test message posted by the Fragata bot in a Slack channel" width={620} />
 
 #### Mattermost {#mattermost-1}
 
@@ -189,19 +189,19 @@ The same plugin works for Mattermost, only the webhook URL changes:
 
 <UiDetail src="/img/xo5/mattermost-plugin-configuration.png" alt="The transport-slack plugin configuration filled with a Mattermost webhook URL" width={700} />
 
-<UiDetail src="/img/xo5/mattermost-report-example.png" alt="The test message posted by the Fragata Fleet bot in a Mattermost channel" width={700} />
+<UiDetail src="/img/xo5/mattermost-report-example.png" alt="The test message posted by the Fragata bot in a Mattermost channel" width={700} />
 
 ## Nagios
 
-The `transport-nagios` plugin allows you to integrate Fragata Fleet backup reports directly into your Nagios monitoring system.
+The `transport-nagios` plugin allows you to integrate Fragata backup reports directly into your Nagios monitoring system.
 
 Instead of relying solely on email notifications, this plugin sends the status of your backup jobs as **passive checks** to Nagios. This ensures that your infrastructure monitoring dashboard remains the single source of truth for your backup health.
 
-<UiDetail src="/img/xo5/nagios-preview.jpg" alt="A Nagios services view showing backup job results reported by Fragata Fleet" width={620} />
+<UiDetail src="/img/xo5/nagios-preview.jpg" alt="A Nagios services view showing backup job results reported by Fragata" width={620} />
 
 ### Overview
 
-When a backup job completes, Fragata Fleet sends a report. By using the plugin, the result (`Success`, `Warning`, or `Error`) is pushed to the Nagios command file.
+When a backup job completes, Fragata sends a report. By using the plugin, the result (`Success`, `Warning`, or `Error`) is pushed to the Nagios command file.
 
 - **Success**: sends an `OK` status.
 - **Warning**: sends a `WARNING` status.
@@ -221,7 +221,7 @@ NSCA is a Linux/Unix daemon that lets remote systems "push" status updates to a 
 
 The architecture is like this:
 
-<UiDetail src="/img/xo5/nsca.png" alt="Schema of Fragata Fleet pushing passive checks to Nagios through the NSCA daemon" width={480} />
+<UiDetail src="/img/xo5/nsca.png" alt="Schema of Fragata pushing passive checks to Nagios through the NSCA daemon" width={480} />
 
 Check your NSCA config file and add a password and at least XOR encryption:
 
@@ -265,15 +265,15 @@ define service{
 }
 `}</Terminal>
 
-This service will wait for Fragata Fleet to send backup news in the last 24 hours.
+This service will wait for Fragata to send backup news in the last 24 hours.
 
-Your Nagios setup is now ready. If the service doesn't hear from Fragata Fleet in time, it will be in `CRITICAL` state, like this:
+Your Nagios setup is now ready. If the service doesn't hear from Fragata in time, it will be in `CRITICAL` state, like this:
 
 <UiDetail src="/img/xo5/xo5nagiosset.png" alt="A Nagios service row in CRITICAL state because no backup report was received in the last 24 hours" width={700} />
 
 ### Installation in XOA
 
-The plugin is part of the standard Fragata Fleet transport packages.
+The plugin is part of the standard Fragata transport packages.
 
 1. Go to **Settings → Plugins**.
 2. Locate `transport-nagios`.

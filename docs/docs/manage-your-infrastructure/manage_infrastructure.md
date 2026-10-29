@@ -2,15 +2,15 @@
 sidebar_position: 2
 ---
 
-# Management in Fleet Classic
+# Management in Fragata Classic
 
-<InterfaceNote>This page describes infrastructure management in the Fleet Classic interface. Fragata Fleet already covers inspection of pools, hosts, networks and storage, host power actions, network and VIF creation.</InterfaceNote>
+<InterfaceNote>This page describes infrastructure management in the Fragata Classic interface. Fragata already covers inspection of pools, hosts, networks and storage, host power actions, network and VIF creation.</InterfaceNote>
 
-Fragata Fleet is built on one idea: **a single interface for all your pools, hosts and VMs, from any device**: creation, modification, metrics and statistics for every object of your XCP-ng infrastructure. This page covers those day-to-day operations in Fleet Classic.
+Fragata is built on one idea: **a single interface for all your pools, hosts and VMs, from any device**: creation, modification, metrics and statistics for every object of your XCP-ng infrastructure. This page covers those day-to-day operations in Fragata Classic.
 
 ## Home view
 
-The home view is what you see when you access your Fragata Fleet URL. It displays all running VMs. This can be configured to your needs (see the "Filters section" below).
+The home view is what you see when you access your Fragata URL. It displays all running VMs. This can be configured to your needs (see the "Filters section" below).
 
 If you don't have any servers connected, you'll see a panel telling you to add a server:
 
@@ -26,7 +26,7 @@ After clicking on connect, the server is displayed as connected:
 
 <UiDetail src="/img/xo5/xo5connectedserver.png" alt="The pool appears as soon as the server is connected" width={620} />
 
-Now go back to the Home view (or click on the "Fragata Fleet" title on the top left of the screen), you'll see the default home view of VM objects.
+Now go back to the Home view (or click on the "Fragata" title on the top left of the screen), you'll see the default home view of VM objects.
 
 ### VMs
 
@@ -88,7 +88,7 @@ The idea is not just to provide a good search engine, but also a complete soluti
 - sort your results for more pertinent insight
 
 :::tip
-Pro Tip: the URL of Fragata Fleet contains the search string, eg `home?s=power_state%3Arunning+`. You can share these URLs to your colleagues to share your search!
+Pro Tip: the URL of Fragata contains the search string, eg `home?s=power_state%3Arunning+`. You can share these URLs to your colleagues to share your search!
 :::
 
 ### Search examples
@@ -208,7 +208,7 @@ You can use the search field/filter with number comparisons:
 
 There isn't much documentation listing these (yet), but you can see all objects and their properties using `fragata-cli list-objects`. You can then use these properties for search in XOA.
 
-Take a look at [the documentation](https://github.com/6a8i/fragata-fleet/tree/master/packages/fragata-cli#fragata-cli) for fragata-cli :)
+Take a look at [the documentation](https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-cli#fragata-cli) for fragata-cli :)
 
 Example: to search by the Xen Tools status:
 
@@ -229,7 +229,7 @@ Or in the home view:
 
 #### Select your Pool
 
-Because Fragata Fleet can be connected to multiple pools, you must select which one you want to create your VMs on:
+Because Fragata can be connected to multiple pools, you must select which one you want to create your VMs on:
 
 <UiDetail src="/img/xo5/xo5createonpool.png" alt="Select the pool where the VM will be created" width={620} />
 
@@ -331,13 +331,13 @@ XCP-ng doesn't limit VMs to 32 vCPU
 
 Thanks to Xen Storage Motion, it's easy to move a VM disk from one storage location to another, while the VM is running! This feature can help you migrate from your local storage to a SAN, or just upgrade your SAN without any downtime.
 
-To do so: Access the Fragata Fleet page for your running VM, then enter the Disk tab. Long click on the current SR of the disk, and a drop down menu will be displayed with all compatible destinations. Just select one, that's all: the migration will start live!
+To do so: Access the Fragata page for your running VM, then enter the Disk tab. Long click on the current SR of the disk, and a drop down menu will be displayed with all compatible destinations. Just select one, that's all: the migration will start live!
 
 <UiDetail src="/img/xo5/xo5diskmigrate.png" alt="Migrate a disk to another SR, live, from the VM Disks tab" width={700} />
 
 #### Offline VDI migration
 
-Even though it's not currently supported in XCP-ng/XenServer, we can do it in Fragata Fleet. It's exactly the same process as a running VM.
+Even though it's not currently supported in XCP-ng/XenServer, we can do it in Fragata. It's exactly the same process as a running VM.
 
 ### VM recovery
 
@@ -389,7 +389,7 @@ To add a restricted IP address:
    1. Choose your desired mode from that menu:
       <UiDetail src="/img/xo5/choose-vif-locking-mode.png" alt="Choose the locking mode of a VIF" width={320} />
 
-If Fragata Fleet knows the VM’s IP address (either through the guest agent or DHCP), it will automatically apply IP-level locking when the mode is enabled.
+If Fragata knows the VM’s IP address (either through the guest agent or DHCP), it will automatically apply IP-level locking when the mode is enabled.
 
 #### How do I automate VIF locking mode?
 
@@ -405,7 +405,7 @@ In the VM's Advanced tab, you can choose between three HA modes:
 - Disabled: if an unprotected VM or its host is stopped, HA does not attempt to restart the VM.
 
 :::tip
-In Fragata Fleet, you can filter to see which VMs are in which mode:
+In Fragata, you can filter to see which VMs are in which mode:
 `high_availability:restart` or `high_availability:best-effort`
 :::
 
@@ -455,7 +455,7 @@ to track a VM's history, keep that in mind before reverting.
 
 ## VM import and export
 
-Fragata Fleet can import and export VM's in XVA format (XCP-ng/XenServer format) or import OVA files (OVF1 format).
+Fragata can import and export VM's in XVA format (XCP-ng/XenServer format) or import OVA files (OVF1 format).
 
 :::tip
 We support OVA import from VirtualBox. Feel free to report issues with OVA from other virtualization platforms.
@@ -521,7 +521,7 @@ VM migration with storage motion allows you to migrate a VM from one host to ano
 
 ### Warm migration
 
-Warm migration moves a running VM to another SR, including on another pool, with minimal downtime. Unlike the migrations above, the data doesn't go directly from host to host: Fragata Fleet reads the VM from the source and writes it to the destination, using the same mechanism as [incremental replication](../backups-and-dr/backup-types/incremental_replication.md).
+Warm migration moves a running VM to another SR, including on another pool, with minimal downtime. Unlike the migrations above, the data doesn't go directly from host to host: Fragata reads the VM from the source and writes it to the destination, using the same mechanism as [incremental replication](../backups-and-dr/backup-types/incremental_replication.md).
 
 #### How it works
 
@@ -535,7 +535,7 @@ The downtime is limited to the time needed to shut down the source VM, transfer 
 #### Use Cases
 
 - Migrate a VM to another pool when a live migration is not possible (for example between pools with incompatible CPUs).
-- Migrate a VM between pools whose hosts can't reach each other directly, since all data goes through Fragata Fleet.
+- Migrate a VM between pools whose hosts can't reach each other directly, since all data goes through Fragata.
 
 #### How to use it
 
@@ -550,7 +550,7 @@ Warm migration requires an XOA Premium plan, and can only be run by an administr
 :::
 
 :::tip
-If you keep the source VM, it can't be started anymore: Fragata Fleet blocks its start operation, since it might not be up to date. It also keeps a snapshot named `[XO warm migration …]`, which you can delete once the migration is checked. The source VM is only deleted when **Start the migrated VM** is also selected.
+If you keep the source VM, it can't be started anymore: Fragata blocks its start operation, since it might not be up to date. It also keeps a snapshot named `[XO warm migration …]`, which you can delete once the migration is checked. The source VM is only deleted when **Start the migrated VM** is also selected.
 :::
 
 ### Preventing VM migration
@@ -567,13 +567,13 @@ When this option is enabled, the VM won't be able to migrate to another host.
 
 XCP-ng is a type 1 hypervisor, similar to VMware ESXi.
 
-You can migrate your VM from VMware vSphere to a Vates environment (Fragata Fleet and XCP-ng), directly from Fragata Fleet. For this, we use V2V ("VMware to Vates").
+You can migrate your VM from VMware vSphere to a Vates environment (Fragata and XCP-ng), directly from Fragata. For this, we use V2V ("VMware to Vates").
 
-To know more on using V2V in Fragata Fleet to migrate your environment from VMware, refer to the [XO V2V section in the XCP-ng documentation](https://docs.xcp-ng.org/installation/migrate-to-xcp-ng/#xo-v2v).
+To know more on using V2V in Fragata to migrate your environment from VMware, refer to the [XO V2V section in the XCP-ng documentation](https://docs.xcp-ng.org/installation/migrate-to-xcp-ng/#xo-v2v).
 
 ## Hosts management
 
-Outside updates (see next section), you can also do host management via Fragata Fleet. Basic operations are supported, like reboot, shutdown and so on.
+Outside updates (see next section), you can also do host management via Fragata. Basic operations are supported, like reboot, shutdown and so on.
 
 But there's also some specific things, like Maintenance mode.
 
@@ -604,7 +604,7 @@ There is more information about Dom0 memory management in the [XCP-ng Documentat
 
 ## Pool and host updates
 
-Fragata Fleet is here to help you to manage all your pools and hosts updates. Note there's a difference on updates between XCP-ng and Citrix Hypervisor, since they are not using the same mechanism. However, the view on available updates and updating is very similar.
+Fragata is here to help you to manage all your pools and hosts updates. Note there's a difference on updates between XCP-ng and Citrix Hypervisor, since they are not using the same mechanism. However, the view on available updates and updating is very similar.
 
 :::tip
 Updates can be called both "patches" or "updates", it doesn't matter. Updates are distributed via an ISO file containing RPMs for Citrix Hypervisor, while in XCP-ng they are just traditional RPMs hosted in a central repository and its mirrors, like a regular Linux distribution.
@@ -612,7 +612,7 @@ Updates can be called both "patches" or "updates", it doesn't matter. Updates ar
 
 ### Available updates
 
-You'll be notified by Fragata Fleet directly in the main XO menu (on the left), with a yellow triangle:
+You'll be notified by Fragata directly in the main XO menu (on the left), with a yellow triangle:
 
 <UiDetail src="/img/xo5/availableupdates.png" alt="The number of missing patches, right on the pool" width={300} />
 
@@ -630,12 +630,12 @@ On XCP-ng, there's multiple way to update your pools and hosts.
 
 #### ⚙️ How it works
 
-Fragata Fleet will request a plugin, bundled and hosted within your XCP-ng hosts. This plugin will query the status of updates. Then, when the update will be applied, it's also the plugin that will download and apply them.
-So unlike with Citrix Hypervisor, Fragata Fleet will not fetch or download updates, but it will order the host to do it by itself. Be sure that your host(s) can access the update repositories.
+Fragata will request a plugin, bundled and hosted within your XCP-ng hosts. This plugin will query the status of updates. Then, when the update will be applied, it's also the plugin that will download and apply them.
+So unlike with Citrix Hypervisor, Fragata will not fetch or download updates, but it will order the host to do it by itself. Be sure that your host(s) can access the update repositories.
 
 #### Rolling Pool Updates (RPU)
 
-Also known as RPU, **this is the advised way to update your pool**. By just clicking on one button, Fragata Fleet will automatically move VMs around, apply updates and reboot the hosts, without any service interruption. The following button is available in the **Pool** view of the **Patches** tab:
+Also known as RPU, **this is the advised way to update your pool**. By just clicking on one button, Fragata will automatically move VMs around, apply updates and reboot the hosts, without any service interruption. The following button is available in the **Pool** view of the **Patches** tab:
 
 <UiDetail src="/img/xo5/rpubutton.png" alt="The Rolling Pool Update button on the pool Patches tab" width={340} />
 
@@ -720,8 +720,8 @@ We do NOT recommend to install updates to individual hosts. Obviously except if 
 
 #### ⚙️ How it works
 
-Fragata Fleet will directly request a specific XML, hosted by Citrix. It will be analyzed and compared to the patch level on your hosts.
-If there's available/missing updates, XO will download it directly, then send it to the pool, and finally ask the pool to apply it. In that scenario, you should check if Fragata Fleet can access outside to get those updates.
+Fragata will directly request a specific XML, hosted by Citrix. It will be analyzed and compared to the patch level on your hosts.
+If there's available/missing updates, XO will download it directly, then send it to the pool, and finally ask the pool to apply it. In that scenario, you should check if Fragata can access outside to get those updates.
 
 #### Pool updates
 
@@ -799,7 +799,7 @@ The primary goals are to improve redundancy, so that a single cable or interface
 
 #### Supported bond types
 
-Fragata Fleet supports the following bond types:
+Fragata supports the following bond types:
 
 - **Active / Active (Balance-SLB)**
   - Does **not** require switch awareness (no LACP needed)
@@ -872,7 +872,7 @@ This way, you can do whatever is needed on the storage, and when done, re-enable
 
 ### Reclaim free space
 
-If your SAN supports it, Fragata Fleet can instruct your XCP-ng host to send a trim command to perform some cleaning.
+If your SAN supports it, Fragata can instruct your XCP-ng host to send a trim command to perform some cleaning.
 
 <UiDetail src="/img/xo5/xo5reclaimfree.png" alt="Reclaim free space from the SR Advanced tab" width={620} />
 
@@ -885,7 +885,7 @@ Visualizations can help you to understand your XCP-ng/XenServer infrastructure, 
 The dashboard view gathers information on all your connected pools/hosts.
 
 :::note
-Since Fragata Fleet became the default interface, `https://your-xo/#/dashboard` opens the [new Fragata Fleet dashboard](../manage-your-infrastructure/management.md). The Fleet Classic dashboard described here now lives under `/v5/`.
+Since Fragata became the default interface, `https://your-xo/#/dashboard` opens the [new Fragata dashboard](../manage-your-infrastructure/management.md). The Fragata Classic dashboard described here now lives under `/v5/`.
 :::
 
 <UiShot light="/img/xo5/dashboard-overview.png" alt="The Overview aggregates pools, hosts, VMs, resource usage and alarms at a glance" url="https://your-xo/v5/#/dashboard/overview" />
@@ -966,7 +966,7 @@ This is the place to compare metrics on comparable objects (VMs to VMs, hosts to
 
 ### Usage reports
 
-Fragata Fleet lets you monitor the usage of some or all of your resources by sending regular reports via email.
+Fragata lets you monitor the usage of some or all of your resources by sending regular reports via email.
 
 To receive reports, you first need to enable the **usage-report** plugin:
 
@@ -1022,7 +1022,7 @@ If you encounter issues with your software RAID array, you can find answers rega
 
 #### Checking RAID status
 
-Fragata Fleet allows you to monitor the health of your software RAID arrays directly from the interface.
+Fragata allows you to monitor the health of your software RAID arrays directly from the interface.
 
 To check the status reported by `mdadm`, go to the **Host → Advanced** section. You'll get a clear, real-time view of your RAID array’s condition:
 

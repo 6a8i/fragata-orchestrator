@@ -17,7 +17,7 @@ class Job {
         //
         // no need to check _isEnabled, we're just delaying the existing timeout
         //
-        // see https://github.com/6a8i/fragata-fleet/issues/4625
+        // see https://github.com/6a8i/fragata-orchestrator/issues/4625
         this._timeout = setTimeout(wrapper, scheduledDate - now)
         return
       }

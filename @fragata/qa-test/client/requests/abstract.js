@@ -8,7 +8,7 @@ import { assertNonEmptyString, assertFileExists } from '../../utils/index.js'
 const log = createLogger('xo:qa-test:request')
 
 /**
- * Abstract base class for all Fragata Fleet request handlers.
+ * Abstract base class for all Fragata request handlers.
  *
  * Provides common CRUD operations with REST-first approach and WebSocket fallback.
  * All specialized request handlers should extend this class to inherit standard

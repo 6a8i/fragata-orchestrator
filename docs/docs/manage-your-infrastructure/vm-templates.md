@@ -6,13 +6,13 @@ sidebar_position: 3
 
 <InterfaceNote />
 
-Virtual machine templates in Fragata Fleet make it easy to deploy new VMs by providing a ready-to-use configuration with predefined hardware specs and settings. Instead of manually setting up each VM from scratch, you can use templates to speed up deployment and keep things consistent.
+Virtual machine templates in Fragata make it easy to deploy new VMs by providing a ready-to-use configuration with predefined hardware specs and settings. Instead of manually setting up each VM from scratch, you can use templates to speed up deployment and keep things consistent.
 
 <UiShot light="/img/xo5/template-menu.png" alt="The Templates view, from Home" url="https://your-xo/v5/#/home?t=VM-template" />
 
 ## Creating Templates
 
-There are a few ways to create a VM template in Fragata Fleet:
+There are a few ways to create a VM template in Fragata:
 
 ### From an Existing VM
 
@@ -46,9 +46,9 @@ To learn more about VM creation, read the [VM creation](./manage_infrastructure#
 
 ## Viewing Template Properties
 
-### From Fragata Fleet
+### From Fragata
 
-To check a template’s settings in Fragata Fleet:
+To check a template’s settings in Fragata:
 
 1. Head to the **Home → Templates** section.
 2. Check the box next to the template(s) you want to inspect.
@@ -58,7 +58,7 @@ To check a template’s settings in Fragata Fleet:
 
 ### From the REST API
 
-If you need more technical details than what the UI shows, the Fragata Fleet API has everything.
+If you need more technical details than what the UI shows, the Fragata API has everything.
 
 To learn more, read the [REST API documentation](../automation/restapi.md).
 
@@ -88,7 +88,7 @@ Need to delete a template? Here’s how:
 Before deleting a template, make sure to find and remove any attached disks. Otherwise, you'll end up with orphaned VDIs.
 :::
 
-1. In Fragata Fleet, go to the **Home → Templates** section.
+1. In Fragata, go to the **Home → Templates** section.
 2. Check the box next to the template(s) you want to delete.
 3. Click the trash can icon in the header and confirm the deletion.
 
@@ -100,12 +100,12 @@ VMs include a parameter to enable Viridian extensions.
 
 Viridian is a codename for [Hyper-V](https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/hyper-v-overview), a native hypervisor developed by Microsoft that allows the creation of virtual machines on x86-64 systems running Windows.
 
-Viridian extensions (referred to as "Viridian enlightenments" by Microsoft) are used by any "recent" Windows OS to work properly. Consequently, the Viridian setting in Fragata Fleet is typically enabled by default for all Windows templates from Windows 2012 onwards.
+Viridian extensions (referred to as "Viridian enlightenments" by Microsoft) are used by any "recent" Windows OS to work properly. Consequently, the Viridian setting in Fragata is typically enabled by default for all Windows templates from Windows 2012 onwards.
 
 ### Step-by-step guide
 
 :::warning
-We strongly advise creating Windows templates by starting from a built-in Windows template, as the Viridian setting in Fragata Fleet is only relevant for those.
+We strongly advise creating Windows templates by starting from a built-in Windows template, as the Viridian setting in Fragata is only relevant for those.
 :::
 
 #### Templates based on built-in Windows templates
@@ -146,7 +146,7 @@ This means that you can easily customize your VM when you create it from a compa
 
 ### Cloudbase-init (Windows)
 
-As of release 5.101, Fragata Fleet also supports Cloudbase-init. This tool provides equivalent functionality to Cloud-init but is specifically designed for Windows virtual machines.
+As of release 5.101, Fragata also supports Cloudbase-init. This tool provides equivalent functionality to Cloud-init but is specifically designed for Windows virtual machines.
 
 To build such a template, follow the dedicated [Windows templates with Cloudbase-init](../guides/windows-templates.md) guide.
 

@@ -4,7 +4,7 @@
     "fragata-backups": "index.mjs"
   },
   "preferGlobal": true,
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "dependencies": {
     "@fragata/async-each": "^1.0.3",
     "@fragata/async-map": "^0.1.5",
@@ -18,12 +18,12 @@
   "engines": {
     "node": ">=14"
   },
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/backups-cli",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/backups-cli",
   "name": "@fragata/backups-cli",
   "repository": {
     "directory": "@fragata/backups-cli",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "scripts": {
     "postversion": "npm publish --access public"

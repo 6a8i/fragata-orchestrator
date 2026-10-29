@@ -232,12 +232,12 @@ module.exports = {
           'error',
           {
             ignoreText: [
-              'Fragata Fleet Lite',
-              'Fragata Fleet',
-              'Fragata Fleet Appliance',
+              'Fragata Lite',
+              'Fragata',
+              'Fragata Appliance',
               'Fragata Deck',
               'XCP-ng',
-              'Fleet Classic',
+              'Fragata Classic',
               '404',
               '⚠️',
             ],
@@ -337,7 +337,7 @@ module.exports = {
     //
     // enabled by https://github.com/standard/eslint-config-standard/commit/319b177750899d4525eb1210686f6aca96190b2f
     //
-    // example: https://github.com/6a8i/fragata-fleet/blob/31ed3767c67044ca445658eb6b560718972402f2/packages/xen-api/src/index.js#L156-L157
+    // example: https://github.com/6a8i/fragata-orchestrator/blob/31ed3767c67044ca445658eb6b560718972402f2/packages/xen-api/src/index.js#L156-L157
     'lines-between-class-members': 'off',
 
     'no-console': ['error', { allow: ['warn', 'error'] }],

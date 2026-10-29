@@ -44,7 +44,7 @@ export function registerGetInfrastructureSummary(server: McpServer, getClient: (
           role: 'user',
           content: {
             type: 'text',
-            text: `Please use the get_infrastructure_summary tool to fetch the current state of the Fragata Fleet infrastructure, then provide a clear, human-readable summary of:
+            text: `Please use the get_infrastructure_summary tool to fetch the current state of the Fragata infrastructure, then provide a clear, human-readable summary of:
 1. How many pools are configured and their names
 2. Total number of hosts
 3. VM statistics (total, running, halted)

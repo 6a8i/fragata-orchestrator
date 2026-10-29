@@ -22,7 +22,7 @@ const ADDITIONAL_FILES_FETCH_TIMEOUT = 5e3
 const jsonStringify = json => JSON.stringify(json, null, 2)
 const logger = createLogger('report-bug-button')
 
-const GITHUB_URL = 'https://github.com/6a8i/fragata-fleet/issues/new'
+const GITHUB_URL = 'https://github.com/6a8i/fragata-orchestrator/issues/new'
 const GITHUB_BUG_TEMPLATE = 'bug_report.yml'
 const XO_SUPPORT_URL = 'https://xen-orchestra.com/#!/member/support'
 const SUPPORT_PANEL_URL = './api/support/create/ticket'

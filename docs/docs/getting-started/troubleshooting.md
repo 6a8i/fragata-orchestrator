@@ -109,7 +109,7 @@ Reduce the static max memory of the XOA VM to a lower value and migrate again.
 
 If `fragata-server` crashes with `FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory` in its logs, give the XOA VM more memory (see [Sizing your XOA](installation.md#sizing)) and restart it.
 
-Since Fragata Fleet 6.8, `fragata-server` sets its Node.js memory limit to 70% of the VM's RAM (1 GiB minimum), recalculated at each start: no manual setting is needed. If you previously added `--max-old-space-size` to `/etc/systemd/system/fragata-server.service` by hand, you can remove it: the automatic limit makes it unnecessary.
+Since Fragata 6.8, `fragata-server` sets its Node.js memory limit to 70% of the VM's RAM (1 GiB minimum), recalculated at each start: no manual setting is needed. If you previously added `--max-old-space-size` to `/etc/systemd/system/fragata-server.service` by hand, you can remove it: the automatic limit makes it unnecessary.
 
 ### Stats not showing on a pool
 

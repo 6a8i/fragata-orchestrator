@@ -84,9 +84,9 @@ export default class About extends Component {
                   <Col mediumSize={6}>
                     <Icon icon='git' size={4} />
                     <h4>
-                      Fragata Fleet, commit{' '}
+                      Fragata, commit{' '}
                       <a
-                        href={'https://github.com/6a8i/fragata-fleet/commit/' + COMMIT_ID}
+                        href={'https://github.com/6a8i/fragata-orchestrator/commit/' + COMMIT_ID}
                         target='_blank'
                         rel='noreferrer'
                       >
@@ -156,7 +156,7 @@ export default class About extends Component {
               </Row>
               <Row>
                 <Col mediumSize={6}>
-                  <a href='https://github.com/6a8i/fragata-fleet/issues/new/choose' target='_blank' rel='noreferrer'>
+                  <a href='https://github.com/6a8i/fragata-orchestrator/issues/new/choose' target='_blank' rel='noreferrer'>
                     <Icon icon='bug' size={4} />
                     <h4>{_('bugTracker')}</h4>
                   </a>

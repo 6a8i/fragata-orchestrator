@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Backup strategy guide
 
-This guide explains how to design and implement a backup strategy in Fragata Fleet.
+This guide explains how to design and implement a backup strategy in Fragata.
 
 Instead of a simple list of questions and answers, it walks you through **key decisions** and **best practices** before, during, and after setting up backups.
 
@@ -33,7 +33,7 @@ This part explains the terminology of backup types and features.
 
 ## What should I do before setting up my backup?
 
-Before creating your first backup job in Fragata Fleet, consider the following:
+Before creating your first backup job in Fragata, consider the following:
 
 ### Backup repository {#remote}
 
@@ -79,7 +79,7 @@ Here is the whole toolbox at a glance. Most infrastructures combine several of t
 | [Metadata backup](./backup-types/metadata_backup.md)                    | XO config and pool metadata                 | Tiny                        | Rebuild your orchestration       | Always: it protects the tool itself    |
 
 :::note The two replication modes have been renamed
-**Full replication** used to be called **Disaster Recovery (DR)**, and **incremental replication** used to be called **Continuous Replication (CR)**. Only the names changed. The old ones are kept in parentheses here because you will still meet them: the Fleet Classic interface labels the two buttons **Disaster Recovery** and **Continuous Replication**, and XO tags replicas accordingly. Fragata Fleet uses the current names.
+**Full replication** used to be called **Disaster Recovery (DR)**, and **incremental replication** used to be called **Continuous Replication (CR)**. Only the names changed. The old ones are kept in parentheses here because you will still meet them: the Fragata Classic interface labels the two buttons **Disaster Recovery** and **Continuous Replication**, and XO tags replicas accordingly. Fragata uses the current names.
 :::
 
 ### Rolling snapshots
@@ -160,7 +160,7 @@ Not a backup type, but the way to chain the jobs above: a [sequence](./backup-fe
 ### VM restore
 
 - Restore a VM to the same host/pool or another location.
-- When restoring, Fragata Fleet can attempt a **differential restore**, which reuses the current VM disk to speed up the process.
+- When restoring, Fragata can attempt a **differential restore**, which reuses the current VM disk to speed up the process.
 - For an incremental backup, [choose what to do with each disk](./backup-features-and-settings.md#restore-disk-targets): restore it, leave it out, or [live mount](./backup-features-and-settings.md#live-mount) it.
 
 ### Live mount
@@ -184,7 +184,7 @@ The file restore feature includes the following constraints:
 
 :::tip
 For **advanced scenarios**, you can use the `fuse-vhd` helper script to manually mount backup chains as raw disks and perform partition discovery:
-[View fuse-vhd on GitHub](https://github.com/6a8i/fragata-fleet/tree/master/%40vates/fuse-vhd).
+[View fuse-vhd on GitHub](https://github.com/6a8i/fragata-orchestrator/tree/master/%40vates/fuse-vhd).
 :::
 
 
@@ -203,7 +203,7 @@ To prevent backup duplication, do not mix long-term retention with multiple sche
 
 ## Putting it all together
 
-When designing your backup strategy with Fragata Fleet:
+When designing your backup strategy with Fragata:
 
 1. Assess criticality and resources.
 2. Choose backup types that match your RPO/RTO goals.

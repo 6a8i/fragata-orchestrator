@@ -176,7 +176,7 @@ export async function waitUntil(conditionFn, interval = 1000, timeout = 15_000, 
  * for a specific backup repository location. Recursively searches through all tasks
  * and subtasks to find export operations matching the specified backup repository UUID.
  *
- * @param {Object} logEntry - Backup log entry object from Fragata Fleet
+ * @param {Object} logEntry - Backup log entry object from Fragata
  * @param {Object} logEntry.tasks - Array of backup tasks and subtasks
  * @param {string} backupRepositoryUuid - UUID of the backup repository to check
  * @returns {boolean|undefined} True if full backup, false if incremental, undefined if not found
@@ -245,7 +245,7 @@ export function getIsFullForBackupRepository(logEntry, backupRepositoryUuid) {
  * Similar to getIsFullForBackupRepository but checks for SR-type exports
  * (used in CR mode — delta replication to SR).
  *
- * @param {Object} logEntry - Backup log entry object from Fragata Fleet
+ * @param {Object} logEntry - Backup log entry object from Fragata
  * @param {string} srUuid - UUID of the target SR
  * @returns {boolean|undefined} True if full, false if incremental, undefined if not found
  */
@@ -316,7 +316,7 @@ export function assertFullOrDeltaForSr(result, srUuid, { mustBeFull }) {
  *
  * Recursively searches through all tasks and subtasks.
  *
- * @param {Object} logEntry - Backup log entry from Fragata Fleet
+ * @param {Object} logEntry - Backup log entry from Fragata
  * @param {string} message - Task message to search for (e.g., 'target snapshot', 'transfer')
  * @returns {Object|null} The matching task or null if not found
  */
@@ -352,7 +352,7 @@ export function findTaskByMessage(logEntry, message) {
  * task are merged into it (see `taskFormatAdapter()` in
  * fragata-server/src/xo-mixins/backups-ng-logs.mjs).
  *
- * @param {Object} logEntry - Backup log entry from Fragata Fleet
+ * @param {Object} logEntry - Backup log entry from Fragata
  * @param {string} message - Info message to search for (e.g., 'vms', 'synchronized snapshot')
  * @returns {Object|null} The matching info or null if not found
  */
@@ -403,7 +403,7 @@ export function getScheduleKey(job) {
  * Recursively searches through backup log tasks to find health check task
  * and extracts relevant information including status, timing, and error details.
  *
- * @param {Object} logEntry - Backup log entry from Fragata Fleet
+ * @param {Object} logEntry - Backup log entry from Fragata
  * @param {Array} logEntry.tasks - Array of backup tasks and subtasks
  * @returns {Object} Health check data
  * @returns {boolean} returns.exists - Whether health check was found
@@ -592,7 +592,7 @@ export function getHealthCheckSummary(logEntry) {
  * This is useful for verifying incremental backup efficiency - incremental
  * backups should transfer fewer bytes than full backups.
  *
- * @param {Object} logEntry - Backup log entry from Fragata Fleet
+ * @param {Object} logEntry - Backup log entry from Fragata
  * @returns {number|null} Bytes transferred, or null if not found
  */
 export function getBackupTransferredBytes(logEntry) {

@@ -27,7 +27,7 @@ export const CHANGING_STATE_OPERATIONS: VM_OPERATION[] = [
  *
  * The XS < 7 fallback (`PV_drivers_detected ?? hasPvVersion`) is intentionally not reproduced.
  *
- * @see https://github.com/6a8i/fragata-fleet/blob/master/packages/fragata-server/src/xapi-object-to-xo.mjs
+ * @see https://github.com/6a8i/fragata-orchestrator/blob/master/packages/fragata-server/src/xapi-object-to-xo.mjs
  */
 export function areVmToolsDetected(guestMetrics: XenApiVmGuestMetrics | undefined): boolean {
   if (guestMetrics === undefined) {

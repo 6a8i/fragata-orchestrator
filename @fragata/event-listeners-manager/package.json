@@ -23,12 +23,12 @@
     "removeEventListener",
     "removeListener"
   ],
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/event-listeners-manager",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/event-listeners-manager",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/event-listeners-manager",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "author": {
     "name": "Vates SAS",

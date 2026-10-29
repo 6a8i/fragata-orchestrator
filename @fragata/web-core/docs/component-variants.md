@@ -22,7 +22,7 @@ Component props that affect the variant MUST be specified in the component's `de
 
 ## Base class
 
-The root element of a component will have a specific CSS class following the pattern `ui-<component-name>` if the component is part of the DS, or `vts-<component-name>` if it's a _web-core_ component shared between Fragata Fleet and Fragata Deck.
+The root element of a component will have a specific CSS class following the pattern `ui-<component-name>` if the component is part of the DS, or `vts-<component-name>` if it's a _web-core_ component shared between Fragata and Fragata Deck.
 
 > [!TIP]
 > Example:

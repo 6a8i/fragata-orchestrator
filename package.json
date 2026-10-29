@@ -1,5 +1,5 @@
 {
-  "name": "fragata-fleet",
+  "name": "fragata-orchestrator",
   "version": "0.0.0",
   "devDependencies": {
     "@babel/core": "^7.29.0",

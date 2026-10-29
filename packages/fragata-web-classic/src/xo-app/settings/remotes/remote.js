@@ -116,7 +116,7 @@ export default decorate([
               allowUnauthorized,
               useVhdDirectory,
               encryptionKey: encryptionKey?.trim() !== '' ? encryptionKey : undefined,
-              // no field of this form sets it: kept as is, as the Fragata Fleet repository form does
+              // no field of this form sets it: kept as is, as the Fragata repository form does
               fullListingInterval: parse(remote.url).fullListingInterval,
             }),
             options: options !== '' ? options : null,

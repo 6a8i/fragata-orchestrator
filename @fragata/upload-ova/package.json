@@ -14,12 +14,12 @@
     "xen",
     "xo"
   ],
-  "homepage": "https://github.com/6a8i/fragata-fleet/tree/master/@fragata/upload-ova",
-  "bugs": "https://github.com/6a8i/fragata-fleet/issues",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/upload-ova",
+  "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/upload-ova",
     "type": "git",
-    "url": "https://github.com/6a8i/fragata-fleet.git"
+    "url": "https://github.com/6a8i/fragata-orchestrator.git"
   },
   "preferGlobal": true,
   "main": "dist/",

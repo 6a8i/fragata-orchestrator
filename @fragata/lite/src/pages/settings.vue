@@ -4,7 +4,7 @@
     <UiTitle>{{ t('about') }}</UiTitle>
     <VtsColumns class="about-columns">
       <VtsTabularKeyValueList>
-        <div class="typo-h5">Fragata Fleet Lite</div>
+        <div class="typo-h5">Fragata Lite</div>
         <VtsTabularKeyValueList>
           <VtsTabularKeyValueRow :label="t('version')">
             <template #value>
@@ -15,14 +15,14 @@
           <VtsTabularKeyValueRow :label="t('news')">
             <template #value>
               <UiLink size="medium" href="https://xen-orchestra.com/blog/">
-                {{ t('news-name', { name: 'Fragata Fleet' }) }}
+                {{ t('news-name', { name: 'Fragata' }) }}
               </UiLink>
             </template>
           </VtsTabularKeyValueRow>
           <VtsTabularKeyValueRow :label="t('community')">
             <template #value>
               <UiLink size="medium" href="https://xcp-ng.org/forum/category/12/xen-orchestra">
-                {{ t('community-name', { name: 'Fragata Fleet' }) }}
+                {{ t('community-name', { name: 'Fragata' }) }}
               </UiLink>
             </template>
           </VtsTabularKeyValueRow>
@@ -30,7 +30,7 @@
           <!--
  <VtsTabularKeyValueRow :label="t('documentation')">
             <template #value>
-              <UiLink size="medium" href="https://github.com/6a8i/fragata-fleet/tree/master/%40xen-orchestra/lite">
+              <UiLink size="medium" href="https://github.com/6a8i/fragata-orchestrator/tree/master/%40xen-orchestra/lite">
                 {{ t('documentation-name', { name: 'Fragata Deck' }) }}
               </UiLink>
             </template>

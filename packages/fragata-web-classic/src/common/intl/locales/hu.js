@@ -218,7 +218,7 @@ export default {
   // Original text: "Fetching data…"
   homeFetchingData: 'Adatok betöltése…',
 
-  // Original text: "Welcome on Fragata Fleet!"
+  // Original text: "Welcome on Fragata!"
   homeWelcome: 'Üdvözöljük a Felhőben!',
 
   // Original text: "Add your XCP-ng hosts or pools"
@@ -2994,7 +2994,7 @@ export default {
   // Original text: "No host selected to be added"
   addHostNoHostMessage: 'Nincs Kiszolgáló kiválasztva amihez hozzá lehetne adni',
 
-  // Original text: "Fragata Fleet"
+  // Original text: "Fragata"
   xenOrchestra: 'CLOUDXO',
 
   // Original text: "No pro support provided!"
@@ -3167,8 +3167,8 @@ export default {
   promptUpgradeReloadMessage:
     'Your XOA has successfully upgraded, and your browser must reload the application. Do you want to reload now ?',
 
-  // Original text: "Fragata Fleet from the sources"
-  disclaimerTitle: 'Fragata Fleet from the sources',
+  // Original text: "Fragata from the sources"
+  disclaimerTitle: 'Fragata from the sources',
 
   // Original text: "You are using XO from the sources! That's great for a personal/non-profit usage."
   disclaimerText1: "You are using XO from the sources! That's great for a personal/non-profit használat.",

@@ -244,7 +244,7 @@ const Updates = decorate([
           )
         ).some(({ state = '' }) => state.endsWith('-upgrade-needed')),
       changelogUrl: ({ consolidatedChannel }) =>
-        `https://github.com/6a8i/fragata-fleet/blob/master/CHANGELOG.md#${encodeURIComponent(consolidatedChannel)}`,
+        `https://github.com/6a8i/fragata-orchestrator/blob/master/CHANGELOG.md#${encodeURIComponent(consolidatedChannel)}`,
       channelsFormId: generateId,
       channels: COMMUNITY ? () => ({}) : () => xoaUpdater.getReleaseChannels(),
       channelsOptions: ({ channels }) =>

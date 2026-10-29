@@ -3,4 +3,4 @@
 The following resources are available in the Vates VMS documentation:
 
 - [Vates VMS bundle overview](https://docs.vates.tech/pricing-licencing/vms-bundle-overview/) — Learn about the Vates VMS bundle, its features, and what each subscription includes.
-- [Applying Fragata Fleet licenses](https://docs.vates.tech/pricing-licencing/applying-xo-licences/) — Learn how to activate and manage a license on your Fragata Fleet Appliance (XOA).
+- [Applying Fragata licenses](https://docs.vates.tech/pricing-licencing/applying-xo-licences/) — Learn how to activate and manage a license on your Fragata Appliance (XOA).

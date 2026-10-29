@@ -3,7 +3,7 @@ name = "vectura"
 version = "0.2.0"
 edition = "2024"
 description = "Standalone client for VMware's NFC disk-read protocol"
-# The license of the Fragata Fleet application components, see LICENSE.md at
+# The license of the Fragata application components, see LICENSE.md at
 # the root of the repository. The crate stays unpublished, so deny.toml keeps
 # skipping it: its allow list says what a dependency may bring into the
 # binary, and AGPL is deliberately not on it.

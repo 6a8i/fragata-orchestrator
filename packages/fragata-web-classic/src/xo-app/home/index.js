@@ -582,7 +582,7 @@ export default class Home extends Component {
 
     // changing the number of items per page should send back to the first page
     //
-    // see https://github.com/6a8i/fragata-fleet/issues/7350
+    // see https://github.com/6a8i/fragata-orchestrator/issues/7350
     this._onPageSelection(1)
   }
 

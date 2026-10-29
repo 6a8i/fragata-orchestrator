@@ -90,7 +90,7 @@ export default class Xapi extends XapiBase {
     this._vmEvacuationConcurrency = vmEvacuationConcurrency
     this._vmShutdownTimeout = parseDuration(vmShutdownTimeout)
 
-    //  close event is emitted when the export is canceled via browser. See https://github.com/6a8i/fragata-fleet/issues/5535
+    //  close event is emitted when the export is canceled via browser. See https://github.com/6a8i/fragata-orchestrator/issues/5535
     const waitStreamEnd = async stream => fromEvents(await stream, ['end', 'close'])
     this.VDI_exportContent = limitConcurrency(vdiExportConcurrency, waitStreamEnd)(this.VDI_exportContent)
     this.VM_export = limitConcurrency(vmExportConcurrency, waitStreamEnd)(this.VM_export)
@@ -1343,7 +1343,7 @@ export default class Xapi extends XapiBase {
   // =================================================================
 
   @decorateWith(deferrable)
-  async createNetwork($defer, { name, description = 'Created with Fragata Fleet', pifId, mtu, vlan }) {
+  async createNetwork($defer, { name, description = 'Created with Fragata', pifId, mtu, vlan }) {
     const networkRef = await this.call('network.create', {
       name_label: name,
       name_description: description,

@@ -111,7 +111,7 @@ describe('title', () => {
     expect(title.text()).toContain('backup-log-42')
   })
 
-  it('links to the backup repositories settings of Fleet Classic', () => {
+  it('links to the backup repositories settings of Fragata Classic', () => {
     const wrapper = mountCard()
 
     expect(wrapper.findComponent(UiPanelCardTitle).findComponent(UiLink).props('href')).toBe(
@@ -258,7 +258,7 @@ describe('SR', () => {
 })
 
 describe('job', () => {
-  it('links the job to the backup repositories settings of Fleet Classic', () => {
+  it('links the job to the backup repositories settings of Fragata Classic', () => {
     const wrapper = mountCard()
 
     expect(findRow(wrapper, t('job')).getComponent(UiLink).props('href')).toBe(

@@ -4,9 +4,9 @@ import { FilterBuilder } from './FilterBuilder.js'
 const log = createLogger('rest')
 
 /**
- * REST API client for Fragata Fleet HTTP-based operations.
+ * REST API client for Fragata HTTP-based operations.
  *
- * This class provides a basic interface to Fragata Fleet's REST API,
+ * This class provides a basic interface to Fragata's REST API,
  * handling authentication and basic request management.
  *
  * @class RestApiClient
@@ -41,7 +41,7 @@ export class RestApiClient {
    * Creates a new RestApiClient instance.
    *
    * @param {Object} config - Configuration object
-   * @param {string} config.xoUrl - Fragata Fleet server URL (e.g., 'https://xo.example.com')
+   * @param {string} config.xoUrl - Fragata server URL (e.g., 'https://xo.example.com')
    * @param {string} config.username - Username for authentication
    * @param {string} config.password - Password for authentication
    * @throws {Error} If configuration is invalid
@@ -64,7 +64,7 @@ export class RestApiClient {
   /**
    * Updates authentication headers with the provided token.
    *
-   * @param {string} token - Authentication token received from Fragata Fleet
+   * @param {string} token - Authentication token received from Fragata
    * @throws {Error} If token is not a valid string
    * @private
    */
@@ -77,7 +77,7 @@ export class RestApiClient {
   }
 
   /**
-   * Establishes connection and authenticates with Fragata Fleet REST API.
+   * Establishes connection and authenticates with Fragata REST API.
    *
    * @returns {Promise<void>} Resolves when authentication is successful
    * @throws {Error} If authentication fails or network error occurs
@@ -110,7 +110,7 @@ export class RestApiClient {
       }
 
       this.updateHeaders(jsonResp.token.id)
-      log.debug('Successfully authenticated with Fragata Fleet REST API')
+      log.debug('Successfully authenticated with Fragata REST API')
     } catch (error) {
       log.warn('Failed to connect to XO REST API', { error })
       throw error

@@ -45,7 +45,7 @@ it('shows the name and the creation date of the snapshot', () => {
   expect(labelledValues[t('snapshot-created-on')]).toBe(formatDateTime(snapshot.snapshot_time * 1000))
 })
 
-it('links the snapshot to its Fleet Classic page', () => {
+it('links the snapshot to its Fragata Classic page', () => {
   const snapshot = createVmSnapshot({
     id: 'snapshot-42' as FrontXoVmSnapshot['id'],
     $snapshot_of: 'vm-42' as FrontXoVmSnapshot['$snapshot_of'],

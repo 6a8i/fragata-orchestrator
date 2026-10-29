@@ -4,7 +4,7 @@ import { AbstractRequest } from './abstract.js'
 const log = createLogger('xo:qa-test:backup-log')
 
 /**
- * Specialized request handler for Fragata Fleet backup log operations.
+ * Specialized request handler for Fragata backup log operations.
  *
  * Handles backup logs with REST API for read operations.
  * Implements: this.dispatchClient.backupLog.get("*", {jobId: backupJobId, start:>${timestamp}})

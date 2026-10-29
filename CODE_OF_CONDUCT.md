@@ -1,4 +1,4 @@
-# Code of Conduct - Fragata Fleet
+# Code of Conduct - Fragata
 
 ## Our Pledge
 

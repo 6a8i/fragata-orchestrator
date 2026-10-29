@@ -461,7 +461,7 @@ describe('SDN Controller REST API', { skip: !process.env.SDN_CONTROLLER_VM_ID },
       assert.strictEqual(rule.priority, 45000)
     })
 
-    // Fleet Classic and Fragata Fleet send none yet: such a rule has the OpenFlow default, as the rules from before priorities
+    // Fragata Classic and Fragata send none yet: such a rule has the OpenFlow default, as the rules from before priorities
     itSdn('should accept a rule without a priority, and refuse an update removing one', async () => {
       const rule = { ...NET_RULE, port: 1444 }
       await addRule('networks', networkId, rule)

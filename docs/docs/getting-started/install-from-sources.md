@@ -5,7 +5,7 @@ sidebar_position: 4
 
 # Installing XO from source
 
-Fragata Fleet is fully open source: you can build and run it yourself, for free, from its Git repository. This is the method of choice for home labs and evaluation on your own terms.
+Fragata is fully open source: you can build and run it yourself, for free, from its Git repository. This is the method of choice for home labs and evaluation on your own terms.
 
 :::warning
 There is no professional support for this installation method, and no QA beyond what the community reports. For production, use [XOA](installation.md). Use the sources at your own risk!
@@ -19,7 +19,7 @@ This procedure is validated against a fresh **Debian 12 x64** install and works 
 
 ### Node.js
 
-Fragata Fleet requires [Node.js](https://nodejs.org/), **always the [latest LTS version](https://github.com/nodejs/release?tab=readme-ov-file#release-schedule)**. Check what you have:
+Fragata requires [Node.js](https://nodejs.org/), **always the [latest LTS version](https://github.com/nodejs/release?tab=readme-ov-file#release-schedule)**. Check what you have:
 
 <Terminal title="check your Node.js version">{`
 node -v
@@ -72,10 +72,10 @@ PONG
 Everything lives in one repository. Ideally, work as a **non-root user** (see [the sudo section](#sudo) for NFS mounts):
 
 <Terminal shell title="fetch the code">{`
-git clone -b master https://github.com/6a8i/fragata-fleet
+git clone -b master https://github.com/6a8i/fragata-orchestrator
 `}</Terminal>
 
-Install the dependencies and build, as the same user that will run Fragata Fleet (a few minutes):
+Install the dependencies and build, as the same user that will run Fragata (a few minutes):
 
 <Terminal shell title="build">{`
 cd xen-orchestra
@@ -102,7 +102,7 @@ Two things you may want to change in that file:
 
 From the `xen-orchestra/packages/fragata-server` directory:
 
-<Terminal title="start Fragata Fleet">{`
+<Terminal title="start Fragata">{`
 yarn start
 WebServer listening on localhost:80
 [INFO] Default user: "admin@admin.net" with password "admin"
@@ -177,7 +177,7 @@ yarn
 yarn build
 `}</Terminal>
 
-Then restart Fragata Fleet if it was running. Always update to the latest `master` before reporting an issue: it is the only supported state for source installations.
+Then restart Fragata if it was running. Always update to the latest `master` before reporting an issue: it is the only supported state for source installations.
 
 ## Build troubleshooting {#troubleshooting}
 
@@ -216,7 +216,7 @@ Exceptional individual contributors are awarded a free XOA Premium subscription.
 ## FreeBSD and OpenBSD
 
 :::note Community territory
-We do not test Fragata Fleet on FreeBSD or OpenBSD at all: everything below comes purely from community feedback, and may lag behind reality. If you run XO on these systems and want to help maintain these instructions, [contact us](../support-and-licencing/community.md): we would be happy to have more testers and maintainers for these targets.
+We do not test Fragata on FreeBSD or OpenBSD at all: everything below comes purely from community feedback, and may lag behind reality. If you run XO on these systems and want to help maintain these instructions, [contact us](../support-and-licencing/community.md): we would be happy to have more testers and maintainers for these targets.
 :::
 
 ### FreeBSD

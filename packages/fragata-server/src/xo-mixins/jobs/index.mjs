@@ -104,7 +104,7 @@ export default class Jobs {
 
         app.emit(
           'job:terminated',
-          // This cast can be removed after merging the PR: https://github.com/6a8i/fragata-fleet/pull/3209
+          // This cast can be removed after merging the PR: https://github.com/6a8i/fragata-orchestrator/pull/3209
           String(job.runId),
           {
             type: job.type,

@@ -77,7 +77,7 @@ class Vdi {
       })
     })
 
-    // See https://github.com/6a8i/fragata-fleet/issues/8219
+    // See https://github.com/6a8i/fragata-orchestrator/issues/8219
     await new Promise(resolve => setTimeout(resolve, this._vdiDelayBeforeRemovingCloudConfigDrive))
 
     await this.VBD_unplug(vbdRef)
@@ -105,7 +105,7 @@ class Vdi {
       // blindly copying `sm_config` from another VDI can create problems,
       // therefore it should be passed explicitly
       //
-      // see https://github.com/6a8i/fragata-fleet/issues/4482
+      // see https://github.com/6a8i/fragata-orchestrator/issues/4482
       sm_config,
     } = {}
   ) {
@@ -291,7 +291,7 @@ class Vdi {
     }
     if (content.length === undefined) {
       throw new Error(
-        'Trying to import a VDI without a length field. Please report this error to the Fragata Fleet team.'
+        'Trying to import a VDI without a length field. Please report this error to the Fragata team.'
       )
     }
 

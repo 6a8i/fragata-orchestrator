@@ -241,7 +241,7 @@ export default decorate([
       schedules: ({ _schedules }, { schedules }) => defined(_schedules, schedules),
       settings: ({ _settings }, { job }) =>
         // it replaces null retentions introduced by the commit
-        // https://github.com/6a8i/fragata-fleet/commit/fea5117ed83b58d3a57715b32d63d46e3004a094#diff-c02703199db2a4c217943cf8e02b91deR40
+        // https://github.com/6a8i/fragata-orchestrator/commit/fea5117ed83b58d3a57715b32d63d46e3004a094#diff-c02703199db2a4c217943cf8e02b91deR40
         defined(_settings, () =>
           mapValues(job.settings, setting => {
             const newSetting = { ...setting }

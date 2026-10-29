@@ -125,12 +125,12 @@ class Netbox {
     await this.#checkCustomFields()
 
     const randomSuffix = Math.random().toString(36).slice(2, 11)
-    const name = '[TMP] Fragata Fleet Netbox plugin test - ' + randomSuffix
+    const name = '[TMP] Fragata Netbox plugin test - ' + randomSuffix
     await this.#request('/virtualization/cluster-types/', 'POST', {
       name,
       slug: 'xo-test-' + randomSuffix,
       description:
-        "This type has been created by Fragata Fleet's Netbox plugin test. If it hasn't been properly deleted, you may delete it manually.",
+        "This type has been created by Fragata's Netbox plugin test. If it hasn't been properly deleted, you may delete it manually.",
     })
     const nbClusterTypes = await this.#request(`/virtualization/cluster-types/?name=${encodeURIComponent(name)}`)
 
@@ -407,7 +407,7 @@ class Netbox {
       nbClusterType = await this.#request('/virtualization/cluster-types/', 'POST', {
         name: CLUSTER_TYPE,
         slug: slugify(CLUSTER_TYPE),
-        description: 'Created by Fragata Fleet',
+        description: 'Created by Fragata',
       })
     } else {
       nbClusterType = nbClusterTypes[0]

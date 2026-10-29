@@ -37,7 +37,7 @@ export const Abstract = class AbstractRunner {
           remoteId,
         })
       } catch (error) {
-        // See https://github.com/6a8i/fragata-fleet/commit/6aa6cfba8ec939c0288f0fa740f6dfad98c43cbb
+        // See https://github.com/6a8i/fragata-orchestrator/commit/6aa6cfba8ec939c0288f0fa740f6dfad98c43cbb
         Task.run(
           {
             properties: {

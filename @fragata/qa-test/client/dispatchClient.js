@@ -13,9 +13,9 @@ import { getRequiredEnv } from '../utils/index.js'
 const log = createLogger('dispatch')
 
 /**
- * Central orchestration client for Fragata Fleet operations.
+ * Central orchestration client for Fragata operations.
  *
- * The DispatchClient manages both WebSocket and REST API connections to Fragata Fleet,
+ * The DispatchClient manages both WebSocket and REST API connections to Fragata,
  * providing a unified interface for all XO operations.
  *
  * @class DispatchClient
@@ -76,7 +76,7 @@ export class DispatchClient {
   cleanup = null
 
   /**
-   * Initializes and establishes connections to Fragata Fleet.
+   * Initializes and establishes connections to Fragata.
    *
    * This method sets up both WebSocket (fragata-lib) and REST API connections
    * using environment variables for configuration.
@@ -91,7 +91,7 @@ export class DispatchClient {
       password: getRequiredEnv('PASSWORD'),
     }
 
-    log.debug('Initializing Fragata Fleet connections')
+    log.debug('Initializing Fragata connections')
 
     try {
       // Initialize REST API client
@@ -118,7 +118,7 @@ export class DispatchClient {
   }
 
   /**
-   * Closes all connections to Fragata Fleet.
+   * Closes all connections to Fragata.
    *
    * @returns {Promise<void>} Resolves when all connections are closed
    */

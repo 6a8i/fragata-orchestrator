@@ -728,7 +728,7 @@ class SDNController extends EventEmitter {
       return
     }
 
-    // TODO: throw once Fleet Classic and Fragata Fleet send a priority. Until then, a rule without one has the OVS
+    // TODO: throw once Fragata Classic and Fragata send a priority. Until then, a rule without one has the OVS
     // default, 32768, as the rules from before priorities
     if (priority === undefined) {
       return

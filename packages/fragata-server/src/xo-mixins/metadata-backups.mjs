@@ -39,7 +39,7 @@ export default class metadataBackup {
     const scheduleSettings = job.settings[schedule.id]
 
     // it also replaces null retentions introduced by the commit
-    // https://github.com/6a8i/fragata-fleet/commit/fea5117ed83b58d3a57715b32d63d46e3004a094#diff-c02703199db2a4c217943cf8e02b91deR40
+    // https://github.com/6a8i/fragata-orchestrator/commit/fea5117ed83b58d3a57715b32d63d46e3004a094#diff-c02703199db2a4c217943cf8e02b91deR40
     if (scheduleSettings?.retentionXoMetadata == null) {
       delete scheduleSettings.retentionXoMetadata
     }

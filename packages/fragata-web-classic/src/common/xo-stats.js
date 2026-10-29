@@ -48,7 +48,7 @@ const _computeArraysAvg = arrays => {
 }
 
 // Arrays can be null.
-// See: https://github.com/6a8i/fragata-fleet/issues/969
+// See: https://github.com/6a8i/fragata-orchestrator/issues/969
 //
 // It's a fix to avoid error like `Uncaught TypeError: Cannot read property 'length' of null`.
 // FIXME: Repair this bug in fragata-server. (Warning: Can break the stats of fragata-web-classic v4.)

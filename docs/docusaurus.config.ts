@@ -3,8 +3,8 @@ import type { Config } from '@docusaurus/types'
 import type * as Preset from '@docusaurus/preset-classic'
 
 export default {
-  title: 'Fragata Fleet | XO Documentation',
-  tagline: 'Discover how to use Fragata Fleet',
+  title: 'Fragata | XO Documentation',
+  tagline: 'Discover how to use Fragata',
   favicon: 'img/favicon.ico',
   trailingSlash: false,
   // Set the production url of your site here
@@ -331,7 +331,7 @@ export default {
           showLastUpdateTime: true,
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/6a8i/fragata-fleet/tree/master/docs',
+          editUrl: 'https://github.com/6a8i/fragata-orchestrator/tree/master/docs',
         },
         blog: false,
         theme: {
@@ -369,12 +369,12 @@ export default {
     // Replace with your project's social card
     image: 'img/logo.png',
     navbar: {
-      title: 'Fragata Fleet Documentation',
-      logo: { alt: 'Fragata Fleet logo', src: 'img/logo.png', href: '/' },
+      title: 'Fragata Documentation',
+      logo: { alt: 'Fragata logo', src: 'img/logo.png', href: '/' },
       items: [
         { to: 'https://docs.vates.tech/', label: 'Vates VMS', position: 'right', target: '_self' },
         { to: 'https://docs.xcp-ng.org/', label: 'XCP-ng', position: 'right', target: '_self' },
-        { href: '/', label: 'Fragata Fleet', position: 'right' },
+        { href: '/', label: 'Fragata', position: 'right' },
       ],
     },
     footer: {
@@ -384,7 +384,7 @@ export default {
           title: 'Learn',
           items: [
             {
-              label: 'About Fragata Fleet',
+              label: 'About Fragata',
               href: 'https://xen-orchestra.com/#!/xo-home',
             },
             {
@@ -432,7 +432,7 @@ export default {
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/6a8i/fragata-fleet',
+              href: 'https://github.com/6a8i/fragata-orchestrator',
             },
           ],
         },

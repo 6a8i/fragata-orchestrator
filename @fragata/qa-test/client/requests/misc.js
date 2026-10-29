@@ -5,7 +5,7 @@ import { getRequiredEnv } from '../../utils/index.js'
 const log = createLogger('xo:qa-test:misc')
 
 /**
- * Specialized request handler for Fragata Fleet backup repository operations.
+ * Specialized request handler for Fragata backup repository operations.
  *
  * Handles backup repositories with REST API for read operations
  * and WebSocket for creation operations.

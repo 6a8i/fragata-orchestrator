@@ -4,7 +4,7 @@
 
 [![Package Version](https://badgen.net/npm/v/@fragata/fs)](https://npmjs.org/package/@fragata/fs) ![License](https://badgen.net/npm/license/@fragata/fs) [![PackagePhobia](https://badgen.net/bundlephobia/minzip/@fragata/fs)](https://bundlephobia.com/result?p=@fragata/fs) [![Node compatibility](https://badgen.net/npm/node/@fragata/fs)](https://npmjs.org/package/@fragata/fs)
 
-> The File System for Fragata Fleet backups.
+> The File System for Fragata backups.
 
 ## Install
 
@@ -21,7 +21,7 @@ the code.
 
 You may:
 
-- report any [issue](https://github.com/6a8i/fragata-fleet/issues)
+- report any [issue](https://github.com/6a8i/fragata-orchestrator/issues)
   you've encountered;
 - fork and create a pull request.
 

@@ -171,7 +171,7 @@ export default decorate([
               backup = collection[jobId] = {
                 backups: [],
                 id: jobId,
-                item: `Fragata Fleet (${jobName})`,
+                item: `Fragata (${jobName})`,
                 label: jobName,
                 type: 'XO',
               }

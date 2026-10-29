@@ -4,7 +4,7 @@ sidebar_position: 5
 
 # Configuration
 
-Once Fragata Fleet is installed, you can configure some parameters in the configuration file. Let's see how to do that.
+Once Fragata is installed, you can configure some parameters in the configuration file. Let's see how to do that.
 
 :::tip
 The configuration file is located at `/etc/fragata-server/config.toml`.
@@ -12,17 +12,17 @@ The configuration file is located at `/etc/fragata-server/config.toml`.
 
 If you need to do any configuration on the system itself (firewall, NTP, service restart…), see [the XOA appliance settings](#xoa-appliance) at the end of this page.
 
-## Using Fleet Classic as the Default Interface
+## Using Fragata Classic as the Default Interface
 
-Starting with **Fragata Fleet 6**, the Fragata Fleet UI becomes the default interface. That said, you can still switch back to Fleet Classic, temporarily or by default.
+Starting with **Fragata 6**, the Fragata UI becomes the default interface. That said, you can still switch back to Fragata Classic, temporarily or by default.
 
-### Temporary Switch to Fleet Classic
+### Temporary Switch to Fragata Classic
 
 To quickly access the old UI without changing any configuration, `/v5` to your URL (e.g., `https://xo.example.com/v5`).
 
-### Making Fleet Classic the default UI
+### Making Fragata Classic the default UI
 
-To permanently use Fleet Classic as the default interface, create a new config file (you can call it `config.mounts.toml`). This configuration file can be placed either in `~/.config/fragata-server/` of the process running fragata-server or if you are using a xoa in `/etc/fragata-server/`. This file will contain :
+To permanently use Fragata Classic as the default interface, create a new config file (you can call it `config.mounts.toml`). This configuration file can be placed either in `~/.config/fragata-server/` of the process running fragata-server or if you are using a xoa in `/etc/fragata-server/`. This file will contain :
 
 ```toml
 [http.mounts]
@@ -35,9 +35,9 @@ If you are not using a xoa, replace the path `/usr/local/lib/node_modules/` with
 
 This configuration ensures:
 
-- Accessing `/` loads **Fleet Classic**.
-- Accessing `/v5` loads **Fleet Classic**.
-- Accessing `/v6` loads **Fragata Fleet**.
+- Accessing `/` loads **Fragata Classic**.
+- Accessing `/v5` loads **Fragata Classic**.
+- Accessing `/v6` loads **Fragata**.
 
 ### Where to Place the Configuration File
 
@@ -84,7 +84,7 @@ After updating the configuration, restart the XO server process:
 sudo systemctl restart fragata-server
 `}</Terminal>
 
-Fleet Classic will now be served as the default UI.
+Fragata Classic will now be served as the default UI.
 
 ## User to run XO-server as
 
@@ -161,7 +161,7 @@ See [SDN Controller: OpenFlow rules](../manage-your-infrastructure/sdn_controlle
 
 ## Custom certificate authority
 
-If you use certificates signed by an in-house CA for your XCP-ng or XenServer hosts, and want to have Fragata Fleet connect to them without rejection, you can use the [`NODE_EXTRA_CA_CERTS`](https://nodejs.org/api/cli.html#cli_node_extra_ca_certs_file) environment variable.
+If you use certificates signed by an in-house CA for your XCP-ng or XenServer hosts, and want to have Fragata connect to them without rejection, you can use the [`NODE_EXTRA_CA_CERTS`](https://nodejs.org/api/cli.html#cli_node_extra_ca_certs_file) environment variable.
 
 To enable this option in your XOA, create `/etc/systemd/system/fragata-server.service.d/ca.conf` with the following content:
 
@@ -198,7 +198,7 @@ Although Let's Encrypt is the most popular free public certificate authority (CA
 
 #### What can it do for me?
 
-Fragata Fleet Appliance (XOA) can **automatically request and renew HTTPS certificates from Let's Encrypt**. This lets you use a free, publicly trusted certificate instead of manually installing your own or relying on self-signed ones.
+Fragata Appliance (XOA) can **automatically request and renew HTTPS certificates from Let's Encrypt**. This lets you use a free, publicly trusted certificate instead of manually installing your own or relying on self-signed ones.
 
 :::tip
 
@@ -321,9 +321,9 @@ httpProxy = 'http://username:password@proxyAddress:port'
 
 ## Reverse proxy
 
-If you don't want to have Fragata Fleet exposed directly outside, or just integrating it with your existing infrastructure, you can use a Reverse Proxy.
+If you don't want to have Fragata exposed directly outside, or just integrating it with your existing infrastructure, you can use a Reverse Proxy.
 
-First of all you need to allow Fragata Fleet to use `X-Forwarded-*` headers to determine the IP addresses of clients:
+First of all you need to allow Fragata to use `X-Forwarded-*` headers to determine the IP addresses of clients:
 
 ```toml
 [http]
@@ -375,7 +375,7 @@ location /[<path>] {
 
   proxy_redirect default;
 
-  # Issue https://github.com/6a8i/fragata-fleet/issues/1471
+  # Issue https://github.com/6a8i/fragata-orchestrator/issues/1471
   proxy_read_timeout 1800; # Error will be only every 30m
 
   # For the VM import feature, this size must be larger than the file we want to upload.
@@ -386,7 +386,7 @@ location /[<path>] {
 
 ### Caddy
 
-[Caddy](https://caddyserver.com/) is the simplest option: WebSockets are proxied natively (no module or upgrade headers to configure) and HTTPS certificates are obtained and renewed automatically. Serving Fragata Fleet on a dedicated domain takes two lines:
+[Caddy](https://caddyserver.com/) is the simplest option: WebSockets are proxied natively (no module or upgrade headers to configure) and HTTPS certificates are obtained and renewed automatically. Serving Fragata on a dedicated domain takes two lines:
 
 ```
 xo.company.net {
@@ -469,7 +469,7 @@ systemctl restart systemd-timesyncd.service
 
 ### Restart the service {#restart-the-service}
 
-You can restart Fragata Fleet by accessing XOA via SSH (or console):
+You can restart Fragata by accessing XOA via SSH (or console):
 
 <Terminal shell title="restart fragata-server">{`
 systemctl restart fragata-server.service

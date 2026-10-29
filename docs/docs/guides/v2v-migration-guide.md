@@ -6,12 +6,12 @@ sidebar_label: VMware migration (V2V)
 
 ## Introduction {#-introduction}
 
-Fragata Fleet 5.110 introduced a new migration backend for moving virtual machines from VMware to XCP-ng (V2V). It replaces the old NFS-based method with `vectura`, a standalone reader of VMware's NFC protocol, delivering better performance and reliability without any VMware-provided library.
+Fragata 5.110 introduced a new migration backend for moving virtual machines from VMware to XCP-ng (V2V). It replaces the old NFS-based method with `vectura`, a standalone reader of VMware's NFC protocol, delivering better performance and reliability without any VMware-provided library.
 
-The whole process is driven from Fragata Fleet, in **Import → VM → From VMware**. XO connects to your vCenter or ESXi host, reads the VM disks directly, and imports them into an XCP-ng storage repository:
+The whole process is driven from Fragata, in **Import → VM → From VMware**. XO connects to your vCenter or ESXi host, reads the VM disks directly, and imports them into an XCP-ng storage repository:
 
 <Schema label="XO reads the VM disks from ESXi through vectura, and imports them into an XCP-ng pool. The source VM keeps running during most of the transfer" legend={[["#5ac8c8", "VMware"], ["#8e83fe", "XCP-ng"], ["#6aabf0", "XO"]]} maxWidth="640px">
-<svg viewBox="0 0 640 240" role="img" aria-label="A VM running on an ESXi host inside a VMware infrastructure is exported by Fragata Fleet using vectura, then imported into an XCP-ng host in the destination pool, where the migrated VM is ready to boot; the source VM keeps running during the warm phase of the transfer">
+<svg viewBox="0 0 640 240" role="img" aria-label="A VM running on an ESXi host inside a VMware infrastructure is exported by Fragata using vectura, then imported into an XCP-ng host in the destination pool, where the migrated VM is ready to boot; the source VM keeps running during the warm phase of the transfer">
   <rect x="16" y="40" width="192" height="168" rx="8" fill="none" stroke="rgba(255,255,255,0.22)" strokeDasharray="6 5" />
   <text x="28" y="62" fill="#c6d2e1" fontSize="12">VMware</text>
   <text x="28" y="78" fill="#7a8699" fontSize="10">source infrastructure</text>
@@ -24,7 +24,7 @@ The whole process is driven from Fragata Fleet, in **Import → VM → From VMwa
   <polygon points="262,134 252,128 252,140" fill="#5ac8c8" />
   <text x="228" y="122" fill="#5ac8c8" fontSize="9" textAnchor="middle">export</text>
   <rect x="266" y="108" width="108" height="52" rx="6" fill="rgba(255,255,255,0.04)" stroke="#6aabf0" />
-  <text x="320" y="129" fill="#c6d2e1" fontSize="11" textAnchor="middle">Fragata Fleet</text>
+  <text x="320" y="129" fill="#c6d2e1" fontSize="11" textAnchor="middle">Fragata</text>
   <text x="320" y="146" fill="#7a8699" fontSize="9" textAnchor="middle">vectura</text>
   <text x="320" y="182" fill="#7a8699" fontSize="9" textAnchor="middle">reads only allocated blocks</text>
   <line x1="378" y1="134" x2="430" y2="134" stroke="#56c288" strokeWidth="2" className="schema-flow" strokeDasharray="5 4" />
@@ -43,7 +43,7 @@ The whole process is driven from Fragata Fleet, in **Import → VM → From VMwa
 
 This guide walks you through the entire migration process:
 
-- Preparing your Fragata Fleet environment
+- Preparing your Fragata environment
 - Preparing your VMware environment
 - Running a test migration
 - Executing the final cutover
@@ -51,7 +51,7 @@ This guide walks you through the entire migration process:
 You will also find troubleshooting advice and best practices to maximize speed and minimize downtime.
 
 :::note
-The V2V import is currently available in the Fleet Classic interface. The new Fragata Fleet web UI does not expose it yet: even if you use Fragata Fleet daily, switch to the Fleet Classic interface for the migration itself.
+The V2V import is currently available in the Fragata Classic interface. The new Fragata web UI does not expose it yet: even if you use Fragata daily, switch to the Fragata Classic interface for the migration itself.
 :::
 
 ## Benefits {#-benefits}
@@ -76,7 +76,7 @@ The interface has also seen significant improvements: a **progress bar** is now 
 
 Additionally, UEFI VMs are no longer forced into Secure Boot mode, which resolves previous boot issues.
 
-Recent releases keep improving the workflow: since Fragata Fleet.6, a CD-ROM drive present on the source is recreated on the destination VM, and a two-step transfer (a first warm pass followed by a final run) tells you upfront whether the next run will be a full or a delta transfer.
+Recent releases keep improving the workflow: since Fragata.6, a CD-ROM drive present on the source is recreated on the destination VM, and a two-step transfer (a first warm pass followed by a final run) tells you upfront whether the next run will be a full or a delta transfer.
 
 #### Performance gains
 
@@ -88,22 +88,22 @@ Performance gains can be significant, though results depend on the environment:
 
 ## Preparing the XO environment {#-preparing-the-xo-environment}
 
-### Update Fragata Fleet
+### Update Fragata
 
-Make sure your Fragata Fleet instance is up to date. The import page includes an automatic check that verifies that `vectura`, shipped with your Fragata Fleet, runs on this system. Errors must be resolved before the migration can start.
+Make sure your Fragata instance is up to date. The import page includes an automatic check that verifies that `vectura`, shipped with your Fragata, runs on this system. Errors must be resolved before the migration can start.
 
 <UiDetail src="/img/xo5/v2v-prerequisite-check.png" alt="The prerequisite check on the import page, showing the status of vectura" width={232} />
 
 ### Dependencies
 
 The only dependency is `vectura`, a single binary that reads VMware disks over the NFC protocol. It
-is shipped with Fragata Fleet and runs from there: there is nothing to install, nothing to download
+is shipped with Fragata and runs from there: there is nothing to install, nothing to download
 from VMware or Broadcom, and nothing to compile. It needs a Linux x86-64 system with glibc 2.31 or
 later, such as Debian 11 or Ubuntu 20.04.
 
 Go to the **Import → VM → From VMware** section. Once the check passes, a **transfer form** appears:
 
-<UiDetail src="/img/xo5/v2v-transfer-form.png" alt="The transfer form used to connect to VMware and import a VM into Fragata Fleet" width={620} />
+<UiDetail src="/img/xo5/v2v-transfer-form.png" alt="The transfer form used to connect to VMware and import a VM into Fragata" width={620} />
 
 :::warning
 Filling in this form and clicking the **Connect** button will start the VM import. Make sure your VMware environment is ready first!
@@ -155,7 +155,7 @@ The following VMware disk types are not supported:
 - Encrypted virtual disks (unless you have the correct credentials)
 
 :::warning
-Starting with Fragata Fleet 5.110, NFS-based migration and VSAN exports are no longer available.
+Starting with Fragata 5.110, NFS-based migration and VSAN exports are no longer available.
 :::
 
 ### Step-by-step procedure
@@ -207,13 +207,13 @@ As long as the import is partial (the source VM is still live), XO blocks the de
 
 ### Perform the first migration attempt
 
-1. **Start the V2V migration** in Fragata Fleet, without enabling the `Stop source` option.\
+1. **Start the V2V migration** in Fragata, without enabling the `Stop source` option.\
    This will transfer the VM data up to the snapshot named `vm without tools`.
    :::tip
    You can safely close your browser while the migration runs.
    :::
 2. **Monitor the migration progress** using one of these methods:
-   - Check the VM status in Fragata Fleet (its name should show `importing...`).
+   - Check the VM status in Fragata (its name should show `importing...`).
    - Follow the disk transfer progress indicators.
 
 ### Testing the migrated VM
@@ -245,7 +245,7 @@ Once you have finished your checks and taken notes, delete the test VM. This wil
 When you're ready for the final migration:
 
 - Shut down the source VM completely.
-- Start the V2V migration in Fragata Fleet with the `Stop source` option enabled.\
+- Start the V2V migration in Fragata with the `Stop source` option enabled.\
   This ensures the final sync happens while the VM is powered off, and prevents any inconsistencies.
 
 ### Post-migration tasks
@@ -263,7 +263,7 @@ If you encounter problems during migration, try these steps to diagnose and reso
   Look for disk access errors in the VMware logs. These may point to issues with the source storage or VM configuration.
 
 - **Update software versions**\
-  Keep your Fragata Fleet up to date: `vectura` ships with it. The [prerequisite check](#update-xen-orchestra) on the import page tells whether it runs on this system.
+  Keep your Fragata up to date: `vectura` ships with it. The [prerequisite check](#update-xen-orchestra) on the import page tells whether it runs on this system.
 
 - **Remove active snapshots**\
   Make sure no active snapshots remain on the source VM. Snapshots can disrupt migration consistency.
@@ -272,7 +272,7 @@ If you encounter problems during migration, try these steps to diagnose and reso
   Confirm the XCP-ng storage repository has enough free space for the migrated VM.
 
 - **Test network connectivity**\
-  Ensure stable network connectivity between the VMware environment, Fragata Fleet, and XCP-ng hosts.
+  Ensure stable network connectivity between the VMware environment, Fragata, and XCP-ng hosts.
 
 - **Retry with cold migration**\
   If warm migration fails, power off the VM, remove all snapshots, and try again.
@@ -296,34 +296,34 @@ Migration speed depends on several factors. By identifying bottlenecks and optim
 The V2V migration process can be slowed down by:
 
 - XAPI ingestion speed limits
-- Network throughput between Fragata Fleet and VMware
-- Network throughput between Fragata Fleet and the XCP-ng host
+- Network throughput between Fragata and VMware
+- Network throughput between Fragata and the XCP-ng host
 - ESXi host export speed
 
 ### Optimizing network performance
 
 For the best results:
 
-#### Fragata Fleet to XCP-ng connection
+#### Fragata to XCP-ng connection
 
-- Run Fragata Fleet directly within the target XCP-ng pool to reduce network hops and latency.
+- Run Fragata directly within the target XCP-ng pool to reduce network hops and latency.
 - Use the highest available bandwidth, ideally 10Gbps or faster.
 
-#### Fragata Fleet to VMware connection
+#### Fragata to VMware connection
 
 Ensure a dedicated 10Gbps+ connection with low latency to your vCenter or ESXi hosts.
 
 ### Storage recommendations
 
-Use **fast SSD storage** for both the XCP-ng storage repository and Fragata Fleet's working directory.
+Use **fast SSD storage** for both the XCP-ng storage repository and Fragata's working directory.
 This speeds up the initial migration and enables smoother live migrations afterward.
 
 ### CPU and compute resources
 
 If CPU becomes a bottleneck:
 
-- **Allocate high-performance CPUs** to your Fragata Fleet appliance.
-- For large environments, consider **parallel migrations** using multiple Fragata Fleet instances, but balance this with your network capacity.
+- **Allocate high-performance CPUs** to your Fragata appliance.
+- For large environments, consider **parallel migrations** using multiple Fragata instances, but balance this with your network capacity.
 
 ### Migration strategy
 

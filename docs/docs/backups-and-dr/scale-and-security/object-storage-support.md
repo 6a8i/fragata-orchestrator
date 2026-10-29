@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Fragata Fleet is compatible with a wide range of S3-compatible object storage solutions. Based on our testing and validation, we categorize storage providers into three tiers to help you understand their expected reliability and performance.
+Fragata is compatible with a wide range of S3-compatible object storage solutions. Based on our testing and validation, we categorize storage providers into three tiers to help you understand their expected reliability and performance.
 
 To configure an S3-compatible backup repository, see [Backup repositories](../backup-features-and-settings.md#amazon-s3).
 
@@ -10,7 +10,7 @@ To make an S3 backup repository immutable, see [S3 Object Lock](./object-lock.md
 
 ## Storage tiers explained
 
-- **Tier 1** providers are extensively tested in our labs. We ensure Fragata Fleet aligns with their implementation and performs reliably, even at scale.
+- **Tier 1** providers are extensively tested in our labs. We ensure Fragata aligns with their implementation and performs reliably, even at scale.
 
 - **Tier 2** providers closely resemble Tier 1 solutions in behavior. While we offer support, minor differences may exist, and large-scale testing might be limited.
 

@@ -357,7 +357,7 @@ You'll find them in these directories:
   - `@fragata/web-core/src/composables`
   - `@fragata/web-core/src/utils`
   - `@fragata/web-core/src/packages`
-- Fragata Fleet:
+- Fragata:
   - `@fragata/web/src/composables`
   - `@fragata/web/src/utils`
 - Fragata Deck:

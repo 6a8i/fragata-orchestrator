@@ -2,7 +2,7 @@
 
 > This feature is currently _unstable_ and might change or be removed in the future.
 >
-> Feedbacks are very welcome on the [project bugtracker](https://github.com/6a8i/fragata-fleet/issues).
+> Feedbacks are very welcome on the [project bugtracker](https://github.com/6a8i/fragata-orchestrator/issues).
 
 > This feature is not currently supported for backups done with XO Proxy.
 

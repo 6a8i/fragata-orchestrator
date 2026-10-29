@@ -2,24 +2,24 @@
 sidebar_position: 2
 ---
 
-# Fragata Fleet and Fleet Classic
+# Fragata and Fragata Classic
 
-Fragata Fleet and Fleet Classic are two interfaces to the same Fragata Fleet. They run side by side, on the same server, against the same data: a VM started in one is instantly running in the other, a backup job created in Fleet Classic immediately shows its health in Fragata Fleet. There is no migration step and nothing to synchronize.
+Fragata and Fragata Classic are two interfaces to the same Fragata. They run side by side, on the same server, against the same data: a VM started in one is instantly running in the other, a backup job created in Fragata Classic immediately shows its health in Fragata. There is no migration step and nothing to synchronize.
 
-- **Fragata Fleet** is the default interface and the future of Fragata Fleet.
-- **Fleet Classic** remains fully available for everything Fragata Fleet does not cover yet: use the **Fleet Classic** link in the top-right corner, or the marked links that Fragata Fleet shows contextually (they open the right Fleet Classic page for the object you are on).
+- **Fragata** is the default interface and the future of Fragata.
+- **Fragata Classic** remains fully available for everything Fragata does not cover yet: use the **Fragata Classic** link in the top-right corner, or the marked links that Fragata shows contextually (they open the right Fragata Classic page for the object you are on).
 
 ## What lives where today
 
-Fragata Fleet is under active development, so this table evolves with every release. As a rule of thumb: observing and operating your infrastructure day to day happens in Fragata Fleet; deep configuration still happens in Fleet Classic.
+Fragata is under active development, so this table evolves with every release. As a rule of thumb: observing and operating your infrastructure day to day happens in Fragata; deep configuration still happens in Fragata Classic.
 
-| Area                     | In Fragata Fleet                                                                                                                                             | Still in Fleet Classic                                                                  |
+| Area                     | In Fragata                                                                                                                                             | Still in Fragata Classic                                                                  |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | Navigation and search    | Tree view of all pools, hosts, VMs, with live filtering and a query builder on every major table                                                    | Object list pages                                                              |
 | Dashboards               | Global, pool, host and VM dashboards: status, alarms, patches, resources, usage charts, backup health                                               | Global dashboard, health view                                                  |
 | VM lifecycle             | Start (including on a specific host), pause, suspend, resume, reboot, shutdown (normal and forced), duplicate, export as XVA or OVA, delete         | Migrate, copy between pools, convert to template, import, self-service         |
 | VM creation              | Full single-VM form: template, cloud-init or SSH key or ISO or PXE install, boot firmware, vTPM, Secure Boot, affinity, HA, vCPUs, RAM, VIFs, disks | Multiple VMs at once, tags at creation                                         |
-| Consoles                 | VM and host consoles: fullscreen, chrome-less dedicated tab, Ctrl+Alt+Del                                                                           | Console clipboard (coming soon in Fragata Fleet)                                        |
+| Consoles                 | VM and host consoles: fullscreen, chrome-less dedicated tab, Ctrl+Alt+Del                                                                           | Console clipboard (coming soon in Fragata)                                        |
 | Snapshots                | List, take, revert, delete                                                                                                                          | Snapshot detail view                                                           |
 | Networks                 | Inspect pool, host and VM networking; create networks (bonded, host internal), create and manage VIFs, traffic rules                                | Edit existing networks, SDN controller                                         |
 | Storage                  | Inspect SRs and VDIs; connect, disconnect and delete SRs; create, attach, export, delete VDIs and migrate them between SRs                          | SR creation, advanced disk operations                                          |
@@ -30,10 +30,10 @@ Fragata Fleet is under active development, so this table evolves with every rele
 | Settings                 | Color mode, five themes, 21 languages                                                                                                               | Servers, plugins, proxies, licenses, everything under Settings                 |
 | Pool and host operations | Connect and disconnect pools, host start, shutdown, enable, disable, PIF scan, bug-tools archive                                                    | Patching and updates, rolling pool update, host maintenance and evacuation, HA |
 
-One more current limitation to know: Fragata Fleet requires an administrator account. Non-admin users are redirected to Fleet Classic until delegation lands in Fragata Fleet.
+One more current limitation to know: Fragata requires an administrator account. Non-admin users are redirected to Fragata Classic until delegation lands in Fragata.
 
 ## Which one should I use?
 
-Start every session in Fragata Fleet: navigation, monitoring, consoles, task forensics and backup oversight are simply better there. When you hit an operation Fragata Fleet does not do yet, it will either show you the action marked with an external-link icon, or you switch to Fleet Classic manually and come right back.
+Start every session in Fragata: navigation, monitoring, consoles, task forensics and backup oversight are simply better there. When you hit an operation Fragata does not do yet, it will either show you the action marked with an external-link icon, or you switch to Fragata Classic manually and come right back.
 
-If you prefer to keep Fleet Classic as your default interface for now, the welcome message of Fragata Fleet links to the procedure to do so.
+If you prefer to keep Fragata Classic as your default interface for now, the welcome message of Fragata links to the procedure to do so.

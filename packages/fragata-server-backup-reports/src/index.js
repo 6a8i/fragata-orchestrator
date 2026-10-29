@@ -141,7 +141,7 @@ class BackupReportsXoPlugin {
       !force &&
       (reportWhen === 'never' ||
         // Handle improper value introduced by:
-        // https://github.com/6a8i/fragata-fleet/commit/753ee994f2948bbaca9d3161eaab82329a682773#diff-9c044ab8a42ed6576ea927a64c1ec3ebR105
+        // https://github.com/6a8i/fragata-orchestrator/commit/753ee994f2948bbaca9d3161eaab82329a682773#diff-9c044ab8a42ed6576ea927a64c1ec3ebR105
         reportWhen === 'Never' ||
         // 'failure' refers to 'Skipped and failure'
         (reportWhen === 'failure' && log.status === 'success') ||

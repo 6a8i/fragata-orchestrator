@@ -56,7 +56,7 @@ export const Metadata = class MetadataBackupRunner extends Abstract {
       Disposable.all(
         poolIds.map(id =>
           this._getRecord('pool', id).catch(error => {
-            // See https://github.com/6a8i/fragata-fleet/commit/6aa6cfba8ec939c0288f0fa740f6dfad98c43cbb
+            // See https://github.com/6a8i/fragata-orchestrator/commit/6aa6cfba8ec939c0288f0fa740f6dfad98c43cbb
             Task.run(
               {
                 properties: {

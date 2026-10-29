@@ -221,7 +221,7 @@ const SchedulePreviewBody = decorate([
             <ActionButton
               btnStyle='danger'
               // 2020-01-29 Job cancellation will be disabled until we find a way to make it work.
-              // See https://github.com/6a8i/fragata-fleet/issues/4657
+              // See https://github.com/6a8i/fragata-orchestrator/issues/4657
               disabled
               handler={cancelJob}
               handlerParam={job}

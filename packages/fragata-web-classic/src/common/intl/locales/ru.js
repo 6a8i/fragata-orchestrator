@@ -603,7 +603,7 @@ export default {
   aboutPage: 'О программе',
 
   // Original text: "About XO {xoaPlan}"
-  aboutXoaPlan: 'О Fragata Fleet {xoaPlan}',
+  aboutXoaPlan: 'О Fragata {xoaPlan}',
 
   // Original text: "New"
   newMenu: 'Добавить',
@@ -722,7 +722,7 @@ export default {
   // Original text: 'Restart XO Server'
   restartXoServer: undefined,
 
-  // Original text: 'Restarting XO Server will interrupt any backup job or XO task that is currently running. Fragata Fleet will also be unavailable for a few seconds. Are you sure you want to restart XO Server?'
+  // Original text: 'Restarting XO Server will interrupt any backup job or XO task that is currently running. Fragata will also be unavailable for a few seconds. Are you sure you want to restart XO Server?'
   restartXoServerConfirm: undefined,
 
   // Original text: 'Open tunnel'
@@ -779,8 +779,8 @@ export default {
   // Original text: "Fetching data…"
   homeFetchingData: 'Извлечение  данных…',
 
-  // Original text: "Welcome to Fragata Fleet!"
-  homeWelcome: 'Добро пожаловать в Fragata Fleet!',
+  // Original text: "Welcome to Fragata!"
+  homeWelcome: 'Добро пожаловать в Fragata!',
 
   // Original text: "Add your XCP-ng hosts or pools"
   homeWelcomeText: 'Добавьте свои хосты и пулы XCP-ng',
@@ -5845,7 +5845,7 @@ export default {
   // Original text: "Want to use in production?"
   productionUse: 'Хотите использовать в производстве',
 
-  // Original text: 'Get pro support with the Fragata Fleet Appliance at {website}'
+  // Original text: 'Get pro support with the Fragata Appliance at {website}'
   getSupport: undefined,
 
   // Original text: "Bug Tracker"
@@ -5890,7 +5890,7 @@ export default {
   // Original text: "Problem? Open a ticket!"
   openTicketText: 'Проблема? Открой заявку!',
 
-  // Original text: 'Your Fragata Fleet is up to date'
+  // Original text: 'Your Fragata is up to date'
   xoUpToDate: undefined,
 
   // Original text: 'You are not up to date with master. {nBehind} commit{nBehind, plural, one {} other {s}} behind {nAhead, plural, =0 {} other {and {nAhead, number} commit{nAhead, plural, one {} other {s}} ahead}}'
@@ -5977,7 +5977,7 @@ export default {
 
   // Original text: "You can use a trial version until {date, date, medium}. Upgrade your appliance to get it."
   trialAvailableUntil:
-    'Вы можете использовать пробную версию до {date, date, medium}. Обновите свою установку Fragata Fleet, чтобы продолжить использовать все преимущества.',
+    'Вы можете использовать пробную версию до {date, date, medium}. Обновите свою установку Fragata, чтобы продолжить использовать все преимущества.',
 
   // Original text: "Your trial has been ended. Contact us or downgrade to Free version"
   trialConsumed: 'Ваш пробный период закончился. Свяжитесь с нами или вернитесь к бесплатной версии',
@@ -6037,8 +6037,8 @@ export default {
   // Original text: 'XOA build:'
   xoaBuild: undefined,
 
-  // Original text: "Fragata Fleet from the sources"
-  disclaimerTitle: 'Fragata Fleet из исходного кода',
+  // Original text: "Fragata from the sources"
+  disclaimerTitle: 'Fragata из исходного кода',
 
   // Original text: "You are using XO from the sources! That's great for a personal/non-profit usage."
   disclaimerText1: 'Вы используете XO из исходного кода! Отлично подходит для личного/некоммерческого использования',

@@ -4,7 +4,7 @@
 
 Managing infrastructure by hand is error prone and hard to audit. With Infrastructure as Code (IaC), you describe your infrastructure in configuration files to make it **predictable**, **reproducible**, and **version-controlled**.
 
-Fragata Fleet has an official Terraform provider, [`vatesfr/xenorchestra`](https://registry.terraform.io/providers/vatesfr/xenorchestra/latest), published on the Terraform registry and developed [on GitHub](https://github.com/vatesfr/terraform-provider-xenorchestra). This guide walks you through deploying a VM on your Fragata Fleet (XO) instance with **Terraform**, then updating it.
+Fragata has an official Terraform provider, [`vatesfr/xenorchestra`](https://registry.terraform.io/providers/vatesfr/xenorchestra/latest), published on the Terraform registry and developed [on GitHub](https://github.com/vatesfr/terraform-provider-xenorchestra). This guide walks you through deploying a VM on your Fragata (XO) instance with **Terraform**, then updating it.
 
 :::note
 This guide works with both **Terraform** and **OpenTofu**, the community-driven fork that maintains compatibility with Terraform.
@@ -16,7 +16,7 @@ Terraform's two-step workflow (`plan` then `apply`) gives you full control: you 
 
 ## Prerequisites
 
-- a running **Fragata Fleet** instance (5.50.1 or newer) connected to an **XCP-ng** pool
+- a running **Fragata** instance (5.50.1 or newer) connected to an **XCP-ng** pool
 - **Terraform** or **OpenTofu** installed on your workstation
 - a VM **template** with cloud-init support
 - an XO **user account** or **API token** for the provider to authenticate with
@@ -25,9 +25,9 @@ Terraform's two-step workflow (`plan` then `apply`) gives you full control: you 
 
 If you haven't installed Terraform yet, follow the [official HashiCorp tutorial](https://developer.hashicorp.com/terraform/install), or the [OpenTofu installation guide](https://opentofu.org/docs/intro/install/). Any recent release works: the provider itself supports Terraform 0.12 and newer.
 
-### VM templates in Fragata Fleet {#using-vm-templates-in-xen-orchestra}
+### VM templates in Fragata {#using-vm-templates-in-xen-orchestra}
 
-Terraform needs a starting point to create a VM: a template that already contains an installed operating system with **cloud-init** capabilities (or **Cloudbase-init** for Windows), as well as **Xen/Guest Tools** for better integration with Fragata Fleet. This enables automatic customization during deployment: IP assignment, hostname configuration, and so on.
+Terraform needs a starting point to create a VM: a template that already contains an installed operating system with **cloud-init** capabilities (or **Cloudbase-init** for Windows), as well as **Xen/Guest Tools** for better integration with Fragata. This enables automatic customization during deployment: IP assignment, hostname configuration, and so on.
 
 :::info
 We recommend the pre-built cloud-init-ready templates from the **XOA Hub** (Debian, Ubuntu, and others) for optimal results. For more information about templates:
@@ -114,7 +114,7 @@ provider "xenorchestra" {
 
 Terraform needs to know about the existing resources in XO (your pool, network, storage, template). For that, we use `data` blocks: read-only queries that fetch existing information, so you never hardcode UUIDs.
 
-Create a file named `vm.tf` and add the following code, replacing the `name_label` values with the exact names of your pool, template, storage repository, and network in Fragata Fleet:
+Create a file named `vm.tf` and add the following code, replacing the `name_label` values with the exact names of your pool, template, storage repository, and network in Fragata:
 
 ```tf
 # vm.tf
@@ -180,7 +180,7 @@ terraform apply
 
 `terraform plan` analyzes your code and shows what it is about to do: the run should end with `Plan: 1 to add, 0 to change, 0 to destroy.`, with the full detail of the `xenorchestra_vm.vm` resource to be created. If the plan looks good, `terraform apply` shows it again and asks for confirmation: type `yes` and press `Enter`, and the VM is created on your pool.
 
-<UiShot light="/img/xo5/terraform-vm-console.png" alt="The freshly deployed VM booting, seen from its Console tab in Fragata Fleet" url="https://your-xo/#/vms/…/console" />
+<UiShot light="/img/xo5/terraform-vm-console.png" alt="The freshly deployed VM booting, seen from its Console tab in Fragata" url="https://your-xo/#/vms/…/console" />
 
 Congratulations! Your VM is now deployed via Terraform on XO, and any future modification can be **reviewed** and **version-controlled**.
 

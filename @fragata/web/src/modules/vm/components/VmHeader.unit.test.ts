@@ -96,7 +96,7 @@ it('points every in-app tab at the page of that VM', async () => {
   ])
 })
 
-it('sends the stats tab to Fleet Classic rather than to an in-app page', async () => {
+it('sends the stats tab to Fragata Classic rather than to an in-app page', async () => {
   const wrapper = await mountHeader()
 
   const statsTab = findTabs(wrapper).find(tab => tab.text() === t('stats'))!
@@ -121,7 +121,7 @@ it('marks no tab as active while no VM page is open', async () => {
   expect(findTabs(wrapper).filter(tab => tab.classes('active'))).toHaveLength(0)
 })
 
-it('links to the Fleet Classic page managing the lifecycle of the VM', async () => {
+it('links to the Fragata Classic page managing the lifecycle of the VM', async () => {
   const wrapper = await mountHeader()
 
   expect(wrapper.get('.ui-head-bar .actions a').attributes('href')).toBe('https://xo5.example.com/#/vms/vm-42/general')

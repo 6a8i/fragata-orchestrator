@@ -2,9 +2,9 @@
 sidebar_position: 1
 ---
 
-# Management in Fragata Fleet
+# Management in Fragata
 
-This page walks through day-to-day management in Fragata Fleet: pools, hosts and VMs. For the general layout and navigation, start with [Fragata Fleet at a glance](../discover-xen-orchestra/gettingstarted.md).
+This page walks through day-to-day management in Fragata: pools, hosts and VMs. For the general layout and navigation, start with [Fragata at a glance](../discover-xen-orchestra/gettingstarted.md).
 
 ## Pools
 
@@ -15,13 +15,13 @@ A pool page opens on its dashboard: host and VM status, alarms, the list of miss
 The other tabs cover the pool's building blocks:
 
 - **System**: identity and properties of the pool.
-- **Network**: pool-wide networks and host internal networks, each with a query builder and a details side panel. You can create networks (including bonded and host internal networks) and delete them; editing an existing network opens Fleet Classic.
+- **Network**: pool-wide networks and host internal networks, each with a query builder and a details side panel. You can create networks (including bonded and host internal networks) and delete them; editing an existing network opens Fragata Classic.
 - **Traffic rules**: all the traffic rules for a pool.
-- **Storage**: the pool's storage repositories, with connect, disconnect and delete actions (SR creation opens Fleet Classic).
+- **Storage**: the pool's storage repositories, with connect, disconnect and delete actions (SR creation opens Fragata Classic).
 - **Tasks**: what happened on this pool.
 - **Hosts** and **VMs**: filtered lists scoped to this pool.
 
-From a pool you can also connect a new pool to Fragata Fleet (**Connect pool**, from the top level) and create a VM (**New VM**).
+From a pool you can also connect a new pool to Fragata (**Connect pool**, from the top level) and create a VM (**New VM**).
 
 ## Hosts
 
@@ -61,19 +61,19 @@ The **Console** tab is a full VNC console in the browser: fullscreen, open chrom
 
 - **VDIs**: the virtual disks of the VM, with real actions: create or attach a disk, connect and disconnect, migrate a VDI to another storage repository, export its content, detach or delete it.
 - **Network**: its virtual interfaces, with connect, disconnect, delete and VIF creation.
-- **Snapshots**: the snapshot history, with the last snapshot and last revert highlighted. Take a new snapshot, revert the VM to any of them, or delete them, directly from Fragata Fleet.
+- **Snapshots**: the snapshot history, with the last snapshot and last revert highlighted. Take a new snapshot, revert the VM to any of them, or delete them, directly from Fragata.
 
 <UiShot light="/img/xo6/vm-snapshots-light.png" dark="/img/xo6/vm-snapshots-dark.png" alt="VM snapshots" url="https://your-xo/v6/#/vm/…/snapshots" />
 
 ### Creating a VM
 
-**New VM** (from a pool, or from the VMs lists) opens the VM creation form. Picking a template unlocks the full form: install settings (SSH key, cloud-init user and network config, ISO, PXE), name and description, boot firmware with vTPM and Secure Boot options, affinity host, high availability, vCPUs and RAM, network interfaces and disks, and whether to boot the VM right after creation. Creating several VMs at once is not available yet; for that, use Fleet Classic.
+**New VM** (from a pool, or from the VMs lists) opens the VM creation form. Picking a template unlocks the full form: install settings (SSH key, cloud-init user and network config, ISO, PXE), name and description, boot firmware with vTPM and Secure Boot options, affinity host, high availability, vCPUs and RAM, network interfaces and disks, and whether to boot the VM right after creation. Creating several VMs at once is not available yet; for that, use Fragata Classic.
 
 <UiShot light="/img/xo6/new-vm-light.png" dark="/img/xo6/new-vm-dark.png" alt="Creating a VM: it starts with a template" url="https://your-xo/v6/#/vm/new" />
 
 ## Traffic rules {#traffic-rules}
 
-Traffic rules are the first feature built for Fragata Fleet first: allow or block traffic **network-wide or per virtual interface (VIF)**, from a single place. Typical use case: isolating VMs that share a subnet or a VLAN, without touching anything inside the guests.
+Traffic rules are the first feature built for Fragata first: allow or block traffic **network-wide or per virtual interface (VIF)**, from a single place. Typical use case: isolating VMs that share a subnet or a VLAN, without touching anything inside the guests.
 
 They live in two places:
 
@@ -87,14 +87,14 @@ A rule is simple to express: allow or block, a protocol (ARP, ICMP, IP, TCP or U
 <UiShot light="/img/xo6/traffic-rule-new-light.png" dark="/img/xo6/traffic-rule-new-dark.png" alt="The new traffic rule form: policy, protocol, direction, IP range, and the network or VIF it applies to" url="https://your-xo/v6/#/traffic-rule/new" />
 
 :::warning Prerequisites
-Traffic rules are enforced by the [SDN Controller plugin](../manage-your-infrastructure/sdn_controller.md): it must be loaded, and switched to the **XAPI plugin** mode ([`useDirectChannel = false`](../getting-started/configuration.md#sdn-controller-mode)). Fragata Fleet shows a notification guiding you through the switch, and a [migration script](../manage-your-infrastructure/sdn_controller.md#migration-path) converts existing rules.
+Traffic rules are enforced by the [SDN Controller plugin](../manage-your-infrastructure/sdn_controller.md): it must be loaded, and switched to the **XAPI plugin** mode ([`useDirectChannel = false`](../getting-started/configuration.md#sdn-controller-mode)). Fragata shows a notification guiding you through the switch, and a [migration script](../manage-your-infrastructure/sdn_controller.md#migration-path) converts existing rules.
 :::
 
 Everything is also available through the [REST API](../automation/restapi.md), where rules can additionally be updated in place, making network policies easy to automate.
 
 ## Users and administration
 
-The **Administration** tab of the sidebar covers who can access your Fragata Fleet. **Users** are listed in Fragata Fleet with their details, groups and authentication tokens (creating and editing users still happens in Fleet Classic); **Groups**, **Roles** and **LDAP or other authentication providers** open their Fleet Classic configuration pages.
+The **Administration** tab of the sidebar covers who can access your Fragata. **Users** are listed in Fragata with their details, groups and authentication tokens (creating and editing users still happens in Fragata Classic); **Groups**, **Roles** and **LDAP or other authentication providers** open their Fragata Classic configuration pages.
 
 <UiShot light="/img/xo6/administration-light.png" dark="/img/xo6/administration-dark.png" alt="The administration panel" url="https://your-xo/v6/#/admin/user-management/users" />
 

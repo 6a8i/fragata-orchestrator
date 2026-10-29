@@ -7,7 +7,7 @@ import { assertNonEmptyString, waitUntil } from '../../utils/index.js'
 const log = createLogger('xo:qa-test:vm')
 
 /**
- * Specialized request handler for Fragata Fleet virtual machine operations.
+ * Specialized request handler for Fragata virtual machine operations.
  *
  * Provides comprehensive VM lifecycle management with REST-first approach.
  * Handles VM listing, details retrieval, template operations, cloning, deletion,

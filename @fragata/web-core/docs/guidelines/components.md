@@ -69,7 +69,7 @@ List item components SHOULD be used only in the context of their list component.
 
 ## Components that are not part of the DS MUST have their name start with `Vts`, and be stored outside the `/ui` directory
 
-This is the case for components that are not designed in the DS, but are shared between Fragata Fleet and XO lite, such as "helpers" and "wrappers" components, for example.
+This is the case for components that are not designed in the DS, but are shared between Fragata and XO lite, such as "helpers" and "wrappers" components, for example.
 
 ❌ Bad
 

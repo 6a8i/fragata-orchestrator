@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Fragata Fleet (XO) is a powerful tool for managing XCP-ng and XenServer virtualization environments. However, relying solely on the web interface can result in repetitive manual tasks. For system administrators, particularly those working in Windows-centric environments, **PowerShell** is the go-to automation tool. The [`xo-powershell`](https://github.com/vatesfr/xo-powershell) module combines the strengths of these two tools by offering PowerShell's scripting capabilities to interact directly with the Fragata Fleet API.
+Fragata (XO) is a powerful tool for managing XCP-ng and XenServer virtualization environments. However, relying solely on the web interface can result in repetitive manual tasks. For system administrators, particularly those working in Windows-centric environments, **PowerShell** is the go-to automation tool. The [`xo-powershell`](https://github.com/vatesfr/xo-powershell) module combines the strengths of these two tools by offering PowerShell's scripting capabilities to interact directly with the Fragata API.
 
 ## What the module provides
 
@@ -32,14 +32,14 @@ Install-Module -Name xo-powershell -AllowPrerelease
 PowerShell **7.0 or later**, on Windows, Linux or macOS. Windows PowerShell 5.1 is not supported. The module is currently published as a prerelease (`1.0.0-beta`), hence the `-AllowPrerelease` flag (or `Install-PSResource -Name xo-powershell -Prerelease` with PSResourceGet).
 :::
 
-Connecting to your Fragata Fleet instance is just as straightforward, requiring only the host address and an API token:
+Connecting to your Fragata instance is just as straightforward, requiring only the host address and an API token:
 
 <Terminal shell title="connect to your XO instance">{`
 Connect-XoSession -HostName "https://your-xo-server" -Token "your-api-token"
 `}</Terminal>
 
 :::tip Obtaining the API token
-In Fragata Fleet, go to your user page and generate an authentication token. See [REST API authentication](restapi.md#authentication) for details.
+In Fragata, go to your user page and generate an authentication token. See [REST API authentication](restapi.md#authentication) for details.
 :::
 
 ## Pipeline-driven automation {#the-power-of-the-pipeline-for-advanced-automation}
@@ -87,7 +87,7 @@ Some practical combinations:
 | **Maintenance planning** | `Get-XoHost` → `Get-XoVm` → `Stop-XoVm` → `Wait-XoTask` | Planned maintenance without data loss |
 | **Session verification** | `Test-XoSession`                                        | Verify automation readiness          |
 
-`Wait-XoTask` deserves a mention: it enables robust scripts that wait for lengthy operations (such as creating a **snapshot**) to complete before continuing execution. This makes the module a true command-line interface for Fragata Fleet and not just a tool for a few common tasks.
+`Wait-XoTask` deserves a mention: it enables robust scripts that wait for lengthy operations (such as creating a **snapshot**) to complete before continuing execution. This makes the module a true command-line interface for Fragata and not just a tool for a few common tasks.
 
 ### Example: Creating virtual machine snapshots
 
@@ -117,13 +117,13 @@ Get-XoVmSnapshot -Filter "name_label:your-snapshot-name"
 
 <UiDetail src="/img/xo6/powershell-snapshot-verify.png" alt="Get-XoVmSnapshot confirms the snapshot exists" width={720} />
 
-The snapshot also shows up in the Fragata Fleet web interface:
+The snapshot also shows up in the Fragata web interface:
 
 <UiShot light="/img/xo6/powershell-snapshot-xo.png" alt="The snapshot created from PowerShell, visible in the VM's Snapshots tab" url="https://your-xo/v5/#/vms/…/snapshots" />
 
 ## Conclusion: Rethink your XCP-ng management {#conclusion-rethink-your-xcp-ng-management}
 
-The `xo-powershell` module is much more than just a collection of commands: it is a gateway to powerful, scalable and efficient automation within the XCP-ng/Fragata Fleet ecosystem. Leveraging the PowerShell pipeline and a comprehensive set of commands aligns it with the DevOps philosophy, bringing automation practices closer to Windows administrators and helping them save valuable time while reducing the risk of human error.
+The `xo-powershell` module is much more than just a collection of commands: it is a gateway to powerful, scalable and efficient automation within the XCP-ng/Fragata ecosystem. Leveraging the PowerShell pipeline and a comprehensive set of commands aligns it with the DevOps philosophy, bringing automation practices closer to Windows administrators and helping them save valuable time while reducing the risk of human error.
 
 ## Related links
 
