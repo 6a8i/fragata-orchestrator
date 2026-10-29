@@ -6,7 +6,7 @@
         <slot name="title-actions" />
       </template>
     </UiTitle>
-    <UiQuerySearchBar @search="(value: string) => (searchQuery = value)" />
+    <VtsQueryBuilder v-model="filter" :schema />
     <VtsTable :state :pagination-bindings sticky="right">
       <thead>
         <tr>
@@ -28,21 +28,33 @@ import { useVifConnection } from '@/modules/vif/composables/use-vif-connection.c
 import { useNetworkStore } from '@/stores/xen-api/network.store.ts'
 import { useVifStore } from '@/stores/xen-api/vif.store.ts'
 import { useVmGuestMetricsStore } from '@/stores/xen-api/vm-guest-metrics.store.ts'
+import VtsQueryBuilder from '@core/components/query-builder/VtsQueryBuilder.vue'
 import VtsRow from '@core/components/table/VtsRow.vue'
 import VtsTable from '@core/components/table/VtsTable.vue'
-import UiQuerySearchBar from '@core/components/ui/query-search-bar/UiQuerySearchBar.vue'
 import UiTitle from '@core/components/ui/title/UiTitle.vue'
 import { usePagination } from '@core/composables/pagination.composable.ts'
 import { useRouteQuery } from '@core/composables/route-query.composable.ts'
 import { useTableState } from '@core/composables/table-state.composable.ts'
 import { useMapper } from '@core/packages/mapper'
+import { useQueryBuilderSchema } from '@core/packages/query-builder/schema/use-query-builder-schema.ts'
+import { useQueryBuilderFilter } from '@core/packages/query-builder/use-query-builder-filter.ts'
 import { type ActionItem } from '@core/tables/column-definitions/action-column.ts'
 import { useVifColumns } from '@core/tables/column-sets/vif-columns.ts'
 import { CONNECTION_ACTION } from '@core/types/connection.ts'
 import { getUniqueIpAddressesForDevice } from '@core/utils/ip-address.utils.ts'
+import { useBooleanSchema } from '@core/utils/query-builder/use-boolean-schema.ts'
+import { useNumberSchema } from '@core/utils/query-builder/use-number-schema.ts'
+import { useStringSchema } from '@core/utils/query-builder/use-string-schema.ts'
+import { VIF_LOCKING_MODE } from '@vates/types'
 import { logicNot } from '@vueuse/math'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+type FilterableVif = XenApiVif & {
+  network_name: string
+  ip_addresses: string[]
+  device_label: string
+}
 
 const { vifs, vm } = defineProps<{
   vifs: XenApiVif[]
@@ -69,20 +81,41 @@ const getIpAddresses = (vif: XenApiVif) => {
   return getUniqueIpAddressesForDevice(networks, vif.device)
 }
 
-const searchQuery = ref('')
+const getDeviceLabel = (vif: XenApiVif) => t('vif-device', { device: vif.device })
 
-const filteredVifs = computed(() => {
-  const searchTerm = searchQuery.value.trim().toLocaleLowerCase()
-
-  if (!searchTerm) {
-    return vifs
-  }
-
-  return vifs.filter(vif =>
-    [...Object.values(vif), getNetworkName(vif.network)].some(value =>
-      String(value).toLocaleLowerCase().includes(searchTerm)
-    )
+// network name and IP addresses are not fields of the XAPI VIF record (they come from the network and the VM guest
+// metrics), and the device is displayed with a label ("VIF #0"), so they are added to make them filterable as displayed
+const filterableVifs = computed(() =>
+  vifs.map(
+    vif =>
+      ({
+        ...vif,
+        network_name: getNetworkName(vif.network),
+        ip_addresses: getIpAddresses(vif),
+        device_label: getDeviceLabel(vif),
+      }) satisfies FilterableVif
   )
+)
+
+const { items: filteredVifs, filter } = useQueryBuilderFilter('vif', filterableVifs)
+
+const schema = useQueryBuilderSchema<FilterableVif>({
+  '': useStringSchema(t('any-property')),
+  network_name: useStringSchema(t('network')),
+  device_label: useStringSchema(t('device')),
+  currently_attached: useBooleanSchema(t('status'), {
+    true: t('connected'),
+    false: t('disconnected'),
+  }),
+  ip_addresses: useStringSchema(t('ip-addresses')),
+  MAC: useStringSchema(t('mac-addresses')),
+  MTU: useNumberSchema(t('mtu')),
+  locking_mode: useStringSchema(t('locking-mode'), {
+    [VIF_LOCKING_MODE.NETWORK_DEFAULT]: t('network-default'),
+    [VIF_LOCKING_MODE.LOCKED]: t('locked'),
+    [VIF_LOCKING_MODE.UNLOCKED]: t('unlocked'),
+    [VIF_LOCKING_MODE.DISABLED]: t('disabled'),
+  } satisfies Record<VIF_LOCKING_MODE, string>),
 })
 
 const state = useTableState({
@@ -138,7 +171,7 @@ const { HeadCells, BodyCells } = useVifColumns({
 
     return {
       network: r => r({ label: name.value }),
-      device: r => r(t('vif-device', { device: vif.device })),
+      device: r => r(getDeviceLabel(vif)),
       status: r => r(vif.currently_attached ? 'connected' : 'disconnected'),
       ipsAddresses: r => r(ipAddresses.value),
       macAddresses: r => r(vif.MAC),
