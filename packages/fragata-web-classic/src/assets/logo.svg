@@ -1,39 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 80" width="400" height="80">
   <title>Fragata</title>
   <defs>
-    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d2a52"/><stop offset="1" stop-color="#071a36"/></linearGradient>
-    <linearGradient id="sail" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d8dde6"/></linearGradient>
-    <linearGradient id="hull" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c1f2b"/><stop offset="1" stop-color="#0b0d14"/></linearGradient>
-    <clipPath id="disc"><circle cx="128" cy="128" r="122"/></clipPath>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a3d"/><stop offset="0.5" stop-color="#b46ce6"/><stop offset="1" stop-color="#2f46e0"/></linearGradient>
+    <radialGradient id="n1" cx="0.28" cy="0.22" r="0.45"><stop offset="0" stop-color="#ffc07a" stop-opacity="0.95"/><stop offset="1" stop-color="#ffc07a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="n2" cx="0.8" cy="0.82" r="0.5"><stop offset="0" stop-color="#4f7bff" stop-opacity="0.9"/><stop offset="1" stop-color="#4f7bff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="txt" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff8a3d"/><stop offset="0.55" stop-color="#b46ce6"/><stop offset="1" stop-color="#2f46e0"/></linearGradient>
   </defs>
   <g transform="translate(4 4) scale(0.28125)">
-    <circle cx="128" cy="128" r="122" fill="url(#sea)"/>
-    <circle cx="128" cy="128" r="117" fill="none" stroke="#d9a441" stroke-opacity="0.55" stroke-width="1.5"/>
-    <circle cx="128" cy="128" r="122" fill="none" stroke="#d9a441" stroke-width="3"/>
-    <g clip-path="url(#disc)">
-      <g stroke="#ffffff" stroke-opacity="0.32" stroke-width="1.2" fill="none" stroke-linecap="round">
-        <path d="M132 46 L62 158"/><path d="M132 46 L204 156"/><path d="M96 60 L58 158"/><path d="M96 60 L166 156"/><path d="M168 68 L104 158"/><path d="M168 68 L212 152"/><path d="M96 60 L132 46"/><path d="M132 46 L168 68"/><path d="M96 60 L238 118"/>
-      </g>
-      <path d="M100 70 L236 120 L112 152 Z" fill="url(#sail)" opacity="0.92"/>
-      <g stroke="#1c1f2b" stroke-width="3" stroke-linecap="round"><path d="M96 158 V60"/><path d="M132 158 V44"/><path d="M168 158 V68"/></g>
-      <path d="M208 152 L242 116" stroke="#d9a441" stroke-width="3.5" stroke-linecap="round"/>
-      <g fill="url(#sail)" stroke="#9aa3b2" stroke-width="0.8">
-        <path d="M84 66 H108 V86 Q96 92 84 86 Z"/><path d="M79 92 H113 V118 Q96 126 79 118 Z"/><path d="M74 124 H118 V150 Q96 160 74 150 Z"/>
-        <path d="M118 52 H146 V74 Q132 80 118 74 Z"/><path d="M112 80 H152 V108 Q132 116 112 108 Z"/><path d="M106 114 H158 V150 Q132 161 106 150 Z"/>
-        <path d="M157 74 H179 V92 Q168 97 157 92 Z"/><path d="M153 98 H183 V122 Q168 129 153 122 Z"/><path d="M149 128 H187 V150 Q168 158 149 150 Z"/>
-      </g>
-      <g stroke="#1c1f2b" stroke-width="2" stroke-linecap="round">
-        <path d="M82 66 H110"/><path d="M77 92 H115"/><path d="M72 124 H120"/><path d="M116 52 H148"/><path d="M110 80 H154"/><path d="M104 114 H160"/><path d="M155 74 H181"/><path d="M151 98 H185"/><path d="M147 128 H189"/>
-      </g>
-      <path d="M132 40 L152 47 L132 54 Z" fill="#d9a441"/>
-      <path d="M46 158 Q56 184 90 188 L176 188 Q210 184 222 156 Z" fill="url(#hull)"/>
-      <path d="M46 158 H222" stroke="#d9a441" stroke-width="2.5"/>
-      <path d="M58 170 Q128 176 212 168" stroke="#d9a441" stroke-opacity="0.8" stroke-width="2" fill="none"/>
-      <g fill="#d9a441" fill-opacity="0.9"><circle cx="84" cy="177" r="2.2"/><circle cx="108" cy="178.5" r="2.2"/><circle cx="132" cy="179" r="2.2"/><circle cx="156" cy="178.5" r="2.2"/><circle cx="180" cy="177" r="2.2"/></g>
-      <path d="M14 192 Q36 182 58 192 T102 192 T146 192 T190 192 T234 192 T278 192" fill="none" stroke="#2ec4b6" stroke-width="4" stroke-linecap="round"/>
-      <path d="M0 208 Q22 198 44 208 T88 208 T132 208 T176 208 T220 208 T264 208" fill="none" stroke="#2ec4b6" stroke-opacity="0.55" stroke-width="3" stroke-linecap="round"/>
-      <path d="M0 224 Q22 214 44 224 T88 224 T132 224 T176 224 T220 224 T264 224" fill="none" stroke="#2ec4b6" stroke-opacity="0.3" stroke-width="2.5" stroke-linecap="round"/>
-    </g>
+    <rect width="256" height="256" rx="58" fill="url(#bg)"/>
+    <rect width="256" height="256" rx="58" fill="url(#n1)"/>
+    <rect width="256" height="256" rx="58" fill="url(#n2)"/>
+    <g fill="#ffffff"><circle cx="52" cy="60" r="2.6" opacity="0.9"/><circle cx="206" cy="46" r="1.8" opacity="0.8"/><circle cx="222" cy="112" r="2.4" opacity="0.7"/><circle cx="40" cy="150" r="1.6" opacity="0.7"/></g>
+    <path d="M131 48 Q204 104 188 170 H131 Z" fill="#ffffff" opacity="0.92"/>
+    <path d="M121 90 Q82 128 90 170 H121 Z" fill="#ffffff" opacity="0.78"/>
+    <rect x="124" y="42" width="8" height="134" rx="4" fill="#ffffff"/>
+    <path d="M62 180 Q128 214 194 180 L180 198 Q128 222 76 198 Z" fill="#ffffff"/>
   </g>
-  <text x="92" y="54" font-family="Poppins, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="38" font-weight="700" letter-spacing="6" fill="#0d2a52">FRAGATA</text>
+  <text x="92" y="54" font-family="Poppins, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="38" font-weight="700" letter-spacing="6" fill="url(#txt)">FRAGATA</text>
 </svg>
