@@ -14,7 +14,7 @@ Full replication keeps a complete, ready-to-boot copy of your VMs on another sto
 
 If the production side is lost (hosts, storage or the entire site), you start the replicas on the destination and you are back in business.
 
-<Schema label="Full replication: a ready-to-boot copy of your production VMs, refreshed at each run" legend={[["#56c288", "Production VM"], ["#e0a94a", "Standby replica"], ["#6aabf0", "Fragata"], ["#8e83fe", "XCP-ng pool"]]} maxWidth="640px">
+<Schema label="Full replication: a ready-to-boot copy of your production VMs, refreshed at each run" legend={[["#56c288", "Production VM"], ["#e0a94a", "Standby replica"], ["#6aabf0", "Fragata"], ["#8e83fe", "Fragata Host pool"]]} maxWidth="640px">
 <svg viewBox="0 0 640 270" role="img" aria-label="Fragata orchestrates a full replication job: the production VM is streamed to a DR pool where dated standby replicas are kept, with start blocked">
   <rect x="250" y="12" width="140" height="34" rx="6" fill="rgba(255,255,255,0.04)" stroke="#6aabf0" strokeWidth="1.5" />
   <text x="320" y="34" fill="#6aabf0" fontSize="13" textAnchor="middle" fontWeight="600">Fragata</text>
@@ -26,7 +26,7 @@ If the production side is lost (hosts, storage or the entire site), you start th
   <text x="42" y="112" fill="#7a8699" fontSize="11">Production pool</text>
 
   <rect x="50" y="124" width="200" height="98" rx="6" fill="rgba(255,255,255,0.04)" stroke="#8e83fe" strokeWidth="1.5" />
-  <text x="60" y="143" fill="#8e83fe" fontSize="11">XCP-ng host</text>
+  <text x="60" y="143" fill="#8e83fe" fontSize="11">Fragata Host</text>
   <rect x="70" y="156" width="160" height="46" rx="5" fill="rgba(255,255,255,0.04)" stroke="#56c288" strokeWidth="1.5" />
   <text x="150" y="176" fill="#56c288" fontSize="12" textAnchor="middle" fontWeight="600">VM "web01"</text>
   <text x="150" y="192" fill="#7a8699" fontSize="10" textAnchor="middle">running</text>
@@ -52,7 +52,7 @@ If the production side is lost (hosts, storage or the entire site), you start th
 
 Disaster recovery is a vast topic and we strongly encourage you to read some literature about it. In short: define the maximum data loss you can accept (RPO) and the maximum downtime you can accept (RTO), then pick the replication frequency and infrastructure that match those numbers.
 
-Full replication helps on the RTO side. There is no restore phase: the export and the import happen at the same time, in one streaming pass, with no intermediate file. [Streaming allows exporting and importing simultaneously](https://xen-orchestra.com/blog/vm-streaming-export-in-xenserver/), so as soon as a run completes, the replica sits on the destination SR, ready to boot.
+Full replication helps on the RTO side. There is no restore phase: the export and the import happen at the same time, in one streaming pass, with no intermediate file. Streaming allows exporting and importing simultaneously, so as soon as a run completes, the replica sits on the destination SR, ready to boot.
 
 **The goal is to have your DR VMs ready to boot on a dedicated host or site. A replica that boots is also living proof that the export worked.**
 
@@ -62,7 +62,7 @@ You don't have to test replicas by hand: the backup health check feature can aut
 
 ## Schedule a full replication job {#schedule-a-dr-task}
 
-Planning a full replication job is very similar to planning a backup or a snapshot: create a new backup job, select the **Full replication** mode (still labelled **Disaster Recovery** in the Fragata Classic interface), pick the VMs, set a schedule, and choose the destination storage repository (any SR that XO can reach, on any connected pool).
+Planning a full replication job is very similar to planning a backup or a snapshot: create a new backup job, select the **Full replication** mode (still labelled **Disaster Recovery** in the Fragata Classic interface), pick the VMs, set a schedule, and choose the destination storage repository (any SR that Fragata can reach, on any connected pool).
 
 Your replicated VMs will be visible "on the other side" as soon as the first run is done, named after the original VM, the job and the run date, for example: `web01 - DR job - (20260801T040000Z)`.
 
@@ -70,7 +70,7 @@ Your replicated VMs will be visible "on the other side" as soon as the first run
 
 The retention setting (historically called **depth**) is the number of copies kept per replicated VM. At each run, a new copy is imported and the oldest ones beyond the retention count are removed.
 
-Replicas are identified by the backup metadata XO stores on them and by their blocked start operation. Each one also carries a `Disaster Recovery` tag (the tag value kept the former name of the job type), and HA is disabled on it (with an extra **HA disabled** tag when the source VM used HA). A replica you clone, or whose start block you remove, leaves the rotation: you can play with it without the fear of losing it at the next run.
+Replicas are identified by the backup metadata Fragata stores on them and by their blocked start operation. Each one also carries a `Disaster Recovery` tag (the tag value kept the former name of the job type), and HA is disabled on it (with an extra **HA disabled** tag when the source VM used HA). A replica you clone, or whose start block you remove, leaves the rotation: you can play with it without the fear of losing it at the next run.
 
 :::warning
 Each retained copy is a full VM on the destination SR: a high retention number will lead to huge space usage. Size your DR storage accordingly.
@@ -85,13 +85,13 @@ A good way to test a replica without this kind of problem is to clone it, remove
 ## Protection against accidental start
 
 :::warning
-For each replicated VM, XO adds **start** and **start on** as blocked operations. Even a replica with "Auto power on" enabled will not be started if your DR host reboots, and neither HA nor a distracted admin can boot it behind your back.
+For each replicated VM, Fragata adds **start** and **start on** as blocked operations. Even a replica with "Auto power on" enabled will not be started if your DR host reboots, and neither HA nor a distracted admin can boot it behind your back.
 :::
 
 When you actually need to run a replica, you have two options, and both take it out of the retention rotation:
 
 - **Clone it** (recommended): the clone is instant, boots normally, and the original replica stays in place for the next runs. This is what the block message itself suggests: "Start operation for this vm is blocked, clone it if you want to use it."
-- **Remove the blocked operation** on the replica (in the VM advanced tab) and start it directly. XO will no longer treat it as a replica, so the job won't delete it, and the next run will create a fresh copy alongside it.
+- **Remove the blocked operation** on the replica (in the VM advanced tab) and start it directly. Fragata will no longer treat it as a replica, so the job won't delete it, and the next run will create a fresh copy alongside it.
 
 ## Failover
 

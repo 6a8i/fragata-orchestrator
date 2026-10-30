@@ -49,16 +49,16 @@ You can, for example, run the initial key backup during a weekend, then only del
 
 - deltas are stored on a backup repository (BR), away from the VM storage
 - they are small and quick to create
-- restores are simple: XO reads the whole chain and rebuilds the VM automatically
+- restores are simple: Fragata reads the whole chain and rebuilds the VM automatically
 - Each disk can be restored, left out, or [live mounted](../backup-features-and-settings.md#live-mount): attached in read-only mode to the restored VM straight from the backup, without being copied.
 
-If you want to roll back a VM to a previous state, the cost is only one snapshot on your SR (far less than the [rolling snapshot](./rolling_snapshots.md) mechanism). And even if you lose your whole SR or VM, XOA will restore the VM entirely and automatically, at any backup date.
+If you want to roll back a VM to a previous state, the cost is only one snapshot on your SR (far less than the [rolling snapshot](./rolling_snapshots.md) mechanism). And even if you lose your whole SR or VM, Fragata will restore the VM entirely and automatically, at any backup date.
 
 You can even use this to back up more often: deltas stay small, and they will **always be deltas**.
 
 ### Continuous
 
-Incremental backups in XO are called continuous because after the initial key backup, **a full export is never needed again** (unless you configure a [key backup interval](#key-backup-interval)). When the retention is exceeded, instead of exporting a new full, XO merges the oldest delta into the full, directly on the BR:
+Incremental backups in Fragata are called continuous because after the initial key backup, **a full export is never needed again** (unless you configure a [key backup interval](#key-backup-interval)). When the retention is exceeded, instead of exporting a new full, Fragata merges the oldest delta into the full, directly on the BR:
 
 <Schema label="Rolling merge: when retention is exceeded, the oldest delta is merged into the full on the BR and the chain window slides forward, without ever re-exporting a full" legend={[["#56c288", "full (key) backup"], ["#6aabf0", "delta"], ["#e0a94a", "merge"]]} maxWidth="640px">
 <svg viewBox="0 0 640 250" role="img" aria-label="Top row: a chain made of a full backup and three deltas exceeds a retention of 3, and an animated arrow merges the oldest delta d1 into the full; bottom row: the resulting chain holds the merged full plus d2 and d3, with a dashed d4 slot showing the next run">
@@ -137,7 +137,7 @@ You have the option to use the NBD network protocol for data transfer instead of
 
 ### Network requirements {#nbd-network-requirements}
 
-NBD is a direct connection from the machine running the backup (XOA, or the fragata-proxy the job is delegated to) to the **host currently running the VM** — not to the pool master, and not through XAPI. The backup runner must therefore have **at least one network** that meets **all** of these conditions:
+NBD is a direct connection from the machine running the backup (the Fragata server) to the **host currently running the VM** — not to the pool master, and not through XAPI. The backup runner must therefore have **at least one network** that meets **all** of these conditions:
 
 - **NBD is enabled on it.** Select the pool, navigate to the **Network** tab and enable NBD on the network. Data is then transferred over an encrypted (TLS) NBD connection.
 - **It is routable from the backup runner to the host running the VM.** Routing and firewalling must allow the runner to open a connection to that host on this network.
@@ -171,17 +171,15 @@ Enabling **Use NBD to transfer disk** in the job's Advanced settings is not suff
 Always confirm NBD was actually used in the backup log after the first run.
 :::
 
-To learn more about the evolution of this feature across various XO releases, check out our blog posts for versions [5.76](https://xen-orchestra.com/blog/xen-orchestra-5-76/), [5.81](https://xen-orchestra.com/blog/xen-orchestra-5-81/), [5.82](https://xen-orchestra.com/blog/xen-orchestra-5-82/), and [5.86](https://xen-orchestra.com/blog/xen-orchestra-5-86/).
-
 ## Purge snapshot data (CBT) {#purge-snapshot-data-cbt}
 
-By default, the reference snapshot kept for an incremental backup stores its data on the SR. XO can instead use the Changed Block Tracking (CBT) feature of XCP-ng and XenServer to discard that data: enable **Purge snapshot data when using CBT** in the Advanced settings of the backup job.
+By default, the reference snapshot kept for an incremental backup stores its data on the SR. Fragata can instead use the Changed Block Tracking (CBT) feature of XCP-ng and XenServer to discard that data: enable **Purge snapshot data when using CBT** in the Advanced settings of the backup job.
 
 When this setting is enabled:
 
-- XO automatically enables CBT on all the disks of the VM.
+- Fragata automatically enables CBT on all the disks of the VM.
 - After each successful transfer, the data of the reference snapshot is destroyed: only a small CBT metadata VDI remains on the SR.
-- On the next run, XO uses this metadata to know exactly which blocks changed, and reads them from the active disk over NBD.
+- On the next run, Fragata uses this metadata to know exactly which blocks changed, and reads them from the active disk over NBD.
 
 The benefit: the reference snapshot no longer uses any notable space on the SR, which is especially valuable on thick-provisioned storage where a snapshot can reserve the full size of the disk.
 
@@ -190,7 +188,7 @@ Requirements and limitations:
 - NBD is required: **Use NBD to transfer disk** must be enabled in the job, and the [network requirements](#nbd-network-requirements) must be met.
 - It is not compatible with rolling snapshots: the job's snapshot retention must be 0.
 - Since the purged snapshot only keeps metadata, it is not shown in the UI and can't be used for a rollback or a differential restore.
-- Reverting to an XO version without CBT support will trigger a full backup on the next run.
+- Reverting to a Fragata version without CBT support will trigger a full backup on the next run.
 
 :::warning
 When using the **purge snapshot data** function, you might occasionally run into an issue where full backups are transferred on each run.

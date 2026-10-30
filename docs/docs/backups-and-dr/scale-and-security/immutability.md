@@ -10,7 +10,7 @@ If your backup repository is an S3-compatible bucket, immutability is provided b
 
 In backup systems, immutability means that once a backup is created, it cannot be altered or deleted for a set period. This safeguards your backups against ransomware attacks, accidental deletion, or data corruption.
 
-Here is how it works: you designate a backup repository (BR) that Fragata can write to, but cannot modify during the specified immutability period. Even if an attacker compromises XO, your backups remain untouched. The goal is to ensure that your backup data cannot be deleted, encrypted, or tampered with, unless someone with direct physical or root access to the storage intervenes.
+Here is how it works: you designate a backup repository (BR) that Fragata can write to, but cannot modify during the specified immutability period. Even if an attacker compromises Fragata, your backups remain untouched. The goal is to ensure that your backup data cannot be deleted, encrypted, or tampered with, unless someone with direct physical or root access to the storage intervenes.
 
 Immutability can be implemented using external services like AWS S3 Object Lock, but Fragata also offers a native, on-premises solution that doesn't rely on third-party infrastructure.
 
@@ -28,16 +28,16 @@ Immutability offers two distinct approaches to data protection, to meet differen
 
 The first approach leverages **object storage solutions** like Amazon S3, where immutability is enforced using features such as [Object Lock](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html). In this setup, the storage provider itself manages the retention period, and it applies it to every object as soon as it is uploaded.
 
-Object Lock protects object _versions_ rather than making files read-only, so XO's own operations keep succeeding on a locked bucket and the protection works differently from what the rest of this page describes. Its setup, its compatible backup settings and its cost model are covered in [S3 Object Lock](./object-lock.md).
+Object Lock protects object _versions_ rather than making files read-only, so Fragata's own operations keep succeeding on a locked bucket and the protection works differently from what the rest of this page describes. Its setup, its compatible backup settings and its cost model are covered in [S3 Object Lock](./object-lock.md).
 
 ### On-prem immutability {#on-prem-immmutability}
 
-The second model, and the subject of the rest of this page, is an **on-premises immutable repository**. It uses a lightweight package, installed on the BR host itself. This service monitors the repository and enforces immutability at the filesystem level, ensuring that XO cannot delete or overwrite existing backups before the end of the protection period.
+The second model, and the subject of the rest of this page, is an **on-premises immutable repository**. It uses a lightweight package, installed on the BR host itself. This service monitors the repository and enforces immutability at the filesystem level, ensuring that Fragata cannot delete or overwrite existing backups before the end of the protection period.
 
 The protection follows a **governance** model: the local root account of the BR host can still lift immutability. This is by design, so that an administrator with direct access to the storage always keeps control.
 
 :::tip
-The immutability engine was rewritten in 2026 on native filesystem APIs. It uses roughly 7 times less memory and locks and unlocks files much faster on large repositories, so it scales to BRs holding many VMs and disks. The new engine shipped with the Fragata.3 release.
+The immutability engine was rewritten in 2026 on native filesystem APIs. It uses roughly 7 times less memory and locks and unlocks files much faster on large repositories, so it scales to BRs holding many VMs and disks.
 :::
 
 ## Configuring on-prem immutability {#configuring-on-prem-immutability}
@@ -47,7 +47,7 @@ To set up immutability on your local infrastructure, follow these steps:
 ### 1. Install the required package {#1-install-the-required-package}
 
 1. Make sure **Node.js** (version 20 or later) is installed on your BR machine
-2. Install the dedicated XO package globally:
+2. Install the dedicated Fragata package globally:
 
 <Terminal shell title="On the backup repository host">{`npm install -g @fragata/immutable-backups`}</Terminal>
 
@@ -129,13 +129,13 @@ Once active, any backups written by Fragata to this repository will be protected
 
 ### Locking {#locking}
 
-The service watches the backup directory tree in real time. When a backup completes, it waits until the final file (the metadata `.json`, always written last by XO) has been fully written to disk, then locks all files belonging to that backup run with the Linux `chattr +i` attribute. This prevents any process, including Fragata, from modifying or deleting them.
+The service watches the backup directory tree in real time. When a backup completes, it waits until the final file (the metadata `.json`, always written last by Fragata) has been fully written to disk, then locks all files belonging to that backup run with the Linux `chattr +i` attribute. This prevents any process, including Fragata, from modifying or deleting them.
 
 ### Lifting {#lifting}
 
 Protection is released automatically once the `immutabilityDuration` has elapsed. The service periodically (every `liftEvery` interval) scans the backup tree, computes the age of each backup from the datetime encoded in its filename, and removes the immutable attribute from any backup that has expired.
 
-The expiry reference is the **datetime in the filename**, not the file's modification time. XO periodically rewrites metadata files for cache updates and reconciliation, which would reset `mtime` and indefinitely defer expiry if that were used instead.
+The expiry reference is the **datetime in the filename**, not the file's modification time. Fragata periodically rewrites metadata files for cache updates and reconciliation, which would reset `mtime` and indefinitely defer expiry if that were used instead.
 
 On the first scan after the service starts, all files are checked unconditionally regardless of their current state, to catch anything that may have been missed (e.g. after a crash or restart).
 
@@ -157,14 +157,14 @@ The points below describe the on-prem service, where a blocked operation surface
 
 Immutability and retention are two independent mechanisms, and they can conflict if a backup job is not in a clean state:
 
-- **Jobs that run more than once per schedule** (accidental duplicates, misconfigured triggers) will accumulate extra backups that XO cannot clean up while they are protected. Those backups count against storage but cannot be removed until their immutability duration expires.
+- **Jobs that run more than once per schedule** (accidental duplicates, misconfigured triggers) will accumulate extra backups that Fragata cannot clean up while they are protected. Those backups count against storage but cannot be removed until their immutability duration expires.
 - **Backups in an incorrect or partial state** (failed mid-run, inconsistent chain) will be locked in place for the full immutability duration. The normal cleanup scripts cannot remove them, because any attempt to delete or overwrite a protected file raises a permission error (`EPERM`). Those errors are logged, but the files stay.
-- **Retention and immutability durations must be aligned.** If the immutability duration is longer than the retention window, XO will keep trying, and failing, to delete backups it considers expired. Set `immutabilityDuration` to be at most equal to the retention period, so that files are only released after XO has already rotated them out.
-- **Do not use Long Term Retention (LTR) with immutability.** [GFS long-term retention](../backup-features-and-settings.md#long-term-backup-retention-with-gfs-strategy) selects and removes intermediate backups from within a chain, for example to keep only one backup per month. If any of those intermediate files are still immutable, the deletion fails with `EPERM`. The backup chain is left in an inconsistent state that XO cannot repair until the immutability duration expires. The [retention calculator](../calculator.md) refuses the combination for that reason.
+- **Retention and immutability durations must be aligned.** If the immutability duration is longer than the retention window, Fragata will keep trying, and failing, to delete backups it considers expired. Set `immutabilityDuration` to be at most equal to the retention period, so that files are only released after Fragata has already rotated them out.
+- **Do not use Long Term Retention (LTR) with immutability.** [GFS long-term retention](../backup-features-and-settings.md#long-term-backup-retention-with-gfs-strategy) selects and removes intermediate backups from within a chain, for example to keep only one backup per month. If any of those intermediate files are still immutable, the deletion fails with `EPERM`. The backup chain is left in an inconsistent state that Fragata cannot repair until the immutability duration expires. The [retention calculator](../calculator.md) refuses the combination for that reason.
 - **The immutability duration must cover a whole backup chain.** A restore point is only usable if its base full backup is still there. If the duration is shorter than the span of a full backup interval, the oldest backups protected at any given time are deltas whose base full has already been merged away: the files are locked, but they no longer restore anything. Either set `immutabilityDuration` to at least the time covered by one full backup interval, or set the [full backup interval](../backup-types/incremental_backups.md#key-backup-interval) to `1` so that every chain is a single restore point.
 - **Keep the immutability duration shorter than the retention window.** If the duration covers the entire retention window, the oldest restore point is never mutable when retention wants to rotate it out, so the job can never advance and backups pile up.
 - **A broken chain root blocks cleanup of the rest of the chain.** In delta backup chains, removing any backup requires starting from the root. If the chain root is in a bad state (missing, corrupted, or partially written) and the remaining files are immutable, the cleanup script cannot remove them either: it encounters `EPERM` on each attempt and leaves the orphaned files in place until they age out naturally.
-- **Disks are not protected during upload.** The immutable attribute is applied only after all disk images for a given backup run have been fully written. During that window, those files can still be modified or deleted. Coupling immutability with XO's at-rest encryption reduces this exposure, since an encrypted file is useless even if tampered with before locking. Object storage does not have this window: the bucket applies its retention at upload time.
+- **Disks are not protected during upload.** The immutable attribute is applied only after all disk images for a given backup run have been fully written. During that window, those files can still be modified or deleted. Coupling immutability with Fragata's at-rest encryption reduces this exposure, since an encrypted file is useless even if tampered with before locking. Object storage does not have this window: the bucket applies its retention at upload time.
 
 In short: make sure your backup jobs are stable and producing clean results before adding immutability. Applying it to a job that already has problems will lock those problems in place.
 
@@ -180,9 +180,9 @@ Store encryption keys **separately** from your backup data.
 Losing encryption keys will render backups **permanently unrecoverable**.
 :::
 
-### Maintain independence from Fragata {#maintain-independence-from-xen-orchestra}
+### Maintain independence from Fragata {#maintain-independence-from-fragata}
 
-The immutability enforcement mechanism **must** operate independently of Fragata. This ensures that even if an attacker compromises XO, they **cannot** delete or alter existing backups.
+The immutability enforcement mechanism **must** operate independently of Fragata. This ensures that even if an attacker compromises Fragata, they **cannot** delete or alter existing backups.
 
 ### Monitor storage and test recovery {#monitor-storage-and-test-recovery}
 
@@ -198,7 +198,7 @@ Cloud-based solutions such as S3 Object Lock depend on your provider's implement
 
 ## Troubleshooting {#troubleshooting}
 
-For troubleshooting, refer to the [package README on GitHub](https://github.com/6a8i/fragata-orchestrator/blob/master/%40xen-orchestra/immutable-backups/README.md). It covers the most common situations: files still immutable after the duration expired, making a repository or a single VM mutable again for manual cleanup, changing the immutability duration, and why incremental backups are only marked as protected in XO once their whole chain is inside the immutability window.
+For troubleshooting, refer to the [package README on GitHub](https://github.com/6a8i/fragata-orchestrator/blob/main/%40fragata/immutable-backups/README.md). It covers the most common situations: files still immutable after the duration expired, making a repository or a single VM mutable again for manual cleanup, changing the immutability duration, and why incremental backups are only marked as protected in Fragata once their whole chain is inside the immutability window.
 
 ## Conclusion {#conclusion}
 

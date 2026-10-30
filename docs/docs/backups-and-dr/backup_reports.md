@@ -109,7 +109,7 @@ The transport-email plugin requires outbound access to:
 - Verify your firewall allows outbound SMTP.
 - Test connectivity:
 
-<Terminal shell title="xoa — test SMTP connectivity">{`
+<Terminal shell title="Test SMTP connectivity">{`
 telnet smtp-server.example.com 587
 `}</Terminal>
 
@@ -232,20 +232,20 @@ decryption_method=1
 
 #### Nagios configuration
 
-#### 1. Create a host for each backed-up VM {#1-create-a-host-for-xoa}
+#### 1. Create a host for each backed-up VM {#1-create-a-host-for-each-vm}
 
 With the default plugin configuration, the Nagios host name must match the VM name:
 
 <Terminal title="Nagios — host definition">{`
 define host{
         use                     generic-host
-        host_name               my-vm-name          ; must match the VM name in XO
+        host_name               my-vm-name          ; must match the VM name in Fragata
         alias                   My VM
         address                 192.168.0.245
         }
 `}</Terminal>
 
-#### 2. Create a dedicated service for the backup reports {#2-create-a-dedicated-service-for-xoa-backups}
+#### 2. Create a dedicated service for the backup reports {#2-create-a-dedicated-service-for-backups}
 
 With the default plugin configuration, the service description must match the backup job name:
 
@@ -253,7 +253,7 @@ With the default plugin configuration, the service description must match the ba
 define service{
         name                            passif-generic
         use                             generic-service
-        service_description             my backup job       ; must match the job name in XO
+        service_description             my backup job       ; must match the job name in Fragata
         host_name                       my-vm-name
         active_checks_enabled           0
         passive_checks_enabled          1
@@ -271,7 +271,7 @@ Your Nagios setup is now ready. If the service doesn't hear from Fragata in time
 
 <UiDetail src="/img/xo5/xo5nagiosset.png" alt="A Nagios service row in CRITICAL state because no backup report was received in the last 24 hours" width={700} />
 
-### Installation in XOA
+### Installation
 
 The plugin is part of the standard Fragata transport packages.
 
@@ -315,7 +315,7 @@ The `transport-icinga2` plugin does the same job for Icinga 2: it pushes the bac
 2. Configure it:
    - **Server**: the Icinga 2 HTTP/HTTPS API address (e.g. `https://icinga2.example.com`). If no port is given in the URL, `5665` is used.
    - **User** and **password**: the Icinga 2 API credentials.
-   - **Filter**: an [Icinga 2 API filter](https://icinga.com/docs/icinga2/latest/doc/12-icinga2-api/#filters) selecting the service(s) to update, e.g. `host.name=="xoa.example.com" && service.name=="xo-backup"`.
+   - **Filter**: an [Icinga 2 API filter](https://icinga.com/docs/icinga2/latest/doc/12-icinga2-api/#filters) selecting the service(s) to update, e.g. `host.name=="fragata.example.com" && service.name=="fragata-backup"`.
    - Optionally, accept unauthorized (self-signed) certificates.
 3. Choose the report condition in your backup job.
 
@@ -323,4 +323,4 @@ Backup results are mapped to the standard Icinga 2 states: `OK` for a success, `
 
 ## Web hooks
 
-You can also configure web hooks to be sent to a custom server before and/or after a backup job runs. This won't send a formatted report but raw JSON data that you can use in custom scripts on your side. Follow the [web-hooks plugin documentation](../manage-your-infrastructure/advanced#web-hooks) to configure it.
+You can also configure web hooks to be sent to a custom server before and/or after a backup job runs. This won't send a formatted report but raw JSON data that you can use in custom scripts on your side. Follow the [web-hooks plugin documentation](../manage-your-infrastructure/advanced.md#web-hooks) to configure it.

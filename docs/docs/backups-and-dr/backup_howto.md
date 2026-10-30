@@ -76,10 +76,10 @@ Here is the whole toolbox at a glance. Most infrastructures combine several of t
 | [Full replication (DR)](./backup-types/full_replication.md)             | Boot-ready copy on another host/SR          | High, every run             | Start the copy                   | DR with a modest RPO                   |
 | [Incremental replication (CR)](./backup-types/incremental_replication.md) | Boot-ready copy, updated by deltas        | Low per run                 | Clone and start                  | Low-RPO DR for critical VMs            |
 | [Mirror backup](./backup-types/mirror_backup.md)                        | A second copy of a backup repository        | Follows the source          | Same as the source backups       | 3-2-1 strategies, offsite archives     |
-| [Metadata backup](./backup-types/metadata_backup.md)                    | XO config and pool metadata                 | Tiny                        | Rebuild your orchestration       | Always: it protects the tool itself    |
+| [Metadata backup](./backup-types/metadata_backup.md)                    | Fragata config and pool metadata                 | Tiny                        | Rebuild your orchestration       | Always: it protects the tool itself    |
 
 :::note The two replication modes have been renamed
-**Full replication** used to be called **Disaster Recovery (DR)**, and **incremental replication** used to be called **Continuous Replication (CR)**. Only the names changed. The old ones are kept in parentheses here because you will still meet them: the Fragata Classic interface labels the two buttons **Disaster Recovery** and **Continuous Replication**, and XO tags replicas accordingly. Fragata uses the current names.
+**Full replication** used to be called **Disaster Recovery (DR)**, and **incremental replication** used to be called **Continuous Replication (CR)**. Only the names changed. The old ones are kept in parentheses here because you will still meet them: the Fragata Classic interface labels the two buttons **Disaster Recovery** and **Continuous Replication**, and Fragata tags replicas accordingly. Fragata uses the current names.
 :::
 
 ### Rolling snapshots
@@ -167,7 +167,7 @@ Not a backup type, but the way to chain the jobs above: a [sequence](./backup-fe
 
 - Attach a disk from an incremental backup to the restored VM without copying it: the disk is served in read-only mode, straight from the BR.
 - Use the disk immediately, whatever its size. Expect it to be much slower than a restored disk, and unreliable with a slow or distant BR (S3 or Azure outside your network).
-- Release the mount by deleting the disk. Restarting XOA (or the proxy serving the disk) also ends the mount.
+- Release the mount by deleting the disk. Restarting the Fragata server also ends the mount.
 
 ### File restore
 
@@ -184,7 +184,7 @@ The file restore feature includes the following constraints:
 
 :::tip
 For **advanced scenarios**, you can use the `fuse-vhd` helper script to manually mount backup chains as raw disks and perform partition discovery:
-[View fuse-vhd on GitHub](https://github.com/6a8i/fragata-orchestrator/tree/master/%40vates/fuse-vhd).
+[View fuse-vhd on GitHub](https://github.com/6a8i/fragata-orchestrator/tree/main/%40fragata/fuse-vhd).
 :::
 
 
@@ -213,29 +213,29 @@ When designing your backup strategy with Fragata:
 6. Test restores regularly.
 
 
-## How to ensure XOA is always available
+## How to ensure Fragata is always available {#how-to-ensure-fragata-is-always-available}
 
-Making sure XOA is always available should be a top priority for every administrator. Here’s how you can maximize its reliability:
+Making sure Fragata is always available should be a top priority for every administrator. Here’s how you can maximize its reliability.
 
-Since XOA runs as a virtual machine, you can apply standard VM protection measures:
+Fragata is installed from source (see [Installing Fragata from source](../getting-started/install-from-sources.md)) on a machine you manage. If that machine is a VM, you can apply standard VM protection measures:
 
 - Back up regularly (full or incremental).
 - Replicate the VM (full replication or incremental replication).
 - Take snapshots for quick rollback if needed.
 
-### Specific steps for the XOA VM
+### Specific steps for the Fragata server
 
-- **Back up XO backup metadata:** This is the most efficient way to ensure you can quickly restore your XOA environment. If you lose your XOA VM: download and install a new XOA, restore the XO backup metadata, and you’ll be able to restore all other backups and settings.
-- Use the **XO Config** feature to back up your XOA settings. This lets you restore them to any XOA VM if necessary.
+- **Back up the Fragata config:** this is the most efficient way to ensure you can quickly restore your environment. Use the **Fragata config** kind of [metadata backup](./backup-types/metadata_backup.md) to save your users, backup jobs, backup repositories and settings to a backup repository. If you lose your Fragata server: install a new one from source, reconnect the backup repository, restore the Fragata config, and you’ll be able to restore all other backups and settings.
+- Keep a copy of the `config.toml` file of `fragata-server` (see [Configuration](../getting-started/configuration.md)): it is not part of the Fragata config backup.
 
-### Managing the loss of your XOA VM
+### Managing the loss of your Fragata server
 
-If you lose the host running your XOA VM:
+If you lose the host running your Fragata server VM:
 
-- **If the XOA VM was on shared storage**, you can restart it on another host in your pool.
-- **If the XOA VM was stored locally** or your host was alone in its pool, deploy a new XOA VM. You can do this proactively, as there’s no limit to the number of XOA VMs in your infrastructure. Register the new VM with the same Vates account, update it, and migrate your XOA license from the old VM if needed.
-- **If you are running XCP-ng 8.3**, you can use XO-lite by connecting to your master host’s IP address to manage your VMs.
+- **If the VM was on shared storage**, you can restart it on another host in your pool.
+- **If the VM was stored locally** or your host was alone in its pool, install Fragata on a new machine. You can do this proactively, as there’s no limit to the number of Fragata servers in your infrastructure. Then restore your Fragata config from your backup repository.
+- **If you are running XCP-ng 8.3 or a Fragata Host**, you can use Fragata Deck by connecting to your master host’s IP address to manage your VMs in the meantime.
 
 :::warning
-Avoid using multiple XOAs to back up the same VMs, as this can cause backup failures.
+Avoid using multiple Fragata servers to back up the same VMs at the same time, as this can cause backup failures.
 :::

@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Backups in Fragata
 
-Fragata puts backup health where you look every day: on the dashboards. This page covers what you can see and follow from Fragata; creating and editing backup jobs is currently done in Fragata Classic (see [Fragata and Fragata Classic](../discover-xen-orchestra/xo6vsxo5.md)).
+Fragata puts backup health where you look every day: on the dashboards. This page covers what you can see and follow from Fragata; creating and editing backup jobs is currently done in Fragata Classic (see [Fragata and Fragata Classic](../discover-fragata/fragata-vs-classic.md)).
 
 ## Backup health on the dashboard
 
@@ -14,13 +14,13 @@ The Fragata dashboard dedicates three panels to data protection:
 - **Backup jobs issues**: jobs whose last 3 runs need attention.
 - **VMs protection**: how many VMs are covered by at least one backup job, and how many are not protected at all.
 
-<UiShot light="/img/xo6/dashboard-light.png" dark="/img/xo6/dashboard-dark.png" alt="The dashboard, with backup health panels at the bottom" url="https://your-xo/v6/#/dashboard" />
+<UiShot light="/img/xo6/dashboard-light.png" dark="/img/xo6/dashboard-dark.png" alt="The dashboard, with backup health panels at the bottom" url="https://your-fragata/#/dashboard" />
 
 ## The Backups view
 
 The **Backups** tab at the Fragata level lists your backup jobs, with their mode (rolling snapshot, delta, full and so on), the outcome of their last 3 runs, and their schedules. Each job opens on its own page with four tabs: **Runs** (the execution history), **Configuration**, **Backed up VMs** and **Targets**, plus a marked link to configure the job in Fragata Classic.
 
-<UiShot light="/img/xo6/backup-jobs-light.png" dark="/img/xo6/backup-jobs-dark.png" alt="The backup jobs list" url="https://your-xo/v6/#/backups" />
+<UiShot light="/img/xo6/backup-jobs-light.png" dark="/img/xo6/backup-jobs-dark.png" alt="The backup jobs list" url="https://your-fragata/#/backups" />
 
 ## Per-VM protection
 
@@ -32,7 +32,7 @@ Every VM dashboard answers the question "is this VM protected?" directly:
 
 The **Backups** tab of the VM lists the jobs covering that specific VM.
 
-<UiShot light="/img/xo6/vm-dashboard-light.png" dark="/img/xo6/vm-dashboard-dark.png" alt="A VM dashboard, with protection status and backup panels" url="https://your-xo/v6/#/vm/…/dashboard" />
+<UiShot light="/img/xo6/vm-dashboard-light.png" dark="/img/xo6/vm-dashboard-dark.png" alt="A VM dashboard, with protection status and backup panels" url="https://your-fragata/#/vm/…/dashboard" />
 
 ## Where the rest lives
 

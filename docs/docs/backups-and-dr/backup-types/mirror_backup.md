@@ -8,9 +8,9 @@ The goal is to replicate a backup from one backup repository (BR, formerly calle
 
 The source and destination can have different settings for encryption, VHD storage mode, retention, or compression.
 
-A mirror backup is a backup of your backups: XO reads the archives already stored on the source BR and copies the new ones to the destination BR. The VM and the hosts are never involved in the transfer:
+A mirror backup is a backup of your backups: Fragata reads the archives already stored on the source BR and copies the new ones to the destination BR. The VM and the hosts are never involved in the transfer:
 
-<Schema label="A mirror backup copies existing archives from one BR to another: the VM is only exported once by its normal backup job, then XO mirrors the archives to a bigger, slower, cheaper BR with a longer retention" legend={[["#e0a94a", "backup archive"], ["#5ac8c8", "mirror transfer"], ["#8e83fe", "Fragata"]]} maxWidth="640px">
+<Schema label="A mirror backup copies existing archives from one BR to another: the VM is only exported once by its normal backup job, then Fragata mirrors the archives to a bigger, slower, cheaper BR with a longer retention" legend={[["#e0a94a", "backup archive"], ["#5ac8c8", "mirror transfer"], ["#8e83fe", "Fragata"]]} maxWidth="640px">
 <svg viewBox="0 0 640 260" role="img" aria-label="A VM is exported by its normal backup job to a source backup repository holding archives B, C and D; Fragata orchestrates a mirror transfer that copies the new archives to a bigger destination backup repository with a longer retention, holding A, B, C and D; the VM and hosts are not involved in the mirror transfer">
   <rect x="272" y="16" width="96" height="32" rx="6" fill="rgba(255,255,255,0.04)" stroke="#8e83fe" />
   <text x="320" y="36" fill="#c6d2e1" fontSize="11" textAnchor="middle">Fragata</text>
@@ -56,7 +56,7 @@ In the Backup view, create a new backup job and select **Mirror backup**.
 Then, choose whether you want to mirror incremental backups or full backups.
 A mirror backup job has exactly one source repository and one or more destinations. The mirroring speed is limited by the slowest repository.
 
-Most options of the full/incremental backup jobs also apply here, like concurrency (number of VMs transferred in parallel), reports, proxy and speed limit. You can also add a health check on schedules. Please note that only the last transferred backup (if any) will be checked.
+Most options of the full/incremental backup jobs also apply here, like concurrency (number of VMs transferred in parallel), reports and speed limit. You can also add a health check on schedules. Please note that only the last transferred backup (if any) will be checked.
 
 :::tip
 If you have full and incremental backups on a repository, you must configure 2 mirror backup jobs, one full and one incremental.
@@ -138,7 +138,7 @@ _Each letter is a full backup archive. The source has a retention of 3, the dest
 - destination: empty
 ```
 
-XO transfers A, then B, then C. The destination now contains ABC.
+Fragata transfers A, then B, then C. The destination now contains ABC.
 
 :::warning
 **Limitation:** if the mirror retention is lower than the backup retention on the source repository, more data than necessary may be transferred during the first run, since all the backups of the source will be transferred to the destinations. Then the older backups will be purged on the destinations.
@@ -248,7 +248,7 @@ _Key (full) backups are in uppercase, delta backups in lowercase. The source has
 - destination: empty
 ```
 
-XO transfers A, then b, then c. The destination now contains Abc.
+Fragata transfers A, then b, then c. The destination now contains Abc.
 
 :::warning
 **Limitation:** if the mirror retention is lower than the backup retention on the source repository, more data than necessary may be transferred during the first run, since all the backups of the source will be transferred to the destinations. Then the older backups will be purged on the destinations.

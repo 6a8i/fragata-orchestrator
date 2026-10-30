@@ -22,7 +22,7 @@ This feature covers multiple objectives:
 
 If you lose your main pool, you can start the copy on the other side, with very recent data.
 
-<Schema label="Incremental replication: only the changed blocks travel to the DR side at each run" legend={[["#56c288", "Production VM"], ["#e0a94a", "Standby replica"], ["#6aabf0", "Fragata"], ["#8e83fe", "XCP-ng pool"]]} maxWidth="640px">
+<Schema label="Incremental replication: only the changed blocks travel to the DR side at each run" legend={[["#56c288", "Production VM"], ["#e0a94a", "Standby replica"], ["#6aabf0", "Fragata"], ["#8e83fe", "Fragata Host pool"]]} maxWidth="640px">
 <svg viewBox="0 0 640 270" role="img" aria-label="Fragata orchestrates an incremental replication job: small deltas of changed blocks travel from the running production VM to a standby replica on the DR SR, whose start operation is blocked">
   <rect x="250" y="12" width="140" height="34" rx="6" fill="rgba(255,255,255,0.04)" stroke="#6aabf0" strokeWidth="1.5" />
   <text x="320" y="34" fill="#6aabf0" fontSize="13" textAnchor="middle" fontWeight="600">Fragata</text>
@@ -34,7 +34,7 @@ If you lose your main pool, you can start the copy on the other side, with very 
   <text x="42" y="112" fill="#7a8699" fontSize="11">Production pool</text>
 
   <rect x="50" y="124" width="200" height="98" rx="6" fill="rgba(255,255,255,0.04)" stroke="#8e83fe" strokeWidth="1.5" />
-  <text x="60" y="143" fill="#8e83fe" fontSize="11">XCP-ng host</text>
+  <text x="60" y="143" fill="#8e83fe" fontSize="11">Fragata Host</text>
   <rect x="70" y="156" width="160" height="46" rx="5" fill="rgba(255,255,255,0.04)" stroke="#56c288" strokeWidth="1.5" />
   <text x="150" y="176" fill="#56c288" fontSize="12" textAnchor="middle" fontWeight="600">VM "web01"</text>
   <text x="150" y="192" fill="#7a8699" fontSize="10" textAnchor="middle">running</text>
@@ -90,14 +90,14 @@ To protect the replication, we removed the possibility to boot your replicated V
 
 ## Reverse replication and failback {#reverse-replication}
 
-Since Fragata 6.5, incremental replication works in both directions: the replication engine can reuse a snapshot it finds in common between the source and the destination, **even if that snapshot was created by another job, running the other way**. This is what the release notes call bidirectional (or symmetrical) replication.
+Incremental replication works in both directions: the replication engine can reuse a snapshot it finds in common between the source and the destination, **even if that snapshot was created by another job, running the other way**. This is called bidirectional (or symmetrical) replication.
 
 There is no special job type for it. To replicate in the reverse direction, simply create a new incremental replication job going the other way:
 
 1. Select the replica (or the VM running on your DR side) as the source VM
 2. Select your original production SR as the destination
 
-On its first run, instead of sending a full copy, the job looks for a common snapshot on both sides (using the content metadata XO writes on every replicated disk) and only transfers the blocks that changed since that snapshot. Then, on the production side:
+On its first run, instead of sending a full copy, the job looks for a common snapshot on both sides (using the content metadata Fragata writes on every replicated disk) and only transfers the blocks that changed since that snapshot. Then, on the production side:
 
 - If the original VM's disks are exactly as the original job last replicated them, the job **updates the original VM in place**: no duplicate VM, your production VM simply catches up with what happened on the DR side. This requires the original VM to be halted (or suspended), its disks not to be used by any other VM, and not a single block to have been written to them since the original job's last snapshot.
 - Otherwise, the common snapshot is still used as the delta base, but the job creates a new VM next to the original rather than overwriting anything.
@@ -114,7 +114,7 @@ This matters in two situations:
 Constraints to be aware of:
 
 - The cross-job snapshot reuse only kicks in when the job has **a single replication target SR** (no additional targets or backup repositories in the same job).
-- It relies on the content metadata introduced with this feature: both sides need replication snapshots created by a recent XO (the same-VM reuse arrived in Fragata.3, the cross-direction reuse in Fragata.5). Older chains fall back to a full transfer on the first reverse run.
+- It relies on the content metadata introduced with this feature: both sides need replication snapshots carrying this metadata. Older chains fall back to a full transfer on the first reverse run.
 - As always with incremental replication, don't delete or alter the replication snapshots: they are the common base that makes the reverse run a delta instead of a full.
 
 ### Planned switch with an in-place update {#planned-switch}
@@ -134,7 +134,7 @@ To see which outcome a run had, look at the snapshot the reverse job just create
 
 ## Manual initial seed
 
-**If you can't transfer the first backup through your network because it's too large**, you can make a seed locally. To do so, follow this procedure (until we make it accessible directly in XO).
+**If you can't transfer the first backup through your network because it's too large**, you can make a seed locally. To do so, follow this procedure (until we make it accessible directly in Fragata).
 
 :::tip
 This is **only** if you need to make the initial copy without pushing the whole transfer through your network. Otherwise, **you don't need this**.
@@ -174,17 +174,17 @@ DO NOT start this VM or it will break the incremental replication job! You can r
 
 ### Set up metadata
 
-The XOA backup system requires metadata to correctly associate the source snapshot and the target VM with the backup job. We're going to use the `fragata-cr-seed` utility to set them up.
+The Fragata backup system requires metadata to correctly associate the source snapshot and the target VM with the backup job. We're going to use the `fragata-cr-seed` utility to set them up.
 
-First install the tool (all the following is done from the XOA VM CLI):
+First install the tool (all the following is done from a shell on the machine running the Fragata server):
 
-<Terminal shell title="xoa — install the seed utility">{`
+<Terminal shell title="install the seed utility">{`
 sudo npm i -g --unsafe-perm @fragata/cr-seed-cli
 `}</Terminal>
 
 Here is how the utility expects the UUIDs and info passed to it:
 
-<Terminal title="xoa — fragata-cr-seed usage">{`
+<Terminal title="fragata-cr-seed usage">{`
 fragata-cr-seed
 Usage: fragata-cr-seed <source XAPI URL> <source snapshot UUID> <target XAPI URL> <target VM UUID> <backup job id> <backup schedule id>
 
@@ -193,7 +193,7 @@ fragata-cr-seed v0.2.0
 
 Putting it all together with our values and UUIDs, the command will look like this (it is a long command):
 
-<Terminal shell title="xoa — seed the replication job">{`
+<Terminal shell title="seed the replication job">{`
 fragata-cr-seed https://root:password@xen1.company.tld 4a21c1cd-e8bd-4466-910a-f7524ecc07b1 https://root:password@xen2.company.tld 5aaf86ca-ae06-4a4e-b6e1-d04f0609e64d 90d11a94-a88f-4a84-b7c1-ed207d3de2f9 369a26f0-da77-41ab-a998-fa6b02c69b9a
 `}</Terminal>
 
@@ -202,7 +202,7 @@ If the username or the password of your XCP-ng/XenServer hosts contains special 
 
 An easy way to do this with Node on the command line:
 
-<Terminal title="xoa — percent-encode a password">{`
+<Terminal title="percent-encode a password">{`
 node -p 'encodeURIComponent(process.argv[1])' -- 'password with special chars :#@'
 password%20with%20special%20chars%20%3A%23%40
 `}</Terminal>

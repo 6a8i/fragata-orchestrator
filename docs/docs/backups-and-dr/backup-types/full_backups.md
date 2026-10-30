@@ -3,12 +3,12 @@
 A full backup exports the complete VM, all of its disks and its configuration, to a backup repository (BR) on every run. Each run produces a single, self-contained XVA archive: no chain, no dependencies between runs. The mental model is simple, and so is the restore, since any one archive is enough to bring the whole VM back.
 
 :::note
-In the Fragata Classic interface, backup repositories are still labeled **Remotes**. A BR can be local to XOA, or an NFS or SMB share.
+In the Fragata Classic interface, backup repositories are still labeled **Remotes**. A BR can be a local folder on the Fragata server, or an NFS or SMB share.
 :::
 
 <Schema label="Full backup: snapshot the VM, export it as an XVA archive to the BR, rotate out the oldest archive" legend={[["#56c288", "VM"], ["#e0a94a", "XVA archive"], ["#ef6a5f", "Deleted by retention"]]} maxWidth="640px">
-<svg viewBox="0 0 640 240" role="img" aria-label="A VM on an XCP-ng host is snapshotted, exported as an XVA archive to the backup repository, then the snapshot is deleted; on the backup repository, dated archives accumulate and the oldest one is deleted by retention">
-  <text x="32" y="38" fill="#8e83fe" fontSize="12">XCP-ng host</text>
+<svg viewBox="0 0 640 240" role="img" aria-label="A VM on a Fragata Host is snapshotted, exported as an XVA archive to the backup repository, then the snapshot is deleted; on the backup repository, dated archives accumulate and the oldest one is deleted by retention">
+  <text x="32" y="38" fill="#8e83fe" fontSize="12">Fragata Host</text>
   <rect x="24" y="46" width="216" height="130" rx="10" fill="none" stroke="rgba(255,255,255,0.22)" strokeDasharray="6 5" />
   <rect x="44" y="70" width="80" height="42" rx="6" fill="rgba(255,255,255,0.04)" stroke="#56c288" />
   <text x="84" y="95" fill="#c6d2e1" fontSize="12" textAnchor="middle">VM</text>

@@ -4,7 +4,7 @@ sidebar_position: 8
 
 # Backup troubleshooting
 
-This page lists the most common errors you can meet with XO backups, what they mean and how to fix them.
+This page lists the most common errors you can meet with Fragata backups, what they mean and how to fix them.
 
 ## Backup progress
 
@@ -12,30 +12,30 @@ While a backup job is running, you should see activity in the Tasks view (main m
 
 <UiDetail src="/img/xo5/export-task.png" alt="The Tasks view during a backup run, showing a VDI export task at 49% with its progress bar" width={700} />
 
-Another good way to check for activity is the XOA VM stats view: the Network graph shows the transfer traffic while data is being moved.
+Another good way to check for activity is the stats view of the VM running the Fragata server (or the monitoring of its machine): the network graph shows the transfer traffic while data is being moved.
 
 ## Unexpected key (full) export
 
 _Incremental Backup_ and _Incremental Replication_ usually produce delta exports after the initial seed.
 
-Nevertheless, there are several reasons for XO to trigger a key (full) export instead:
+Nevertheless, there are several reasons for Fragata to trigger a key (full) export instead:
 
-- the configured [_Full backup interval_](./backup-types/incremental_backups#key-backup-interval) advanced setting has been reached for this VM
+- the configured [_Full backup interval_](./backup-types/incremental_backups.md#key-backup-interval) advanced setting has been reached for this VM
 - the _Force full backup_ option is enabled for the current schedule
 - a new disk has been added to the VM (only this disk is completely exported)
 - the reference snapshot for this backup job is missing on the source VM
 - the previously exported backup/replication is missing or corrupted
-- XO could not compute a safe delta for a disk (for example a qcow2 disk exported without NBD): it forces a full rather than risking a broken chain
+- Fragata could not compute a safe delta for a disk (for example a qcow2 disk exported without NBD): it forces a full rather than risking a broken chain
 
 :::tip
-Recent XO releases record the cause of the fallback as a warning in the backup job log, for example `can't compute delta <VDI> from <base>, fall back to a full`. When a run is unexpectedly full, check the job log first.
+Recent Fragata releases record the cause of the fallback as a warning in the backup job log, for example `can't compute delta <VDI> from <base>, fall back to a full`. When a run is unexpectedly full, check the job log first.
 :::
 
-## VDI chain protection
+## VDI chain protection {#vdi-chain-protection}
 
 Backup jobs regularly delete snapshots. Every time a snapshot is deleted, manually or by a backup job, XCP-ng/XenServer needs to coalesce the VDI chain, that is merge the remaining VDIs and base copies. Until that coalesce is done, taking more snapshots on the VM keeps growing the chain.
 
-Coalescing is scheduled and performed by XCP-ng/XenServer itself, not by Fragata. But XO checks the existing VDI chain before snapshotting, and refuses to create more snapshots than your storage can merge. Fragata is the **only** XCP-ng/XenServer backup product offering this protection.
+Coalescing is scheduled and performed by XCP-ng/XenServer itself, not by Fragata. But Fragata checks the existing VDI chain before snapshotting, and refuses to create more snapshots than your storage can merge.
 
 Without this detection, you would eventually hit one of these:
 
@@ -46,38 +46,34 @@ So when a run is skipped with the `unhealthy VDI chain` message, it's a **protec
 
 Just remember this: **a coalesce should happen every time a snapshot is removed**.
 
-:::tip
-You can read more about this in our dedicated blog post on [XCP-ng/XenServer coalesce detection](https://xen-orchestra.com/blog/xenserver-coalesce-detection-in-xen-orchestra/).
-:::
-
 ### Troubleshooting a constant VDI Chain Protection message (XCP-ng/XenServer failure to coalesce)
 
 As explained above, this message can be normal: XCP-ng/XenServer simply needs time to merge old snapshots. However, if you get it repeatedly and the host never seems to coalesce, take the following steps to find out why.
 
 First, check `SMlog` on the XCP-ng/XenServer host holding the affected storage, looking for VDI corruption or coalesce job failures:
 
-<Terminal shell title="XCP-ng host: search SMlog for coalesce failures">{`
+<Terminal shell title="Fragata Host: search SMlog for coalesce failures">{`
 grep -i exception /var/log/SMlog
 grep -i error /var/log/SMlog
 `}</Terminal>
 
 Coalesce jobs can also fail to run if the SR is short on free space. Check the problematic SR: 30% or more free space is generally recommended, depending on VM size. You can confirm this scenario by searching the logs (also look at rotated files such as `SMlog.1`):
 
-<Terminal shell title="XCP-ng host: check coalesce attempts in SMlog">{`
+<Terminal shell title="Fragata Host: check coalesce attempts in SMlog">{`
 grep -i coales /var/log/SMlog
 `}</Terminal>
 
 To check whether a coalesce job is currently active, look for a VHD process on the host (one of the results will be the `grep` command itself, ignore it):
 
-<Terminal shell title="XCP-ng host: look for a running coalesce process">{`
+<Terminal shell title="Fragata Host: look for a running coalesce process">{`
 ps axf | grep vhd
 `}</Terminal>
 
-If no coalesce job is running and you can't find a reason why XCP-ng/XenServer hasn't started one, you can try to trigger it by rescanning the SR. This is harmless, but doesn't always start a coalesce. Open the problematic SR in the XOA UI and click the "Rescan All Disks" button towards the top right (the refresh circle icon). In the SR's Advanced tab, the "disks needing to be coalesced" list should then shrink progressively.
+If no coalesce job is running and you can't find a reason why XCP-ng/XenServer hasn't started one, you can try to trigger it by rescanning the SR. This is harmless, but doesn't always start a coalesce. Open the problematic SR in Fragata and click the "Rescan All Disks" button towards the top right (the refresh circle icon). In the SR's Advanced tab, the "disks needing to be coalesced" list should then shrink progressively.
 
 As a last resort, migrating the VM disks to another storage repository forces a coalesce: moving the VM to another host with its own storage and back will merge the VDI chain and get rid of the `VDI Chain Protection` message.
 
-## SR_BACKEND_FAILURE_44
+## SR_BACKEND_FAILURE_44 {#sr_backend_failure_44}
 
 :::tip
 This message can be triggered by any backup method.
@@ -94,9 +90,9 @@ Workarounds:
 
 This error historically appeared when the previously replicated VM had been deleted on the target side, breaking the incremental replication chain.
 
-Current XO releases no longer fail in this situation: when the base cannot be found, the job automatically falls back to a full export and continues (see [Unexpected key (full) export](#unexpected-key-full-export)).
+Current Fragata releases no longer fail in this situation: when the base cannot be found, the job automatically falls back to a full export and continues (see [Unexpected key (full) export](#unexpected-key-full-export)).
 
-If you still see this error on an older XO version, delete the reference snapshot of this replication job on the source VM, then run the job again to restart the chain from a new full. The snapshot is named `[XO Backup <job name>] <VM name>` (or `XO_DELTA_EXPORT: <name label of target SR> (<UUID of target SR>)` on very old versions).
+If you still see this error, delete the reference snapshot of this replication job on the source VM, then run the job again to restart the chain from a new full. The snapshot is named `[XO Backup <job name>] <VM name>` (or `XO_DELTA_EXPORT: <name label of target SR> (<UUID of target SR>)` on very old versions).
 
 ## LICENSE_RESTRICTION
 
@@ -104,7 +100,7 @@ If you still see this error on an older XO version, delete the reference snapsho
 
 To solve it, disable the vendor device on the VM:
 
-<Terminal shell title="XCP-ng host: disable the vendor device on the VM">{`
+<Terminal shell title="Fragata Host: disable the vendor device on the VM">{`
 xe vm-param-set has-vendor-device=false uuid=<VM_UUID>
 `}</Terminal>
 
@@ -112,10 +108,9 @@ xe vm-param-set has-vendor-device=false uuid=<VM_UUID>
 
 This message appears when the target backup repository (BR) runs out of free space during a backup.
 
-From your XOA, check the free system space and the free space on the BR:
+From the machine running Fragata, check the free system space and the free space on the BR:
 
-<Terminal shell title="xoa: check free space">{`
-xoa check
+<Terminal shell title="Check free space">{`
 df -h
 `}</Terminal>
 
@@ -123,7 +118,7 @@ df -h
 
 This happens when a _smart backup job_ doesn't match any VMs. For example: you created a job to back up all running VMs, and no VM is running when the schedule fires. It can also happen if you lost the connection to your pool master, since the VMs are no longer visible to Fragata.
 
-Edit your job to review the matching VMs, or check that your pool is connected to XOA. Note that the run is reported as **skipped** rather than failed, so you are notified without the whole sequence being interrupted.
+Edit your job to review the matching VMs, or check that your pool is connected to Fragata. Note that the run is reported as **skipped** rather than failed, so you are notified without the whole sequence being interrupted.
 
 ## Error: SR_OPERATION_NOT_SUPPORTED
 
@@ -143,13 +138,13 @@ To solve this issue, we recommend that you:
 
 ## Error: HTTP connection has timed out
 
-This error occurs when XO fetches disk data from a host via an HTTP GET request, and the host (the dom0 specifically) stops responding after being asked to expose the disk to export. It's usually a symptom of an overloaded dom0: not enough resources to answer the request, or trouble attaching the disk to expose it.
+This error occurs when Fragata fetches disk data from a host via an HTTP GET request, and the host (the dom0 specifically) stops responding after being asked to expose the disk to export. It's usually a symptom of an overloaded dom0: not enough resources to answer the request, or trouble attaching the disk to expose it.
 
 :::warning
 As a temporary workaround, you can raise the inactivity timeout above the default value (5 minutes) to give the host more time to respond. But you still need to diagnose the root cause of the slow host response, or the issue will come back.
 :::
 
-Create the following file:
+Create the following file (or add the lines below to your existing `config.toml`):
 
 ```
 /etc/fragata-server/config.httpInactivityTimeout.toml
@@ -158,7 +153,7 @@ Create the following file:
 Add the following lines:
 
 ```toml
-# XOA Support - Work-around HTTP timeout issue during backups
+# Work-around HTTP timeout issue during backups
 [xapiOptions]
 httpInactivityTimeout = 1800000 # 30 mins
 ```
@@ -167,16 +162,16 @@ Then restart the `fragata-server` service to apply the change.
 
 ## Error: Expected values to be strictly equal
 
-This error occurs at the end of the transfer, when XO checks the integrity of the exported VM disk to ensure it's a valid VHD file (both the VHD header and the footer of the received file are verified). The error means the check failed: the file is incomplete, most likely because the export from the dom0 stopped at some point and XO only received a partial disk.
+This error occurs at the end of the transfer, when Fragata checks the integrity of the exported VM disk to ensure it's a valid VHD file (both the VHD header and the footer of the received file are verified). The error means the check failed: the file is incomplete, most likely because the export from the dom0 stopped at some point and Fragata only received a partial disk.
 
 ## Error: the job is already running
 
-The full message is `the job (<id>) is already running`: the same job is still busy, typically from the previous scheduled run. This happens when a backup job is scheduled too often, or when a long timeout is configured and a VM export or the transfer to the backup repository (BR) is slow. In either case, adjust the schedule so the job has time to finish (or time out) before the next run. XO treats this as an error on purpose, so you are notified that the planned run was not executed because the previous one wasn't finished.
+The full message is `the job (<id>) is already running`: the same job is still busy, typically from the previous scheduled run. This happens when a backup job is scheduled too often, or when a long timeout is configured and a VM export or the transfer to the backup repository (BR) is slow. In either case, adjust the schedule so the job has time to finish (or time out) before the next run. Fragata treats this as an error on purpose, so you are notified that the planned run was not executed because the previous one wasn't finished.
 
 ## Error: VDI_IO_ERROR
 
-This error comes directly from your host/dom0, not from XO. XO asked the host to expose a VM disk over HTTP as usual, established the connection and even started the transfer, but at some point the host couldn't read the VM disk any further. This can happen if the VDI is corrupted on the storage or if there's a race condition during snapshots. More rarely, it can also mean your SR is too slow to keep up with the export on top of the live VM traffic.
+This error comes directly from your host/dom0, not from Fragata. Fragata asked the host to expose a VM disk over HTTP as usual, established the connection and even started the transfer, but at some point the host couldn't read the VM disk any further. This can happen if the VDI is corrupted on the storage or if there's a race condition during snapshots. More rarely, it can also mean your SR is too slow to keep up with the export on top of the live VM traffic.
 
 ## Error: no XAPI associated to `UUID`
 
-This message means XO had the UUID of a VM to back up, but couldn't find any matching object when the job ran. The usual cause is that the pool hosting this VM is no longer connected to XO. Double-check that the pool is connected under Settings > Servers, and search for the VM UUID in the Home > VMs search bar. If you can see the VM, run the backup job again and it will work. If you cannot, either the VM was removed or its pool is disconnected.
+This message means Fragata had the UUID of a VM to back up, but couldn't find any matching object when the job ran. The usual cause is that the pool hosting this VM is no longer connected to Fragata. Double-check that the pool is connected under Settings > Servers, and search for the VM UUID in the Home > VMs search bar. If you can see the VM, run the backup job again and it will work. If you cannot, either the VM was removed or its pool is disconnected.

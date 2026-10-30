@@ -17,7 +17,7 @@ The two replication job types now have clearer names, but the Fragata Classic sc
 | [Full replication](./backup-types/full_replication.md)                          | Disaster Recovery (DR)           |
 | [Incremental replication](./backup-types/incremental_replication.md)               | Continuous Replication (CR)      |
 
-Nothing changed in behaviour: only the labels differ. Fragata uses the current names, and the tags XO puts on replicas (`Disaster Recovery`, `Continuous Replication`) kept the former ones.
+Nothing changed in behaviour: only the labels differ. Fragata uses the current names, and the tags Fragata puts on replicas (`Disaster Recovery`, `Continuous Replication`) kept the former ones.
 :::
 
 ## Interface
@@ -35,10 +35,10 @@ A successful backup task will be displayed in green, a faulty one in red. You ca
 You also have a filter to search anything related to these logs.
 
 :::tip
-Logs are not "live" tasks. If you restart XOA during a backup, the log associated with the job will stay in orange (in progress), because it wasn't finished. It will stay forever unfinished because the job was cut in the middle.
+Logs are not "live" tasks. If you restart the Fragata server during a backup, the log associated with the job will stay in orange (in progress), because it wasn't finished. It will stay forever unfinished because the job was cut in the middle.
 :::
 
-#### Send XO logs to an external syslog server
+#### Send Fragata logs to an external syslog server
 
 ##### About syslog
 
@@ -56,7 +56,7 @@ Here's an example:
 
 ##### Using syslog with Fragata
 
-You can send all your XO logs to an external syslog server.
+You can send all your Fragata logs to an external syslog server.
 
 To enable syslog, add this to your configuration file (`/etc/fragata-server/config.toml`):
 
@@ -71,7 +71,7 @@ All logs viewable from `journalctl -u fragata-server` will now be sent to your c
 
 This setup is compatible with any syslog server, such as [Rsyslog](https://www.rsyslog.com/windows-agent/about-rsyslog-windows-agent/), [Splunk](https://www.splunk.com/en_us/blog/learn/log-management.html), [Logstash](https://www.elastic.co/logstash), [Graylog](https://graylog.org/about/), and more.
 
-### Backups execution
+### Backups execution {#backups-execution}
 
 Each backup job execution is identified by a `runId`. You can find this `runId` in its detailed log.
 
@@ -115,7 +115,7 @@ Backup repositories that were encrypted with `AES-256-GCM` remain accessible, to
 
 Backups on repositories encrypted before February 2025 use the [`AES-256-GCM`](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) encryption algorithm. While this is a highly secure option, it has a file size limitation of 64 GiB. This isn't an issue when working with incremental backups, as the data is split into smaller blocks, making it fully compatible with any backup repository (S3-compatible or file-based).
 
-Full backups create one file per backup with all the data, which can go over 64 GiB, even with XCP-ng zstd compression enabled.
+Full backups create one file per backup with all the data, which can go over 64 GiB, even with Fragata Host zstd compression enabled.
 
 #### Compliance
 
@@ -162,7 +162,7 @@ To see the schedules associated with a specific backup job:
    This will open the backup job details screen.
 3. In the **Schedules** section of the details screen, you'll find the list of schedules for that backup job:
 
-<UiShot light="/img/xo5/backup-schedule-list.png" alt="An incremental replication job in edit mode, with the Schedules section highlighted on the right" url="https://your-xo/v5/#/backup" />
+<UiShot light="/img/xo5/backup-schedule-list.png" alt="An incremental replication job in edit mode, with the Schedules section highlighted on the right" url="https://your-fragata/v5/#/backup" />
 
 ### Creating a schedule
 
@@ -184,7 +184,7 @@ To set up a schedule for a backup job:
 | **Replication retention** | Number of replicated VMs to keep on the target SR (shown for _DR_ and _CR_ jobs). Older copies beyond this count are automatically removed. |
 | **Snapshot retention**    | Number of rolling snapshots to keep on the VM itself (shown when _Rolling Snapshot_ is enabled).                                     |
 | **Pool retention**        | Number of pool metadata backups to keep (metadata backup jobs only).                                                                 |
-| **XO retention**          | Number of XO configuration backups to keep (metadata backup jobs only).                                                              |
+| **Fragata retention**          | Number of Fragata configuration backups to keep (metadata backup jobs only).                                                              |
 | **Health check**          | If enabled, a VM [health check](#backup-health-check) is performed after the backup to detect issues early (e.g., boot errors).      |
 | **Force full backup**     | Forces a full backup at every run of this schedule, even if the job is incremental (delta jobs only).                                |
 | **Month(s)**              | Select specific months during which the schedule should run.                                                                         |
@@ -244,7 +244,7 @@ Smart mode offers the following criteria, evaluated at each run:
 - **Tags**: only VMs carrying at least one of the selected tags, with an optional list of excluded tags
 
 :::tip
-XO pre-fills the excluded tags with `Continuous Replication`, `Disaster Recovery` and the XO proxy tag, so a smart backup job doesn't back up the replicas created by your own replication jobs. Those two tag values kept the former names of the incremental and full replication modes, and XO still writes them as such on the replicas. VMs tagged `xo:no-bak` are always excluded, whatever the job configuration.
+Fragata pre-fills the excluded tags with `Continuous Replication` and `Disaster Recovery`, so a smart backup job doesn't back up the replicas created by your own replication jobs. Those tag values kept the former names of the incremental and full replication modes, and Fragata still writes them as such on the replicas. VMs tagged `xo:no-bak` are always excluded, whatever the job configuration.
 :::
 
 Remember the prod VMs? I added a tag "prod" to each of them:
@@ -260,16 +260,16 @@ It means any VMs on "Lab Pool" with the "prod" tag will be backed up.
 ## RAM enabled backup
 
 :::tip
-This feature is **only compatible** with XCP-ng 8.0 or more recent. Citrix Hypervisor never merged our changes, even though we contributed them to their code directly.
+This feature is **only compatible** with XCP-ng 8.0 or more recent. Citrix Hypervisor does not include this change.
 :::
 
-XCP-ng modified XAPI is able to create VMs in a `Suspended` state with a `suspend_VDI` property set. When a VM is suspended, all of its memory contents are written into a disk called `suspend_VDI`. When the VM is restored, the `suspend_VDI` is read to recreate the memory of the VM. Once the resuming is done it's as if the VM was never suspended.
+The modified XAPI of Fragata Host is able to create VMs in a `Suspended` state with a `suspend_VDI` property set. When a VM is suspended, all of its memory contents are written into a disk called `suspend_VDI`. When the VM is restored, the `suspend_VDI` is read to recreate the memory of the VM. Once the resuming is done it's as if the VM was never suspended.
 
 In practice, a RAM enabled backup takes a **checkpoint** of the VM: a snapshot that includes both the disks and the memory contents. You can enable it per job with the snapshot mode setting, or per VM with the `xo-memory-backup` tag (see [backup modifier tags](#backup-modifier-tags)).
 
 ### Use cases
 
-It is already possible to snapshot a VM with its RAM, however when restoring a VM, the VM was created in the `Halted` state so it wasn't possible to restore the VM with its RAM. With our XAPI modification a VM can now be created in a `Suspended` state with preset memory contents, so when snapshotting a VM with RAM, the snapshotted VM will also have the RAM contents set.
+It is already possible to snapshot a VM with its RAM, however when restoring a VM, the VM was created in the `Halted` state so it wasn't possible to restore the VM with its RAM. With the modified XAPI of Fragata Host a VM can now be created in a `Suspended` state with preset memory contents, so when snapshotting a VM with RAM, the snapshotted VM will also have the RAM contents set.
 
 This can be very useful when you're running a VM that needs RAM coherence to run:
 
@@ -292,7 +292,7 @@ In order to use this functionality, the CPU of the host the VM is restored on sh
 ## Consistent backup
 
 :::warning
-Quiesced (VSS) snapshots are gone: the feature was removed from XCP-ng and Citrix Hypervisor, and Fragata no longer attempts them. Use [RAM enabled backup](#ram-enabled-backup) instead when you need consistency beyond a plain disk snapshot.
+Quiesced (VSS) snapshots are gone: the feature was removed from Fragata Host and Citrix Hypervisor, and Fragata no longer attempts them. Use [RAM enabled backup](#ram-enabled-backup) instead when you need consistency beyond a plain disk snapshot.
 :::
 
 All backup types rely on snapshots. But what about data consistency? Older XenServer releases could take a **quiesced snapshot** of a Windows VM: with the guest tools and the extra VSS provider installed, the operating system was notified and flushed its caches to disk before the snapshot, making backups of services like MS SQL or Exchange consistent. Fragata used to try a quiesced snapshot first and fall back to a normal snapshot when it wasn't possible.
@@ -330,7 +330,7 @@ To add one, go to the **Settings/Remotes** menu (the Fragata Classic screens sti
 
 Supported backup repository types:
 
-- Local (any folder in XOA filesystem)
+- Local (any folder on the filesystem of the machine running Fragata)
 - NFS
 - SMB (CIFS)
 - Amazon S3 and S3-compatible object storage
@@ -339,14 +339,14 @@ Supported backup repository types:
 :::warning
 
 - The initial "/" or "\\" is automatically added.
-- For disks larger than **2 TiB**, store backups on **block-based backup repositories**. Since QCOW2 reached general availability in XCP-ng, a single disk can grow up to **16 TiB**, so this matters more than ever.
+- For disks larger than **2 TiB**, store backups on **block-based backup repositories**. Since QCOW2 reached general availability in Fragata Host, a single disk can grow up to **16 TiB**, so this matters more than ever.
 - For **qcow2** disks, enable [NBD](./backup-types/incremental_backups.md#nbd-enabled-backups) for incremental backups: without it, each run falls back to a full backup.
 
 :::
 
 ### NFS
 
-On your NFS server, authorize XOA's IP address and permissions for subfolders. That's all!
+On your NFS server, authorize the IP address of the machine running Fragata and permissions for subfolders. That's all!
 
 ### SMB
 
@@ -373,15 +373,15 @@ PATH TO BACKUP is only needed if you have subfolders in your share.
 ### Local
 
 :::warning
-**This is for advanced users**. Using the local XOA filesystem without extra mounts/disks will **use the default system disk of XOA**.
+**This is for advanced users**. Using the local filesystem of the Fragata server without extra mounts/disks will **use the system disk of that machine**.
 :::
 
 If you need to mount an unsupported store (FTP for example), you can always do it manually:
 
-1. mount your storage inside the XOA filesystem manually, e.g in `/media/myStore`
+1. mount your storage manually on the machine running Fragata, e.g in `/media/myStore`
 2. in the web interface, select a "local" store and point it to your `/media/myStore` folder.
 
-Any Debian Linux mount point could be supported this way, until we add further options directly in the web interface.
+Any Linux mount point could be supported this way, until we add further options directly in the web interface.
 
 ### Amazon S3
 
@@ -391,12 +391,12 @@ Fragata supports Amazon S3 storage and other S3-compatible providers, so you can
 
 - Not all S3-compatible providers adhere perfectly to Amazon S3 standards. Check the [supported object storage providers](./scale-and-security/object-storage-support.md) list and its support tiers, and test your setup before trusting it with critical backups.
 - Losing your encryption key means your backups will be permanently inaccessible. If you enable encryption, make sure your key is stored securely, and outside of the backed up infrastructure, as there's no way to recover your data without it.
-- If the bucket has S3 Object Lock enabled, read [S3 Object Lock](./scale-and-security/object-lock.md) first: it constrains which backup modes and retention settings you can use, and XO does not set the retention period itself.
+- If the bucket has S3 Object Lock enabled, read [S3 Object Lock](./scale-and-security/object-lock.md) first: it constrains which backup modes and retention settings you can use, and Fragata does not set the retention period itself.
 
 :::
 
 :::note
-XO identifies itself to object storage providers with a `User-Agent: Fragata FS <version>` header, which helps S3-compatible services (Wasabi and others) with compatibility tracking.
+Fragata identifies itself to object storage providers with a `User-Agent: Fragata FS <version>` header, which helps S3-compatible services (Wasabi and others) with compatibility tracking.
 :::
 
 <UiDetail src="/img/xo5/s3-remote-settings.png" alt="New file system remote form with the Amazon Web Services S3 type selected: endpoint, region, bucket, directory, credentials and the optional encryption key" width={620} />
@@ -478,7 +478,7 @@ Typical uses:
 
 ### How it works
 
-- Fragata (or the [proxy](./scale-and-security/proxy.md#live-mount) handling the BR) runs one iSCSI target per live mounted disk, protected by CHAP credentials generated for that mount.
+- Fragata runs one iSCSI target per live mounted disk, protected by CHAP credentials generated for that mount.
 - An SR named `[XO live mount] <VM name> (<backup date>)` is introduced on the chosen host. It holds a single read-only VDI, named like the backed up disk, attached in read-only mode to the restored VM.
 - Every read done by the VM goes through Fragata to the BR. Nothing is ever written: neither to the backup, nor to the SR.
 - The restored VM is pinned (affinity) to the host the disk is mounted on: the SR is plugged on that host only.
@@ -492,10 +492,10 @@ With a slow or distant BR, typically an S3 or Azure BR outside your network, rea
 :::
 
 - **Incremental backups only.** Live mount is not available for full backups, nor in [backup health checks](#backup-health-check).
-- **Fragata (or the proxy) must run in a VM of a pool connected to it.** Otherwise, the restore form shows the live actions as unavailable.
+- **Fragata must run in a VM of a pool connected to it.** Otherwise, the restore form shows the live actions as unavailable.
 - **Read-only.** The VM sees a read-only disk. It is best suited for data disks: most operating systems need a writable system disk. For a writable disk, use a [live restore](#live-restore).
 - **One host per restore.** All the disks live mounted by one restore use the same host, and that host must be able to reach the main SR: its own host for a local SR, any host of its pool for a shared SR. The host selector only offers these hosts, and the most likely one is pre-selected.
-- **Network.** The hosts connect to Fragata (or the proxy) over iSCSI, on a TCP port picked for each mount. A firewall between the hosts and Fragata must let the hosts open TCP connections to it. For the firewall of XOA itself, see [Firewall of Fragata](#live-mount-firewall). The address given to the hosts is auto-detected; if they cannot reach it (NAT, several networks), set it in the [configuration file](../getting-started/configuration.md), for example `/etc/fragata-server/config.iscsi.toml`:
+- **Network.** The hosts connect to Fragata over iSCSI, on a TCP port picked for each mount. A firewall between the hosts and Fragata must let the hosts open TCP connections to it. For the firewall of the Fragata server itself, see [Firewall of Fragata](#live-mount-firewall). The address given to the hosts is auto-detected; if they cannot reach it (NAT, several networks), set it in the [configuration file](../getting-started/configuration.md), for example `/etc/fragata-server/config.iscsi.toml`:
 
   ```toml
   [iscsi]
@@ -505,11 +505,11 @@ With a slow or distant BR, typically an S3 or Azure BR outside your network, rea
   #bindAddress = '0.0.0.0'
   ```
 
-- **Temporary.** A live mount only lasts as long as the Fragata process serving it: restarting or updating XOA ends it, and the disk becomes unavailable to the VM. Stop using the disk before restarting or updating XOA. If Fragata stopped unexpectedly, the `[XO live mount] <VM name> (<backup date>)` SR stays behind with nothing serving it: detach the disk from the VM and forget the SR.
+- **Temporary.** A live mount only lasts as long as the Fragata process serving it: restarting or updating Fragata ends it, and the disk becomes unavailable to the VM. Stop using the disk before restarting or updating Fragata. If Fragata stopped unexpectedly, the `[XO live mount] <VM name> (<backup date>)` SR stays behind with nothing serving it: detach the disk from the VM and forget the SR.
 
 ### Firewall of Fragata {#live-mount-firewall}
 
-Each live mounted disk is served on its own TCP port, picked when the disk is mounted, so it cannot be allowed in the firewall in advance. So when ufw is enabled on Fragata, as on XOA, **Fragata opens these ports in ufw itself, only when needed**. This is enabled by default.
+Each live mounted disk is served on its own TCP port, picked when the disk is mounted, so it cannot be allowed in the firewall in advance. So when ufw is enabled on the machine running Fragata, **Fragata opens these ports in ufw itself, only when needed**. This is enabled by default.
 
 To turn it off, and manage the firewall yourself, add to the [configuration file](../getting-started/configuration.md), for example `/etc/fragata-server/config.iscsi.toml`, then restart Fragata:
 
@@ -532,20 +532,20 @@ How it works:
   ip6tables -S ufw6-user-input | grep xo-live-mount
   ```
 
-- **Without ufw.** If iptables is not installed, if ufw is not enabled, or if Fragata does not run as root (XOA and the proxies do), no rule is added and the live mount goes on as usual: any other firewall must let the hosts in. When not running as root, a warning is logged for each mount, since ufw may be enabled and block the hosts.
+- **Without ufw.** If iptables is not installed, if ufw is not enabled, or if Fragata does not run as root, no rule is added and the live mount goes on as usual: any other firewall must let the hosts in. When not running as root, a warning is logged for each mount, since ufw may be enabled and block the hosts.
 - **Only ufw** is supported: any other value than `'ufw'` or `false` makes live mounts fail with `unsupported iscsi.manageFirewall`.
 
 **What happens if ufw is changed** (`ufw allow`, `ufw delete`, `ufw reload`, `ufw disable` then `ufw enable`, restarting the ufw service):
 
-- ufw rebuilds its rules and **drops those added by Fragata**. XOA and the proxies are appliances: their firewall is not meant to be changed by hand while disks are live mounted.
+- ufw rebuilds its rules and **drops those added by Fragata**. Avoid changing the firewall of the Fragata server by hand while disks are live mounted.
 - A disk in use keeps working, since ufw still accepts established connections. But the next time the host has to connect again (network outage, host reboot, SR unplugged then plugged again), the connection is blocked and the VM gets I/O errors on that disk.
 - The rules are not added back automatically. To be safe, [release](#release-live-mount) the mounts and live mount the disks again. Releasing a mount whose rule was already dropped works as usual, and logs a warning.
 - Disks live mounted after the change are not affected: their rules are added as usual.
 
-**What happens if Fragata crashes** (process killed, appliance lost power):
+**What happens if Fragata crashes** (process killed, machine lost power):
 
 - Its rules can stay in the firewall. Nothing listens on their ports anymore, so a host trying to connect gets refused.
-- They are removed the **next time Fragata starts**, or when the appliance reboots, whichever comes first. Fragata and a proxy running on the same machine only remove their own rules.
+- They are removed the **next time Fragata starts**, or when the machine reboots, whichever comes first.
 - If you set `manageFirewall = false` before restarting, Fragata no longer removes them. List them with the command above, then delete each one with `iptables -D`, followed by the rule as listed without its leading `-A`.
 - As with any crash, the `[XO live mount] <VM name> (<backup date>)` SR also stays behind (see **Temporary** above).
 
@@ -560,11 +560,11 @@ A live restore is a live mount with a **cache**: the disk is copied, block by bl
 - **The backup is never modified.** What the VM writes lands in the cache VDI only.
 - **What is written is lost when the mount is released.** The cache VDI is created with the mount and destroyed with it. To keep the data, copy it elsewhere first, or restore the disk the usual way.
 
-The cache VDI is attached to the VM of Fragata (or of the [proxy](./scale-and-security/proxy.md#live-mount) handling the BR), named `[XO live restore] [NOBAK] [NOSNAP] <disk name>`: do not detach or delete it while the mount is in use. So the cache SR is chosen where Fragata (or the proxy) runs, not where the VM is restored, which can be another pool:
+The cache VDI is attached to the VM running Fragata, named `[XO live restore] [NOBAK] [NOSNAP] <disk name>`: do not detach or delete it while the mount is in use. So the cache SR is chosen where Fragata runs, not where the VM is restored, which can be another pool:
 
-- **The cache SR must belong to the pool running Fragata (or the proxy)**, and that pool must be connected to Fragata. Otherwise, the restore fails with `the SR … is not in the pool running this appliance`.
-- **The cache SR must be plugged on the host running Fragata (or the proxy).** A shared SR always is; a local SR only if it belongs to that host. Otherwise, the restore fails with `the SR … is not plugged on the host running this appliance`.
-- **Do not migrate Fragata (or the proxy) to another host while the mount is in use, if the cache SR is local:** the cache VDI cannot follow it.
+- **The cache SR must belong to the pool running Fragata**, and that pool must be connected to Fragata. Otherwise, the restore fails with `the SR … is not in the pool running this appliance`.
+- **The cache SR must be plugged on the host running Fragata.** A shared SR always is; a local SR only if it belongs to that host. Otherwise, the restore fails with `the SR … is not plugged on the host running this appliance`.
+- **Do not migrate the Fragata VM to another host while the mount is in use, if the cache SR is local:** the cache VDI cannot follow it.
 
 The SR introduced on the host is then named `[XO live restore] <VM name> (<backup date>)`.
 
@@ -573,7 +573,7 @@ The SR introduced on the host is then named `[XO live restore] <VM name> (<backu
 1. Go to **Backup → Restore**, and click the **Restore** icon of the VM.
 2. Choose an incremental backup, and a main SR for the disks that are copied.
 3. Expand **For each VDI, choose what to do (optional)**.
-4. For the disk to mount, pick **Live mount (read only)** as the action, and check the host in the **Destination** column. For a [live restore](#live-restore), pick **Live restore (read/write)** instead, then also pick the SR holding the written data, in the pool running Fragata (or the proxy).
+4. For the disk to mount, pick **Live mount (read only)** as the action, and check the host in the **Destination** column. For a [live restore](#live-restore), pick **Live restore (read/write)** instead, then also pick the SR holding the written data, in the pool running Fragata.
 5. Click **OK**.
 
 The restored VM then has the live mounted disk on the `[XO live mount] <VM name> (<backup date>)` SR:
@@ -654,7 +654,7 @@ You can also restore specific files and directories inside a VM. It works with a
 
 1. Go to the **Backup → File restore** section:
 
-   <UiShot light="/img/xo5/file-level-restore-list.png" alt="The File restore tab lists the VMs with available backups and their last backup date" url="https://your-xo/v5/#/backup/file-restore" />
+   <UiShot light="/img/xo5/file-level-restore-list.png" alt="The File restore tab lists the VMs with available backups and their last backup date" url="https://your-fragata/v5/#/backup/file-restore" />
 
 2. Choose the VM whose files you want to restore and click the **Restore** icon at the corresponding line.
 3. Follow the instructions as shown below:
@@ -663,7 +663,7 @@ You can also restore specific files and directories inside a VM. It works with a
 
 That's it! Your chosen file will be restored.
 
-Alternatively, administrators can also restore files with the command-line interface. See [this guide](https://github.com/6a8i/fragata-orchestrator/blob/master/%40vates/fuse-vhd/README.md#restore-a-file-from-a-vhd-using-fuse-vhd-cli) to know more.
+Alternatively, administrators can also restore files with the command-line interface. See [this guide](https://github.com/6a8i/fragata-orchestrator/blob/main/%40fragata/fuse-vhd/README.md#restore-a-file-from-a-vhd-using-fuse-vhd-cli) to know more.
 
 ## About backup compression
 
@@ -675,7 +675,7 @@ Citrix Hypervisor uses Gzip compression, which is:
 - space efficient
 - consumes less bandwidth (helpful if your NFS share is far away)
 
-However, XCP-ng is using `zstd`, which is far better.
+However, Fragata Host is using `zstd`, which is far better.
 
 :::tip
 If you have compression on your NFS share (or destination filesystem like ZFS), you can disable compression in Fragata.
@@ -683,27 +683,25 @@ If you have compression on your NFS share (or destination filesystem like ZFS), 
 
 ## Add a disk for local backups
 
-If you want to use XOA to locally store all your backups, you need to attach a large disk to it. This can be done live.
+If you want to use the Fragata server to locally store all your backups, and it runs in a VM, you need to attach a large disk to that VM. This can be done live.
 
-First, after your disk is attached to XOA, you'll have to find the new disk name with `fdisk -l`. It's probably `xvdb`.
+First, after your disk is attached to the VM, you'll have to find the new disk name with `fdisk -l`. It's probably `xvdb`.
 
 Then, create a filesystem on it:
 
 <Terminal shell title="Format the new disk">{`mkfs.ext4 /dev/xvdb`}</Terminal>
 
-If you already have backups done, you can move them to the new disk. The original backups folder is in `/var/lib/xoa-backups`.
-
-To make the mount point persistent in XOA, edit the `/etc/fstab` file, and add:
+Then mount it, for example in `/mnt/fragata-backups`. To make the mount point persistent, edit the `/etc/fstab` file, and add:
 
 ```
-/dev/xvdb /var/lib/xoa-backups ext4 defaults 0 0
+/dev/xvdb /mnt/fragata-backups ext4 defaults 0 0
 ```
 
-This way, without modifying your previous scheduled snapshot, they will be written to this new local mountpoint!
+Finally, create a local backup repository pointing to `/mnt/fragata-backups` (see [Local](#local)) and select it in your backup jobs. If you already have local backups, move them to the new disk first.
 
 ## HA behavior
 
-XCP-ng takes replicated VMs into account for High Availability. To avoid the resulting trouble (HA trying to restart your replicas), XO disables HA on the replicated VMs and adds a tag indicating this change.
+The High Availability (HA) feature of the pool takes replicated VMs into account. To avoid the resulting trouble (HA trying to restart your replicas), Fragata disables HA on the replicated VMs and adds a tag indicating this change.
 
 A full replication replica, carrying the `Disaster Recovery` and `HA disabled` tags:
 
@@ -714,12 +712,12 @@ An incremental replication replica, carrying the `Continuous Replication` and `H
 <UiDetail src="/img/xo5/disabled-cr-ha-tag.png" alt="An incremental replication replica: the VM carries the Continuous Replication and HA disabled tags" width={620} />
 
 :::tip
-The tag won't be automatically removed by XO on the replicated VMs, even if HA is re-enabled.
+The tag won't be automatically removed by Fragata on the replicated VMs, even if HA is re-enabled.
 :::
 
 ## Backup concurrency
 
-Fragata 5.20 introduced new tools to manage backup concurrency. Below is an overview of the backup process and ways you can control concurrency in your own environment.
+Fragata provides tools to manage backup concurrency. Below is an overview of the backup process and ways you can control concurrency in your own environment.
 
 ### Backup process
 
@@ -764,7 +762,7 @@ By default the _parallel strategy_ is, on paper, the most logical one. But you n
 High concurrency could impact your dom0 and network performances.
 :::
 
-You should be aware of your hardware limitation when defining the best concurrency for your XCP-ng infrastructure, never put concurrency too high or you could impact your VMs performances.
+You should be aware of your hardware limitation when defining the best concurrency for your Fragata Host infrastructure, never put concurrency too high or you could impact your VMs performances.
 The best way to define the best concurrency for you is by increasing it slowly and watching the result on backup time.
 
 So to summarize, if you set your concurrency at 6 and you have 20 VMs to backup the process will be the following:
@@ -783,7 +781,7 @@ When a backup job is configured using Normal snapshot mode, it's possible to use
 - **xo-memory-backup** to apply RAM-enabled snapshotting (checkpoint, see [RAM enabled backup](#ram-enabled-backup))
 - **xo-backup-health-check-xenstore** to use a script during [backup health check](#backup-health-check)
 - **xo:no-health-check** (or **xo:no-health-check=reason**) to ignore this VM during [backup health check](#backup-health-check)
-- **xo:no-bak** (or **xo:no-bak=reason**) to exclude this VM from **all** backup jobs, even if it's explicitly selected. XO itself uses `xo:no-bak=Health Check` on the ephemeral VMs restored during health checks.
+- **xo:no-bak** (or **xo:no-bak=reason**) to exclude this VM from **all** backup jobs, even if it's explicitly selected. Fragata itself uses `xo:no-bak=Health Check` on the ephemeral VMs restored during health checks.
 
 For example, you could have a regular backup job with 10 VMs configured with Normal snapshotting, including two which are database servers. Since database servers are generally more sensitive to being restored from snapshots, you could apply the **xo-memory-backup** tag to those two VMs and only those will be backed up in RAM-enabled mode. This will avoid the need to manage a separate backup job and schedule.
 
@@ -794,7 +792,7 @@ Just a refresher/summary: You can select multiple backup methods for the same jo
 - Full: _Backup_ and _Full replication_ (the Fragata Classic button still reads _Disaster Recovery_)
 - Deltas: _Delta Backup_ and _Incremental replication_ (the Fragata Classic button still reads _Continuous Replication_)
 
-The Full and Delta options are mutually exclusive; Rolling Snapshots are compatible with both. The Backup and Delta Backup go to a backup repository (e.g. NFS); both replication modes write to another XCP-ng storage repository (i.e., not the one on which the VMs being backed up reside). In the Schedule configuration, you will have the option to select the number of "Backup Retention" if your backup includes a _Backup_ (or _Delta Backup_); you will have the option to select the number "Replication Retention" if you have selected a replication mode in the backup configuration.
+The Full and Delta options are mutually exclusive; Rolling Snapshots are compatible with both. The Backup and Delta Backup go to a backup repository (e.g. NFS); both replication modes write to another Fragata Host storage repository (i.e., not the one on which the VMs being backed up reside). In the Schedule configuration, you will have the option to select the number of "Backup Retention" if your backup includes a _Backup_ (or _Delta Backup_); you will have the option to select the number "Replication Retention" if you have selected a replication mode in the backup configuration.
 
 ### Rolling snapshots
 
@@ -804,9 +802,7 @@ This feature is close to Backups, but it creates a snapshot when planned to do s
 Snapshots are not backups. They help to roll back to a previous state, but all snapshots are on the same Storage than their original disk. If you lose the original VDI (or the SR), you'll **lose all your snapshots**.
 :::
 
-Vates recommends keeping the Rolling Snapshots retention to a minimum; if you check **Dashboard → Health**, you'll see a table for 'Too Many Snapshots', which shows VMs that have more than 5 snapshots saved. This includes the snapshots used for any kind of backup, not simply the rolling snapshots.
-
-To know more, read this [blog article](https://xen-orchestra.com/blog/xen-orchestra-4-2/#schedulerollingsnapshots).
+Keep the Rolling Snapshots retention to a minimum: if you check **Dashboard → Health**, you'll see a table for 'Too Many Snapshots', which shows VMs that have more than 5 snapshots saved. This includes the snapshots used for any kind of backup, not simply the rolling snapshots.
 
 ### Retention of backups and replications {#retention-of-backups-and-cr-dr}
 
@@ -916,9 +912,9 @@ During each backup run, Fragata evaluates existing backups and removes any exces
 
 To enable GFS retention, configure the settings in the backup job's "Long-term retention of backups" section. During each backup run, Fragata evaluates existing backups and removes any excess backups based on the configured policy.
 
-## Backup health check
+## Backup health check {#backup-health-check}
 
-Backup health check ensures the backups are ready to be restored: after a run, XO restores the backup for real, boots it, and only marks it healthy if the guest comes up.
+Backup health check ensures the backups are ready to be restored: after a run, Fragata restores the backup for real, boots it, and only marks it healthy if the guest comes up.
 
 <Schema label="Health check: every step a real restore would take, run automatically" legend={[["#e0a94a", "backup"], ["#6aabf0", "test VM"], ["#56c288", "verified"]]} maxWidth="640px">
 <svg viewBox="0 0 640 140" role="img" aria-label="A backup stored on the backup repository is restored as a test VM, booted until the guest tools respond, then the test VM is deleted and the backup run is marked healthy">
@@ -957,7 +953,7 @@ Backup health check ensures the backups are ready to be restored: after a run, X
 
 #### Check for boot
 
-XO will restore the VM, either by downloading it for a delta/full backup or by cloning it for a full or incremental replication, start it, and then wait for the guest tools to be loaded before the end of a timeout of 10 minutes (boot + guest tools).
+Fragata will restore the VM, either by downloading it for a delta/full backup or by cloning it for a full or incremental replication, start it, and then wait for the guest tools to be loaded before the end of a timeout of 10 minutes (boot + guest tools).
 
 A VM without guest tools will fail its health check.
 
@@ -965,7 +961,7 @@ The restored VM is then deleted.
 
 #### Execute a script
 
-If a VM has the tag **xo-backup-health-check-xenstore** during a backup health check, then XO will wait for a script to change the value of the xenstore `vm-data/xo-backup-health-check` key to be either `success` or `failure`.
+If a VM has the tag **xo-backup-health-check-xenstore** during a backup health check, then Fragata will wait for a script to change the value of the xenstore `vm-data/xo-backup-health-check` key to be either `success` or `failure`.
 
 In case of `failure`, it will mark the health check as failed, and will show the (optional) message contained in `vm-data/xo-backup-health-check-error`.
 
@@ -978,7 +974,7 @@ The total timeout of a backup health check (boot + guest tools + scripts) is 10 
 
 The restored VM is then deleted.
 
-An example script in shell is available in the repository: [`@fragata/backups/docs/healthcheck/example.sh`](https://github.com/6a8i/fragata-orchestrator/blob/master/%40xen-orchestra/backups/docs/healthcheck/example.sh)
+An example script in shell is available in the repository: [`@fragata/backups/docs/healthcheck/example.sh`](https://github.com/6a8i/fragata-orchestrator/blob/main/%40fragata/backups/docs/healthcheck/example.sh)
 
 ### Running health checks
 
@@ -986,7 +982,7 @@ An example script in shell is available in the repository: [`@fragata/backups/do
 
 Go to **Backup → Restore** and click on the tick icon to launch a health check.
 
-<UiShot light="/img/xo5/restore-health-check.png" alt="The Restore tab: each backup row ends with the health check (tick), restore and delete buttons" url="https://your-xo/v5/#/backup/restore" />
+<UiShot light="/img/xo5/restore-health-check.png" alt="The Restore tab: each backup row ends with the health check (tick), restore and delete buttons" url="https://your-fragata/v5/#/backup/restore" />
 
 Then, you will select the backup to be checked and a destination SR, which must have enough space for the full restore.
 
