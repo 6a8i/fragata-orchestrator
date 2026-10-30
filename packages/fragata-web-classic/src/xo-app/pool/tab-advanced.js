@@ -10,7 +10,6 @@ import renderXoItem, { Network, Sr } from 'render-xo-item'
 import SelectFiles from 'select-files'
 import TabButton from 'tab-button'
 import Tooltip from 'tooltip'
-import Upgrade from 'xoa-upgrade'
 import { addSubscriptions, connectStore } from 'utils'
 import { Container, Row, Col } from 'grid'
 import { CustomFields } from 'custom-fields'
@@ -47,7 +46,6 @@ import { satisfies } from 'semver'
 import { confirm } from '../../common/modal'
 import { Host, Pool } from '../../common/render-xo-item'
 import { isAdmin } from '../../common/selectors'
-import { ENTERPRISE, getXoaPlan } from '../../common/xoa-plans'
 
 @connectStore(() => ({
   master: createGetObjectsOfType('host').find((_, { pool }) => ({
@@ -263,7 +261,6 @@ export default class TabAdvanced extends Component {
     const { enabled: hostsEnabledMultipathing, disabled: hostsDisabledMultipathing } = hostsByMultipathing
     const { crashDumpSr } = pool
     const crashDumpSrPredicate = this._getCrashDumpSrPredicate()
-    const isEnterprisePlan = getXoaPlan().value >= ENTERPRISE.value
     const isMigrationCompressionAvailable = pool.migrationCompression !== undefined
 
     const dcScopeIp = this._getDcScopeIp()
@@ -312,8 +309,6 @@ export default class TabAdvanced extends Component {
                 handlerParam={pool}
                 icon='pool-rolling-reboot'
                 labelId='rollingPoolReboot'
-                disabled={!isEnterprisePlan}
-                tooltip={!isEnterprisePlan ? _('onlyAvailableToEnterprise') : undefined}
               />
               {this._isNetboxPluginLoaded() && (
                 <TabButton
@@ -500,9 +495,7 @@ export default class TabAdvanced extends Component {
           </ActionButton>
         </div>
         <h3 className='mt-1 mb-1'>{_('supplementalPackPoolNew')}</h3>
-        <Upgrade place='poolSupplementalPacks' required={2}>
-          <SelectFiles onChange={file => installSupplementalPackOnAllHosts(pool, file)} />
-        </Upgrade>
+        <SelectFiles onChange={file => installSupplementalPackOnAllHosts(pool, file)} />
         <h3 className='mt-1 mb-1'>{_('miscLabel')}</h3>
         <Container>
           <Row>

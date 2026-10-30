@@ -9,7 +9,6 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import renderXoItem from 'render-xo-item'
 import sortBy from 'lodash/sortBy'
-import Upgrade from 'xoa-upgrade'
 import XoWeekCharts from 'xo-week-charts'
 import XoWeekHeatmap from 'xo-week-heatmap'
 import { Container, Row, Col } from 'grid'
@@ -375,16 +374,11 @@ const weekChartsRenderer = metric => (
   />
 )
 
-const Stats = () =>
-  process.env.XOA_PLAN > 2 ? (
-    <div>
-      <MetricViewer metricRenderer={weekHeatmapRenderer} title={_('weeklyHeatmap')} />
-      <MetricViewer metricRenderer={weekChartsRenderer} title={_('weeklyCharts')} />
-    </div>
-  ) : (
-    <Container>
-      <Upgrade place='dashboardStats' available={3} />
-    </Container>
-  )
+const Stats = () => (
+  <div>
+    <MetricViewer metricRenderer={weekHeatmapRenderer} title={_('weeklyHeatmap')} />
+    <MetricViewer metricRenderer={weekChartsRenderer} title={_('weeklyCharts')} />
+  </div>
+)
 
 export { Stats as default }

@@ -2,8 +2,6 @@ import _ from 'intl'
 import Icon from 'icon'
 import React from 'react'
 import Tags from 'tags'
-import { conditionalTooltip } from 'tooltip'
-import { getXoaPlan, ENTERPRISE } from 'xoa-plans'
 import { SelectSr } from 'select-objects'
 
 import { FormGroup } from '../../utils'
@@ -22,16 +20,12 @@ const ScheduleHealthCheck = ({ schedule, toggleHealthCheck, setHealthCheckTags, 
         </a>{' '}
         {_('healthCheck')}
       </strong>{' '}
-      {conditionalTooltip(
-        <input
-          type='checkbox'
-          checked={schedule.healthCheckVmsWithTags !== undefined}
-          disabled={getXoaPlan().value < ENTERPRISE.value}
-          onChange={toggleHealthCheck}
-          name='healthCheck'
-        />,
-        getXoaPlan().value < ENTERPRISE.value ? _('healthCheckAvailableEnterpriseUser') : undefined
-      )}
+      <input
+        type='checkbox'
+        checked={schedule.healthCheckVmsWithTags !== undefined}
+        onChange={toggleHealthCheck}
+        name='healthCheck'
+      />
     </label>
     {schedule.healthCheckVmsWithTags !== undefined && (
       <div className='mb-2'>

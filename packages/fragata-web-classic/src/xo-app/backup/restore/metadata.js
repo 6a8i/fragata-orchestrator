@@ -7,7 +7,6 @@ import Icon from 'icon'
 import NoObjects from 'no-objects'
 import React from 'react'
 import SortedTable from 'sorted-table'
-import Upgrade from 'xoa-upgrade'
 import { confirm } from 'modal'
 import { error } from 'notification'
 import { filter, flatMap, forOwn, reduce } from 'lodash'
@@ -220,24 +219,22 @@ export default decorate([
   }),
   injectState,
   ({ state, effects }) => (
-    <Upgrade place='restoreMetadataBackup' available={3}>
-      <div>
-        <div className='mb-1'>
-          <ButtonLink to='backup/restore'>
-            <Icon icon='backup' /> {_('vms')}
-          </ButtonLink>
-        </div>
-        <NoObjects
-          actions={ACTIONS}
-          collection={state.backups}
-          columns={COLUMNS}
-          component={SortedTable}
-          emptyMessage={_('noBackups')}
-          stateUrlParam='s_metadata'
-        />
-        <br />
-        <Logs />
+    <div>
+      <div className='mb-1'>
+        <ButtonLink to='backup/restore'>
+          <Icon icon='backup' /> {_('vms')}
+        </ButtonLink>
       </div>
-    </Upgrade>
+      <NoObjects
+        actions={ACTIONS}
+        collection={state.backups}
+        columns={COLUMNS}
+        component={SortedTable}
+        emptyMessage={_('noBackups')}
+        stateUrlParam='s_metadata'
+      />
+      <br />
+      <Logs />
+    </div>
   ),
 ])

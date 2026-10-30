@@ -7,7 +7,6 @@ import React, { Component } from 'react'
 import SortedTable from 'sorted-table'
 import StateButton from 'state-button'
 import Tooltip from 'tooltip'
-import Upgrade from 'xoa-upgrade'
 import { addSubscriptions } from 'utils'
 import { Container } from 'grid'
 import { createSelector } from 'selectors'
@@ -156,7 +155,7 @@ export default class Overview extends Component {
   ]
 
   render() {
-    return process.env.XOA_PLAN > 3 ? (
+    return (
       <Container>
         <Card>
           <CardHeader>
@@ -176,10 +175,6 @@ export default class Overview extends Component {
           </CardBlock>
         </Card>
         <LogList jobKeys={Object.keys(jobKeyToLabel)} />
-      </Container>
-    ) : (
-      <Container>
-        <Upgrade place='health' available={4} />
       </Container>
     )
   }

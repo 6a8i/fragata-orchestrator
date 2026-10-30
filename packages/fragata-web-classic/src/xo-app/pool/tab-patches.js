@@ -4,13 +4,11 @@ import Icon from 'icon'
 import React, { Component } from 'react'
 import SortedTable from 'sorted-table'
 import TabButton from 'tab-button'
-import Upgrade from 'xoa-upgrade'
 import { addSubscriptions, connectStore, formatSize } from 'utils'
 import { alert } from 'modal'
 import { Col, Container, Row } from 'grid'
 import { createGetObjectsOfType, createSelector } from 'selectors'
 import { FormattedRelative, FormattedTime } from 'react-intl'
-import { getXoaPlan, ENTERPRISE } from 'xoa-plans'
 import { renderXoItemFromId } from 'render-xo-item'
 import {
   finalizeRollingPoolUpdate,
@@ -29,8 +27,6 @@ import map from 'lodash/map.js'
 import size from 'lodash/size.js'
 import some from 'lodash/some.js'
 import { isXsHostWithCdnPatches } from 'xo/utils'
-
-const ROLLING_POOL_UPDATES_AVAILABLE = getXoaPlan().value >= ENTERPRISE.value
 
 const MISSING_PATCH_COLUMNS = [
   {
@@ -330,113 +326,105 @@ export default class TabPatches extends Component {
     const supportsRpuRecovery = productBrand === 'XCP-ng' || _isXsHostWithCdnPatches
 
     return (
-      <Upgrade place='poolPatches' required={2}>
-        <Container>
-          <RpuRecoveryBanner poolId={pool.id} recovery={rollingUpdateRecovery} />
-          <Row>
-            <Col className='text-xs-right'>
-              {ROLLING_POOL_UPDATES_AVAILABLE && (
-                <TabButton
-                  btnStyle='primary'
-                  disabled={
-                    (supportsRpuRecovery ? !some(hasMissingPatchesByHost) : isEmpty(missingPatches)) ||
-                    hasMultipleVmsRunningOnLocalStorage ||
-                    isSingleHost ||
-                    hasIncompleteRun
-                  }
-                  handler={rollingPoolUpdate}
-                  handlerParam={pool.id}
-                  icon='pool-rolling-update'
-                  labelId='rollingPoolUpdate'
-                  tooltip={
-                    hasIncompleteRun
-                      ? _('rpuRecoveryRecordExists')
-                      : hasMultipleVmsRunningOnLocalStorage
-                        ? _('nVmsRunningOnLocalStorage', {
-                            nVms: this.getNVmsRunningOnLocalStorage(),
-                          })
-                        : isSingleHost
-                          ? _('multiHostPoolUpdate')
-                          : undefined
-                  }
-                />
-              )}
-              <TabButton
-                btnStyle='primary'
-                data-pool={pool}
-                disabled={isEmpty(missingPatches) || pool.HA_enabled || needsCredentials}
-                handler={installAllPatchesOnPool}
-                icon='host-patch-update'
-                labelId='installPoolPatches'
-                tooltip={
-                  pool.HA_enabled
-                    ? _('highAvailabilityNotDisabledTooltip')
-                    : needsCredentials
-                      ? _('xsCredentialsMissingShort')
+      <Container>
+        <RpuRecoveryBanner poolId={pool.id} recovery={rollingUpdateRecovery} />
+        <Row>
+          <Col className='text-xs-right'>
+            <TabButton
+              btnStyle='primary'
+              disabled={
+                (supportsRpuRecovery ? !some(hasMissingPatchesByHost) : isEmpty(missingPatches)) ||
+                hasMultipleVmsRunningOnLocalStorage ||
+                isSingleHost ||
+                hasIncompleteRun
+              }
+              handler={rollingPoolUpdate}
+              handlerParam={pool.id}
+              icon='pool-rolling-update'
+              labelId='rollingPoolUpdate'
+              tooltip={
+                hasIncompleteRun
+                  ? _('rpuRecoveryRecordExists')
+                  : hasMultipleVmsRunningOnLocalStorage
+                    ? _('nVmsRunningOnLocalStorage', {
+                        nVms: this.getNVmsRunningOnLocalStorage(),
+                      })
+                    : isSingleHost
+                      ? _('multiHostPoolUpdate')
                       : undefined
-                }
+              }
+            />
+            <TabButton
+              btnStyle='primary'
+              data-pool={pool}
+              disabled={isEmpty(missingPatches) || pool.HA_enabled || needsCredentials}
+              handler={installAllPatchesOnPool}
+              icon='host-patch-update'
+              labelId='installPoolPatches'
+              tooltip={
+                pool.HA_enabled
+                  ? _('highAvailabilityNotDisabledTooltip')
+                  : needsCredentials
+                    ? _('xsCredentialsMissingShort')
+                    : undefined
+              }
+            />
+          </Col>
+        </Row>
+        {productBrand === 'XCP-ng' ? (
+          <Row>
+            <Col>
+              <h3>{_('hostMissingPatches')}</h3>
+              <SortedTable
+                columns={MISSING_PATCH_COLUMNS_XCP}
+                collection={missingPatches}
+                individualActions={INDIVIDUAL_ACTIONS_XCP}
+                stateUrlParam='s_missing'
               />
             </Col>
           </Row>
-          {productBrand === 'XCP-ng' ? (
+        ) : (
+          <div>
             <Row>
               <Col>
                 <h3>{_('hostMissingPatches')}</h3>
+                {needsCredentials && (
+                  <div className='alert alert-danger'>
+                    {_('xsCredentialsMissing', {
+                      link: (
+                        <a
+                          href='https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/configuration.md#xenserver-updates'
+                          target='_blank'
+                          rel='noreferrer'
+                        >
+                          https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/configuration.md#xenserver-updates
+                        </a>
+                      ),
+                    })}
+                  </div>
+                )}
                 <SortedTable
-                  columns={MISSING_PATCH_COLUMNS_XCP}
+                  actions={ACTIONS}
                   collection={missingPatches}
-                  individualActions={INDIVIDUAL_ACTIONS_XCP}
+                  columns={MISSING_PATCH_COLUMNS}
+                  data-isXsHostWithCdnPatches={_isXsHostWithCdnPatches}
+                  data-pool={pool}
+                  data-needsCredentials={needsCredentials}
                   stateUrlParam='s_missing'
                 />
               </Col>
             </Row>
-          ) : (
-            <div>
+            {!_isXsHostWithCdnPatches && (
               <Row>
                 <Col>
-                  <h3>{_('hostMissingPatches')}</h3>
-                  {needsCredentials && (
-                    <div className='alert alert-danger'>
-                      {_('xsCredentialsMissing', {
-                        link: (
-                          <a
-                            href='https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/configuration.md#xenserver-updates'
-                            target='_blank'
-                            rel='noreferrer'
-                          >
-                            https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/configuration.md#xenserver-updates
-                          </a>
-                        ),
-                      })}
-                    </div>
-                  )}
-                  <SortedTable
-                    actions={ACTIONS}
-                    collection={missingPatches}
-                    columns={MISSING_PATCH_COLUMNS}
-                    data-isXsHostWithCdnPatches={_isXsHostWithCdnPatches}
-                    data-pool={pool}
-                    data-needsCredentials={needsCredentials}
-                    stateUrlParam='s_missing'
-                  />
+                  <h3>{_('hostAppliedPatches')}</h3>
+                  <SortedTable collection={hostPatches} columns={INSTALLED_PATCH_COLUMNS} stateUrlParam='s_installed' />
                 </Col>
               </Row>
-              {!_isXsHostWithCdnPatches && (
-                <Row>
-                  <Col>
-                    <h3>{_('hostAppliedPatches')}</h3>
-                    <SortedTable
-                      collection={hostPatches}
-                      columns={INSTALLED_PATCH_COLUMNS}
-                      stateUrlParam='s_installed'
-                    />
-                  </Col>
-                </Row>
-              )}
-            </div>
-          )}
-        </Container>
-      </Upgrade>
+            )}
+          </div>
+        )}
+      </Container>
     )
   }
 }

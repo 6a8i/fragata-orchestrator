@@ -11,7 +11,6 @@ import NoObjects from 'no-objects'
 import React from 'react'
 import SortedTable from 'sorted-table'
 import Tooltip from 'tooltip'
-import Upgrade from 'xoa-upgrade'
 import { alert, chooseAction, form } from 'modal'
 import { alteredAuditRecord, missingAuditRecord } from 'fragata-common/api-errors'
 import { injectIntl } from 'react-intl'
@@ -19,7 +18,6 @@ import { get } from '@fragata/defined'
 import { injectState, provideState } from 'reaclette'
 import { noop, startCase } from 'lodash'
 import { NumericDate, formatSize } from 'utils'
-import { PREMIUM } from 'xoa-plans'
 import { User } from 'render-xo-item'
 import {
   checkAuditRecordsIntegrity,
@@ -386,90 +384,88 @@ export default decorate([
   }),
   injectState,
   ({ state, effects }) => (
-    <Upgrade place='audit' available={PREMIUM.value}>
-      <div>
-        <div className='mt-1 mb-1'>
-          <ActionButton btnStyle='primary' handler={effects.fetchRecords} icon='refresh' size='large'>
-            {_('refreshAuditRecordsList')}
-          </ActionButton>{' '}
-          <ActionButton btnStyle='primary' handler={exportAuditRecords} icon='download' size='large'>
-            {_('downloadAuditRecords')}
-          </ActionButton>{' '}
-          <ActionButton
-            btnStyle='success'
-            data-handleCheck={effects.handleCheck}
-            handler={checkIntegrity}
-            icon='diagnosis'
-            size='large'
-          >
-            {_('auditCheckIntegrity')}
-          </ActionButton>{' '}
-          <ActionButton
-            btnStyle='warning'
-            disabled={state.records?.length > 0}
-            handler={effects.showImportDropzone}
-            icon='upload'
-            size='large'
-            tooltip={_('importAuditRecordsTooltip')}
-          >
-            {_('importAuditRecords')}
-          </ActionButton>
-        </div>
-
-        {!!state.showImportDropzone && (
-          <div>
-            <Dropzone onDrop={effects.handleDrop} message={_('importRecordsTip')} />
-            {renderImportStatus(state)}
-            <div className='form-group pull-right'>
-              <ActionButton
-                btnStyle='primary'
-                className='mr-1'
-                disabled={!state.recordsFile}
-                handler={effects.startImportRecords}
-                icon='import'
-                type='submit'
-              >
-                {_('importAuditRecordsButton')}
-              </ActionButton>
-              <Button onClick={effects.unselectFile}>{_('importAuditRecordsCleanList')}</Button>
-            </div>
-          </div>
-        )}
-
-        {state.isUserActionsRecordInactive && (
-          <p>
-            <Link
-              className='text-warning'
-              to={{
-                pathname: '/settings/plugins',
-                query: {
-                  s: 'id:/^audit$/',
-                },
-              }}
-            >
-              <Icon icon='alarm' /> {_('auditInactiveUserActionsRecord')}
-            </Link>
-          </p>
-        )}
-        <NoObjects
-          collection={state.records}
-          columns={COLUMNS}
-          component={SortedTable}
-          componentRef={effects.handleRef}
-          data-checkedRecords={state.checkedRecords}
-          data-missingRecord={state.missingRecord}
-          defaultColumn={3}
-          emptyMessage={
-            <span className='text-muted'>
-              <Icon icon='alarm' />
-              &nbsp;
-              {_('noAuditRecordAvailable')}
-            </span>
-          }
-          individualActions={INDIVIDUAL_ACTIONS}
-          stateUrlParam='s'
-        />
+    <div>
+      <div className='mt-1 mb-1'>
+        <ActionButton btnStyle='primary' handler={effects.fetchRecords} icon='refresh' size='large'>
+          {_('refreshAuditRecordsList')}
+        </ActionButton>{' '}
+        <ActionButton btnStyle='primary' handler={exportAuditRecords} icon='download' size='large'>
+          {_('downloadAuditRecords')}
+        </ActionButton>{' '}
+        <ActionButton
+          btnStyle='success'
+          data-handleCheck={effects.handleCheck}
+          handler={checkIntegrity}
+          icon='diagnosis'
+          size='large'
+        >
+          {_('auditCheckIntegrity')}
+        </ActionButton>{' '}
+        <ActionButton
+          btnStyle='warning'
+          disabled={state.records?.length > 0}
+          handler={effects.showImportDropzone}
+          icon='upload'
+          size='large'
+          tooltip={_('importAuditRecordsTooltip')}
+        >
+          {_('importAuditRecords')}
+        </ActionButton>
       </div>
-    </Upgrade>
+
+      {!!state.showImportDropzone && (
+        <div>
+          <Dropzone onDrop={effects.handleDrop} message={_('importRecordsTip')} />
+          {renderImportStatus(state)}
+          <div className='form-group pull-right'>
+            <ActionButton
+              btnStyle='primary'
+              className='mr-1'
+              disabled={!state.recordsFile}
+              handler={effects.startImportRecords}
+              icon='import'
+              type='submit'
+            >
+              {_('importAuditRecordsButton')}
+            </ActionButton>
+            <Button onClick={effects.unselectFile}>{_('importAuditRecordsCleanList')}</Button>
+          </div>
+        </div>
+      )}
+
+      {state.isUserActionsRecordInactive && (
+        <p>
+          <Link
+            className='text-warning'
+            to={{
+              pathname: '/settings/plugins',
+              query: {
+                s: 'id:/^audit$/',
+              },
+            }}
+          >
+            <Icon icon='alarm' /> {_('auditInactiveUserActionsRecord')}
+          </Link>
+        </p>
+      )}
+      <NoObjects
+        collection={state.records}
+        columns={COLUMNS}
+        component={SortedTable}
+        componentRef={effects.handleRef}
+        data-checkedRecords={state.checkedRecords}
+        data-missingRecord={state.missingRecord}
+        defaultColumn={3}
+        emptyMessage={
+          <span className='text-muted'>
+            <Icon icon='alarm' />
+            &nbsp;
+            {_('noAuditRecordAvailable')}
+          </span>
+        }
+        individualActions={INDIVIDUAL_ACTIONS}
+        stateUrlParam='s'
+      />
+    </div>
   ),
 ])

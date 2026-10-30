@@ -91,7 +91,6 @@ import {
   getResolvedResourceSets,
   getUser,
 } from 'selectors'
-import { CURRENT as XOA_PLAN, ENTERPRISE } from 'xoa-plans'
 
 import styles from './index.css'
 
@@ -1025,7 +1024,7 @@ export default class NewVm extends BaseComponent {
         <Row>
           <Col mediumSize={12}>
             <h2>
-              {isAdmin || (isPoolAdmin && process.env.XOA_PLAN > 3) || !isEmpty(resourceSets)
+              {isAdmin || isPoolAdmin || !isEmpty(resourceSets)
                 ? _('newVmCreateNewVmOn', {
                     select: isAdmin || isPoolAdmin ? selectPool : selectResourceSet,
                   })
@@ -1953,15 +1952,10 @@ export default class NewVm extends BaseComponent {
                     <span className='mr-1'>{_('vmAcls')}</span>
                     <ActionButton
                       btnStyle='primary'
-                      disabled={XOA_PLAN.value < ENTERPRISE.value}
                       handler={this._addAcls}
                       icon='add'
                       size='small'
-                      tooltip={
-                        XOA_PLAN.value < ENTERPRISE.value
-                          ? _('availableXoaPlan', { plan: ENTERPRISE.name })
-                          : _('vmAddAcls')
-                      }
+                      tooltip={_('vmAddAcls')}
                     />
                   </Col>
                 </Row>

@@ -3,7 +3,6 @@ import ActionButton from 'action-button'
 import decorate from 'apply-decorators'
 import Icon from 'icon'
 import Link from 'link'
-import Upgrade from 'xoa-upgrade'
 import React from 'react'
 import Tooltip from 'tooltip'
 import { Card, CardBlock, CardHeader } from 'card'
@@ -650,8 +649,4 @@ const NewMirrorBackup = decorate([
   },
 ])
 
-export default props => (
-  <Upgrade available={3}>
-    <NewMirrorBackup {...props} />
-  </Upgrade>
-)
+export { NewMirrorBackup as default }

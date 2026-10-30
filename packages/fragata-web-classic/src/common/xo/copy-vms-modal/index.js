@@ -1,10 +1,8 @@
 import _, { messages } from 'intl'
-import Icon from 'icon'
 import map from 'lodash/map'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { compileTemplate } from '@fragata/template'
-import every from 'lodash/every.js'
 import { injectIntl } from 'react-intl'
 
 import BaseComponent from 'base-component'
@@ -12,14 +10,10 @@ import SingleLineRow from 'single-line-row'
 import { Col } from 'grid'
 import { SelectSr } from 'select-objects'
 import { connectStore } from 'utils'
-import { isSrWritable } from 'xo'
 
 import SelectCompression from '../../select-compression'
 import ZstdChecker from '../../zstd-checker'
-import { getXoaPlan, STARTER } from '../../xoa-plans'
 import { createGetObject, createGetObjectsOfType, createSelector } from '../../selectors'
-
-const CAN_INTERPOOL_COPY = getXoaPlan().value > STARTER.value
 
 @connectStore(
   () => {
@@ -72,11 +66,6 @@ class CopyVmsModalBody extends BaseComponent {
     })
   }
 
-  getSrPredicate = createSelector(
-    () => this.props.resolvedVms,
-    vms => (CAN_INTERPOOL_COPY ? undefined : sr => isSrWritable(sr) && every(vms, { $poolId: sr.$pool }))
-  )
-
   _onChangeSr = sr => this.setState({ sr })
   _onChangeNamePattern = event => this.setState({ namePattern: event.target.value })
 
@@ -120,17 +109,7 @@ class CopyVmsModalBody extends BaseComponent {
           <SingleLineRow className='mt-1'>
             <Col size={6}>{_('copyVmSelectSr')}</Col>
             <Col size={6}>
-              <SelectSr
-                disabled={copyMode !== 'fullCopy'}
-                onChange={this.linkState('sr')}
-                predicate={this.getSrPredicate()}
-                value={sr}
-              />
-              {!CAN_INTERPOOL_COPY && (
-                <p className='text-muted'>
-                  <Icon icon='info' /> {_('cantInterPoolCopy')}
-                </p>
-              )}
+              <SelectSr disabled={copyMode !== 'fullCopy'} onChange={this.linkState('sr')} value={sr} />
             </Col>
           </SingleLineRow>
           <SingleLineRow className='mt-1'>

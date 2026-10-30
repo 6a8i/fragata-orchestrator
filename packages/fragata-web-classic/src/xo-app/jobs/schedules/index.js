@@ -6,7 +6,6 @@ import find from 'lodash/find'
 import isEmpty from 'lodash/isEmpty'
 import moment from 'moment-timezone'
 import SortedTable from 'sorted-table'
-import Upgrade from 'xoa-upgrade'
 import React from 'react'
 import Scheduler, { SchedulePreview } from 'scheduling'
 import { error } from 'notification'
@@ -242,18 +241,12 @@ export default class Schedules extends Component {
               })}
             </p>
           )}
-          {process.env.XOA_PLAN > 3 ? (
-            <span>
-              <ActionButton form='newScheduleForm' handler={this._handleSubmit} icon='save' btnStyle='primary'>
-                {_('saveBackupJob')}
-              </ActionButton>{' '}
-              <Button onClick={this._reset}>{_('selectTableReset')}</Button>
-            </span>
-          ) : (
-            <span>
-              <Upgrade place='health' available={4} />
-            </span>
-          )}
+          <span>
+            <ActionButton form='newScheduleForm' handler={this._handleSubmit} icon='save' btnStyle='primary'>
+              {_('saveBackupJob')}
+            </ActionButton>{' '}
+            <Button onClick={this._reset}>{_('selectTableReset')}</Button>
+          </span>
         </div>
         {schedules !== undefined && (
           <div>

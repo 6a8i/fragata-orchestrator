@@ -2,7 +2,6 @@ import _ from 'intl'
 import decorate from 'apply-decorators'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { CURRENT, PREMIUM } from 'xoa-plans'
 import { generateId } from 'reaclette-utils'
 import { injectState, provideState } from 'reaclette'
 import { Select } from 'form'
@@ -15,7 +14,6 @@ const OPTIONS = [
     value: '',
   },
   {
-    disabled: CURRENT.value < PREMIUM.value,
     label: _('withMemory'),
     value: 'checkpointSnapshot',
   },

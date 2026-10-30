@@ -13,7 +13,6 @@ import renderXoItem, { renderXoItemFromId } from 'render-xo-item'
 import some from 'lodash/some'
 import SortedTable from 'sorted-table'
 import toArray from 'lodash/toArray'
-import Upgrade from 'xoa-upgrade'
 import store from 'store'
 import { addSubscriptions, connectStore } from 'utils'
 import { Container } from 'grid'
@@ -187,7 +186,7 @@ export default class Acls extends Component {
   render() {
     const { typeFilters, objects, action, subjects, tags } = this.state
 
-    return process.env.XOA_PLAN > 2 ? (
+    return (
       <Container>
         <form>
           <div className='form-group'>
@@ -240,10 +239,6 @@ export default class Acls extends Component {
         </form>
         <br />
         <AclTable />
-      </Container>
-    ) : (
-      <Container>
-        <Upgrade place='dashboard' available={3} />
       </Container>
     )
   }

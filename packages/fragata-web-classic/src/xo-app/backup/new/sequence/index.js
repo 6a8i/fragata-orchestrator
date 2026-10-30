@@ -5,7 +5,6 @@ import Icon from 'icon'
 import moment from 'moment-timezone'
 import React from 'react'
 import Scheduler from 'scheduling'
-import Upgrade from 'xoa-upgrade'
 import { Card, CardBlock, CardHeader } from 'card'
 import { Container, Col, Row } from 'grid'
 import { createJob, editJob, createSchedule, editSchedule } from 'xo'
@@ -184,8 +183,4 @@ const NewSequence = decorate([
   ),
 ])
 
-export default props => (
-  <Upgrade available={3}>
-    <NewSequence {...props} />
-  </Upgrade>
-)
+export { NewSequence as default }

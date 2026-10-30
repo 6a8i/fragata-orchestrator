@@ -5,7 +5,6 @@ import forEach from 'lodash/forEach'
 import invoke from 'invoke'
 import map from 'lodash/map'
 import mapValues from 'lodash/mapValues'
-import Upgrade from 'xoa-upgrade'
 import { Container, Row, Col } from 'grid'
 import { createFilter, createGetObjectsOfType, createPicker, createSelector } from 'selectors'
 import { connectStore, formatSize } from 'utils'
@@ -101,17 +100,13 @@ export default class Visualizations extends Component {
   )
 
   render() {
-    return process.env.XOA_PLAN > 3 ? (
+    return (
       <Container>
         <Row>
           <Col>
             <XoParallelChart dataSet={this._getData()} labels={DATA_LABELS} renderers={DATA_RENDERERS} />
           </Col>
         </Row>
-      </Container>
-    ) : (
-      <Container>
-        <Upgrade place='health' available={4} />
       </Container>
     )
   }

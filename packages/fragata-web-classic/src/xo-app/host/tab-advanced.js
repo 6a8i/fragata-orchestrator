@@ -11,7 +11,6 @@ import SelectFiles from 'select-files'
 import StateButton from 'state-button'
 import TabButton from 'tab-button'
 import Tooltip from 'tooltip'
-import Upgrade from 'xoa-upgrade'
 import { addSubscriptions, compareVersions, connectStore, formatSize, getIscsiPaths } from 'utils'
 import { confirm, form } from 'modal'
 import { Container, Row, Col } from 'grid'
@@ -22,7 +21,6 @@ import { FormattedRelative, FormattedTime } from 'react-intl'
 import { Sr } from 'render-xo-item'
 import { Text } from 'editable'
 import { Toggle, Select, SizeInput } from 'form'
-import * as xoaPlans from 'xoa-plans'
 import {
   detachHost,
   disableHost,
@@ -53,8 +51,6 @@ import {
 import SortedTable from 'sorted-table'
 import { installCertificate } from './install-certificate'
 
-const ALLOW_INSTALL_SUPP_PACK = process.env.XOA_PLAN > 1
-const ALLOW_SMART_REBOOT = xoaPlans.CURRENT.value >= xoaPlans.PREMIUM.value
 const PUSBS_COLUMNS = [
   {
     name: _('vendorId'),
@@ -178,9 +174,8 @@ const downloadLogs = async uuid => {
 
 const forceReboot = host => restartHost(host, true)
 
-const smartReboot = ALLOW_SMART_REBOOT
-  ? host => restartHost(host, false, true, false, false) // don't force, suspend resident VMs, don't bypass blocked suspend, don't bypass current VM check
-  : () => {}
+// don't force, suspend resident VMs, don't bypass blocked suspend, don't bypass current VM check
+const smartReboot = host => restartHost(host, false, true, false, false)
 
 const formatPack = ({ name, author, description, version }, key) => (
   <tr key={key}>
@@ -457,12 +452,11 @@ export default class extends Component {
               <TabButton
                 key='smart-reboot'
                 btnStyle='warning'
-                disabled={!ALLOW_SMART_REBOOT}
                 handler={smartReboot}
                 handlerParam={host}
                 icon='freeze'
                 labelId='smartRebootHostLabel'
-                tooltip={ALLOW_SMART_REBOOT ? _('smartRebootHostTooltip') : _('availableXoaPremium')}
+                tooltip={_('smartRebootHostTooltip')}
               />,
               <TabButton
                 key='force-reboot'
@@ -749,22 +743,14 @@ export default class extends Component {
             <table className='table'>
               <tbody>
                 {map(this._getPacks(), formatPack)}
-                {ALLOW_INSTALL_SUPP_PACK && (
-                  <tr>
-                    <th>{_('supplementalPackNew')}</th>
-                    <td>
-                      <SelectFiles type='file' onChange={file => installSupplementalPack(host, file)} />
-                    </td>
-                  </tr>
-                )}
+                <tr>
+                  <th>{_('supplementalPackNew')}</th>
+                  <td>
+                    <SelectFiles type='file' onChange={file => installSupplementalPack(host, file)} />
+                  </td>
+                </tr>
               </tbody>
             </table>
-            {!ALLOW_INSTALL_SUPP_PACK && [
-              <h3>{_('supplementalPackNew')}</h3>,
-              <Container>
-                <Upgrade place='supplementalPacks' available={2} />
-              </Container>,
-            ]}
             {host.certificates !== undefined && (
               <div>
                 <h3>

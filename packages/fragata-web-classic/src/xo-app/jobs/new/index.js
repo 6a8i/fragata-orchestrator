@@ -10,7 +10,6 @@ import React from 'react'
 import Select from 'form/select'
 import SortedTable from 'sorted-table'
 import Tooltip from 'tooltip'
-import Upgrade from 'xoa-upgrade'
 import { addSubscriptions } from 'utils'
 import { createSelector } from 'selectors'
 import { error } from 'notification'
@@ -485,18 +484,12 @@ export default class Jobs extends Component {
                   })}
                 </p>
               )}
-              {process.env.XOA_PLAN > 3 ? (
-                <span>
-                  <ActionButton form='newJobForm' handler={this._handleSubmit} icon='save' btnStyle='primary'>
-                    {_('saveResourceSet')}
-                  </ActionButton>{' '}
-                  <Button onClick={this._reset}>{_('resetResourceSet')}</Button>
-                </span>
-              ) : (
-                <span>
-                  <Upgrade place='health' available={4} />
-                </span>
-              )}
+              <span>
+                <ActionButton form='newJobForm' handler={this._handleSubmit} icon='save' btnStyle='primary'>
+                  {_('saveResourceSet')}
+                </ActionButton>{' '}
+                <Button onClick={this._reset}>{_('resetResourceSet')}</Button>
+              </span>
             </fieldset>
           )}
         </form>

@@ -133,7 +133,11 @@ class XsClientId extends Component {
         <Row>
           <Col smallSize={2}>
             <strong>{_('xsClientId')}</strong>{' '}
-            <a href='https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/configuration.md#xenserver-updates' target='_blank' rel='noreferrer'>
+            <a
+              href='https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/configuration.md#xenserver-updates'
+              target='_blank'
+              rel='noreferrer'
+            >
               <Icon icon='info' />
             </a>
           </Col>
@@ -606,10 +610,8 @@ export default class User extends Component {
           </Row>
         </Container>
         <hr />
-        {(process.env.XOA_PLAN > 2 || user.preferences.otp !== undefined) && [
-          <Otp user={user} key='otp' />,
-          <hr key='hr' />,
-        ]}
+        <Otp user={user} />
+        <hr />
         <XsClientId user={user} />
         <hr />
         <SshKeys />

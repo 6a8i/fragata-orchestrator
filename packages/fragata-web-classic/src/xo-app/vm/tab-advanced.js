@@ -65,7 +65,6 @@ import {
   XEN_VIDEORAM_VALUES,
 } from 'xo'
 import { createGetObject, createGetObjectsOfType, createSelector, isAdmin } from 'selectors'
-import { getXoaPlan, CURRENT as XOA_PLAN, ENTERPRISE, PREMIUM } from 'xoa-plans'
 import { SelectSuspendSr } from 'select-suspend-sr'
 
 import BootOrder from './boot-order'
@@ -507,16 +506,7 @@ const Acls = decorate([
       )}
       <Row>
         <Col>
-          <ActionButton
-            btnStyle='primary'
-            disabled={XOA_PLAN.value < ENTERPRISE.value}
-            handler={effects.addAcls}
-            icon='add'
-            size='small'
-            tooltip={
-              XOA_PLAN.value < ENTERPRISE.value ? _('availableXoaPlan', { plan: ENTERPRISE.name }) : _('vmAddAcls')
-            }
-          />
+          <ActionButton btnStyle='primary' handler={effects.addAcls} icon='add' size='small' tooltip={_('vmAddAcls')} />
         </Col>
       </Row>
     </Container>
@@ -805,7 +795,6 @@ export default class TabAdvanced extends Component {
       vmSecurebootReadiness,
       vusbs,
     } = this.props
-    const isWarmMigrationAvailable = getXoaPlan().value >= PREMIUM.value
     const addVtpmTooltip = this._getDisabledAddVtpmReason()
     const deleteVtpmTooltip = this._getDisabledDeleteVtpmReason()
     const host = this.props.vmHosts[vm.$container]
@@ -859,12 +848,10 @@ export default class TabAdvanced extends Component {
                 />
                 <TabButton
                   btnStyle='warning'
-                  disabled={!isWarmMigrationAvailable}
                   handler={vmWarmMigration}
                   handlerParam={vm}
                   icon='vm-warm-migration'
                   labelId='vmWarmMigration'
-                  tooltip={isWarmMigrationAvailable ? undefined : _('availableXoaPremium')}
                 />
               </span>
             )}

@@ -14,10 +14,6 @@ const LIVERELOAD_PORT = 26242
 const PRODUCTION = process.env.NODE_ENV === 'production'
 const DEVELOPMENT = !PRODUCTION
 
-if (!process.env.XOA_PLAN) {
-  process.env.XOA_PLAN = '5' // Open Source
-}
-
 // ===================================================================
 
 const gulp = require('gulp')

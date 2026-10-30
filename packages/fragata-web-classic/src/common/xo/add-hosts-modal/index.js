@@ -39,11 +39,6 @@ import { SelectHost } from 'select-objects'
 )
 export default class AddHostsModal extends BaseComponent {
   get value() {
-    const { nHostsMissingPatches, nPoolMissingPatches } = this.state
-    if (process.env.XOA_PLAN < 2 && (nHostsMissingPatches > 0 || nPoolMissingPatches > 0)) {
-      return {}
-    }
-
     return { hosts: this.state.hosts }
   }
 
@@ -76,57 +71,41 @@ export default class AddHostsModal extends BaseComponent {
 
   render() {
     const { hosts, nHostsMissingPatches, nPoolMissingPatches } = this.state
-    const canMulti = +process.env.XOA_PLAN > 3
     return (
       <div>
         <SingleLineRow>
           <Col size={6}>{_('hosts')}</Col>
           <Col size={6}>
-            <SelectHost
-              multi={canMulti}
-              onChange={
-                canMulti ? this._onChangeHosts : host => this._onChangeHosts(host !== null ? [host] : undefined)
-              }
-              predicate={this._getHostPredicate()}
-              value={canMulti ? hosts : hosts !== undefined ? hosts[0] : undefined}
-            />
+            <SelectHost multi onChange={this._onChangeHosts} predicate={this._getHostPredicate()} value={hosts} />
           </Col>
         </SingleLineRow>
         <br />
         {(nHostsMissingPatches > 0 || nPoolMissingPatches > 0) && (
           <div>
-            {process.env.XOA_PLAN > 1 ? (
-              <div>
-                {nPoolMissingPatches > 0 && (
-                  <SingleLineRow>
-                    <Col>
-                      <span className='text-danger'>
-                        <Icon icon='error' />{' '}
-                        {_('missingPatchesPool', {
-                          nMissingPatches: nPoolMissingPatches,
-                        })}
-                      </span>
-                    </Col>
-                  </SingleLineRow>
-                )}
-                {nHostsMissingPatches > 0 && (
-                  <SingleLineRow>
-                    <Col>
-                      <span className='text-danger'>
-                        <Icon icon='error' />{' '}
-                        {_('missingPatchesHost', {
-                          nHosts: hosts.length,
-                          nMissingPatches: nHostsMissingPatches,
-                        })}
-                      </span>
-                    </Col>
-                  </SingleLineRow>
-                )}
-              </div>
-            ) : (
-              _('patchUpdateNoInstall', {
-                nHosts: hosts.length,
-              })
+            {nPoolMissingPatches > 0 && (
+              <SingleLineRow>
+                <Col>
+                  <span className='text-danger'>
+                    <Icon icon='error' />{' '}
+                    {_('missingPatchesPool', {
+                      nMissingPatches: nPoolMissingPatches,
+                    })}
+                  </span>
+                </Col>
+              </SingleLineRow>
+            )}
+            {nHostsMissingPatches > 0 && (
+              <SingleLineRow>
+                <Col>
+                  <span className='text-danger'>
+                    <Icon icon='error' />{' '}
+                    {_('missingPatchesHost', {
+                      nHosts: hosts.length,
+                      nMissingPatches: nHostsMissingPatches,
+                    })}
+                  </span>
+                </Col>
+              </SingleLineRow>
             )}
           </div>
         )}

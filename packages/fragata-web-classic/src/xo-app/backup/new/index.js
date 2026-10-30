@@ -8,7 +8,6 @@ import Link from 'link'
 import moment from 'moment-timezone'
 import React from 'react'
 import Tooltip from 'tooltip'
-import Upgrade from 'xoa-upgrade'
 import UserError from 'user-error'
 import ZstdChecker from 'zstd-checker'
 import { addSubscriptions, connectStore, generateRandomId, resolveId, resolveIds } from 'utils'
@@ -128,9 +127,11 @@ export const ReportRecipients = decorate([
   ),
 ])
 
-const SR_BACKEND_FAILURE_LINK = 'https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/backups-and-dr/backup_troubleshooting.md#sr_backend_failure_44'
+const SR_BACKEND_FAILURE_LINK =
+  'https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/backups-and-dr/backup_troubleshooting.md#sr_backend_failure_44'
 
-export const BACKUP_NG_DOC_LINK = 'https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/backups-and-dr/backup_howto.md'
+export const BACKUP_NG_DOC_LINK =
+  'https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/backups-and-dr/backup_howto.md'
 
 const ThinProvisionedTip = ({ label }) => (
   <Tooltip content={_(label)}>
@@ -225,11 +226,6 @@ export const DeleteOldBackupsFirst = ({ handler, handlerParam, value }) => (
 )
 
 const New = decorate([
-  New => props => (
-    <Upgrade place='newBackup' required={2}>
-      <New {...props} />
-    </Upgrade>
-  ),
   connectStore(() => ({
     hostsById: createGetObjectsOfType('host'),
     poolsById: createGetObjectsOfType('pool'),
@@ -921,7 +917,7 @@ const New = decorate([
                     <ActionButton
                       active={state.deltaMode}
                       data-mode='deltaMode'
-                      disabled={state.isFull || (!state.deltaMode && process.env.XOA_PLAN < 3)}
+                      disabled={state.isFull}
                       handler={effects.toggleMode}
                       icon='delta-backup'
                     >
@@ -930,31 +926,21 @@ const New = decorate([
                     <ActionButton
                       active={state.drMode}
                       data-mode='drMode'
-                      disabled={state.isDelta || (!state.drMode && process.env.XOA_PLAN < 3)}
+                      disabled={state.isDelta}
                       handler={effects.toggleMode}
                       icon='disaster-recovery'
                     >
                       {_('disasterRecovery')}
                     </ActionButton>{' '}
-                    {process.env.XOA_PLAN < 3 && (
-                      <Tooltip content={_('dbAndDrRequireEnterprisePlan')}>
-                        <Icon icon='info' />
-                      </Tooltip>
-                    )}{' '}
                     <ActionButton
                       active={state.crMode}
                       data-mode='crMode'
-                      disabled={state.isFull || (!state.crMode && process.env.XOA_PLAN < 4)}
+                      disabled={state.isFull}
                       handler={effects.toggleMode}
                       icon='continuous-replication'
                     >
                       {_('continuousReplication')}
                     </ActionButton>{' '}
-                    {process.env.XOA_PLAN < 4 && (
-                      <Tooltip content={_('crRequiresPremiumPlan')}>
-                        <Icon icon='info' />
-                      </Tooltip>
-                    )}
                     <br />
                     <a className='text-muted' href={BACKUP_NG_DOC_LINK} rel='noopener noreferrer' target='_blank'>
                       <Icon icon='info' /> {_('backupNgLinkToDocumentationMessage')}
@@ -1368,13 +1354,11 @@ const New = decorate([
                   )}
 
                   {state.smartMode ? (
-                    <Upgrade place='newBackup' required={3}>
-                      <SmartBackup
-                        deltaMode={state.isDelta}
-                        onChange={effects.onVmsPatternChange}
-                        pattern={state.vmsPattern}
-                      />
-                    </Upgrade>
+                    <SmartBackup
+                      deltaMode={state.isDelta}
+                      onChange={effects.onVmsPatternChange}
+                      pattern={state.vmsPattern}
+                    />
                   ) : (
                     <div>
                       <FormFeedback

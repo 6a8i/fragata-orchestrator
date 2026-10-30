@@ -6,7 +6,6 @@ import defined from '@fragata/defined'
 import Icon from 'icon'
 import Link from 'link'
 import React from 'react'
-import Upgrade from 'xoa-upgrade'
 import { Card, CardBlock, CardHeader } from 'card'
 import { Container, Col, Row } from 'grid'
 import { generateId, linkState } from 'reaclette-utils'
@@ -74,11 +73,6 @@ const getInitialState = () => ({
 })
 
 export default decorate([
-  New => props => (
-    <Upgrade place='newMetadataBackup' required={3}>
-      <New {...props} />
-    </Upgrade>
-  ),
   addSubscriptions({
     remotes: subscribeRemotes,
   }),

@@ -24,7 +24,6 @@ import ResourceSetQuotas from 'resource-set-quotas'
 import size from 'lodash/size'
 import some from 'lodash/some'
 import Tags from 'tags'
-import Upgrade from 'xoa-upgrade'
 import { Container, Row, Col } from 'grid'
 import { injectIntl } from 'react-intl'
 import { SizeInput } from 'form'
@@ -694,44 +693,38 @@ export default class Self extends Component {
 
     return (
       <Page formatTitle header={HEADER} title='selfServicePage'>
-        {process.env.XOA_PLAN > 3 ? (
-          <div>
-            <div className='mb-1'>
-              <ActionButton
-                btnStyle='primary'
-                className='mr-1'
-                handler={this.toggleState('showNewResourceSetForm')}
-                icon='add'
-              >
-                {_('resourceSetNew')}
-              </ActionButton>
-              <ActionButton handler={recomputeResourceSetsLimits} icon='refresh'>
-                {_('recomputeResourceSets')}
-              </ActionButton>
-            </div>
-            {this.state.showNewResourceSetForm && [
-              <Edit
-                key={0}
-                onCancel={this.toggleState('showNewResourceSetForm')}
-                onSave={this.toggleState('showNewResourceSetForm')}
-              />,
-              <hr key={1} />,
-            ]}
-            {isEmpty(resourceSets)
-              ? _('noResourceSets')
-              : map(resourceSets, resourceSet => (
-                  <ResourceSet
-                    autoExpand={this.props.location.query.resourceSet === resourceSet.id}
-                    key={resourceSet.id}
-                    resourceSet={resourceSet}
-                  />
-                ))}
+        <div>
+          <div className='mb-1'>
+            <ActionButton
+              btnStyle='primary'
+              className='mr-1'
+              handler={this.toggleState('showNewResourceSetForm')}
+              icon='add'
+            >
+              {_('resourceSetNew')}
+            </ActionButton>
+            <ActionButton handler={recomputeResourceSetsLimits} icon='refresh'>
+              {_('recomputeResourceSets')}
+            </ActionButton>
           </div>
-        ) : (
-          <Container>
-            <Upgrade place='selfDashboard' available={4} />
-          </Container>
-        )}
+          {this.state.showNewResourceSetForm && [
+            <Edit
+              key={0}
+              onCancel={this.toggleState('showNewResourceSetForm')}
+              onSave={this.toggleState('showNewResourceSetForm')}
+            />,
+            <hr key={1} />,
+          ]}
+          {isEmpty(resourceSets)
+            ? _('noResourceSets')
+            : map(resourceSets, resourceSet => (
+                <ResourceSet
+                  autoExpand={this.props.location.query.resourceSet === resourceSet.id}
+                  key={resourceSet.id}
+                  resourceSet={resourceSet}
+                />
+              ))}
+        </div>
       </Page>
     )
   }

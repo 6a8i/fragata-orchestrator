@@ -136,8 +136,8 @@ const COLUMNS_VM_PV = [
   },
   {
     name: _('vdiImageFormat'),
-    itemRenderer:  ({ vdi }) => defined(vdi.image_format, 'VHD'),
-    sortCriteria:  ({ vdi }) => vdi.image_format,
+    itemRenderer: ({ vdi }) => defined(vdi.image_format, 'VHD'),
+    sortCriteria: ({ vdi }) => vdi.image_format,
   },
   {
     itemRenderer: ({ vdi }) => <Toggle value={vdi.cbt_enabled} onChange={cbt => setCbt(vdi, cbt)} />,
@@ -230,21 +230,17 @@ const COLUMNS_VDI_TASKS = [
 ]
 
 const INDIVIDUAL_ACTIONS = [
-  ...(process.env.XOA_PLAN > 1
-    ? [
-        {
-          handler: vbd => exportVdi(vbd.vdi),
-          icon: 'export',
-          label: _('exportVdi'),
-        },
-        {
-          disabled: vbd => vbd.attached,
-          handler: vbd => importVdi(vbd.vdi),
-          icon: 'import',
-          label: _('importVdi'),
-        },
-      ]
-    : []),
+  {
+    handler: vbd => exportVdi(vbd.vdi),
+    icon: 'export',
+    label: _('exportVdi'),
+  },
+  {
+    disabled: vbd => vbd.attached,
+    handler: vbd => importVdi(vbd.vdi),
+    icon: 'import',
+    label: _('importVdi'),
+  },
   {
     handler: vbd => copy(vbd.vdi.uuid),
     icon: 'clipboard',

@@ -3,7 +3,6 @@ import ActionButton from 'action-button'
 import Component from 'base-component'
 import React from 'react'
 import SortedTable from 'sorted-table'
-import Upgrade from 'xoa-upgrade'
 import { addSubscriptions, noop, NumericDate } from 'utils'
 import { confirm } from 'modal'
 import { error } from 'notification'
@@ -186,22 +185,20 @@ export default class Restore extends Component {
 
   render() {
     return (
-      <Upgrade place='restoreBackup' available={4}>
-        <div>
-          <div className='mb-1'>
-            <ActionButton btnStyle='primary' handler={this._refreshBackupList} icon='refresh'>
-              {_('refreshBackupList')}
-            </ActionButton>
-          </div>
-          <SortedTable
-            actions={this._actions}
-            collection={this.state.backupDataByVm}
-            columns={BACKUPS_COLUMNS}
-            individualActions={this._individualActions}
-            stateUrlParam='s'
-          />
+      <div>
+        <div className='mb-1'>
+          <ActionButton btnStyle='primary' handler={this._refreshBackupList} icon='refresh'>
+            {_('refreshBackupList')}
+          </ActionButton>
         </div>
-      </Upgrade>
+        <SortedTable
+          actions={this._actions}
+          collection={this.state.backupDataByVm}
+          columns={BACKUPS_COLUMNS}
+          individualActions={this._individualActions}
+          stateUrlParam='s'
+        />
+      </div>
     )
   }
 }

@@ -144,30 +144,6 @@ export { default as Debug } from './debug'
 
 // -------------------------------------------------------------------
 
-// Returns the current XOA Plan or the Plan name if number given
-/**
- * @deprecated
- *
- * Use `getXoaPlan` from `xoa-plans` instead
- */
-export const getXoaPlan = plan => {
-  switch (plan || +process.env.XOA_PLAN) {
-    case 1:
-      return 'Free'
-    case 2:
-      return 'Starter'
-    case 3:
-      return 'Enterprise'
-    case 4:
-      return 'Premium'
-    case 5:
-      return 'Community'
-  }
-  return 'Unknown'
-}
-
-// -------------------------------------------------------------------
-
 export const mapPlus = (collection, cb) => {
   const result = []
   const push = ::result.push
@@ -665,7 +641,6 @@ export const adminOnly = Component =>
   connectStore({
     _isAdmin: isAdmin,
   })(({ _isAdmin, ...props }) => (_isAdmin ? <Component {...props} /> : <NotFound />))
-
 
 // ===================================================================
 

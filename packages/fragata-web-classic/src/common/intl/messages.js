@@ -159,8 +159,6 @@ const messages = {
   addColor: 'Add color',
   addCustomField: 'Add custom field',
   advancedTagCreation: 'Advanced tag creation',
-  availableXoaPremium: 'Not available in this build',
-  availableXoaPlan: 'Not available in this build',
   detach: 'Detach',
   editCustomField: 'Edit custom field',
   deleteCustomField: 'Delete custom field',
@@ -237,7 +235,6 @@ const messages = {
   settingsCloudConfigsPage: 'Cloud configs',
   settingsIpsPage: 'IPs',
   aboutPage: 'About',
-  aboutXoaPlan: 'About XO {xoaPlan}',
   aboutFragata: 'About Fragata',
   newMenu: 'New',
   taskMenu: 'Tasks',
@@ -277,7 +274,6 @@ const messages = {
   tryXo6: 'Try Fragata',
   // ----- Support -----
   noSupport: 'No support',
-  freeUpgrade: 'Free upgrade!',
   checkXoa: 'Check XOA',
   xoaCheck: 'XOA check',
   closeTunnel: 'Close tunnel',
@@ -607,8 +603,6 @@ const messages = {
   fullBackupInterval: 'Full backup interval',
   forceFullBackup: 'Force full backup',
   timeoutUnit: 'In hours',
-  dbAndDrRequireEnterprisePlan: 'Delta Backup and DR require an Enterprise plan',
-  crRequiresPremiumPlan: 'CR requires a Premium plan',
   smartBackupModeTitle: 'Smart mode',
   backupTargetRemotes: 'Target remotes (for export)',
   backupTargetSrs: 'Target SRs (for replication)',
@@ -895,7 +889,6 @@ const messages = {
   customizeFilters: 'Customize filters',
 
   // ----- VM actions ------
-  cantInterPoolCopy: 'Interpool copy requires at least Enterprise plan',
   copyExportedUrl: 'Copy the export URL of the VM',
   downloadVm: 'Download VM',
   startVmLabel: 'Start',
@@ -1067,8 +1060,6 @@ const messages = {
     'The pool needs to install {nMissingPatches, number} patch{nMissingPatches, plural, one {} other {es}}. This operation may take a while.',
   missingPatchesHost:
     'The selected host{nHosts, plural, one {} other {s}} need{nHosts, plural, one {s} other {}} to install {nMissingPatches, number} patch{nMissingPatches, plural, one {} other {es}}. This operation may take a while.',
-  patchUpdateNoInstall:
-    'The selected host{nHosts, plural, one {} other {s}} cannot be added to the pool because the patches are not homogeneous.',
   addHostsErrorTitle: 'Adding host{nHosts, plural, one {} other {s}} failed',
   addHostNotHomogeneousErrorMessage: 'Host patches could not be homogenized.',
   disconnectServer: 'Disconnect',
@@ -2075,7 +2066,6 @@ const messages = {
   healthCheck: 'Health check',
   healthCheckChooseSr: 'Choose SR used for VMs restoration',
   healthCheckTagsInfo: 'If no tags are specified, all VMs in the backup will be tested.',
-  healthCheckAvailableEnterpriseUser: 'Only available to enterprise users',
   remoteNotCompatibleWithSelectedProxy:
     "The backup will not be run on this remote because it's not compatible with the selected proxy",
   remoteLoadBackupsFailure: 'Loading backups failed',
@@ -2410,13 +2400,7 @@ const messages = {
   xoFromSourceNotUpToDate:
     'You are not up to date with main. {nBehind} commit{nBehind, plural, one {} other {s}} behind {nAhead, plural, =0 {} other {and {nAhead, number} commit{nAhead, plural, one {} other {s}} ahead}}',
 
-  // ----- Upgrade Panel -----
-  upgradeNeeded: 'Upgrade needed',
-  upgradeNow: 'Upgrade now!',
   or: 'Or',
-  tryIt: 'Try it for free!',
-  availableIn: 'This feature is available starting from {plan} Edition',
-  notAvailable: 'This feature is not available in your version, contact your administrator to know more.',
 
   // ----- Updates View -----
   registration: 'Registration',
@@ -2913,9 +2897,6 @@ const messages = {
   proxyMultipleLicenses: 'This proxy has more than 1 license!',
   proxyUnknownVm: 'Unknown proxy VM.',
   xostorProSupportEnabled: 'XOSTOR Pro Support enabled',
-
-  // ----- plan -----
-  onlyAvailableToEnterprise: 'Only available to Enterprise users',
 
   // ----- proxies -----
   forgetProxyApplianceTitle: 'Forget prox{n, plural, one {y} other {ies}}',

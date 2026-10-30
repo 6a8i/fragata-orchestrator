@@ -33,10 +33,6 @@ $ npm run dev
 Set to _production_ it disables many checks which result in increased
 performance.
 
-#### `XOA_PLAN`
-
-Inherited from upstream. Fragata has no paid plans: the build always sets it to `5`, which enables every feature. The variable only remains because many components still read it; it goes away together with the plan gating.
-
 ## How to report a bug?
 
 Please consider using the [bugtracker](https://github.com/6a8i/fragata-orchestrator/issues).

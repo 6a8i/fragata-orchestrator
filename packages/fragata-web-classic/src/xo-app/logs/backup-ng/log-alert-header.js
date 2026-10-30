@@ -1,5 +1,4 @@
 import _ from 'intl'
-import * as xoaPlans from 'xoa-plans'
 import ActionButton from 'action-button'
 import addSubscriptions from 'add-subscriptions'
 import Button from 'button'
@@ -10,8 +9,8 @@ import Icon from 'icon'
 import React from 'react'
 import ReportBugButton from 'report-bug-button'
 import Tooltip from 'tooltip'
-import { createBlobFromString, downloadLog, safeDateFormat } from 'utils'
-import { get, ifDef } from '@fragata/defined'
+import { downloadLog } from 'utils'
+import { get } from '@fragata/defined'
 import { injectState, provideState } from 'reaclette'
 import keyBy from 'lodash/keyBy.js'
 import { runBackupNgJob, subscribeBackupNgJobs, subscribeBackupNgLogs, subscribeSchedules } from 'xo'
@@ -62,38 +61,11 @@ export default decorate([
     computed: {
       formattedLog: (_, { log }) => JSON.stringify(log, null, 2),
       jobFailed: (_, { log = {} }) => log.status !== 'success' && log.status !== 'pending',
-      reportBugProps: ({ formattedLog }, { log = {}, schedules = {}, jobs = {} }) => {
-        const props = {
-          size: 'small',
-          title: 'Backup job failed',
-        }
-        if (xoaPlans.CURRENT === xoaPlans.SOURCES) {
-          props.message = `\`\`\`json\n${formattedLog}\n\`\`\``
-        } else {
-          const formattedDate = ifDef(log.start, safeDateFormat)
-          props.files = [
-            {
-              content: createBlobFromString(formattedLog),
-              name: `${formattedDate} - log.json`,
-            },
-          ]
-          const job = jobs[log.jobId]
-          if (job !== undefined) {
-            props.files.push({
-              content: createBlobFromString(JSON.stringify(job, null, 2)),
-              name: 'job.json',
-            })
-          }
-          const schedule = schedules[log.scheduleId]
-          if (schedule !== undefined) {
-            props.files.push({
-              content: createBlobFromString(JSON.stringify(schedule, null, 2)),
-              name: 'schedule.json',
-            })
-          }
-        }
-        return props
-      },
+      reportBugProps: ({ formattedLog }) => ({
+        message: `\`\`\`json\n${formattedLog}\n\`\`\``,
+        size: 'small',
+        title: 'Backup job failed',
+      }),
     },
   }),
   injectState,

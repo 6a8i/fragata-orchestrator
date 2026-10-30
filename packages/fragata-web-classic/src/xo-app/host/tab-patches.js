@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import SortedTable from 'sorted-table'
 import TabButton from 'tab-button'
-import Upgrade from 'xoa-upgrade'
 import { alert, chooseAction } from 'modal'
 import { connectStore, formatSize } from 'utils'
 import { Container, Row, Col } from 'grid'
@@ -267,13 +266,6 @@ export default class TabPatches extends Component {
   }
 
   render() {
-    if (process.env.XOA_PLAN < 2) {
-      return (
-        <Container>
-          <Upgrade place='hostPatches' available={2} />
-        </Container>
-      )
-    }
     if (this.props.missingPatches === null) {
       return <em>{_('updatePluginNotInstalled')}</em>
     }

@@ -108,11 +108,13 @@ const COLUMNS = sr => [
     sortCriteria: vdi => vdi.size,
   },
   ...(!isSrIso(sr)
-  ? [{
-      name: _('vdiImageFormat'),
-      itemRenderer: (vdi) => defined(vdi.image_format, 'VHD'),
-      sortCriteria: vdi => vdi.image_format,
-    }]
+    ? [
+        {
+          name: _('vdiImageFormat'),
+          itemRenderer: vdi => defined(vdi.image_format, 'VHD'),
+          sortCriteria: vdi => vdi.image_format,
+        },
+      ]
     : []),
   {
     name: _('vbdCbt'),
@@ -231,22 +233,18 @@ const GROUPED_ACTIONS = [
 ]
 
 const INDIVIDUAL_ACTIONS = [
-  ...(process.env.XOA_PLAN > 1
-    ? [
-        {
-          disabled: ({ id, type }, { isVdiAttached }) => isVdiAttached[id] || type === 'VDI-unmanaged',
-          handler: importVdi,
-          icon: 'import',
-          label: _('importVdi'),
-        },
-        {
-          disabled: ({ type }) => type === 'VDI-unmanaged',
-          handler: exportVdi,
-          icon: 'export',
-          label: _('exportVdi'),
-        },
-      ]
-    : []),
+  {
+    disabled: ({ id, type }, { isVdiAttached }) => isVdiAttached[id] || type === 'VDI-unmanaged',
+    handler: importVdi,
+    icon: 'import',
+    label: _('importVdi'),
+  },
+  {
+    disabled: ({ type }) => type === 'VDI-unmanaged',
+    handler: exportVdi,
+    icon: 'export',
+    label: _('exportVdi'),
+  },
   {
     handler: vdi => copy(vdi.uuid),
     icon: 'clipboard',

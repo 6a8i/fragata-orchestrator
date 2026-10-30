@@ -406,7 +406,7 @@ class NoObjectsWithoutServers extends Component {
       <CenterPanel>
         <Card shadow>
           <CardHeader>{_('homeNoVms')}</CardHeader>
-          {(isAdmin || (isPoolAdmin && process.env.XOA_PLAN > 3) || !noResourceSets) && (
+          {(isAdmin || isPoolAdmin || !noResourceSets) && (
             <CardBlock>
               <Row>
                 <Col>
@@ -1042,7 +1042,7 @@ export default class Home extends Component {
               </span>
             </div>
           </Col>
-          {(isAdmin || (isPoolAdmin && process.env.XOA_PLAN > 3) || !noResourceSets) && (
+          {(isAdmin || isPoolAdmin || !noResourceSets) && (
             <Col mediumSize={3} className='text-xs-right'>
               <Link className='btn btn-success' to='/vms/new'>
                 <Icon icon='vm-new' /> {_('homeNewVm')}
@@ -1085,7 +1085,12 @@ export default class Home extends Component {
                       const disabled = typeof action.disabled === 'function' ? action.disabled(params) : action.disabled
                       return (
                         <Tooltip content={tooltip} key={key}>
-                          <ActionButton {...action} tooltip={tooltip} disabled={disabled} handlerParam={this._getSelectedItemsIds()} />
+                          <ActionButton
+                            {...action}
+                            tooltip={tooltip}
+                            disabled={disabled}
+                            handlerParam={this._getSelectedItemsIds()}
+                          />
                         </Tooltip>
                       )
                     })}

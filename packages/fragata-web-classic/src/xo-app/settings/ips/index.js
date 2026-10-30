@@ -6,7 +6,6 @@ import Icon from 'icon'
 import React from 'react'
 import SingleLineRow from 'single-line-row'
 import SortedTable from 'sorted-table'
-import Upgrade from 'xoa-upgrade'
 import { addSubscriptions, connectStore } from 'utils'
 import { Container, Row, Col } from 'grid'
 import { createGetObjectsOfType, createSelector } from 'selectors'
@@ -279,14 +278,6 @@ export default class Ips extends BaseComponent {
   ]
 
   render() {
-    if (process.env.XOA_PLAN < 4) {
-      return (
-        <Container>
-          <Upgrade place='health' available={4} />
-        </Container>
-      )
-    }
-
     const { ipPools, intl } = this.props
     const { creatingIpPool, ips, name, networks } = this.state
 
