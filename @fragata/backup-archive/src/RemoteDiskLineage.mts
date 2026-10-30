@@ -20,7 +20,20 @@ import { Task } from '@fragata/task'
 import { limitConcurrency } from 'limit-concurrency-decorator'
 import assert from 'node:assert/strict'
 
-const defaultMergeLimiter = limitConcurrency(1)
+// How many disks are opened in parallel while reading chain headers
+const DEFAULT_OPEN_CONCURRENCY = 8
+
+// One merge limiter per remote: merges on different remotes do not compete for
+// the same resources, so a single process-wide limiter only wasted time.
+const mergeLimiterByHandler = new WeakMap<RemoteHandlerAbstract, ReturnType<typeof limitConcurrency>>()
+function getMergeLimiter(handler: RemoteHandlerAbstract, concurrency: number) {
+  let limiter = mergeLimiterByHandler.get(handler)
+  if (limiter === undefined) {
+    limiter = limitConcurrency(concurrency)
+    mergeLimiterByHandler.set(handler, limiter)
+  }
+  return limiter
+}
 const MERGE_STATE_FILE_RE = /^\.(.+)\.merge\.json$/
 /**
  * Tracks the disk chain for a single VDI across all backup snapshots.
@@ -94,72 +107,100 @@ export class RemoteDiskLineage {
       }
     }
 
-    const uuidToPath = new Map<string, string>()
-    for (const diskPath of this.#diskPaths) {
-      let disk: RemoteDisk | undefined
-      try {
-        if (mergeParentPaths.has(diskPath)) {
-          disk = await openDisk({ handler: this.#handler, path: diskPath, force: true })
-        } else {
-          disk = await openDisk({ handler: this.#handler, path: diskPath })
-        }
-      } catch (error) {
-        if (error?.code === 'NOT_SUPPORTED' && this.#opts.merge) {
-          throw error
-        }
-        this.#opts.logWarn('failed to open disk', { path: diskPath, error })
-        // Broken disks will be removed by the clean phase
-        // because they are marked as NOT active
-        this.#brokenDiskPaths.add(diskPath)
-        continue
-      }
-      try {
-        const uuid = disk.getUuid()
-        // Detect Disks with the same UUIDs
-        // Due to a bug introduced in a1bcd35e2
-        const existingPath = uuidToPath.get(uuid)
-        if (existingPath !== undefined) {
-          this.#opts.logWarn('duplicate disk UUID detected', { uuid, path1: existingPath, path2: diskPath })
-          let existingDisk: RemoteDisk | undefined
-          try {
-            existingDisk = await openDisk({ handler: this.#handler, path: existingPath })
-            if (existingDisk.containsAllDataOf(disk)) {
-              this.#opts.logWarn('should drop duplicate disk, existing is superset', { dropped: diskPath })
-              continue
-            } else if (disk.containsAllDataOf(existingDisk)) {
-              this.#opts.logWarn('should drop old duplicate disk, new is superset', { dropped: existingPath })
-            } else {
-              this.#opts.logWarn('duplicate disks have different content, should first-seen', { dropped: diskPath })
-              continue
-            }
-          } catch (error) {
-            this.#opts.logWarn('failed to open existing duplicate disk, dropping it', { path: existingPath, error })
-            this.#unregisterDisk(existingPath)
-          } finally {
-            await existingDisk?.close()
-          }
-        }
-        uuidToPath.set(uuid, diskPath)
-
-        if (disk.isDifferencing()) {
-          const parentPath = disk.getParentPath()
-          this.#parentOf.set(diskPath, parentPath)
-          if (this.#childOf.has(parentPath)) {
-            const error = new Error('this script does not support multiple children', {
-              cause: {
-                parent: parentPath,
-                child1: this.#childOf.get(parentPath),
-                child2: diskPath,
-              },
-            })
+    // Phase 1: read every disk header in parallel, without its block table.
+    // Only the UUID and the parent link are needed to build the chain; reading
+    // the BAT of each disk (and doing it sequentially) dominated the cost of
+    // cleanVm on remotes with high latency such as S3.
+    type DiskInfo = { uuid: string; parentPath?: string }
+    const infos = new Map<string, DiskInfo>()
+    await asyncEach(
+      Array.from(this.#diskPaths),
+      async diskPath => {
+        let disk: RemoteDisk | undefined
+        try {
+          disk = await openDisk({
+            handler: this.#handler,
+            path: diskPath,
+            force: mergeParentPaths.has(diskPath),
+            ignoreBlockIndexes: true,
+            strict: true,
+          })
+        } catch (error) {
+          if (error?.code === 'NOT_SUPPORTED' && this.#opts.merge) {
             throw error
           }
-          this.#childOf.set(parentPath, diskPath)
+          this.#opts.logWarn('failed to open disk', { path: diskPath, error })
+          // Broken disks will be removed by the clean phase
+          // because they are marked as NOT active
+          this.#brokenDiskPaths.add(diskPath)
+          return
         }
-      } catch (error) {
-        this.#opts.logWarn('failed to read disk parent info', { path: diskPath, error })
-      } finally {
-        await disk.close()
+        try {
+          infos.set(diskPath, {
+            uuid: disk.getUuid(),
+            parentPath: disk.isDifferencing() ? disk.getParentPath() : undefined,
+          })
+        } catch (error) {
+          this.#opts.logWarn('failed to read disk parent info', { path: diskPath, error })
+        } finally {
+          await disk.close()
+        }
+      },
+      { concurrency: DEFAULT_OPEN_CONCURRENCY }
+    )
+
+    // Phase 2: build the chain in a deterministic order (the listing order).
+    const uuidToPath = new Map<string, string>()
+    for (const diskPath of this.#diskPaths) {
+      const info = infos.get(diskPath)
+      if (info === undefined) {
+        continue
+      }
+      const { uuid, parentPath } = info
+
+      // Detect Disks with the same UUIDs
+      // Due to a bug introduced in a1bcd35e2
+      const existingPath = uuidToPath.get(uuid)
+      if (existingPath !== undefined) {
+        this.#opts.logWarn('duplicate disk UUID detected', { uuid, path1: existingPath, path2: diskPath })
+        // the rare duplicate case is the only one that needs the block tables
+        let disk: RemoteDisk | undefined
+        let existingDisk: RemoteDisk | undefined
+        try {
+          disk = await openDisk({ handler: this.#handler, path: diskPath, force: mergeParentPaths.has(diskPath) })
+          existingDisk = await openDisk({ handler: this.#handler, path: existingPath })
+          if (existingDisk.containsAllDataOf(disk)) {
+            this.#opts.logWarn('should drop duplicate disk, existing is superset', { dropped: diskPath })
+            continue
+          } else if (disk.containsAllDataOf(existingDisk)) {
+            this.#opts.logWarn('should drop old duplicate disk, new is superset', { dropped: existingPath })
+          } else {
+            this.#opts.logWarn('duplicate disks have different content, should first-seen', { dropped: diskPath })
+            continue
+          }
+        } catch (error) {
+          this.#opts.logWarn('failed to open existing duplicate disk, dropping it', { path: existingPath, error })
+          this.#unregisterDisk(existingPath)
+        } finally {
+          await existingDisk?.close()
+          await disk?.close()
+        }
+      }
+      uuidToPath.set(uuid, diskPath)
+
+      if (parentPath !== undefined) {
+        this.#parentOf.set(diskPath, parentPath)
+        if (this.#childOf.has(parentPath)) {
+          const error = new Error('this script does not support multiple children', {
+            cause: {
+              parent: parentPath,
+              child1: this.#childOf.get(parentPath),
+              child2: diskPath,
+            },
+          })
+          throw error
+        }
+        this.#childOf.set(parentPath, diskPath)
       }
     }
 
@@ -428,7 +469,7 @@ export class RemoteDiskLineage {
     // mergeTargetPath: final size of the disk everything was merged into
     const mergedSizes = new Map<string, number>()
     if (merge) {
-      const limitedMergeChain = defaultMergeLimiter(this.#mergeChain.bind(this))
+      const limitedMergeChain = getMergeLimiter(this.#handler, this.#opts.mergeConcurrency ?? DEFAULT_MERGE_CONCURRENCY)(this.#mergeChain.bind(this))
       const doMerge = async () => {
         await asyncEach(
           toMerge,
@@ -507,16 +548,20 @@ export class RemoteDiskLineage {
    */
   async #cleanOrphanDataFiles(remove: boolean): Promise<void> {
     const claimedFiles = new Set<string>()
-    for (const diskPath of this.#diskPaths) {
-      const claimed = await Disposable.use(
-        openDisposableDisk({ handler: this.#handler, path: diskPath, ignoreBlockIndexes: true }),
-        async disk => {
-          await disk.clean({ remove, logWarn: this.#opts.logWarn, logInfo: this.#opts.logInfo })
-          return disk.listAssociatedFiles(this.#vdiDir)
-        }
-      )
-      for (const f of claimed) claimedFiles.add(normalize(f))
-    }
+    await asyncEach(
+      Array.from(this.#diskPaths),
+      async diskPath => {
+        const claimed = await Disposable.use(
+          openDisposableDisk({ handler: this.#handler, path: diskPath, ignoreBlockIndexes: true }),
+          async disk => {
+            await disk.clean({ remove, logWarn: this.#opts.logWarn, logInfo: this.#opts.logInfo })
+            return disk.listAssociatedFiles(this.#vdiDir)
+          }
+        )
+        for (const f of claimed) claimedFiles.add(normalize(f))
+      },
+      { concurrency: DEFAULT_OPEN_CONCURRENCY }
+    )
 
     const dataDirs = new Set([...claimedFiles].map(p => dirname(normalize(p))).filter(p => p !== this.#vdiDir))
     for (const dataDir of dataDirs) {

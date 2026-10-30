@@ -47,16 +47,19 @@ export async function openDisposableDisk({ handler, path, force = false, ignoreB
  * @param {string} params.path
  * @param {boolean} [params.force]
  * @param {boolean} [params.ignoreBlockIndexes]
+ * @param {boolean} [params.strict] with `ignoreBlockIndexes`, still reject when the disk cannot be opened
  * @returns {Promise<RemoteDisk>}
  */
-export async function openDisk({ handler, path, force = false, ignoreBlockIndexes = false }) {
+export async function openDisk({ handler, path, force = false, ignoreBlockIndexes = false, strict = false }) {
   const disk = new RemoteVhdDisk({ handler, path })
-  if (ignoreBlockIndexes) {
+  // `strict` keeps the init failure even without block indexes: callers that
+  // only read headers still want to know the disk is broken
+  if (ignoreBlockIndexes && !strict) {
     // Best-effort init: return the disk even if init fails so that callers
     // can still use operations that work without a fully-opened VHD (e.g. unlink, checkAlias).
     await disk.init({ force, ignoreBlockIndexes }).catch(() => {})
   } else {
-    await disk.init({ force })
+    await disk.init({ force, ignoreBlockIndexes })
   }
   return disk
 }

@@ -153,7 +153,7 @@ export class VmBackupDirectory implements VmBackupInterface {
           allMergedSizes.set(diskPath, (allMergedSizes.get(diskPath) ?? 0) + size)
         }
       },
-      { concurrency: DEFAULT_MERGE_CONCURRENCY }
+      { concurrency: this.opts.mergeConcurrency ?? DEFAULT_MERGE_CONCURRENCY }
     )
 
     // Delete VDI directories not referenced by any archive
