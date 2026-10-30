@@ -10,7 +10,7 @@
           <I18nT keypath="popup-first-connection-default-interface">
             <template #documentationLink>
               <UiLink
-                href="https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/configuration.md#using-xo-5-as-the-default-interface"
+                href="https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/configuration.md#using-fragata-classic-as-the-default-interface"
                 size="medium"
               >
                 {{ t('popup-first-connection-follow-this-guide') }}

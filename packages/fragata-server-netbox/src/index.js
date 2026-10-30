@@ -275,7 +275,7 @@ class Netbox {
 
     if (this.#netboxVersion === undefined || !semver.satisfies(this.#netboxVersion, SUPPORTED_VERSION)) {
       throw new Error(
-        `Netbox version ${this.#netboxVersion ?? '<2.10'} not supported. Please check https://docs.xen-orchestra.com/advanced#supported-versions`
+        `Netbox version ${this.#netboxVersion ?? '<2.10'} not supported. Please check https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/manage-your-infrastructure/advanced.md#supported-versions`
       )
     }
   }

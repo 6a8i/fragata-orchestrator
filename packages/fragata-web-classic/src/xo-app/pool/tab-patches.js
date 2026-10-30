@@ -400,11 +400,11 @@ export default class TabPatches extends Component {
                       {_('xsCredentialsMissing', {
                         link: (
                           <a
-                            href='https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/updater.md#xenserver-updates'
+                            href='https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/configuration.md#xenserver-updates'
                             target='_blank'
                             rel='noreferrer'
                           >
-                            https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/updater.md
+                            https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/configuration.md#xenserver-updates
                           </a>
                         ),
                       })}

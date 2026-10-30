@@ -46,7 +46,7 @@ export const testSchema = {
   properties: {
     runId: {
       type: 'string',
-      description: `<a href="https://docs.xen-orchestra.com/backups#backups-execution" rel="noopener noreferrer" target="_blank">job's runId</a>`,
+      description: `<a href="https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/backups-and-dr/backup-features-and-settings.md#backups-execution" rel="noopener noreferrer" target="_blank">job's runId</a>`,
     },
   },
 
@@ -70,7 +70,7 @@ const noop = Function.prototype
 
 const UNHEALTHY_VDI_CHAIN_ERROR = 'unhealthy VDI chain'
 const UNHEALTHY_VDI_CHAIN_MESSAGE =
-  '(unhealthy VDI chain) Job canceled to protect the VDI chain. See https://docs.xen-orchestra.com/backup_troubleshooting#vdi-chain-protection'
+  '(unhealthy VDI chain) Job canceled to protect the VDI chain. See https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/backups-and-dr/backup_troubleshooting.md#vdi-chain-protection'
 
 const getAdditionalData = async (task, props) => {
   if (task.data?.type === 'remote') {
