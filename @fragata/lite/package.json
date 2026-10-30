@@ -66,7 +66,7 @@
     "zx": "^7.2.3"
   },
   "private": true,
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/lite",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/lite",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/lite",

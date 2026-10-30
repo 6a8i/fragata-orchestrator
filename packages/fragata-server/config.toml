@@ -105,7 +105,7 @@ defaultSignInPage = '/signin'
 throttlingDelay = '2 seconds'
 
 # This [backups] section and its subsections ([backups.defaultSettings], [backups.vm.defaultSettings], [backups.metadata.defaultSettings]) are passed to @fragata/backups
-# See https://github.com/6a8i/fragata-orchestrator/blob/master/%40xen-orchestra/backups/README.md#changing-the-default-backup-configuration
+# See https://github.com/6a8i/fragata-orchestrator/blob/main/%40fragata/backups/README.md#changing-the-default-backup-configuration
 [backups]
 autoUnmountPartitionDelay = '24h'
 

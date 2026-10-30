@@ -14,7 +14,7 @@
     "predicates",
     "some"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/predicates",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/predicates",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/predicates",

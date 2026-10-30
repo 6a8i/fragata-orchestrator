@@ -2,7 +2,7 @@
   "private": false,
   "name": "@fragata/xml-rpc",
   "description": "Parse and format XML-RPC messages, do not handle transport or XML",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/xml-rpc",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/xml-rpc",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/xml-rpc",

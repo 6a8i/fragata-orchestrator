@@ -79,7 +79,7 @@ export type MiddlewareDescriptor =
 
 type MaybePromise<T> = T | Promise<T>
 /**
- * Loosely-typed mirror of {@link https://github.com/6a8i/fragata-orchestrator/blob/master/@fragata/rest-api/src/middlewares/acl.middleware.mts | AclEntry}
+ * Loosely-typed mirror of {@link https://github.com/6a8i/fragata-orchestrator/blob/main/@fragata/rest-api/src/middlewares/acl.middleware.mts | AclEntry}
  * from `@fragata/rest-api/src/middlewares/acl.middleware.mts`.
  */
 export type LooseAclEntry = {

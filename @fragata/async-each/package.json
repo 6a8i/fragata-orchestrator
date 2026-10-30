@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@fragata/async-each",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/async-each",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/async-each",
   "description": "Run async fn for each item in (async) iterable",
   "keywords": [
     "array",

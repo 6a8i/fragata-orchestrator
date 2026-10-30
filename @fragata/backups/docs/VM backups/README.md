@@ -331,11 +331,11 @@ For multiple objects:
 { id: { __or: string[] } }
 ```
 
-> This syntax is compatible with [`value-matcher`](https://github.com/6a8i/fragata-orchestrator/tree/master/packages/value-matcher).
+> This syntax is compatible with [`value-matcher`](https://github.com/6a8i/fragata-orchestrator/tree/main/packages/value-matcher).
 
 ### Settings
 
-Settings are described in [`@fragata/backups/\_runners/VmsXapi.mjs``](https://github.com/6a8i/fragata-orchestrator/blob/master/%40xen-orchestra/backups/_runners/VmsXapi.mjs).
+Settings are described in [`@fragata/backups/\_runners/VmsXapi.mjs``](https://github.com/6a8i/fragata-orchestrator/blob/main/%40fragata/backups/_runners/VmsXapi.mjs).
 
 ## Writer API
 

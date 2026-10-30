@@ -12,7 +12,7 @@
     "xen",
     "xen-orchestra"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server-usage-report",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-server-usage-report",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-server-usage-report",

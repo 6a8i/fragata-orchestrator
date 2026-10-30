@@ -42,7 +42,7 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/mcp",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/mcp",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/mcp",

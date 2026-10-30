@@ -2,7 +2,7 @@
   "private": false,
   "name": "@fragata/compose",
   "description": "Compose functions from left to right",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/compose",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/compose",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/compose",

@@ -2,7 +2,7 @@
   "private": false,
   "name": "@fragata/mixins",
   "description": "Mixins shared between fragata-proxy and fragata-server",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/mixins",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/mixins",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/mixins",

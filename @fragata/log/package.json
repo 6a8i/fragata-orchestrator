@@ -10,7 +10,7 @@
     "capture",
     "context"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/log",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/log",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/log",

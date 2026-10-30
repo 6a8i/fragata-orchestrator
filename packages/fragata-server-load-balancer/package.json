@@ -10,7 +10,7 @@
     "pool",
     "host"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server-load-balancer",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-server-load-balancer",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-server-load-balancer",

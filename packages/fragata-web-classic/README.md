@@ -4,7 +4,7 @@
 
 Fragata Web Classic is part of [Fragata](https://github.com/6a8i/fragata-orchestrator), a web interface for XenServer or XAPI enabled hosts.
 
-It is a web client for [fragata-server](https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server).
+It is a web client for [fragata-server](https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-server).
 
 ---
 

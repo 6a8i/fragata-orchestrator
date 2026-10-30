@@ -18,7 +18,7 @@
   "engines": {
     "node": ">=14"
   },
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/backups-cli",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/backups-cli",
   "name": "@fragata/backups-cli",
   "repository": {
     "directory": "@fragata/backups-cli",

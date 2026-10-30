@@ -45,7 +45,7 @@ The `remoteUrl` can be found using the following command from the XOA CLI, and t
 
 `fragata-server-db ls remote`
 
-The `vhdPathInRemote` follows a file structure described in [VM backups](https://github.com/6a8i/fragata-orchestrator/blob/master/%40xen-orchestra/backups/docs/VM%20backups/README.md).
+The `vhdPathInRemote` follows a file structure described in [VM backups](https://github.com/6a8i/fragata-orchestrator/blob/main/%40fragata/backups/docs/VM%20backups/README.md).
 
 ## Restore a file from a VHD using `fuse-vhd` CLI
 

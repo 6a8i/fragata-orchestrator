@@ -7,7 +7,7 @@
     "json",
     "stable"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/json-hash",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/json-hash",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/json-hash",

@@ -15,7 +15,7 @@
     "scripts",
     "toggle"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/toggle-scripts",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/toggle-scripts",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/toggle-scripts",

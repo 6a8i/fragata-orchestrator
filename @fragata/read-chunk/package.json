@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@fragata/read-chunk",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/read-chunk",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/read-chunk",
   "description": "Read a chunk of a Node stream",
   "license": "ISC",
   "keywords": [

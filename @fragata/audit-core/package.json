@@ -1,6 +1,6 @@
 {
   "name": "@fragata/audit-core",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/audit-core",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/audit-core",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/audit-core",

@@ -21,7 +21,7 @@
     "test": "tsc && node --test **/*.test.mjs",
     "clean": "rimraf dist/"
   },
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/generator-toolbox",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/generator-toolbox",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/generator-toolbox",

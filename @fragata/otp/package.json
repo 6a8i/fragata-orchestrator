@@ -9,7 +9,7 @@
     "otp",
     "totp"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/otp",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/otp",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "main": "index.mjs",
   "repository": {

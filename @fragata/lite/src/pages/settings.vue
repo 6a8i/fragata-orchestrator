@@ -30,7 +30,7 @@
           <!--
  <VtsTabularKeyValueRow :label="t('documentation')">
             <template #value>
-              <UiLink size="medium" href="https://github.com/6a8i/fragata-orchestrator/tree/master/%40xen-orchestra/lite">
+              <UiLink size="medium" href="https://github.com/6a8i/fragata-orchestrator/tree/main/%40fragata/lite">
                 {{ t('documentation-name', { name: 'Fragata Deck' }) }}
               </UiLink>
             </template>

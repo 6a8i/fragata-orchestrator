@@ -13,7 +13,7 @@
     "wrap",
     "wrapper"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/coalesce-calls",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/coalesce-calls",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/coalesce-calls",

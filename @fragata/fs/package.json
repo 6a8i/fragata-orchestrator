@@ -4,7 +4,7 @@
   "version": "4.10.0",
   "license": "AGPL-3.0-or-later",
   "description": "The File System for Fragata backups.",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/fs",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/fs",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/fs",

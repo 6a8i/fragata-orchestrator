@@ -10,7 +10,7 @@
     "differences",
     "string"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/diff",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/diff",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/diff",

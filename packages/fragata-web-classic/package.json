@@ -10,7 +10,7 @@
     "xen-orchestra",
     "web"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-web-classic",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-web-classic",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-web-classic",

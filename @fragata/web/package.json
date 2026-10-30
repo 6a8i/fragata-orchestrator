@@ -69,7 +69,7 @@
     }
   },
   "private": true,
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/web",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/web",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/web",

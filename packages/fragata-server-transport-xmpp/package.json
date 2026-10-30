@@ -12,7 +12,7 @@
     "xmpp",
     "fragata-server"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server-transport-xmpp",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-server-transport-xmpp",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-server-transport-xmpp",

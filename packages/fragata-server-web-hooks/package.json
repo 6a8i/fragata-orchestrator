@@ -12,7 +12,7 @@
     "xen-orchestra",
     "fragata-server"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server-web-hooks",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-server-web-hooks",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-server-web-hooks",

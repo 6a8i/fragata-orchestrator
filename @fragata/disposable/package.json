@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@fragata/disposable",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/disposable",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/disposable",
   "description": "Utilities for disposables",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {

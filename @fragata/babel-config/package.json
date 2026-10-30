@@ -2,7 +2,7 @@
   "private": true,
   "name": "@fragata/babel-config",
   "version": "0.0.0",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/babel-config",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/babel-config",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/babel-config",

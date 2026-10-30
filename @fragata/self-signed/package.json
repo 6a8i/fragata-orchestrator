@@ -2,7 +2,7 @@
   "private": false,
   "name": "@fragata/self-signed",
   "description": "Minimalist wrapper around openssl to generate a self-signed certificate",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/self-signed",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/self-signed",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/self-signed",

@@ -43,7 +43,7 @@ require('exec-promise')(() =>
     }
 
     pkg.name = name
-    pkg.homepage = `https://github.com/6a8i/fragata-orchestrator/tree/master/${relativeDir}`
+    pkg.homepage = `https://github.com/6a8i/fragata-orchestrator/tree/main/${relativeDir}`
     pkg.bugs = `https://github.com/6a8i/fragata-orchestrator/issues`
     pkg.repository = {
       directory: relativeDir,

@@ -11,7 +11,7 @@
     "xen-orchestra",
     "fragata-server"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server-transport-email",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-server-transport-email",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-server-transport-email",

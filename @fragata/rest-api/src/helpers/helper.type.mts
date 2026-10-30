@@ -8,7 +8,7 @@ export type WithHref<T> = T & { href: string }
 
 /**
  * Represents an `fragata-common/api-errors` error
- * @see https://github.com/6a8i/fragata-orchestrator/blob/master/packages/fragata-common/api-errors.js
+ * @see https://github.com/6a8i/fragata-orchestrator/blob/main/packages/fragata-common/api-errors.js
  */
 export interface XoError extends Error {
   code: number

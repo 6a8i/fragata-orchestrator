@@ -9,7 +9,7 @@
     "orchestra",
     "xen-orchestra"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-lib",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-lib",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-lib",

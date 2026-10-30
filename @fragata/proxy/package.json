@@ -10,7 +10,7 @@
     "xen-orchestra",
     "xo"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/proxy",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/proxy",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/proxy",

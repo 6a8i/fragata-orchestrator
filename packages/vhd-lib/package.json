@@ -4,7 +4,7 @@
   "version": "4.17.0",
   "license": "AGPL-3.0-or-later",
   "description": "Primitives for VHD file handling",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/vhd-lib",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/vhd-lib",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/vhd-lib",

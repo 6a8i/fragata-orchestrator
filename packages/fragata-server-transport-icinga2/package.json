@@ -1,7 +1,7 @@
 {
   "name": "fragata-server-transport-icinga2",
   "description": "Sends backup runs statuses to icinga2 server",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server-transport-icinga2",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-server-transport-icinga2",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-server-transport-icinga2",

@@ -17,7 +17,7 @@
   },
   "license": "ISC",
   "private": false,
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/qcow2",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/qcow2",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/qcow2",

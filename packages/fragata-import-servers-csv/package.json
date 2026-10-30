@@ -14,7 +14,7 @@
     "xen",
     "xen-orchestra"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-import-servers-csv",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-import-servers-csv",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-import-servers-csv",

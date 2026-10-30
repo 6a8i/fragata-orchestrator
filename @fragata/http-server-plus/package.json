@@ -9,7 +9,7 @@
     "server",
     "ports"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/http-server-plus",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/http-server-plus",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/http-server-plus",

@@ -3,7 +3,7 @@
   "version": "1.1.2",
   "license": "AGPL-3.0-or-later",
   "description": "Sends alerts based on performance criteria",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server-perf-alert",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-server-perf-alert",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-server-perf-alert",

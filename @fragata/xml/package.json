@@ -2,7 +2,7 @@
   "private": false,
   "name": "@fragata/xml",
   "description": "Simple XML formatting/parsing",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/xml",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/xml",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/xml",

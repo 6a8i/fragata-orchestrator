@@ -2,7 +2,7 @@
   "private": false,
   "name": "@fragata/cr-seed-cli",
   "version": "1.0.3",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/cr-seed-cli",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/cr-seed-cli",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/cr-seed-cli",

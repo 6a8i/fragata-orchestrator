@@ -12,7 +12,7 @@
     "settled",
     "typescript"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/async-map",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/async-map",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/async-map",

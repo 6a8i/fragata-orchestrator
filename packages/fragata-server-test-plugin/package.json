@@ -2,7 +2,7 @@
   "private": true,
   "name": "fragata-server-test-plugin",
   "version": "0.0.0",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server-test-plugin",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-server-test-plugin",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-server-test-plugin",

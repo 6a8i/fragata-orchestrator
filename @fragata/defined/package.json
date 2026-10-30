@@ -4,7 +4,7 @@
   "version": "0.0.2",
   "license": "ISC",
   "description": "Utilities to help handling (possibly) undefined values",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/defined",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/defined",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/defined",

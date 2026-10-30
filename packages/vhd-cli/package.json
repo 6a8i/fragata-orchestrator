@@ -5,7 +5,7 @@
   "deprecated": "Use @fragata/disk-cli instead",
   "license": "ISC",
   "description": "Tools to read/create and merge VHD files",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/vhd-cli",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/vhd-cli",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/vhd-cli",

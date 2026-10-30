@@ -8,7 +8,7 @@
     "vhd",
     "vmdk"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-vmdk-to-vhd",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-vmdk-to-vhd",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-vmdk-to-vhd",

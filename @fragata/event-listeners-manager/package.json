@@ -23,7 +23,7 @@
     "removeEventListener",
     "removeListener"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/event-listeners-manager",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/event-listeners-manager",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/event-listeners-manager",

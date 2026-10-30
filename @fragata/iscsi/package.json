@@ -44,7 +44,7 @@
     "test": "tsc && node --test \"dist/**/*.test.mjs\"",
     "test-integration": "tsc && node --test \"dist/**/*.integ.mjs\""
   },
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/iscsi",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/iscsi",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/iscsi",

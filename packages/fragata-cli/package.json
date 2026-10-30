@@ -10,7 +10,7 @@
     "xen",
     "orchestra"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-cli",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-cli",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-cli",

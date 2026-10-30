@@ -42,7 +42,7 @@
     "postversion": "npm publish --access public"
   },
   "license": "AGPL-3.0-or-later",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/types",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/types",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/types",

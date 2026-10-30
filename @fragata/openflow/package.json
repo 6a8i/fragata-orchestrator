@@ -2,7 +2,7 @@
   "description": "Pack and unpack OpenFlow messages",
   "private": false,
   "name": "@fragata/openflow",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/openflow",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/openflow",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/openflow",

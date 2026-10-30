@@ -6,7 +6,7 @@
     "cache",
     "map"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/multi-key-map",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/multi-key-map",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/multi-key-map",

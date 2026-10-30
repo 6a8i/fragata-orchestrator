@@ -13,7 +13,7 @@
     "skip",
     "stream"
   ],
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/stream-reader",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/stream-reader",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/stream-reader",

@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@fragata/immutable-backups",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/immutable-backups",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/immutable-backups",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "@fragata/immutable-backups",
