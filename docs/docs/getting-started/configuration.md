@@ -7,42 +7,40 @@ sidebar_position: 5
 Once Fragata is installed, you can configure some parameters in the configuration file. Let's see how to do that.
 
 :::tip
-The configuration file is located at `/etc/fragata-server/config.toml`.
+The configuration file is located at `/etc/fragata-server/config.toml` (system-wide) or `~/.config/fragata-server/config.toml` (user-specific). See [where to place it](#where-to-place-the-configuration-file).
 :::
-
-If you need to do any configuration on the system itself (firewall, NTP, service restart…), see [the XOA appliance settings](#xoa-appliance) at the end of this page.
 
 ## Using Fragata Classic as the Default Interface
 
-Starting with **Fragata 6**, the Fragata UI becomes the default interface. That said, you can still switch back to Fragata Classic, temporarily or by default.
+The Fragata interface is the default one. That said, you can still switch back to Fragata Classic, temporarily or by default.
 
 ### Temporary Switch to Fragata Classic
 
-To quickly access the old UI without changing any configuration, `/v5` to your URL (e.g., `https://xo.example.com/v5`).
+To quickly access the old UI without changing any configuration, add `/v5` to your URL (e.g., `https://fragata.example.com/v5`).
 
 ### Making Fragata Classic the default UI
 
-To permanently use Fragata Classic as the default interface, create a new config file (you can call it `config.mounts.toml`). This configuration file can be placed either in `~/.config/fragata-server/` of the process running fragata-server or if you are using a xoa in `/etc/fragata-server/`. This file will contain :
+To permanently use Fragata Classic as the default interface, create a new config file (you can call it `config.mounts.toml`). This configuration file can be placed either in `~/.config/fragata-server/` of the user running fragata-server, or in `/etc/fragata-server/`. This file will contain:
 
 ```toml
 [http.mounts]
-'/' = '/usr/local/lib/node_modules/fragata-web-classic/dist/'
-'/v5' = '/usr/local/lib/node_modules/fragata-web-classic/dist/'
-'/v6' = '/usr/local/lib/node_modules/@fragata/web/dist/'
+'/' = '/path/to/fragata-orchestrator/packages/fragata-web-classic/dist/'
+'/v5' = '/path/to/fragata-orchestrator/packages/fragata-web-classic/dist/'
+'/v6' = '/path/to/fragata-orchestrator/@fragata/web/dist/'
 ```
 
-If you are not using a xoa, replace the path `/usr/local/lib/node_modules/` with the real path of the modules.
+Replace `/path/to/fragata-orchestrator` with the location of your [source checkout](install-from-sources.md).
 
 This configuration ensures:
 
 - Accessing `/` loads **Fragata Classic**.
 - Accessing `/v5` loads **Fragata Classic**.
-- Accessing `/v6` loads **Fragata**.
+- Accessing `/v6` loads the **Fragata** interface.
 
 ### Where to Place the Configuration File
 
 :::tip
-If changing a user-specific configuration, make sure the file belongs to the user that runs the XO server process.
+If changing a user-specific configuration, make sure the file belongs to the user that runs the Fragata server process.
 :::
 
 Place your `config.toml` (or any `config.*.toml` override) in one of the following:
@@ -65,30 +63,26 @@ The order of the loading and overriding values in multiple config files is the f
 
 There is no guarantee on the order of the config file loading in the same location.
 
-- `~` is the home directory of the user running fragata-server (`/root` for xoa)
-- `appDir` is the application installation directory (`/usr/local/lib/node_modules/fragata-server` for fragata-server on XOA, `/usr/local/lib/node_modules/@fragata/proxy` for a proxy)
-- appName is `fragata-proxy` for proxy, `fragata-server` for fragata-server
-- local configuration is not used in fragata-server nor proxy
+- `~` is the home directory of the user running fragata-server (`/root` for the root user)
+- `appDir` is the application installation directory (`packages/fragata-server` inside your checkout)
+- appName is `fragata-server`
+- local configuration is not used in fragata-server
 
 a basic cli can be used to explore the configuration by installing the package `app-conf`, more information in [the official documentation](https://github.com/JsCommunity/app-conf?tab=readme-ov-file#cli)
 
-:::tip
-The update feature of XOA can reset any `local` config. Use `/etc/fragata-server/config.*` as the preferred config place for XOA.
-:::
-
 ### Apply the changes
 
-After updating the configuration, restart the XO server process:
+After updating the configuration, restart the Fragata server process:
 
-<Terminal shell title="xoa — apply the configuration">{`
+<Terminal shell title="apply the configuration">{`
 sudo systemctl restart fragata-server
 `}</Terminal>
 
-Fragata Classic will now be served as the default UI.
+If you changed the mounts above, Fragata Classic is now served as the default UI.
 
-## User to run XO-server as
+## User to run fragata-server as
 
-By default, XO-server runs as 'root'. You can change that by uncommenting these lines and choose whatever user/group you want:
+By default, fragata-server runs as 'root'. You can change that by uncommenting these lines and choose whatever user/group you want:
 
 ```toml
 user = 'nobody'
@@ -99,7 +93,7 @@ group = 'nogroup'
 
 ## HTTP listen address and port
 
-By default, XO-server listens on all addresses (0.0.0.0) and runs on port 80. If you need to, you can change this in the `# Basic HTTP` section:
+By default, fragata-server listens on all addresses (0.0.0.0) and runs on port 80. If you need to, you can change this in the `# Basic HTTP` section:
 
 ```toml
 hostname = '0.0.0.0'
@@ -108,7 +102,7 @@ port = 80
 
 ## HTTPS and certificates
 
-XO-server can also run in HTTPS (you can run HTTP and HTTPS at the same time) - just modify what's needed in the `# Basic HTTPS` section, this time with the certificates/keys you need and their path:
+fragata-server can also run in HTTPS (you can run HTTP and HTTPS at the same time) - just modify what's needed in the `# Basic HTTPS` section, this time with the certificates/keys you need and their path:
 
 ```toml
 hostname = '0.0.0.0'
@@ -144,7 +138,7 @@ You shouldn't have to change this. It's the path where `fragata-web-classic` fil
 
 ## SDN Controller mode
 
-The SDN Controller plugin has 2 modes for the OpenFlow rule management. The default mode uses a direct channel to talk through the OpenFlow protocol. The other mode uses a XAPI plugin on XCP-ng side.
+The SDN Controller plugin has 2 modes for the OpenFlow rule management. The default mode uses a direct channel to talk through the OpenFlow protocol. The other mode uses a XAPI plugin on Fragata Host side.
 
 :::tip
 For this kind of setting, we recommend using something like `/etc/fragata-server/config.sdncontroller.toml` and not to modify the main configuration file.
@@ -163,7 +157,7 @@ See [SDN Controller: OpenFlow rules](../manage-your-infrastructure/sdn_controlle
 
 If you use certificates signed by an in-house CA for your XCP-ng or XenServer hosts, and want to have Fragata connect to them without rejection, you can use the [`NODE_EXTRA_CA_CERTS`](https://nodejs.org/api/cli.html#cli_node_extra_ca_certs_file) environment variable.
 
-To enable this option in your XOA, create `/etc/systemd/system/fragata-server.service.d/ca.conf` with the following content:
+To enable this option, create `/etc/systemd/system/fragata-server.service.d/ca.conf` with the following content:
 
 ```ini
 [Service]
@@ -172,33 +166,29 @@ Environment=NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/my-cert.crt
 
 Don't forget to reload `systemd` conf and restart `fragata-server`:
 
-<Terminal shell title="xoa — reload systemd">{`
+<Terminal shell title="reload systemd">{`
 systemctl daemon-reload
 `}</Terminal>
 
-<Terminal shell title="xoa — restart fragata-server">{`
+<Terminal shell title="restart fragata-server">{`
 systemctl restart fragata-server.service
 `}</Terminal>
-
-:::note
-For XO Proxy, the process is almost the same: the file to create is `/etc/systemd/system/fragata-proxy.service.d/ca.conf` and the service to restart is `fragata-proxy.service`.
-:::
 
 ### Let's Encrypt support
 
 #### What's Let's Encrypt?
 
-[Let's Encrypt](https://letsencrypt.org/?ref=xen-orchestra.com) is a Certificate Authority developed by the Internet Security Research Group. It provides free TLS certificates and makes it easy for websites to enable HTTPS encryption and create a more secure Internet for everyone.
+[Let's Encrypt](https://letsencrypt.org/) is a Certificate Authority developed by the Internet Security Research Group. It provides free TLS certificates and makes it easy for websites to enable HTTPS encryption and create a more secure Internet for everyone.
 
 :::tip
 
-Although Let's Encrypt is the most popular free public certificate authority (CA), XOA supports other CAs as well.
+Although Let's Encrypt is the most popular free public certificate authority (CA), Fragata supports other CAs as well.
 
 :::
 
 #### What can it do for me?
 
-Fragata Appliance (XOA) can **automatically request and renew HTTPS certificates from Let's Encrypt**. This lets you use a free, publicly trusted certificate instead of manually installing your own or relying on self-signed ones.
+Fragata can **automatically request and renew HTTPS certificates from Let's Encrypt**. This lets you use a free, publicly trusted certificate instead of manually installing your own or relying on self-signed ones.
 
 :::tip
 
@@ -208,7 +198,7 @@ Let's Encrypt will automatically renew your certificate **30 days** before expir
 
 #### Prerequisites
 
-In order for XOA to work with Let's Encrypt, follow these prerequisites:
+In order for Fragata to work with Let's Encrypt, follow these prerequisites:
 
 - Make sure your server is listening on HTTP on **port 80** and on **HTTPS 443**.
 
@@ -259,18 +249,18 @@ acmeEmail = 'admin@my.domain.net'
 
 #### How do I use Let's Encrypt?
 
-To configure your XOA with Let's Encrypt:
+To configure Fragata with Let's Encrypt:
 
-1. In the HTTPS section of your XO configuration file, add the following entry:
+1. In the HTTPS section of your Fragata configuration file, add the following entry:
    - `autoCert = true`
    - `acmeDomain = example.org`
-2. Add an entry following this pattern: `acmeDomain = EXAMPLE`, where EXAMPLE is a [fully qualified domain name](https://en.wikipedia.org/wiki/Fully_qualified_domain_name) (FQDN) that points to your XOA environment.
+2. Add an entry following this pattern: `acmeDomain = EXAMPLE`, where EXAMPLE is a [fully qualified domain name](https://en.wikipedia.org/wiki/Fully_qualified_domain_name) (FQDN) that points to your Fragata server.
 3. Load the FQDN in your browser.\
    After a few seconds, the certificate will be automatically generated and installed.
 
 ## Redis server
 
-For advanced usage, you can customize the way XO connect to Redis:
+For advanced usage, you can customize the way Fragata connect to Redis:
 
 ```toml
 # Connection to the Redis server.
@@ -367,7 +357,7 @@ location /[<path>] {
   proxy_set_header        X-Forwarded-Proto $scheme;
 
   # Proxy configuration
-  proxy_pass http://<XOA ip address>[:<port>]/;
+  proxy_pass http://<fragata ip address>[:<port>]/;
 
   proxy_http_version 1.1;
   proxy_set_header Connection "upgrade";
@@ -389,8 +379,8 @@ location /[<path>] {
 [Caddy](https://caddyserver.com/) is the simplest option: WebSockets are proxied natively (no module or upgrade headers to configure) and HTTPS certificates are obtained and renewed automatically. Serving Fragata on a dedicated domain takes two lines:
 
 ```
-xo.company.net {
-	reverse_proxy <XOA ip address>:80
+fragata.company.net {
+	reverse_proxy <fragata ip address>:80
 }
 ```
 
@@ -398,8 +388,8 @@ To serve it under a sub-path instead:
 
 ```
 company.net {
-	handle_path /xo/* {
-		reverse_proxy <XOA ip address>:80
+	handle_path /fragata/* {
+		reverse_proxy <fragata ip address>:80
 	}
 }
 ```
@@ -408,87 +398,46 @@ company.net {
 Caddy applies no request body size limit by default, so large VM imports work without extra configuration.
 :::
 
-## The XOA appliance {#xoa-appliance}
+## Restart the service {#restart-the-service}
 
-System-level settings of the appliance itself, all managed from its console or SSH.
-
-### Firewall {#firewall}
-
-By default XOA is firewalled, with only ports 22, 80 and 443 opened. You can see the current status of the firewall:
-
-<Terminal title="check the firewall status">{`
-sudo ufw status verbose
-Status: active
-Logging: on (low)
-Default: deny (incoming), allow (outgoing)
-New profiles: skip
-
-To                         Action      From
---                         ------      ----
-22                         ALLOW IN    Anywhere
-80                         ALLOW IN    Anywhere
-443                        ALLOW IN    Anywhere
-22/tcp                     LIMIT IN    Anywhere
-`}</Terminal>
-
-If you want to open or close ports, please check the [documentation of UFW](https://help.ubuntu.com/community/UFW).
-
-### Timezone {#timezone}
-
-You can verify that your time is correctly set with the `date` command. To set XOA to your current timezone:
-
-<Terminal shell title="set the timezone">{`
-sudo dpkg-reconfigure tzdata
-`}</Terminal>
-
-### Setting a custom NTP server {#setting-a-custom-ntp-server}
-
-By default, XOA is configured to use the `systemd-timesyncd` daemon, along with the standard Debian NTP servers:
-
-```
-pool 0.debian.pool.ntp.org iburst
-pool 1.debian.pool.ntp.org iburst
-pool 2.debian.pool.ntp.org iburst
-pool 3.debian.pool.ntp.org iburst
-```
-
-To change the NTP servers, use the `xoa` helper:
-
-<Terminal title="change the NTP servers">{`
-xoa network ntp
-? NTP servers (space separated)
-`}</Terminal>
-
-Alternatively, edit `/etc/systemd/timesyncd.conf` (as root): we recommend adding your custom server to the top of the list, leaving the Debian server entries if possible.
-
-For changes to take effect, restart the time synchronization service:
-
-<Terminal shell title="apply the NTP change">{`
-systemctl restart systemd-timesyncd.service
-`}</Terminal>
-
-### Restart the service {#restart-the-service}
-
-You can restart Fragata by accessing XOA via SSH (or console):
+If you run `fragata-server` as a systemd service (see [Run it at boot](install-from-sources.md#always-running)), restart it after any configuration change with:
 
 <Terminal shell title="restart fragata-server">{`
 systemctl restart fragata-server.service
 `}</Terminal>
 
-To check the status of `fragata-server`:
+To check its status:
 
 <Terminal title="check the service">{`
 systemctl status fragata-server.service
-fragata-server.service - XO Server
+fragata-server.service - Fragata Server
    Loaded: loaded (/etc/systemd/system/fragata-server.service; enabled)
    Active: active (running) since Thu 2014-08-14 10:59:46 BST; 21min ago
  Main PID: 394 (node)
    CGroup: /system.slice/fragata-server.service
-           └─394 node /usr/local/bin/fragata-server
+           └─394 node /home/username/fragata-orchestrator/packages/fragata-server/dist/cli.mjs
 
-Aug 14 10:59:46 xoa systemd[1]: Starting XO Server...
-Aug 14 10:59:46 xoa systemd[1]: Started XO Server.
-Aug 14 10:59:48 xoa fragata-server[394]: WebServer listening on http://0.0.0.0:80
+Aug 14 10:59:46 host systemd[1]: Starting Fragata Server...
+Aug 14 10:59:46 host systemd[1]: Started Fragata Server.
+Aug 14 10:59:48 host fragata-server[394]: WebServer listening on http://0.0.0.0:80
 `}</Terminal>
 
-That's all!
+## XenServer updates {#xenserver-updates}
+
+Fragata can install XenServer hotfixes on your pools directly, from a pool's **Patches** view. Since September 2023, XenServer requires authentication to download hotfixes, so Fragata needs your **XenServer Client ID** credentials to fetch them on your behalf:
+
+1. Make sure your XenServer hosts have [the proper licenses](https://docs.xenserver.com/en-us/xenserver/8/overview-licensing).
+2. Get your Client ID file (`xencenter_client_id.json`), which contains the username and API key Fragata will use.
+3. In Fragata Classic, open your **User Settings** page (bottom left-hand corner) and upload the file in the "XenServer Client ID" section:
+
+<UiDetail src="/img/classic/xs-client-id-upload.png" alt="Uploading xencenter_client_id.json in your user settings" width={520} />
+
+4. Go to a pool's **Patches** view and install the updates. A `LICENCE_RESTRICTION` error means your hosts are missing XenServer licenses.
+
+:::warning
+Citrix removed the self-service Client ID download page from its support portal. If you already have your `xencenter_client_id.json`, Fragata keeps using it; to obtain new credentials, go through Citrix support. Note that this hotfix mechanism concerns Citrix Hypervisor 8.2 CU1 and older (now end of life): XenServer 8 and 9 hosts fetch their updates themselves from the `ops.xenserver.com` channels, with Fragata showing the missing patches per pool and host.
+:::
+
+:::tip
+This authentication story only concerns XenServer. Fragata Host and XCP-ng updates are plain RPM repositories, fully handled from Fragata: see the [XCP-ng updates documentation](https://docs.xcp-ng.org/management/updates/).
+:::

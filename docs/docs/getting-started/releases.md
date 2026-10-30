@@ -4,57 +4,29 @@ sidebar_position: 1
 
 # Releases
 
-Fragata is distributed in two ways: as a turnkey virtual appliance (**XOA**) and **from the sources** on GitHub. Both contain the same Fragata, including its two web interfaces ([Fragata and Fragata Classic](../discover-xen-orchestra/xo6vsxo5.md)), the REST API and the backup engine.
+Fragata is distributed as source code on [GitHub](https://github.com/6a8i/fragata-orchestrator). A single checkout contains the server (`fragata-server`), the two web interfaces ([Fragata and Fragata Classic](../discover-fragata/fragata-vs-classic.md)), the REST API and the backup engine.
 
-## XOA, the appliance
+## One line of development
 
-XOA (**X**en **O**rchestra virtual **A**ppliance) is the pre-installed VM, and the recommended way to run Fragata:
+The `main` branch is the Fragata line: it is where development happens and the only supported state. There are no release channels to choose from, and nothing to register: you [install from the sources](install-from-sources.md) and [update with `git`](install-from-sources.md#updating).
 
-- everything ready to work, deployed in minutes
-- complete QA on every release
-- a web [updater](updater.md) with release channels
-- bundled remote support capabilities
-- extra services (XO Hub, recipes, advanced metrics)
-- a secured system (sudo, firewall)
+Changes are tracked in the [changelog](https://github.com/6a8i/fragata-orchestrator/blob/main/CHANGELOG.md#changelog), and what is coming next in `CHANGELOG.unreleased.md`.
 
-Deploying one is trivial: see the [XOA install section](installation.md#xoa).
-
-:::tip
-Whatever your future usage, try XOA first: it is the easiest way to test everything, and the only way to get professional support.
-:::
-
-## Release cadence and channels
-
-A new Fragata release ships **every month**, versioned like `XOA 6.x`. Each release is announced on the [blog](https://xen-orchestra.com/blog/) with its release notes, and every change is tracked in the [changelog](https://github.com/6a8i/fragata-orchestrator/blob/master/CHANGELOG.md#changelog).
-
-On XOA you choose between two [release channels](updater.md#release-channel):
-
-- **Stable**: a release that is already one month old, hardened by a month of community feedback and fixes. For production appliances where stability comes first.
-- **Latest**: all the newest improvements, QA validated, fresh from the monthly release.
-
-Switching channels is done from the Updates view, without redeploying anything.
-
-## From the sources
-
-Fragata is fully open source, and you can [install it from the sources](install-from-sources.md). In that case there are no releases to speak of: **stay on `master`**, and update before reporting anything:
-
-<Terminal shell title="xo — updating an installation from the sources">{`
-cd xen-orchestra
-git pull  # stay on master
+<Terminal shell title="updating an installation from the sources">{`
+cd fragata-orchestrator
+git pull  # stay on main
 yarn && yarn build
 `}</Terminal>
 
 :::warning
-There is no community support for source installations that are not up to date with `master`.
+Update to the latest `main` before reporting anything: issues on older checkouts are not investigated.
 :::
 
 ## Supported versions for security updates
 
-Security fixes are provided for the following versions of Fragata:
-
 | Version | Security updates |
 | --- | --- |
-| XOA on the `latest` channel | Yes |
-| XOA on the `stable` channel | Yes |
-| Source installations using the `master` branch | Yes |
+| Installations using the `main` branch, up to date | Yes |
 | Other versions | No |
+
+To report a vulnerability, use GitHub's private vulnerability reporting on the repository rather than opening a public issue.

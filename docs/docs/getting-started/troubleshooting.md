@@ -4,74 +4,39 @@ sidebar_position: 8
 
 # Troubleshooting
 
-This page covers the problems you may encounter with your XOA, and how to get out of them.
+This page covers the problems you may encounter with your Fragata server, and how to get out of them. If your issue is not covered, ask on [GitHub discussions](https://github.com/6a8i/fragata-orchestrator/discussions) or, if you think it is a bug, [open an issue](https://github.com/6a8i/fragata-orchestrator/issues).
 
 :::warning
-If you have issues with an XO installed [from the sources](install-from-sources.md), please go through the [community support checklist](../support-and-licencing/community.md) first.
+Before asking, make sure you are on the latest `main` (see [Updating](install-from-sources.md#updating)) and that you have [rebuilt cleanly](install-from-sources.md#troubleshooting) if the build failed. Include the relevant [logs](#logs) in your report.
 :::
 
-## First reflex: `xoa check`
+## First reflex: check the basics
 
-Whenever something feels wrong, start with the built-in check:
+Whenever something feels wrong, check these first:
 
-<Terminal title="xoa — health check">{`
-xoa check
-✔ Node version
-✔ Disk space for /var
-✔ Disk space for /
-✔ XOA version
-✔ fragata-server config syntax
-✔ Appliance registration
-✔ Internet connectivity
-`}</Terminal>
+- **Node.js**: `node -v` must be the [latest LTS](install-from-sources.md#nodejs).
+- **Redis**: `redis-cli ping` must answer `PONG` (see [Check that Redis is running](install-from-sources.md#make-sure-redis-is-running)).
+- **Disk space**: a full `/var` or `/` stops Redis and `fragata-server` in strange ways. Check with `df -h`.
+- **Configuration syntax**: a typo in `config.toml` prevents `fragata-server` from starting, and the [logs](#logs) say which line.
+- **Connectivity**: the server must reach your pools (XAPI, port 443) and the machines you back up to.
 
-Anything other than a clean list of green ticks (errors, lost packets, missing entries) points at the problem area. Then look for the matching section below, and check the [logs](#logs).
-
-## Deployment issues
-
-### Deploy error: no default SR
-
-> Auto deploy failed. - No SR specified and Pool default SR is null
-
-The pool you are importing XOA on has no default storage repository. Find the UUID of the SR you want:
-
-<Terminal shell title="host — list storage repositories">{`
-xe sr-list
-`}</Terminal>
-
-then set it as the pool default (press Tab after `uuid=` to autofill your pool UUID):
-
-<Terminal shell title="host — set the default SR">{`
-xe pool-param-set uuid=<pool-uuid> default-SR=<sr-uuid>
-`}</Terminal>
-
-Run the deploy again: it will work.
+Then look for the matching section below.
 
 ## Access issues
 
-### Set or recover the XOA VM password
-
-No password is set for the `xoa` system user by default. Set (or reset) one through the XenStore data of the VM, from your XCP-ng host:
-
-<Terminal shell title="host — set the xoa user password">{`
-xe vm-param-set uuid=<UUID> xenstore-data:vm-data/system-account-xoa-password=<password>
-`}</Terminal>
-
-Restart the VM, then log in over SSH with the `xoa` user and that password.
-
 ### Recover the web login password
 
-From the XOA CLI (see [first console connection](installation.md#first-console-connection)):
+From the machine running Fragata:
 
-<Terminal shell title="xoa — reset a web account password">{`
-sudo fragata-server-recover-account youremail@here.com
+<Terminal shell title="reset a web account password">{`
+fragata-server-recover-account youremail@here.com
 `}</Terminal>
 
-It prompts for a new password. If the email does not exist in XO yet, an admin account is created with it: handy as a rescue account.
+It prompts for a new password. If the email does not exist in Fragata yet, an admin account is created with it: handy as a rescue account. (From a source checkout, run it from the `packages/fragata-server` directory with `node dist/recover-account-cli.mjs youremail@here.com`.)
 
 ### Empty page after login
 
-Your antivirus or firewall is blocking WebSockets, the protocol XO clients use to talk to `fragata-server` (see [architecture](architecture.md)). Switch to **HTTPS**: WebSockets are then encapsulated in TLS, out of reach of the interception.
+Your antivirus or firewall is blocking WebSockets, the protocol Fragata clients use to talk to `fragata-server` (see [architecture](architecture.md)). Switch to **HTTPS**: WebSockets are then encapsulated in TLS, out of reach of the interception.
 
 ### User login failures
 
@@ -79,41 +44,26 @@ Look at the `fragata-server` [logs](#logs) while reproducing the login attempt: 
 
 ## Logs
 
-- **From the web interface**: Settings, then Logs.
-- **From the CLI**, with `journalctl`:
+- **From the web interface**: Fragata Classic, Settings, then Logs.
+- **From the CLI**, with `journalctl` if you run `fragata-server` as a [systemd service](install-from-sources.md#always-running):
 
-<Terminal shell title="xoa — tail fragata-server logs">{`
+<Terminal shell title="tail fragata-server logs">{`
 journalctl -u fragata-server -f -n 50
 `}</Terminal>
 
-<Terminal shell title="xoa — tail updater logs">{`
-journalctl -u xoa-updater -f -n 50
-`}</Terminal>
-
-Start the tail, reproduce your issue, and read the error as it happens.
+Start the tail, reproduce your issue, and read the error as it happens. For more detail, set the `DEBUG` environment variable of the service (for example `DEBUG=xo:*`).
 
 ## Runtime issues
 
-### Migration of the XOA VM fails
-
-XOA ships with a static max memory of 16 GiB, which can break its own live migration:
-
-```
-"Failed","Migrating VM 'XOA' from '<origin_hostname>' to '<destination_hostname>'
-Internal error: Xenops_interface.Internal_error("Domain.Xenguest_failure(\"Error while waiting for suspend notification…\")")
-```
-
-Reduce the static max memory of the XOA VM to a lower value and migrate again.
-
 ### fragata-server out of memory
 
-If `fragata-server` crashes with `FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory` in its logs, give the XOA VM more memory (see [Sizing your XOA](installation.md#sizing)) and restart it.
+If `fragata-server` crashes with `FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory` in its logs, give the machine more memory (see [Sizing](install-from-sources.md#sizing)) and restart it.
 
-Since Fragata 6.8, `fragata-server` sets its Node.js memory limit to 70% of the VM's RAM (1 GiB minimum), recalculated at each start: no manual setting is needed. If you previously added `--max-old-space-size` to `/etc/systemd/system/fragata-server.service` by hand, you can remove it: the automatic limit makes it unnecessary.
+`fragata-server` sets its Node.js memory limit to 70% of the machine's RAM (1 GiB minimum), recalculated at each start: no manual setting is needed. If you previously added `--max-old-space-size` to your service file by hand, you can remove it: the automatic limit makes it unnecessary.
 
 ### Stats not showing on a pool
 
-If statistics are missing for all VMs and hosts of one specific pool, check whether a _Backup network_ is configured on it (pool Advanced tab), and make sure XO can reach **all hosts** of the pool through that network.
+If statistics are missing for all VMs and hosts of one specific pool, check whether a _Backup network_ is configured on it (pool Advanced tab), and make sure Fragata can reach **all hosts** of the pool through that network.
 
 ### Ghost tasks
 
@@ -121,43 +71,14 @@ If ghost tasks accumulate, try in order:
 
 1. refresh the web page
 2. disconnect and reconnect the pool owning the tasks
-3. restart the XAPI toolstack of the XCP-ng pool master
+3. restart the XAPI toolstack of the pool master
 4. restart `fragata-server`
-
-## Network issues
-
-Check the current configuration with `ip addr` (the default interface is `enX0` or `eth0`), and make sure any external firewall allows the XOA IP. Reconfigure with `xoa network static` or `xoa network dhcp`, as described in [Network configuration](installation.md#network-configuration).
-
-## Updater issues
-
-### Behind a transparent proxy
-
-Transparent proxies usually break the updater with SSL/TLS errors. Allow it to work:
-
-<Terminal shell title="xoa — as root">{`
-sudo -s
-echo NODE_TLS_REJECT_UNAUTHORIZED=0 >> /etc/xo-appliance/env
-npm config -g set strict-ssl=false
-systemctl restart xoa-updater
-`}</Terminal>
-
-Then run the update again.
-
-### Redownload and rebuild packages
-
-If a package disappeared after a failed build or a manual mistake:
-
-<Terminal shell title="xoa — force the updater to redownload">{`
-rm /var/lib/xoa-updater/update.json
-xoa-updater --upgrade
-`}</Terminal>
 
 ## Renew the self-signed certificate
 
-If the provided certificate expired, generate a new one, as root on the appliance:
+If the certificate you configured for [HTTPS](configuration.md#https-and-certificates) expired, generate a new one and restart:
 
-<Terminal shell title="xoa — regenerate the certificate">{`
-cd /etc/ssl
+<Terminal shell title="regenerate a self-signed certificate">{`
 cp cert.pem cert.pem-old
 cp key.pem key.pem-old
 openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -nodes -days 360
@@ -168,7 +89,7 @@ systemctl restart fragata-server.service
 
 Last resort: reset the `fragata-server` database. **This deletes all configured users, servers and backup jobs.**
 
-<Terminal shell title="xoa — full reset">{`
+<Terminal shell title="full reset">{`
 redis-cli
 FLUSHALL
 systemctl restart fragata-server.service
@@ -179,25 +100,3 @@ You can then log in again with `admin@admin.net` / `admin`.
 ## Backup issues
 
 Backups have their own page: [Backup troubleshooting](../backups-and-dr/backup_troubleshooting.md).
-
-## Still stuck?
-
-Open a ticket from your personal space on [account.vates.tech](https://account.vates.tech): describe the issue, and attach the `xoa check` output and the relevant logs.
-
-### Open a support tunnel {#support-tunnel}
-
-XOA is the only way to get our pro support, which can investigate remotely through a secure SSH tunnel. Our team will ask you for a "support ID": you get it by opening the tunnel, either from the web UI (XOA menu, **Support** section) or from the CLI if the web UI is not reachable:
-
-<Terminal title="open a secure support tunnel">{`
-xoa support tunnel
-The support tunnel has been created.
-
-Do not stop this command before the intervention is over!
-Give this id to the support: 40713
-`}</Terminal>
-
-Give this number to the support team: only Vates holds the private key for the tunnel. Close it with `Ctrl+C` once your issue is solved.
-
-:::tip
-The tunnel uses the bundled `xoa-support` user. You can deactivate this account with `chage -E 0 xoa-support`, and re-activate it with `chage -E 1 xoa-support`.
-:::

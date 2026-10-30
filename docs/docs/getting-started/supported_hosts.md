@@ -4,25 +4,25 @@ sidebar_position: 2
 
 # Host compatibility list
 
-Fragata connects to hosts running [XCP-ng](https://xcp-ng.org/) or [XenServer](https://www.xenserver.com/) (formerly Citrix Hypervisor), and only those: XO is **agent-less** and talks to the XAPI toolstack directly, so a Xen hypervisor installed from a regular Linux distribution will not work (see the [architecture section](architecture.md)).
+Fragata connects to hosts running [Fragata Host](#fragata-host), [XCP-ng](https://xcp-ng.org/) or [XenServer](https://www.xenserver.com/) (formerly Citrix Hypervisor), and only those: Fragata is **agent-less** and talks to the XAPI toolstack directly, so a Xen hypervisor installed from a regular Linux distribution will not work (see the [architecture section](architecture.md)).
 
-Fragata should be functional with any version of these two platforms. For the best support quality, use the versions marked with full support below.
+Fragata should be functional with any version of these platforms. For the best support quality, use the versions marked with full support below.
 
 | Badge | Meaning |
 |:---:|---|
 | ✅ | Full support |
 | 🚀 | All extra features (for example RAM-enabled backup) |
 | ☠️ | Platform without security updates anymore: upgrade your hosts! |
-| ❎ | Not all XO features supported |
+| ❎ | Not all Fragata features supported |
 
-## XCP-ng
+## Fragata Host
 
-Fragata and XCP-ng are built by the same company ([Vates](https://vates.tech)) and ship together as [Vates VMS](https://docs.vates.tech/): one subscription covers the XCP-ng licenses for all your hosts and your Fragata Appliance, and each monthly release is tested as a stack. If you run the bundle and keep it updated, XO and XCP-ng compatibility is a given.
+Fragata Host is the hypervisor of the Fragata project, a fork of [XCP-ng](https://xcp-ng.org/) 8.3. Fragata and Fragata Host are developed together, so if you keep both up to date their compatibility is a given. Fragata also manages upstream XCP-ng pools.
 
-The table below matters if you run XO from the sources, manage a mixed estate, or still have pools on older XCP-ng releases:
+The table below lists the XCP-ng releases (the base of Fragata Host) known to work, which matters if you manage a mixed estate or still have pools on older releases:
 
 <HostCompatTable rows={[
-  {version: 'XCP-ng 8.3 LTS', status: '✅ 🚀', notes: 'Recommended: LTS since June 2025, all XO features', highlight: true},
+  {version: 'XCP-ng 8.3 LTS', status: '✅ 🚀', notes: 'Recommended: LTS since June 2025, all Fragata features', highlight: true},
   {version: 'XCP-ng 8.2 LTS', status: '✅ ☠️', eol: true, notes: 'EOL since September 16, 2025'},
   {version: 'XCP-ng 8.1', status: '✅ ☠️', eol: true},
   {version: 'XCP-ng 8.0', status: '✅ ☠️', eol: true},

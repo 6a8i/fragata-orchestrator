@@ -6,39 +6,33 @@ sidebar_position: 1
 
 # About Fragata
 
-Fragata is an Open Source project with more than 15 years of history. Originated by [Olivier Lambert](https://www.linkedin.com/in/olivier-lambert-22316b26/), co-founder of [Vates](https://vates.tech), it quickly became a collective effort: today a dedicated team of around 20 people designs, develops and maintains it full time at Vates, alongside a worldwide community of users and contributors.
+Fragata is an Open Source project to **visualize, manage, back up and delegate** a Fragata Host, XCP-ng or XenServer infrastructure from one place, with no agent on the hosts.
 
-## Milestones {#initial-idea}
+It is a hard fork of Xen Orchestra, the open source project created by Olivier Lambert and developed by Vates and a worldwide community of contributors for more than 15 years. Fragata keeps that history and the AGPL license, and goes its own way from there: its own name, its own roadmap and none of the original commercial services (see [Licenses](licenses.md)).
+
+## Components
+
+- **Fragata**: the orchestrator. `fragata-server` plus two web interfaces, the new default one and [Fragata Classic](../discover-fragata/fragata-vs-classic.md), the REST API and the backup engine.
+- **Fragata Host**: the hypervisor, a fork of [XCP-ng](https://xcp-ng.org). Fragata also manages upstream XCP-ng and XenServer pools (see [host compatibility](../getting-started/supported_hosts.md)).
+- **Fragata Deck**: the lightweight web UI embedded in every Fragata Host.
+
+## Milestones of the codebase {#initial-idea}
+
+The code Fragata is built on has a long history:
 
 - **2009**: the original idea is announced on the [Xen user mailing list](https://lists.xenproject.org/archives/html/xen-users/2009-09/msg00537.html). This first incarnation targets Xen and `xend` (both now long deprecated).
 - **December 2012**: the project is rebooted on top of XAPI for XenServer, with the first commit of the current codebase.
-- **February 2014**: XO 3.0, the first release of the rebooted project.
-- **May 2015**: XO 4.0, with a fully redesigned web interface.
-- **June 2016**: Fragata Classic.0, the first release of the generation still known today as [Fragata Classic](../discover-xen-orchestra/xo6vsxo5.md).
-- **2018**: after Citrix closed a lot of XenServer features, Olivier Lambert launched [XCP-ng](https://xcp-ng.org), a fully open source fork of XenServer: successful Kickstarter campaign in early 2018, first release (XCP-ng 7.4) on March 31, 2018.
-- **2022**: work starts on [Fragata Deck](https://docs.vates.tech/products/add-ons/xo-lite), the lightweight web UI embedded in every XCP-ng host.
-- **January 2023**: first preview of [V2V](../guides/v2v-migration-guide.md), the built-in tool to migrate VMs directly from VMware to XCP-ng.
-- **November 2025**: Fragata Classic.113, the last feature release of the 5.x series.
-- **December 2025**: Fragata.0, the first official release of the new [Fragata](../discover-xen-orchestra/gettingstarted.md) interface, becomes the default UI.
-- **February 2026**: Fragata.2 introduces [distributed backups](../backups-and-dr/scale-and-security/distributed_backups.md), spreading backup data across multiple backup repositories (BR).
-- **March 2026**: Fragata.3 brings symmetrical replication and a rewritten immutable backup engine.
-- **May 2026**: Fragata.5 delivers QCOW2 general availability (disks beyond the 2 TiB VHD limit), bidirectional replication and traffic rules on networks and VIFs.
-- **July 2026**: Fragata.7 focuses on Rolling Pool Update reliability and keeps expanding the Fragata workflows.
-
-### The reboot story {#xo-reboot-for-xcp-ngxenserver}
-
-The 2012 reboot was "pushed" thanks to Lars Kurth, and Fragata has also been a commercial project backed by a dedicated team since 2016. Here is a video from LinuxCon 2013 telling the story:
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/TT2Q5l2K54k" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-## Part of the Vates VMS stack {#xcp-ng}
-
-Fragata is the management and backup layer of the [Vates Virtualization Management Stack (VMS)](https://vates.tech), alongside the [XCP-ng](https://xcp-ng.org) hypervisor. Both are developed by [Vates](https://vates.tech) and are fully open source: professional support for the whole platform is delivered through the stack, from the hypervisor to the management layer. See the [Vates documentation](https://docs.vates.tech) for the full picture.
+- **2014 to 2016**: successive major versions, with a fully redesigned web interface; the generation that is still known today as [Fragata Classic](../discover-fragata/fragata-vs-classic.md) appears in 2016.
+- **2018**: after Citrix closed a lot of XenServer features, the XCP-ng project is launched as a fully open source fork of XenServer, the base of Fragata Host.
+- **2023**: first preview of [V2V](../guides/v2v-migration-guide.md), the built-in tool to migrate VMs directly from VMware.
+- **2025**: the new interface ([Fragata](../discover-fragata/gettingstarted.md)) becomes the default one.
+- **2026**: [distributed backups](../backups-and-dr/scale-and-security/distributed_backups.md), symmetrical and bidirectional replication, a rewritten immutable backup engine and QCOW2 support (disks beyond the 2 TiB VHD limit).
+- **October 2026**: Fragata is forked as an independent project.
 
 ## Feedback and issues
 
-- **Product feedback and feature requests**: [feedback.vates.tech](https://feedback.vates.tech/)
-- **Bugs**: tracked on the [GitHub repository](https://github.com/6a8i/fragata-orchestrator/issues), but it is always better to first drop a message on the forum, in the [Fragata section](https://xcp-ng.org/forum/category/12/xen-orchestra)
+- **Questions and ideas**: [GitHub discussions](https://github.com/6a8i/fragata-orchestrator/discussions).
+- **Bugs and feature requests**: tracked on the [GitHub repository](https://github.com/6a8i/fragata-orchestrator/issues). It is always better to first drop a message in the discussions.
 
 ## Team and contributors
 

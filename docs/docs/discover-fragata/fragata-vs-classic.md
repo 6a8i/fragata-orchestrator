@@ -4,16 +4,16 @@ sidebar_position: 2
 
 # Fragata and Fragata Classic
 
-Fragata and Fragata Classic are two interfaces to the same Fragata. They run side by side, on the same server, against the same data: a VM started in one is instantly running in the other, a backup job created in Fragata Classic immediately shows its health in Fragata. There is no migration step and nothing to synchronize.
+Fragata and Fragata Classic are two interfaces to the same Fragata server. They run side by side against the same data: a VM started in one is instantly running in the other, a backup job created in Fragata Classic immediately shows its health in Fragata. There is no migration step and nothing to synchronize.
 
-- **Fragata** is the default interface and the future of Fragata.
+- **The Fragata interface** is the default one and the future of the product.
 - **Fragata Classic** remains fully available for everything Fragata does not cover yet: use the **Fragata Classic** link in the top-right corner, or the marked links that Fragata shows contextually (they open the right Fragata Classic page for the object you are on).
 
 ## What lives where today
 
-Fragata is under active development, so this table evolves with every release. As a rule of thumb: observing and operating your infrastructure day to day happens in Fragata; deep configuration still happens in Fragata Classic.
+The new interface is under active development, so this table evolves with every release. As a rule of thumb: observing and operating your infrastructure day to day happens in Fragata; deep configuration still happens in Fragata Classic.
 
-| Area                     | In Fragata                                                                                                                                             | Still in Fragata Classic                                                                  |
+| Area                     | In Fragata | Still in Fragata Classic                                                                  |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | Navigation and search    | Tree view of all pools, hosts, VMs, with live filtering and a query builder on every major table                                                    | Object list pages                                                              |
 | Dashboards               | Global, pool, host and VM dashboards: status, alarms, patches, resources, usage charts, backup health                                               | Global dashboard, health view                                                  |
@@ -27,10 +27,10 @@ Fragata is under active development, so this table evolves with every release. A
 | Backups                  | Job list with run history, per-job pages (runs, configuration, backed up VMs, targets), per-VM protection status, dashboard health panels           | Job creation and editing, restore, remotes, mirrors, sequences, health checks  |
 | Tasks                    | Full task history at every level, last-24-hours quick view                                                                                          | Task list                                                                      |
 | Users and access         | Users list with details, groups and authentication tokens                                                                                           | User creation and editing, groups, roles, LDAP and other auth providers, ACLs  |
-| Settings                 | Color mode, five themes, 21 languages                                                                                                               | Servers, plugins, proxies, licenses, everything under Settings                 |
+| Settings                 | Color mode, five themes, 21 languages                                                                                                               | Servers, plugins, everything under Settings                 |
 | Pool and host operations | Connect and disconnect pools, host start, shutdown, enable, disable, PIF scan, bug-tools archive                                                    | Patching and updates, rolling pool update, host maintenance and evacuation, HA |
 
-One more current limitation to know: Fragata requires an administrator account. Non-admin users are redirected to Fragata Classic until delegation lands in Fragata.
+One more current limitation to know: the new interface requires an administrator account. Non-admin users are redirected to Fragata Classic until delegation lands.
 
 ## Which one should I use?
 

@@ -5,9 +5,9 @@ sidebar_position: 1
 
 # What's new in Fragata
 
-Fragata is a complete redesign of the Fragata interface, built as a modern web application on a dedicated design system. It is not a reskin of Fragata Classic: the navigation, the information architecture and the visual language were rebuilt from scratch around how infrastructures are actually operated.
+Fragata's web interface is a complete redesign of the original one (now called Fragata Classic), built as a modern web application on a dedicated design system. It is not a reskin: the navigation, the information architecture and the visual language were rebuilt from scratch around how infrastructures are actually operated.
 
-<UiShot dark="/img/xo6/lab-dashboard.webp" alt="Fragata: one dashboard for every pool, host and VM you manage" url="https://myxoa.domain.tld/v6/#/dashboard" />
+<UiShot dark="/img/xo6/lab-dashboard.webp" alt="Fragata: one dashboard for every pool, host and VM you manage" url="https://your-fragata/v6/#/dashboard" />
 
 ## Highlights
 
@@ -18,10 +18,10 @@ Fragata is a complete redesign of the Fragata interface, built as a modern web a
 - **Make it yours**: light and dark color modes, five interface themes, and 21 languages.
 - **Task visibility**: a Tasks tab at every level records operations, API calls and authentications with their outcomes.
 - **Backup awareness everywhere**: protection status is visible from the global dashboard down to each VM, including the VMs that no job protects.
-- **Side-by-side with Fragata Classic**: both interfaces run on the same Fragata and the same data. Anything not yet in Fragata is one clearly marked click away.
+- **Side-by-side with Fragata Classic**: both interfaces run on the same server and the same data. Anything not yet in the new interface is one clearly marked click away.
 
 ## An interface that grows release by release
 
-Fragata reached its first official release with a deliberately focused scope, and new capabilities are added continuously: more actions on objects, user management, backup features and more. The [Fragata and Fragata Classic](xo6vsxo5.md) page tracks what lives where today, and the best way to see what is new is simply to keep your Fragata up to date.
+The new interface started with a deliberately focused scope, and new capabilities are added continuously: more actions on objects, user management, backup features and more. The [Fragata and Fragata Classic](fragata-vs-classic.md) page tracks what lives where today, and the best way to see what is new is simply to keep your Fragata [up to date](../getting-started/install-from-sources.md#updating).
 
 To explore the interface, start with [Fragata at a glance](gettingstarted.md).

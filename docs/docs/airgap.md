@@ -2,97 +2,26 @@
 unlisted: true
 ---
 
-# Airgap support and deployment
+# Air-gapped deployment
 
-:::tip
-This page is relevant only to official XO Appliances and does not cover XO built from sources.
-:::
+An air-gapped Fragata is a Fragata installed on a machine with no Internet access, managing pools on the same isolated network. Because Fragata is installed [from the sources](getting-started/install-from-sources.md), the whole job is to bring everything it downloads while building to the isolated machine.
 
-We are considering two types of air-gapped deployments:
+## Prepare on a connected machine
 
-- Physical air gap (completely offline)
-- Logical air gap with limited connectivity, or physical air gap with a connected pre-production/QA environment available
+Use a machine with the **same operating system, CPU architecture and Node.js version** as the target, and follow [Get the code and build](getting-started/install-from-sources.md#fetching-the-code). When `yarn build` is done, archive the whole checkout, `node_modules` included:
 
-## Logical Air Gap
+<Terminal shell title="connected machine — archive the built checkout">{`
+tar -czf fragata-orchestrator.tar.gz fragata-orchestrator
+`}</Terminal>
 
-In this scenario, you will need a QA/pre-production XCP-ng pool with Internet access. This pool will serve as a temporary zone for registering and upgrading the XOA, before physically exporting it to the disconnected environment.
+Also download, from your operating system's repositories, the [system packages](getting-started/install-from-sources.md#packages-and-prerequisites) (Redis, `libvhdi-utils`, `nfs-common`...) and a Node.js LTS build, for example with `apt-get download` or an internal mirror.
 
-### Deployment
+## Install on the isolated machine
 
-[Follow the standard procedure](./getting-started/installation.md) to deploy the XOA on your pool with Internet access.
+1. Copy the archive and the packages to the target machine, install the packages and Node.js.
+2. Extract the archive where you want Fragata to live, and [configure it](getting-started/configuration.md).
+3. [Start it](getting-started/install-from-sources.md#running-xo), preferably as a [service](getting-started/install-from-sources.md#always-running).
 
-Make sure that your appliance is [properly registered](./getting-started/installation.md#registration) and [up-to-date](./getting-started/updater.md).
+## Updating
 
-It's also good to take a quick look at [the XOA check](./getting-started/troubleshooting.md#first-reflex-xoa-check) to detect issues early.
-
-When everything is good, you can shutdown your XOA and export it:
-
-```console
-$ xe vm-shutdown uuid=$uuid
-$ xe vm-export compress=true uuid=$uuid filename=xoa.xva
-Export succeeded
-```
-
-> `$uuid` should be replaced by the UUID of your XOA.
-
-Now you need to move the `xoa.xva` file from your connected pool to your airgapped one.
-
-And the last step is to import it in your airgapped pool and start it:
-
-```console
-$ xe vm-import filename=xoa.xva
-c87a6dc3-9889-acf0-a680-79de3780c08f
-$ xe vm-start uuid=c87a6dc3-9889-acf0-a680-79de3780c08f
-```
-
-You can now delete the XOA on your connected pool, it is no longer necessary.
-
-### Upgrade
-
-To upgrade your XOA, you need to:
-
-1. shutdown the XOA on your airgapped pool
-2. export it to an XVA file
-3. move it to your connected pool and import it
-4. start it, run the [upgrade process](./getting-started/updater.md)
-5. shutdown this XOA
-6. export it to an XVA file
-7. move it to your airgapped pool and import it
-8. start it and check that everything appears correct
-9. delete the XOA on your connected pool and the previous XOA on your airgapped pool
-
-For details on the steps, refer to the [_Deployment_ section](#deployment).
-
-## Physical air gap only
-
-In this scenario, you are deploying directly without any prior Internet access. Vates can provide you with pre-registered XOAs that can be deployed directly in your offline environment, eliminating the need for any initial Internet connection. If you have an air gap subscription, our team will build it on-demand for you and provide a dedicated link for download.
-
-Please [contact us](https://vates.tech/contact) if you need more details.
-
-### Deploy Your Air-Gap XOA
-
-After downloading the dedicated air-gap XOA provided by our support team, follow these steps to deploy it:
-
-1. **Obtain the Deployment Script**: On a machine with internet access (or any non-air-gap machine), run the following command to download the deployment script:
-
-   ```bash
-   wget --no-verbose -O deploy.sh https://xoa.io/deploy
-   ```
-
-   Alternatively, you can manually copy the content from https://xoa.io/deploy into a file named `deploy.sh`.
-
-2. **Transfer Files to Your XCP-ng Host**: Copy both the `deploy.sh` script and the XOA appliance file (`XOA.xva`) to your air-gapped XCP-ng host.
-
-3. **Make the Script Executable**: On your XCP-ng host, ensure the `deploy.sh` script is executable by running:
-
-   ```bash
-   chmod +x deploy.sh
-   ```
-
-   Then, execute the following command to deploy the XOA appliance:
-
-   ```bash
-   ./deploy.sh XOA.xva
-   ```
-
-4. **Follow the Script Instructions**: During the deployment, the script will prompt you for essential network settings such as IP configuration, DNS, and NTP. Follow the on-screen instructions to complete the setup.
+Repeat the preparation step on the connected machine with an up to date checkout (`git pull`, `yarn`, `yarn build`), then replace the checkout on the isolated machine with the new archive and restart `fragata-server`.

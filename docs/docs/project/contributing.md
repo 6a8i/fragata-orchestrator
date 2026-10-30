@@ -1,19 +1,19 @@
 # Contribute
 
-XO is an Open Source project released under the [AGPL v3](http://www.gnu.org/licenses/agpl-3.0-standalone.html) license, contributions are therefore very welcome.
+Fragata is an Open Source project released under the [AGPL v3](http://www.gnu.org/licenses/agpl-3.0-standalone.html) license, contributions are therefore very welcome.
 
-This page is a summary: the source of truth is the [CONTRIBUTING.md](https://github.com/6a8i/fragata-orchestrator/blob/master/CONTRIBUTING.md) file at the root of the repository, and the project is governed by its [Code of Conduct](https://github.com/6a8i/fragata-orchestrator/blob/master/CODE_OF_CONDUCT.md).
+This page is a summary: the source of truth is the [CONTRIBUTING.md](https://github.com/6a8i/fragata-orchestrator/blob/main/CONTRIBUTING.md) file at the root of the repository, and the project is governed by its [Code of Conduct](https://github.com/6a8i/fragata-orchestrator/blob/main/CODE_OF_CONDUCT.md).
 
 ## Questions
 
-If you have a question, do not open a GitHub issue: search the [Fragata section of our forum](https://xcp-ng.org/forum/category/12/xen-orchestra) first, and open a new topic there if needed, with as much context as you can (versions, platform, what you are trying to do).
+If you have a question, do not open a GitHub issue: search the [GitHub discussions](https://github.com/6a8i/fragata-orchestrator/discussions) first, and open a new discussion there if needed, with as much context as you can (versions, platform, what you are trying to do).
 
 ## Bug reports
 
 Bugs are tracked as [GitHub issues](https://github.com/6a8i/fragata-orchestrator/issues). Before opening one:
 
 - Make sure you are using the latest version.
-- Check the [documentation](https://docs.xen-orchestra.com/) and the [forum](https://xcp-ng.org/forum/category/12/xen-orchestra) to rule out a configuration problem.
+- Check the [documentation](../intro.md) and the [discussions](https://github.com/6a8i/fragata-orchestrator/discussions) to rule out a configuration problem.
 - Search [existing bug reports](https://github.com/6a8i/fragata-orchestrator/issues?q=label%3Abug) to avoid duplicates.
 - Collect the relevant information: stack trace, OS and platform, versions, reproduction steps.
 
@@ -29,7 +29,7 @@ Enhancement suggestions (new features and improvements) are also tracked as [Git
 
 ## Translations
 
-[Help us translate Fragata in more languages!](http://translate.vates.tech/engage/xen-orchestra/)
+Translations are plain locale files in the repository (see the `locales` folders of the web packages): send a pull request to add or improve a language.
 
 ## Documentation / Code
 
@@ -49,10 +49,10 @@ to create a [GitHub pull request](https://help.github.com/articles/using-pull-re
 3. Create a branch for your work
 4. Edit the source files
 5. Add a summary of your changes to `CHANGELOG.unreleased.md`, if your changes do not relate to an existing changelog item and update the list of packages that must be released to take your changes into account
-6. [Create a pull request](https://github.com/6a8i/fragata-orchestrator/compare) for this branch against the `master` branch
+6. [Create a pull request](https://github.com/6a8i/fragata-orchestrator/compare) for this branch against the `main` branch
 7. Push into the branch until the pull request is ready to merge
-8. Avoid unnecessary merges: keep your branch up to date by regularly rebasing `git rebase origin/master`
-9. When ready to merge, clean up the history (reorder commits, squash some of them together, rephrase messages): `git rebase -i origin/master`
+8. Avoid unnecessary merges: keep your branch up to date by regularly rebasing `git rebase origin/main`
+9. When ready to merge, clean up the history (reorder commits, squash some of them together, rephrase messages): `git rebase -i origin/main`
 
 ### Issue triage
 
@@ -83,7 +83,7 @@ This helps new people to contribute.
 
 - backup
 - GUI
-- upstream: not a XO issue → link to the upstream issue and monitor progress
+- upstream: not a Fragata issue → link to the upstream issue and monitor progress
 
 **Severity**
 

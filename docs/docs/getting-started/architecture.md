@@ -4,14 +4,14 @@ sidebar_position: 9
 
 # Architecture
 
-Fragata (XO) is built as **one server and several clients**: the two web interfaces ([Fragata](../discover-xen-orchestra/gettingstarted.md) and Fragata Classic), the command line client `fragata-cli`, and anything speaking the [REST API](automation/restapi.md). The server, `fragata-server`, is the only piece that talks to your infrastructure.
+Fragata is built as **one server and several clients**: the two web interfaces ([Fragata](../discover-fragata/gettingstarted.md) and Fragata Classic), the command line client `fragata-cli`, and anything speaking the [REST API](../automation/restapi.md). The server, `fragata-server`, is the only piece that talks to your infrastructure.
 
 :::tip
-XO is totally agent-less: nothing to install on your hosts. `fragata-server` speaks XAPI, the native toolstack of XCP-ng, directly over the network.
+Fragata is totally agent-less: nothing to install on your hosts. `fragata-server` speaks XAPI, the native toolstack of Fragata Host, directly over the network.
 :::
 
-<Schema label="One server, several clients, your whole infrastructure" legend={[["#6aabf0", "XO"], ["#8e83fe", "XCP-ng"]]} maxWidth="720px">
-<svg viewBox="0 0 680 330" role="img" aria-label="Fragata, Fragata Classic, fragata-cli and REST API clients talk to fragata-server, which connects to the master of every XCP-ng pool over XAPI">
+<Schema label="One server, several clients, your whole infrastructure" legend={[["#6aabf0", "Fragata"], ["#8e83fe", "Fragata Host"]]} maxWidth="720px">
+<svg viewBox="0 0 680 330" role="img" aria-label="Fragata, Fragata Classic, fragata-cli and REST API clients talk to fragata-server, which connects to the master of every Fragata Host pool over XAPI">
   <g fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.28)">
     <rect x="20" y="12" width="150" height="52" rx="8"/>
     <rect x="190" y="12" width="150" height="52" rx="8"/>
@@ -74,27 +74,23 @@ XO is totally agent-less: nothing to install on your hosts. `fragata-server` spe
     <text x="612" y="282">host</text>
   </g>
   <g fontSize="9.5" fill="#7a8699" textAnchor="middle">
-    <text x="96" y="297">XCP-ng</text>
-    <text x="436" y="297">XCP-ng</text>
+    <text x="96" y="297">Fragata Host</text>
+    <text x="436" y="297">Fragata Host</text>
   </g>
   <g fontSize="9" fill="#7a8699" fillOpacity="0.7" textAnchor="middle">
-    <text x="200" y="297">XCP-ng</text>
-    <text x="272" y="297">XCP-ng</text>
-    <text x="540" y="297">XCP-ng</text>
-    <text x="612" y="297">XCP-ng</text>
+    <text x="200" y="297">Fragata Host</text>
+    <text x="272" y="297">Fragata Host</text>
+    <text x="540" y="297">Fragata Host</text>
+    <text x="612" y="297">Fragata Host</text>
   </g>
 </svg>
 </Schema>
 
-Note that `fragata-server` only needs to reach the **master** of each pool: the master relays to the other hosts of its pool. One XO connects to any number of pools, on any site.
-
-## XOA
-
-The _Fragata Appliance_ (XOA) is a VM with the whole stack pre-installed, configured and QA validated. It is the way we recommend and support running XO: see [Installing XOA](installation.md).
+Note that `fragata-server` only needs to reach the **master** of each pool: the master relays to the other hosts of its pool. One Fragata connects to any number of pools, on any site.
 
 ## fragata-server
 
-[`fragata-server`](https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-server/) is the heart of Fragata: a Node.js daemon connected permanently to your pools. Its central position is what makes XO more than a mere client:
+[`fragata-server`](https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-server/) is the heart of Fragata: a Node.js daemon connected permanently to your pools. Its central position is what makes Fragata more than a mere client:
 
 - **Always on**: as a daemon, it listens to and records every event of your infrastructure, around the clock, whether a client is watching or not. That is what makes always-up-to-date views, scheduled backup jobs and task history possible.
 - **Event driven**: `fragata-server` subscribes to XAPI events instead of polling. Changes on a host or VM appear in your browser the moment they happen, and the server-side cache answers clients instantly, at any infrastructure size.
@@ -106,7 +102,7 @@ The _Fragata Appliance_ (XOA) is a VM with the whole stack pre-installed, config
 
 Legacy clients ask the servers "anything new?" every few seconds: slow, and it collapses at scale. `fragata-server` subscribes once to the XAPI event stream, and pushes every change to all connected clients the moment it happens:
 
-<Schema label="Polling asks, events arrive" legend={[["#6aabf0", "XO"], ["#8e83fe", "XCP-ng"]]} maxWidth="680px">
+<Schema label="Polling asks, events arrive" legend={[["#6aabf0", "Fragata"], ["#8e83fe", "Fragata Host"]]} maxWidth="680px">
 <svg viewBox="0 0 680 230" role="img" aria-label="Legacy polling asks the host for news every few seconds; with Fragata, XAPI events flow from the host through fragata-server to every client the moment they happen">
   <g fill="none" stroke="rgba(255,255,255,0.22)" strokeDasharray="6 5">
     <rect x="20" y="14" width="290" height="200" rx="10"/>
@@ -172,25 +168,25 @@ Legacy clients ask the servers "anything new?" every few seconds: slow, and it c
 
 Two web UIs currently ship with Fragata, served by `fragata-server` and talking to it over WebSockets:
 
-- **Fragata** (`@fragata/web`), the new default interface, built with Vue.js on a dedicated design system. See the [Fragata documentation](../discover-xen-orchestra/gettingstarted.md).
+- **Fragata** (`@fragata/web`), the new default interface, built with Vue.js on a dedicated design system. See the [Fragata documentation](../discover-fragata/gettingstarted.md).
 - **Fragata Classic** (`fragata-web-classic`), the complete historical interface, built with React. See [the infrastructure management section](../manage-your-infrastructure/manage_infrastructure.md) for what you can do with it.
 
-<UiShot light="/img/xo6/dashboard-light.png" dark="/img/xo6/dashboard-dark.png" alt="Fragata, the new default web interface" url="https://your-xo/v6/#/dashboard" />
+<UiShot light="/img/xo6/dashboard-light.png" dark="/img/xo6/dashboard-dark.png" alt="Fragata, the new default web interface" url="https://your-fragata/v6/#/dashboard" />
 
-Both run against the same server and the same data at the same time: see [Fragata and Fragata Classic](../discover-xen-orchestra/xo6vsxo5.md).
+Both run against the same server and the same data at the same time: see [Fragata and Fragata Classic](../discover-fragata/fragata-vs-classic.md).
 
 ## fragata-cli
 
-[`fragata-cli`](https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-cli) sends commands to `fragata-server` from a shell. Thanks to introspection, it discovers every method the server exposes, plus a convenient wrapper around the REST API.
+[`fragata-cli`](https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-cli) sends commands to `fragata-server` from a shell. Thanks to introspection, it discovers every method the server exposes, plus a convenient wrapper around the REST API.
 
 :::warning
-`fragata-cli` is mainly a debug and power-user tool: there is no absolute guarantee on its stability. Prefer the [REST API](automation/restapi.md) for automation.
+`fragata-cli` is mainly a debug and power-user tool: there is no absolute guarantee on its stability. Prefer the [REST API](../automation/restapi.md) for automation.
 :::
 
-Register your XO instance first (only a token is stored):
+Register your Fragata instance first (only a token is stored):
 
-<Terminal title="workstation — register your XO">{`
-fragata-cli register http://xo.my-company.net admin@admin.net admin
+<Terminal title="workstation — register your Fragata">{`
+fragata-cli register http://fragata.my-company.net admin@admin.net admin
 Successfully logged with admin@admin.net
 `}</Terminal>
 
@@ -212,21 +208,21 @@ fragata-cli server.add host=my.server.net username=root password=secret-password
 Parameters are strings by default (`true`/`false` are parsed as booleans); prefix with `json:` for other types (`baz='json:[1, 2, 3]'`). `fragata-cli help` documents everything, including the `fragata-cli rest get|post|patch|del` subcommands that map directly onto the REST API.
 
 :::note
-`fragata-cli` imports XVA files only (`fragata-cli vm.import sr=<SR UUID> @=vm.xva`). For OVA imports, use the web UI or [`fragata-upload-ova`](https://github.com/6a8i/fragata-orchestrator/blob/master/@fragata/upload-ova/README.md#fragata-upload-ova).
+`fragata-cli` imports XVA files only (`fragata-cli vm.import sr=<SR UUID> @=vm.xva`). For OVA imports, use the web UI or [`fragata-upload-ova`](https://github.com/6a8i/fragata-orchestrator/blob/main/@fragata/upload-ova/README.md#fragata-upload-ova).
 :::
 
 ## APIs
 
-The public, supported API of Fragata is the **[REST API](automation/restapi.md)**: plain HTTP, easy to call from any language or tool, with its own documentation page and a live OpenAPI reference at `/rest/v0/docs/` on your XO.
+The public, supported API of Fragata is the **[REST API](../automation/restapi.md)**: plain HTTP, easy to call from any language or tool, with its own documentation page and a live OpenAPI reference at `/rest/v0/docs/` on your Fragata.
 
-Internally, the web UIs and `fragata-cli` talk to `fragata-server` over a JSON-RPC-over-WebSockets protocol: that connected mode is what lets clients subscribe to events and stay current in real time. This internal API is not designed for third parties: if you automate against XO, use the REST API.
+Internally, the web UIs and `fragata-cli` talk to `fragata-server` over a JSON-RPC-over-WebSockets protocol: that connected mode is what lets clients subscribe to events and stay current in real time. This internal API is not designed for third parties: if you automate against Fragata, use the REST API.
 
 ## Plugins
 
 Plugins extend Fragata without touching its core. They live in "Settings, then Plugins":
 
-<UiDetail src="/img/xoa/plugins-menu.png" alt="The Plugins page in Settings" width={520} />
+<UiDetail src="/img/classic/plugins-menu.png" alt="The Plugins page in Settings" width={520} />
 
 Each plugin can be activated or deactivated, loaded at startup, and configured entirely from the web interface:
 
-<UiDetail src="/img/xoa/plugins-page.png" alt="Configuring a plugin from the web interface" width={520} />
+<UiDetail src="/img/classic/plugins-page.png" alt="Configuring a plugin from the web interface" width={520} />
