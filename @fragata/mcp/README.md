@@ -16,7 +16,7 @@ npm install --global @fragata/mcp
 
 ## Usage
 
-[MCP](https://modelcontextprotocol.io/) (Model Context Protocol) is an open standard that lets AI assistants interact with external tools. This package provides an MCP server that connects AI assistants like Claude to your [Fragata](https://xen-orchestra.com/) infrastructure, allowing natural language queries about your pools, hosts, and VMs.
+[MCP](https://modelcontextprotocol.io/) (Model Context Protocol) is an open standard that lets AI assistants interact with external tools. This package provides an MCP server that connects AI assistants like Claude to your Fragata infrastructure, allowing natural language queries about your pools, hosts, and VMs.
 
 ### Quick Start
 

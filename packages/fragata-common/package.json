@@ -3,8 +3,8 @@
   "name": "fragata-common",
   "version": "0.11.0",
   "license": "AGPL-3.0-or-later",
-  "description": "Code shared between [XO](https://xen-orchestra.com) server and clients",
-  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-common",
+  "description": "Code shared between Fragata server and clients",
+  "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-common",
   "bugs": "https://github.com/6a8i/fragata-orchestrator/issues",
   "repository": {
     "directory": "packages/fragata-common",

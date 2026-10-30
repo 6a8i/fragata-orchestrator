@@ -4185,7 +4185,7 @@ export const importVmsFromEsxi = params => _call('vm.importMultipleFromEsxi', pa
 
 // GitHub API ---------------------------------------------------------------
 const _callGithubApi = async (endpoint = '') => {
-  const url = new URL('https://api.github.com/repos/vatesfr/xen-orchestra')
+  const url = new URL('https://api.github.com/repos/6a8i/fragata-orchestrator')
   url.pathname += endpoint
   const resp = await fetch(url.toString())
   const json = await resp.json()

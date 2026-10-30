@@ -4,7 +4,7 @@
 
 [![Package Version](https://badgen.net/npm/v/fragata-common)](https://npmjs.org/package/fragata-common) ![License](https://badgen.net/npm/license/fragata-common) [![PackagePhobia](https://badgen.net/bundlephobia/minzip/fragata-common)](https://bundlephobia.com/result?p=fragata-common) [![Node compatibility](https://badgen.net/npm/node/fragata-common)](https://npmjs.org/package/fragata-common)
 
-> Code shared between [XO](https://xen-orchestra.com) server and clients
+> Code shared between Fragata server and clients
 
 ## Install
 
