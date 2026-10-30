@@ -751,7 +751,7 @@ export class HostController extends XapiXoController<XoHost> {
       bypassVersionCheck?: boolean
       /** Allow suspending VMs even if suspend is blocked. Defaults to false. */
       bypassBlockedSuspend?: boolean
-      /** Skip the check that blocks smart reboot when XOA is running on this host. Defaults to false. */
+      /** Skip the check that blocks smart reboot when Fragata is running on this host. Defaults to false. */
       bypassCurrentVmCheck?: boolean
     },
     @Query() sync?: boolean

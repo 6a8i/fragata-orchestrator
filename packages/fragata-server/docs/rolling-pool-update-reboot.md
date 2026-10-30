@@ -1,6 +1,6 @@
 ## On-disk traces
 
-Each RPU/RPR run writes two files in `<datadir>/rpu-traces` (`/var/lib/fragata-server/data/rpu-traces` on XOA, `rpu.tracesDir` to override):
+Each RPU/RPR run writes two files in `<datadir>/rpu-traces` (`/var/lib/fragata-server/data/rpu-traces` by default, `rpu.tracesDir` to override):
 
 ```
 rpu-<poolId>-<ISO timestamp>.ndjson           # the trace

@@ -72,7 +72,7 @@ export class FirewallCommandError extends Error {
  *
  * Known limit: any change made to ufw (`ufw allow`, `ufw delete`, `ufw reload`, `ufw enable`…)
  * restores its user chains from `user.rules`, which drops these rules and breaks the mounts alive at
- * that time. Accepted: XOA and proxies are appliances, their firewall is not meant to be changed by
+ * that time. Accepted: Fragata is not an appliance, but its firewall is not meant to be changed by
  * hand. The mounts made afterwards are not affected.
  */
 const UFW = {

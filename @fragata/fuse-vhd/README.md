@@ -41,7 +41,7 @@ After installing the package
 fragata-fuse-vhd <remoteUrl> <vhdPathInRemote> <mountPoint>
 ```
 
-The `remoteUrl` can be found using the following command from the XOA CLI, and then picking the right `url` property:
+The `remoteUrl` can be found using the following command from the Fragata CLI, and then picking the right `url` property:
 
 `fragata-server-db ls remote`
 

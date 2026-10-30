@@ -1,4 +1,4 @@
-// === XOA
+// === Fragata
 export const REAL_ONLY_ALL = {
   roleTemplateId: 1,
   name: 'Read only',

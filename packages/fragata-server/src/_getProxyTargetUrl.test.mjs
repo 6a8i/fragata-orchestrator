@@ -12,7 +12,7 @@ describe('getProxyTargetUrl()', () => {
     assert.equal(isLocal, true)
   })
 
-  // regression test: with the shipped XOA config (hostname = '0.0.0.0'), the
+  // regression test: with the shipped config (hostname = '0.0.0.0'), the
   // target must not be rewritten to an unroutable address nor become eligible
   // for the HTTP proxy agent
   it('keeps localhost untouched when the listen hostname is a wildcard', () => {

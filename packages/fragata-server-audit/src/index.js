@@ -465,7 +465,7 @@ class AuditXoPlugin {
   async _uploadLastHash() {
     const xo = this._xo
 
-    // In case of nonexistent XOA plugin
+    // In case of nonexistent upload plugin
     if (xo.audit === undefined) {
       return
     }

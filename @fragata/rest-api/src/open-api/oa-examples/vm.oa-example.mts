@@ -59,7 +59,7 @@ export const vm = {
   },
   installTime: 1734534522,
   name_description: 'Debian 12 Cloud-Init Ready Hub Template',
-  name_label: 'MRA XOA',
+  name_label: 'MRA Fragata',
   needsVtpm: false,
   other: {
     'xo:f07ab729':

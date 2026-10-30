@@ -7,7 +7,7 @@
   "name": "@fragata/rest-api",
   "homepage": "https://github.com/6a8i/fragata-orchestrator/tree/main/@fragata/rest-api",
   "version": "0.41.1",
-  "description": "REST API to manage your XOA",
+  "description": "REST API to manage your Fragata",
   "license": "AGPL-3.0-or-later",
   "private": false,
   "type": "module",
