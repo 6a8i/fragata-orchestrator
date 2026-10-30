@@ -65,7 +65,7 @@
 }
 
 /* Opt-in glow: add className="schema-glow" to a shape for a slow breathing
-   halo. Color defaults to the XO blue; override with
+   halo. Color defaults to the Fragata blue; override with
    style={{'--schema-glow-color': '...'}}. Costly: the animated blur
    re-rasterizes every frame - use on at most one element per page, or
    prefer an opacity pulse on a pre-blurred shape. */

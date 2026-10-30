@@ -55,7 +55,7 @@ function MoonIcon() {
   )
 }
 
-export default function UiShot({ light, dark, alt, url = 'https://your-xo/v6/' }: UiShotProps): JSX.Element {
+export default function UiShot({ light, dark, alt, url = 'https://your-fragata/v6/' }: UiShotProps): JSX.Element {
   const { colorMode } = useColorMode()
   const [override, setOverride] = useState<'light' | 'dark' | null>(null)
   const mode = light && dark ? (override ?? colorMode) : light ? 'light' : 'dark'

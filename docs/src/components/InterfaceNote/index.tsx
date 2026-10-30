@@ -19,7 +19,7 @@ export default function InterfaceNote({ children }: { children?: React.ReactNode
             <strong>Fragata Classic</strong> link in the top-right corner of Fragata.
           </>
         )}{' '}
-        <Link to='/discover-xen-orchestra/xo6vsxo5'>See what lives where</Link>.
+        <Link to='/discover-fragata/fragata-vs-classic'>See what lives where</Link>.
       </div>
     </div>
   )

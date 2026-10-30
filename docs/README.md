@@ -1,6 +1,6 @@
-# Website
+# Fragata documentation
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+The documentation of Fragata, built with [Docusaurus](https://docusaurus.io/). The pages live in `docs/`; the site is also served by `fragata-server` under `/docs` (see `docusaurus.embed.config.ts`).
 
 ### Installation
 
@@ -8,7 +8,7 @@ This website is built using [Docusaurus](https://docusaurus.io/), a modern stati
 $ yarn
 ```
 
-### Local Development
+### Local development
 
 ```
 $ yarn start
@@ -22,20 +22,14 @@ This command starts a local development server and opens up a browser window. Mo
 $ yarn build
 ```
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+This command generates static content into the `build` directory. Broken links and broken anchors fail the build.
 
-### Deployment
-
-Using SSH:
+To build the variant served by `fragata-server` under `/docs`:
 
 ```
-$ USE_SSH=true yarn deploy
+$ yarn build:fragata-server
 ```
 
-Not using SSH:
+### Linking to the documentation from the application
 
-```
-$ GIT_USER=<Your GitHub username> yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+The application links to pages of this folder through `https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/<page>.md#<anchor>` URLs. When you rename a page or a heading, search the repository for the old URL and update it.

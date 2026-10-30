@@ -10,7 +10,7 @@ import styles from './styles.module.css'
  * Assumptions (documented on the page):
  *  - backups run on a fixed schedule (configurable runs/day)
  *  - one restore point per run
- *  - week buckets use ISO weeks (close to XO's locale weeks with default settings)
+ *  - week buckets use ISO weeks (close to Fragata's locale weeks with default settings)
  *  - times are computed in UTC (bucket boundaries shift by a few hours vs. a
  *    real timezone, which does not change the counts)
  */
@@ -465,7 +465,7 @@ export default function LtrBackupCalculator(): JSX.Element {
         <summary>How the kept restore points map to full-backup chains</summary>
         <p className={styles.detailsIntro}>
           Each <em>chain</em> keeps exactly one full backup: the oldest restore point still in it absorbs its deleted
-          ancestors when XO merges. So the number of full backups equals the number of chains that still hold a kept
+          ancestors when Fragata merges. So the number of full backups equals the number of chains that still hold a kept
           point.
         </p>
         <table className={styles.table}>
