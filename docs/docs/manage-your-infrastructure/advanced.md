@@ -13,7 +13,7 @@ This section is dedicated to all other Fragata features.
 When you are working on your virtualized infrastructure, you might need a very detailed view on what's going on. From resource consumption analysis (CPU/RAM) to network traffic, but also storage, having a kind of very detailed dashboard per host can be really useful.
 
 :::tip
-This feature will be only available in XCP-ng+XOA. If you are a hardcore Citrix Hypervisor user, let us know if you want this.
+This feature is only available on Fragata Host.
 :::
 
 ### Enable Advanced Live Telemetry for a host
@@ -22,7 +22,7 @@ Go into the Advanced host view:
 
 <UiDetail src="/img/xo5/telemetry-enable.png" alt="The Advanced Live Telemetry button, in the host Advanced tab" width={700} />
 
-By clicking here, XOA will handle everything: installing netdata on the host, and configure a secured/encrypted streaming toward your XOA.
+By clicking here, Fragata will handle everything: installing netdata on the host, and configure a secured/encrypted streaming toward your Fragata server.
 
 As soon it's installed, the button will now be replaced by a "Go to Advanced Live Telemetry". As soon you'll click on it, you'll be redirected to the netdata page of the host. If you have multiple host, you can access any of them directly from the top menu of the netdata UI.
 
@@ -33,7 +33,7 @@ IMPI info (power, temperatures, voltages, fans…):
 <UiDetail src="/img/xo5/telemetry-ipmi.png" alt="IPMI data in netdata: power, temperatures, voltages, fans" width={620} />
 
 :::tip
-This feature is only available in one-click in your XOA. However, all sources and packages to do it yourself are available!
+Fragata sets this up in one click. However, all sources and packages to do it yourself are available!
 :::
 
 Memory details:
@@ -48,7 +48,7 @@ Firewall:
 
 ### Disk Health Monitoring
 
-Fragata makes it easy to monitor disk health using a XAPI plugin for XCP-ng that leverages `smartctl`. You can check the status of your disks directly in the interface.
+Fragata makes it easy to monitor disk health using a XAPI plugin for Fragata Host that leverages `smartctl`. You can check the status of your disks directly in the interface.
 
 - **Healthy Disks:** If all disks are in good condition, Fragata shows: **All disks are healthy ✅**.
 - **Unhealthy Disks:** If any issues are detected, a warning icon appears, indicating how many disks are affected:
@@ -70,7 +70,7 @@ You can trigger an HTTP POST request to a URL when a Fragata API method is calle
 - Go to Settings > Plugins > Web hooks
 - Add new hooks
 - For each hook, configure:
-  - Method: the XO API method that will trigger the HTTP request when called. For backup jobs, choose `backupNg.runJob`.
+  - Method: the Fragata API method that will trigger the HTTP request when called. For backup jobs, choose `backupNg.runJob`.
   - Type:
     - pre: the request will be sent when the method is called
     - post: the request will be sent after the method action is completed
@@ -79,7 +79,7 @@ You can trigger an HTTP POST request to a URL when a Fragata API method is calle
   - Wait for response: you can choose to wait for the web hook response before the method is actually called ("pre" hooks only). This can be useful if you need to automatically run some tasks before a certain method is called.
 - Save the plugin configuration
 
-From now on, a request will be sent to the corresponding URLs when a configured method is called by an XO client.
+From now on, a request will be sent to the corresponding URLs when a configured method is called by a Fragata client.
 
 ### Request content
 
@@ -158,7 +158,7 @@ Those alerts will be also stored and accessible in the web interface, and also l
 This feature might currently be missing. We are investigating.
 :::
 
-When your XOA detects new packages, you'll be notified by email.
+When Fragata detects new packages, you'll be notified by email.
 
 ### Backup alerts
 
@@ -258,17 +258,13 @@ When the power outage is over, all you need to do is:
 
 Terraform is a cloud/platform agnostic tool for building, changing, and versioning infrastructure. Terraform can manage existing and popular service providers as well as custom in-house solutions (like Fragata). It can manage resources through their entire lifecycle or even manage infrastructure it didn't initially create.
 
-We sponsored a developer to build a [Fragata provider for Terraform](https://registry.terraform.io/providers/vatesfr/xenorchestra/latest), so you can use it as a central point for your whole virtualized infrastructure. The source code is [available on GitHub](https://github.com/vatesfr/terraform-provider-xenorchestra/), and contributions are welcome!
-
-:::tip
-Don't miss [our blog post series about it](https://xen-orchestra.com/blog/author/ddelnano/), written by Dom Del Nano, the original developer of this provider!
-:::
+A community-maintained [Terraform provider](https://registry.terraform.io/providers/vatesfr/xenorchestra/latest) speaks the Fragata API, so you can use it as a central point for your whole virtualized infrastructure. It is a third-party project: its source code is [available on GitHub](https://github.com/vatesfr/terraform-provider-xenorchestra/), and contributions are welcome!
 
 It works with few steps:
 
 1. Install terraform
 2. Create a VM template for the new VM
-3. Provision the VM with terraform and its XO provider
+3. Provision the VM with terraform and its Fragata provider
 
 From there, you can even manage your existing resources with Terraform!
 
@@ -276,7 +272,7 @@ From there, you can even manage your existing resources with Terraform!
 
 Synchronize your pools, VMs, network interfaces and IP addresses with your [Netbox](https://docs.netbox.dev/en/stable/) instance.
 
-<UiShot light="/img/xo5/netbox.png" alt="Your XO pools, VMs and IP addresses, synchronized in Netbox" url="https://netbox.company.net" />
+<UiShot light="/img/xo5/netbox.png" alt="Your Fragata pools, VMs and IP addresses, synchronized in Netbox" url="https://netbox.company.net" />
 
 ### Supported versions {#supported-versions}
 
@@ -285,14 +281,14 @@ Synchronize your pools, VMs, network interfaces and IP addresses with your [Netb
 - `< 4.8`
 
 :::tip
-For safety, XO will not synchronize your pools if it detects a Netbox version that is not supported. If you wish to change that behavior, edit you `fragata-server` configuration like so:
+For safety, Fragata will not synchronize your pools if it detects a Netbox version that is not supported. If you wish to change that behavior, edit you `fragata-server` configuration like so:
 
 ```toml
 [netbox]
 checkNetboxVersion = false
 ```
 
-Please be aware that by doing this, a Netbox update might make XO delete some of your data in Netbox.
+Please be aware that by doing this, a Netbox update might make Fragata delete some of your data in Netbox.
 :::
 
 ### Netbox side
@@ -303,30 +299,30 @@ Please be aware that by doing this, a Netbox update might make XO delete some of
   - Manually create as many prefixes as needed for your infrastructure's IP addresses
 
 :::warning
-XO will try to find the right prefix for each IP address. If it can't find a prefix that fits, the IP address won't be synchronized.
+Fragata will try to find the right prefix for each IP address. If it can't find a prefix that fits, the IP address won't be synchronized.
 :::
 
 - Create permissions:
   - Go to Admin > Permissions > Add and create 2 permissions:
-    - "XO read" with action "Can view" enabled and object types:
+    - "Fragata read" with action "Can view" enabled and object types:
       - Extras > custom field
       - IPAM > prefix
-    - "XO read-write" with all 4 actions enabled and object types:
+    - "Fragata read-write" with all 4 actions enabled and object types:
       - DCIM > platform
       - Extras > tag
       - IPAM > IP address
-      - Tenancy > tenant (if you want to synchronize XO users with Netbox tenants)
+      - Tenancy > tenant (if you want to synchronize Fragata users with Netbox tenants)
       - Virtualization > cluster
       - Virtualization > cluster type
       - Virtualization > virtual machine
       - Virtualization > interface
 
-<UiDetail src="/img/xo5/netbox-permissions.png" alt="The two XO permissions, on the Netbox side" width={620} />
+<UiDetail src="/img/xo5/netbox-permissions.png" alt="The two Fragata permissions, on the Netbox side" width={620} />
 
 - Create a Netbox user:
   - Go to Admin > Users > Add
   - Choose a username and a password
-  - Scroll down to Permissions and select the 2 permissions "XO read" and "XO read-write"
+  - Scroll down to Permissions and select the 2 permissions "Fragata read" and "Fragata read-write"
 - Create an API token:
   - Got to Admin > API Tokens > Add
   - Select the user you just created
@@ -340,7 +336,7 @@ For testing purposes, you can create an API token bound to a Netbox superuser ac
 - Create a UUID custom field:
   - Go to Customization > Custom Fields > Add
   - Select object types:
-    - Tenancy > tenant (if you want to synchronize XO users with Netbox tenants)
+    - Tenancy > tenant (if you want to synchronize Fragata users with Netbox tenants)
     - Virtualization > cluster
     - Virtualization > virtual machine
     - Virtualization > interface
@@ -359,7 +355,7 @@ In Netbox 2.x, custom fields can be created from the Admin panel > Custom fields
   - Unauthorized certificate: only for HTTPS, enable this option if your Netbox instance uses a self-signed SSL certificate
   - Token: the token you generated earlier
   - Pools: the pools you wish to automatically synchronize with Netbox
-  - Synchronize users: enable this if you wish to synchronize XO users with Netbox tenants. Tenants will be assigned to the VMs the XO user _created_ within XO. Important: if you want to enable this feature, you also need to assign the custom field "uuid" that you created in the previous step to the type "Tenancy > tenant".
+  - Synchronize users: enable this if you wish to synchronize Fragata users with Netbox tenants. Tenants will be assigned to the VMs the Fragata user _created_ within Fragata. Important: if you want to enable this feature, you also need to assign the custom field "uuid" that you created in the previous step to the type "Tenancy > tenant".
   - Interval: the time interval (in hours) between 2 auto-synchronizations. Leave empty if you don't want to synchronize automatically.
 - Load the plugin (button next to the plugin's name)
 - Manual synchronization: if you correctly configured and loaded the plugin, a "Synchronize with Netbox" button will appear in every pool's Advanced tab, which allows you to manually synchronize it with Netbox
@@ -367,32 +363,6 @@ In Netbox 2.x, custom fields can be created from the Admin panel > Custom fields
 :::tip
 If you get a `403 Forbidden` error when testing the plugin, make sure you correctly configured the "Allowed IPs" for the token you are using.
 :::
-
-## Recipes
-
-### What are recipes?
-
-In Fragata, recipes are ready-to-use automation templates that make it easy to deploy complex infrastructures. You don’t need to configure each virtual machine manually.
-
-With just a few clicks, you can launch a complete multi-VM environment, where all nodes are automatically set up and connected.
-
-### Available recipes
-
-Recipes are currently available for:
-
-- [Kubernetes clusters](../automation/kubernetes.md)
-- EasyVirt DC Scope (an infrastructure monitoring and optimization solution) 
-- EasyVirt DC NetScope (a network observability and traffic analysis solution)
-
-:::tip
-For more information on the integration between Vates and EasyVirt, refer to the dedicated page on the [Vates VMS documentation](https://docs.vates.tech/compatible-solutions/monitoring-optimization#dc-scope-and-dc-netscope-easyvirt), or our [dedicated blog post](https://vates.tech/blog/expanding-the-vates-ecosystem-with-easyvirt/).
-:::
-
-![List of recipes available in Fragata Classic. Includes Kubernetes and EasyVirt solutions.](../../static/img/xo5/k8s-easyvirt-recipes.png)
-
-Each recipe guides you through the deployment process and automatically creates and configures the required infrastructure:
-
-![Creation form, from the EasyVirt VM recipe](../../static/img/xo5/easyvirt-recipe-form.png)
 
 ## OpenMetrics / Prometheus Integration
 
@@ -409,7 +379,6 @@ The OpenMetrics plugin exposes a `/metrics` endpoint that Prometheus can scrape 
 
 ### Requirements
 
-- Fragata with Premium license
 - Prometheus server (or compatible: Victoria Metrics, Mimir, etc.)
 - (Optional) Grafana for visualization
 
@@ -435,11 +404,11 @@ The metrics endpoint is available through fragata-server's HTTP proxy at `/openm
 
 ```yaml
 scrape_configs:
-  - job_name: 'xen-orchestra'
+  - job_name: 'fragata'
     scrape_interval: 60s
     metrics_path: '/openmetrics/metrics'
     static_configs:
-      - targets: ['your-xoa-ip'] # Use port 80 or 443 depending on your XO setup
+      - targets: ['your-fragata-ip'] # Use port 80 or 443 depending on your Fragata setup
     authorization:
       type: Bearer
       credentials: 'your-secret-from-plugin-config'
@@ -451,7 +420,7 @@ The metrics endpoint requires authentication. Without a valid Bearer token, requ
 
 ### Available Metrics
 
-Infrastructure metrics are prefixed with `xcp_` and XO management plane metrics are prefixed with `xo_`. All metrics include enriched labels for easy filtering.
+Infrastructure metrics are prefixed with `xcp_` and Fragata management plane metrics are prefixed with `xo_`. All metrics include enriched labels for easy filtering.
 
 #### Host Metrics
 
@@ -575,7 +544,7 @@ VDI metrics include labels `vdi_uuid`, `vdi_name`, `sr_uuid`, `sr_name`, `pool_i
 
 #### XOSTOR Metrics
 
-These metrics describe LINSTOR-backed XOSTOR clusters and only appear when the XO pool contains at least one SR with `SR_type === 'linstor'`.
+These metrics describe LINSTOR-backed XOSTOR clusters and only appear when the Fragata pool contains at least one SR with `SR_type === 'linstor'`.
 
 | Metric                                | Type  | Description                                                                                              |
 | ------------------------------------- | ----- | -------------------------------------------------------------------------------------------------------- |
@@ -606,7 +575,7 @@ Every SR-tagged metric (`xcp_host_disk_iops_*`, `xcp_host_disk_throughput_*`, `x
 | -------------------- | ----- | ------------------------------------------------------------------- |
 | `xcp_pool_connected` | gauge | Pool connection status (1 when connected, absent when disconnected) |
 
-#### XO Management Plane Metrics
+#### Fragata Management Plane Metrics
 
 | Metric                  | Type  | Labels                     | Description                                          |
 | ----------------------- | ----- | -------------------------- | ---------------------------------------------------- |
@@ -622,15 +591,15 @@ Every SR-tagged metric (`xcp_host_disk_iops_*`, `xcp_host_disk_throughput_*`, `x
 | `xo_host_license_total` | gauge | `sku_type`                 | Total number of hosts by license SKU type            |
 | `xo_backup_job_total`   | gauge | `type`                     | Total number of backup jobs by type                  |
 
-#### XO Node.js Process Metrics
+#### Fragata Node.js Process Metrics
 
 | Metric                             | Type  | Labels   | Description                                                                                                  |
 | ---------------------------------- | ----- | -------- | ------------------------------------------------------------------------------------------------------------ |
-| `xo_nodejs_process_memory_bytes`   | gauge | `type`   | Memory usage of the XO main process in bytes (`rss`, `heap_used`, `heap_total`, `external`, `array_buffers`) |
+| `xo_nodejs_process_memory_bytes`   | gauge | `type`   | Memory usage of the Fragata main process in bytes (`rss`, `heap_used`, `heap_total`, `external`, `array_buffers`) |
 | `xo_nodejs_heap_size_limit_bytes`  | gauge |          | V8 heap size limit in bytes: OOM occurs when heap_used approaches this value                                |
 | `xo_nodejs_heap_available_bytes`   | gauge |          | Remaining V8 heap space before hitting the size limit                                                        |
 | `xo_nodejs_detached_contexts`      | gauge |          | Number of detached V8 contexts not yet GC'd: non-zero and growing indicates a memory leak                   |
-| `xo_nodejs_process_cpu_seconds`    | gauge | `mode`   | CPU time consumed by the XO main process since last collection (`user`, `system`)                            |
+| `xo_nodejs_process_cpu_seconds`    | gauge | `mode`   | CPU time consumed by the Fragata main process since last collection (`user`, `system`)                            |
 | `xo_nodejs_event_loop_utilization` | gauge | `metric` | Event loop utilization ratio since last collection (`mean`, `p99`, `max`)                                    |
 
 #### Labels
@@ -668,11 +637,11 @@ All metrics include these labels for filtering:
 | `target_type`       | Object targeted by an alarm: `sr` or `host`                                                                                           |
 | `package`           | XOSTOR-related RPM name for pending updates                                                                                           |
 | `status`            | SMART overall-health string: `PASSED`, `FAILED`, `UNKNOWN`                                                                            |
-| `tags`              | XO tags of the object, comma-separated and sorted (e.g. `prod,web`), on host, VM and SR metrics; omitted when the object has no tags |
+| `tags`              | Fragata tags of the object, comma-separated and sorted (e.g. `prod,web`), on host, VM and SR metrics; omitted when the object has no tags |
 
-##### Filtering by XO tags
+##### Filtering by Fragata tags
 
-The `tags` label carries every XO tag of the object as a single sorted, comma-separated string. Use a regex matcher to select objects carrying a given tag:
+The `tags` label carries every Fragata tag of the object as a single sorted, comma-separated string. Use a regex matcher to select objects carrying a given tag:
 
 ```
 # CPU usage of hosts tagged "production"
@@ -773,7 +742,7 @@ avg_over_time(xcp_vm_power_consumption_watts[24h]) * 24 / 1000
 # VMs whose power estimate is based on incomplete data
 xcp_vm_power_consumption_watts{data_complete="false"}
 
-# XO infrastructure totals
+# Fragata infrastructure totals
 xo_pool_total
 xo_host_total
 xo_vm_total
@@ -784,7 +753,7 @@ xo_backup_job_total
 # Hosts by version
 xo_host_version_total
 
-# XO process heap usage percentage
+# Fragata process heap usage percentage
 xo_nodejs_process_memory_bytes{type="heap_used"}
   / xo_nodejs_heap_size_limit_bytes * 100
 
@@ -953,7 +922,7 @@ groups:
           severity: critical
         annotations:
           summary: 'Pool metrics unavailable'
-          description: 'No pool connection metrics received for 5 minutes. Check XO connectivity.'
+          description: 'No pool connection metrics received for 5 minutes. Check Fragata connectivity.'
 
       - alert: SRHighUsage
         expr: (xcp_sr_physical_usage_bytes / xcp_sr_physical_size_bytes) > 0.85
@@ -1015,8 +984,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: 'XO process heap usage above 85%'
-          description: 'The XO main process is approaching the V8 heap size limit. Consider increasing --max-old-space-size or investigating memory usage.'
+          summary: 'Fragata process heap usage above 85%'
+          description: 'The Fragata main process is approaching the V8 heap size limit. Consider increasing --max-old-space-size or investigating memory usage.'
 
       - alert: XOHighEventLoopUtilization
         expr: xo_nodejs_event_loop_utilization{metric="p99"} > 0.8
@@ -1024,8 +993,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: 'XO event loop utilization above 80% (p99)'
-          description: 'The XO main process event loop is heavily saturated. API responsiveness may be degraded.'
+          summary: 'Fragata event loop utilization above 80% (p99)'
+          description: 'The Fragata main process event loop is heavily saturated. API responsiveness may be degraded.'
 
       - alert: XODetachedContextsLeak
         expr: xo_nodejs_detached_contexts > 10
@@ -1033,8 +1002,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: 'Possible memory leak in XO process'
-          description: 'The XO main process has {{ $value }} detached V8 contexts, which may indicate a memory leak.'
+          summary: 'Possible memory leak in Fragata process'
+          description: 'The Fragata main process has {{ $value }} detached V8 contexts, which may indicate a memory leak.'
 
       - alert: XostorClusterUnreachable
         expr: xcp_xostor_up == 0
@@ -1077,9 +1046,9 @@ groups:
 
 - **Use strong secrets**: Generate a secure random token (e.g., `openssl rand -hex 32`)
 - **Network segmentation**: Ensure only your Prometheus server can reach the metrics endpoint
-- **Use HTTPS**: Configure fragata-server with TLS or use a reverse proxy (nginx, Caddy) in front of XO
+- **Use HTTPS**: Configure fragata-server with TLS or use a reverse proxy (nginx, Caddy) in front of Fragata
 
-Example nginx reverse proxy configuration (if you need an additional proxy in front of XO):
+Example nginx reverse proxy configuration (if you need an additional proxy in front of Fragata):
 
 ```nginx
 server {
@@ -1090,7 +1059,7 @@ server {
     ssl_certificate_key /path/to/key.pem;
 
     location /metrics {
-        proxy_pass http://your-xoa-ip/openmetrics/metrics;
+        proxy_pass http://your-fragata-ip/openmetrics/metrics;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
@@ -1102,7 +1071,7 @@ server {
 A health check endpoint is available without authentication:
 
 <Terminal title="health check, no authentication needed">{`
-curl http://your-xoa-ip/openmetrics/health
+curl http://your-fragata-ip/openmetrics/health
 {"status":"ok"}
 `}</Terminal>
 
@@ -1122,7 +1091,6 @@ curl http://your-xoa-ip/openmetrics/health
 
 - Verify pools are connected in Fragata
 - Check fragata-server logs: `DEBUG=xo:fragata-server-openmetrics* yarn start`
-- Ensure the license includes the OpenMetrics feature
 
 **Stale or missing data:**
 

@@ -6,12 +6,12 @@ sidebar_label: VMware migration (V2V)
 
 ## Introduction {#-introduction}
 
-Fragata 5.110 introduced a new migration backend for moving virtual machines from VMware to XCP-ng (V2V). It replaces the old NFS-based method with `vectura`, a standalone reader of VMware's NFC protocol, delivering better performance and reliability without any VMware-provided library.
+Fragata uses a dedicated migration backend for moving virtual machines from VMware to Fragata Host (V2V). It replaces the old NFS-based method with `vectura`, a standalone reader of VMware's NFC protocol, delivering better performance and reliability without any VMware-provided library.
 
-The whole process is driven from Fragata, in **Import → VM → From VMware**. XO connects to your vCenter or ESXi host, reads the VM disks directly, and imports them into an XCP-ng storage repository:
+The whole process is driven from Fragata, in **Import → VM → From VMware**. Fragata connects to your vCenter or ESXi host, reads the VM disks directly, and imports them into a Fragata Host storage repository:
 
-<Schema label="XO reads the VM disks from ESXi through vectura, and imports them into an XCP-ng pool. The source VM keeps running during most of the transfer" legend={[["#5ac8c8", "VMware"], ["#8e83fe", "XCP-ng"], ["#6aabf0", "XO"]]} maxWidth="640px">
-<svg viewBox="0 0 640 240" role="img" aria-label="A VM running on an ESXi host inside a VMware infrastructure is exported by Fragata using vectura, then imported into an XCP-ng host in the destination pool, where the migrated VM is ready to boot; the source VM keeps running during the warm phase of the transfer">
+<Schema label="Fragata reads the VM disks from ESXi through vectura, and imports them into a Fragata Host pool. The source VM keeps running during most of the transfer" legend={[["#5ac8c8", "VMware"], ["#8e83fe", "Fragata Host"], ["#6aabf0", "Fragata"]]} maxWidth="640px">
+<svg viewBox="0 0 640 240" role="img" aria-label="A VM running on an ESXi host inside a VMware infrastructure is exported by Fragata using vectura, then imported into a Fragata Host in the destination pool, where the migrated VM is ready to boot; the source VM keeps running during the warm phase of the transfer">
   <rect x="16" y="40" width="192" height="168" rx="8" fill="none" stroke="rgba(255,255,255,0.22)" strokeDasharray="6 5" />
   <text x="28" y="62" fill="#c6d2e1" fontSize="12">VMware</text>
   <text x="28" y="78" fill="#7a8699" fontSize="10">source infrastructure</text>
@@ -31,10 +31,10 @@ The whole process is driven from Fragata, in **Import → VM → From VMware**. 
   <polygon points="440,134 430,128 430,140" fill="#56c288" />
   <text x="404" y="122" fill="#56c288" fontSize="9" textAnchor="middle">import</text>
   <rect x="432" y="40" width="192" height="168" rx="8" fill="none" stroke="rgba(255,255,255,0.22)" strokeDasharray="6 5" />
-  <text x="444" y="62" fill="#c6d2e1" fontSize="12">XCP-ng pool</text>
+  <text x="444" y="62" fill="#c6d2e1" fontSize="12">Fragata Host pool</text>
   <text x="444" y="78" fill="#7a8699" fontSize="10">destination</text>
   <rect x="448" y="92" width="160" height="100" rx="6" fill="rgba(255,255,255,0.04)" stroke="#8e83fe" />
-  <text x="528" y="110" fill="#c6d2e1" fontSize="10" textAnchor="middle">XCP-ng host</text>
+  <text x="528" y="110" fill="#c6d2e1" fontSize="10" textAnchor="middle">Fragata Host</text>
   <rect x="470" y="122" width="116" height="46" rx="6" fill="rgba(86,194,136,0.12)" stroke="#56c288" />
   <text x="528" y="141" fill="#c6d2e1" fontSize="12" textAnchor="middle">VM</text>
   <text x="528" y="157" fill="#7a8699" fontSize="9" textAnchor="middle">ready to boot</text>
@@ -76,7 +76,7 @@ The interface has also seen significant improvements: a **progress bar** is now 
 
 Additionally, UEFI VMs are no longer forced into Secure Boot mode, which resolves previous boot issues.
 
-Recent releases keep improving the workflow: since Fragata.6, a CD-ROM drive present on the source is recreated on the destination VM, and a two-step transfer (a first warm pass followed by a final run) tells you upfront whether the next run will be a full or a delta transfer.
+The workflow also recreates a CD-ROM drive present on the source on the destination VM, and uses a two-step transfer (a first warm pass followed by a final run) that tells you upfront whether the next run will be a full or a delta transfer.
 
 #### Performance gains
 
@@ -84,13 +84,13 @@ Performance gains can be significant, though results depend on the environment:
 
 - **In the best case**, when using VMs with many snapshots or mostly empty disks, migrations can be up to 100 times faster. In our high-performance lab, we measured around 150 MB/s per disk and up to 500 MB/s total, which means an infrastructure with 10 TB of data could be migrated in a single day, with less than five minutes of downtime per VM.
 
-- **In less favorable situations**, such as a fully allocated disk with no snapshots and a powered-off VM, improvements are smaller, mainly due to compression between XO and ESXi. In general, the limiting factor is the import speed on the XCP-ng side, which scales well until the storage is saturated. Most of the transfer occurs while the VM is running, so production data remains safe.
+- **In less favorable situations**, such as a fully allocated disk with no snapshots and a powered-off VM, improvements are smaller, mainly due to compression between Fragata and ESXi. In general, the limiting factor is the import speed on the Fragata Host side, which scales well until the storage is saturated. Most of the transfer occurs while the VM is running, so production data remains safe.
 
-## Preparing the XO environment {#-preparing-the-xo-environment}
+## Preparing the Fragata environment {#-preparing-the-fragata-environment}
 
 ### Update Fragata
 
-Make sure your Fragata instance is up to date. The import page includes an automatic check that verifies that `vectura`, shipped with your Fragata, runs on this system. Errors must be resolved before the migration can start.
+Make sure your Fragata instance is up to date (see [Updating](../getting-started/install-from-sources.md#updating)). The import page includes an automatic check that verifies that `vectura`, shipped with your Fragata, runs on this system. Errors must be resolved before the migration can start.
 
 <UiDetail src="/img/xo5/v2v-prerequisite-check.png" alt="The prerequisite check on the import page, showing the status of vectura" width={232} />
 
@@ -128,7 +128,7 @@ ESXi 6.0 was tested with the host reached directly; ESXi 6.5, 6.7 and 6.x hosts 
 
 #### Network
 
-XO must be able to connect to the ESXi host, or to the vCenter, through the port running the web UI (default port: 443), and to the ESXi host holding the VM through the NFC data port (default port: 902), even when going through a vCenter. At the time of writing, there is no way to select one network or another, so if possible, keep a single network path from XO to VMware.
+Fragata must be able to connect to the ESXi host, or to the vCenter, through the port running the web UI (default port: 443), and to the ESXi host holding the VM through the NFC data port (default port: 902), even when going through a vCenter. At the time of writing, there is no way to select one network or another, so if possible, keep a single network path from Fragata to VMware.
 
 #### VMware disk support
 
@@ -155,7 +155,7 @@ The following VMware disk types are not supported:
 - Encrypted virtual disks (unless you have the correct credentials)
 
 :::warning
-Starting with Fragata 5.110, NFS-based migration and VSAN exports are no longer available.
+NFS-based migration and VSAN exports are not available.
 :::
 
 ### Step-by-step procedure
@@ -198,12 +198,12 @@ Before making the final switch, **run a test migration first**. This lets you ca
 
 Understanding the warm migration mechanism helps you follow the progress:
 
-1. If the source VM is running and has no snapshot, XO automatically takes one, named `[V2V] migration to XCP-ng`.
-2. XO creates the destination VM (its name ends with `importing...` while the transfer runs) and imports the read-only snapshot chain while the source VM keeps running in production.
+1. If the source VM is running and has no snapshot, Fragata automatically takes one, named `[V2V] migration to Fragata Host`.
+2. Fragata creates the destination VM (its name ends with `importing...` while the transfer runs) and imports the read-only snapshot chain while the source VM keeps running in production.
 3. A snapshot of the destination VM is taken after this first pass, so the process can be resumed safely without creating duplicate VMs.
-4. If the `Stop source` option is enabled, XO then powers off the source VM in VMware, transfers only the final delta (the blocks written since the snapshot), and takes a final `complete import from V2V` snapshot.
+4. If the `Stop source` option is enabled, Fragata then powers off the source VM in VMware, transfers only the final delta (the blocks written since the snapshot), and takes a final `complete import from V2V` snapshot.
 
-As long as the import is partial (the source VM is still live), XO blocks the destination VM from starting normally, to prevent both copies from running at once.
+As long as the import is partial (the source VM is still live), Fragata blocks the destination VM from starting normally, to prevent both copies from running at once.
 
 ### Perform the first migration attempt
 
@@ -220,7 +220,7 @@ As long as the import is partial (the source VM is still live), XO blocks the de
 
 Once the migration is complete:
 
-1. Start the migrated VM copy on your XCP-ng environment. Since the source VM is still running, XO protects the partially synced copy: confirm the force start when prompted.
+1. Start the migrated VM copy on your Fragata Host environment. Since the source VM is still running, Fragata protects the partially synced copy: confirm the force start when prompted.
 
    :::tip
    - Use an **isolated network** to avoid IP conflicts.
@@ -263,16 +263,16 @@ If you encounter problems during migration, try these steps to diagnose and reso
   Look for disk access errors in the VMware logs. These may point to issues with the source storage or VM configuration.
 
 - **Update software versions**\
-  Keep your Fragata up to date: `vectura` ships with it. The [prerequisite check](#update-xen-orchestra) on the import page tells whether it runs on this system.
+  Keep your Fragata up to date: `vectura` ships with it. The [prerequisite check](#update-fragata) on the import page tells whether it runs on this system.
 
 - **Remove active snapshots**\
   Make sure no active snapshots remain on the source VM. Snapshots can disrupt migration consistency.
 
 - **Verify destination storage**\
-  Confirm the XCP-ng storage repository has enough free space for the migrated VM.
+  Confirm the Fragata Host storage repository has enough free space for the migrated VM.
 
 - **Test network connectivity**\
-  Ensure stable network connectivity between the VMware environment, Fragata, and XCP-ng hosts.
+  Ensure stable network connectivity between the VMware environment, Fragata, and Fragata Hosts.
 
 - **Retry with cold migration**\
   If warm migration fails, power off the VM, remove all snapshots, and try again.
@@ -297,16 +297,16 @@ The V2V migration process can be slowed down by:
 
 - XAPI ingestion speed limits
 - Network throughput between Fragata and VMware
-- Network throughput between Fragata and the XCP-ng host
+- Network throughput between Fragata and the Fragata Host
 - ESXi host export speed
 
 ### Optimizing network performance
 
 For the best results:
 
-#### Fragata to XCP-ng connection
+#### Fragata to Fragata Host connection
 
-- Run Fragata directly within the target XCP-ng pool to reduce network hops and latency.
+- Run Fragata directly within the target Fragata Host pool to reduce network hops and latency.
 - Use the highest available bandwidth, ideally 10Gbps or faster.
 
 #### Fragata to VMware connection
@@ -315,14 +315,14 @@ Ensure a dedicated 10Gbps+ connection with low latency to your vCenter or ESXi h
 
 ### Storage recommendations
 
-Use **fast SSD storage** for both the XCP-ng storage repository and Fragata's working directory.
+Use **fast SSD storage** for both the Fragata Host storage repository and Fragata's working directory.
 This speeds up the initial migration and enables smoother live migrations afterward.
 
 ### CPU and compute resources
 
 If CPU becomes a bottleneck:
 
-- **Allocate high-performance CPUs** to your Fragata appliance.
+- **Allocate high-performance CPUs** to the machine running Fragata.
 - For large environments, consider **parallel migrations** using multiple Fragata instances, but balance this with your network capacity.
 
 ### Migration strategy

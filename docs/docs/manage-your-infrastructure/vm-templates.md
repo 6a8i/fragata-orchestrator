@@ -8,7 +8,7 @@ sidebar_position: 3
 
 Virtual machine templates in Fragata make it easy to deploy new VMs by providing a ready-to-use configuration with predefined hardware specs and settings. Instead of manually setting up each VM from scratch, you can use templates to speed up deployment and keep things consistent.
 
-<UiShot light="/img/xo5/template-menu.png" alt="The Templates view, from Home" url="https://your-xo/v5/#/home?t=VM-template" />
+<UiShot light="/img/xo5/template-menu.png" alt="The Templates view, from Home" url="https://your-fragata/v5/#/home?t=VM-template" />
 
 ## Creating Templates
 
@@ -42,7 +42,7 @@ Duplicate one of the built-in templates and customize it to match your needs.
 
 Set up a new VM (without installing an OS), adjust its hardware settings, and turn it into a template. This is useful if you just want a predefined hardware setup without an OS baked in.
 
-To learn more about VM creation, read the [VM creation](./manage_infrastructure#vm-creation) section.
+To learn more about VM creation, read the [VM creation](./manage_infrastructure.md#vm-creation) section.
 
 ## Viewing Template Properties
 
@@ -64,7 +64,7 @@ To learn more, read the [REST API documentation](../automation/restapi.md).
 
 All collections are listed when you run `GET /rest/v0`, including the `vm-templates` collection:
 
-<UiShot light="/img/xo5/template-list.png" alt="The vm-templates collection, straight from the REST API" url="https://your-xo/rest/v0/vm-templates" />
+<UiShot light="/img/xo5/template-list.png" alt="The vm-templates collection, straight from the REST API" url="https://your-fragata/rest/v0/vm-templates" />
 
 <UiDetail src="/img/xo5/rest-api-template-example.png" alt="A single VM template object, from the REST API" width={560} />
 
@@ -146,17 +146,17 @@ This means that you can easily customize your VM when you create it from a compa
 
 ### Cloudbase-init (Windows)
 
-As of release 5.101, Fragata also supports Cloudbase-init. This tool provides equivalent functionality to Cloud-init but is specifically designed for Windows virtual machines.
+Fragata also supports Cloudbase-init. This tool provides equivalent functionality to Cloud-init but is specifically designed for Windows virtual machines.
 
 To build such a template, follow the dedicated [Windows templates with Cloudbase-init](../guides/windows-templates.md) guide.
 
 ### Requirements
 
 The only requirement is a template whose VM has Cloud-init (for Linux) or Cloudbase-init (for Windows) installed inside it.
-[Check this blog post to learn how to install Cloud-init](https://xen-orchestra.com/blog/centos-cloud-template-for-xenserver/).
+See the [Cloud-init documentation](https://cloudinit.readthedocs.io/en/latest/) to learn how to install it.
 
 :::tip
-In XOA 5.31, we changed the Cloud-init config drive type from [OpenStack](https://cloudinit.readthedocs.io/en/latest/topics/datasources/configdrive.html) to the [NoCloud](https://cloudinit.readthedocs.io/en/latest/topics/datasources/nocloud.html) type. This will allow us to pass network configuration to VMs in the future. For 99% of users, including default cloud-init installs, this change will have no effect. However if you have previously modified your cloud-init installation in a VM template to only look for `openstack` drive types (for instance with the `datasource_list` setting in `/etc/cloud/cloud.cfg`) you need to modify it to also look for `nocloud`.
+Fragata uses the [NoCloud](https://cloudinit.readthedocs.io/en/latest/topics/datasources/nocloud.html) config drive type (rather than [OpenStack](https://cloudinit.readthedocs.io/en/latest/topics/datasources/configdrive.html)), which allows passing network configuration to VMs. For 99% of users, including default cloud-init installs, this has no effect. However if you have modified your cloud-init installation in a VM template to only look for `openstack` drive types (for instance with the `datasource_list` setting in `/etc/cloud/cloud.cfg`) you need to modify it to also look for `nocloud`.
 :::
 
 ### Example: How to create a Cloudbase-init template with Windows Server?

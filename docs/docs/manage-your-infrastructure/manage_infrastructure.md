@@ -6,7 +6,7 @@ sidebar_position: 2
 
 <InterfaceNote>This page describes infrastructure management in the Fragata Classic interface. Fragata already covers inspection of pools, hosts, networks and storage, host power actions, network and VIF creation.</InterfaceNote>
 
-Fragata is built on one idea: **a single interface for all your pools, hosts and VMs, from any device**: creation, modification, metrics and statistics for every object of your XCP-ng infrastructure. This page covers those day-to-day operations in Fragata Classic.
+Fragata is built on one idea: **a single interface for all your pools, hosts and VMs, from any device**: creation, modification, metrics and statistics for every object of your Fragata Host infrastructure. This page covers those day-to-day operations in Fragata Classic.
 
 ## Home view
 
@@ -32,7 +32,7 @@ Now go back to the Home view (or click on the "Fragata" title on the top left of
 
 By default, this view groups all **running VMs** on your connected server and everyday administration tasks:
 
-<UiShot light="/img/xo5/xo5homevms.png" alt="The Home view lists every VM across all your connected pools" url="https://your-xo/v5/#/home" />
+<UiShot light="/img/xo5/xo5homevms.png" alt="The Home view lists every VM across all your connected pools" url="https://your-fragata/v5/#/home" />
 
 Let's take a quick tour:
 
@@ -63,7 +63,7 @@ All host objects are displayed:
 You have power status, name, description, number of CPU cores, total memory, management IP and pool name displayed. You can also edit these by long clicking.
 
 :::tip
-If hosts have missing patches, you'll see a red dot with the total patches missing. Click on it to go the patch section of the host. See this blog post on [patches for XenServer](https://xen-orchestra.com/blog/hotfix-xs70e004-for-xenserver-7-0/) for more details.
+If hosts have missing patches, you'll see a red dot with the total patches missing. Click on it to go the patch section of the host.
 :::
 
 ### Pools
@@ -206,9 +206,9 @@ You can use the search field/filter with number comparisons:
 
 ### Available properties
 
-There isn't much documentation listing these (yet), but you can see all objects and their properties using `fragata-cli list-objects`. You can then use these properties for search in XOA.
+There isn't much documentation listing these (yet), but you can see all objects and their properties using `fragata-cli list-objects`. You can then use these properties in the search field.
 
-Take a look at [the documentation](https://github.com/6a8i/fragata-orchestrator/tree/master/packages/fragata-cli#fragata-cli) for fragata-cli :)
+Take a look at [the documentation](https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-cli#fragata-cli) for fragata-cli :)
 
 Example: to search by the Xen Tools status:
 
@@ -291,7 +291,7 @@ These templates will use PV configuration in order to boot: either from the righ
 
 Because there is already disks installed, you shouldn't have "Install settings" _per se_. But you can use our `config drive` setup if your template already has CloudInit installed!
 
-Please refer to the [XCP-ng CloudInit section](vm-templates.md#cloud-init) for more.
+Please refer to the [Fragata Host CloudInit section](vm-templates.md#cloud-init) for more.
 
 #### Interfaces
 
@@ -319,12 +319,12 @@ In the advanced tab, you have extra options:
 
 ### XCP-ng/Citrix Hypervisor limitations
 
-- Each VM has a maximum vCPU number. This value can't be changed while the VM is running. You can reduce the number of vCPUs, but you can't assign more than the set max. In XO, while your VM is halted, set the max vCPUs you would need, then boot it. Now you can reduce it and then expand it later to this maximum.
+- Each VM has a maximum vCPU number. This value can't be changed while the VM is running. You can reduce the number of vCPUs, but you can't assign more than the set max. In Fragata, while your VM is halted, set the max vCPUs you would need, then boot it. Now you can reduce it and then expand it later to this maximum.
 - The same limitation applies to static RAM.
 
 You can learn more about XenServer [resource management on the Citrix Website](https://docs.citrix.com/en-us/citrix-hypervisor/system-requirements/configuration-limits.html).
 :::tip
-XCP-ng doesn't limit VMs to 32 vCPU
+Fragata Host doesn't limit VMs to 32 vCPU
 :::
 
 ### VDI live migration
@@ -355,7 +355,7 @@ Activating "Auto Power on" for a VM will also configure the pool accordingly. If
 
 #### What's a VIF?
 
-In the Vates stack, each VM connects to the network through a **Virtual Interface**, or **VIF**.
+In Fragata, each VM connects to the network through a **Virtual Interface**, or **VIF**.
 
 Think of it as the VM’s virtual network card: it handles all incoming and outgoing traffic on a specific virtual network, which is linked to a physical NIC on the host via a bridge. Every VIF comes with a fixed MAC address and can be tied to a particular VLAN (or virtual network), depending on how your environment is set up.
 
@@ -393,11 +393,11 @@ If Fragata knows the VM’s IP address (either through the guest agent or DHCP),
 
 #### How do I automate VIF locking mode?
 
-If you’re automating things or working with scripts, you can also control VIF locking mode through the XO [command-line interface](../getting-started/architecture.md#fragata-cli).
+If you’re automating things or working with scripts, you can also control VIF locking mode through the Fragata [command-line interface](../getting-started/architecture.md#fragata-cli).
 
 ### VM high availability (HA)
 
-If your pool supports HA (must have shared storage), you can activate "HA". Read the XCP-ng documentation for more details on [High Availability with XCP-ng](https://docs.xcp-ng.org/management/ha/).
+If your pool supports HA (must have shared storage), you can activate "HA". Read the XCP-ng documentation for more details on [High Availability with Fragata Host](https://docs.xcp-ng.org/management/ha/).
 In the VM's Advanced tab, you can choose between three HA modes:
 
 - Restart: a protected VM cannot be immediately restarted after a server failure. HA will attempt to restart the VM when additional capacity becomes available in the pool.
@@ -412,10 +412,6 @@ In Fragata, you can filter to see which VMs are in which mode:
 #### Container management
 
 You can use containers (such as Docker) inside your VMs. To know more on installing Docker inside a VM, check out the official [Docker documentation](https://docs.docker.com/).
-
-:::tip
-You can also run containers using Kubernetes, using the dedicated [Kubernetes recipe](https://docs.vates.tech/devops-tools/kubernetes).
-:::
 
 ### VM CPU priority
 
@@ -444,7 +440,7 @@ You can create a snapshot with one click. It will be named automatically. After 
 - delete this snapshot
 
 :::tip
-By default, XOA will try to make a snapshot with quiesce. If the VM does not support it, it will fall back to the default snapshot system.
+By default, Fragata will try to make a snapshot with quiesce. If the VM does not support it, it will fall back to the default snapshot system.
 :::
 
 :::note
@@ -546,11 +542,11 @@ The downtime is limited to the time needed to shut down the source VM, transfer 
 5. Confirm.
 
 :::info
-Warm migration requires an XOA Premium plan, and can only be run by an administrator.
+Warm migration can only be run by an administrator.
 :::
 
 :::tip
-If you keep the source VM, it can't be started anymore: Fragata blocks its start operation, since it might not be up to date. It also keeps a snapshot named `[XO warm migration …]`, which you can delete once the migration is checked. The source VM is only deleted when **Start the migrated VM** is also selected.
+If you keep the source VM, it can't be started anymore: Fragata blocks its start operation, since it might not be up to date. It also keeps a snapshot named `[Fragata warm migration …]`, which you can delete once the migration is checked. The source VM is only deleted when **Start the migrated VM** is also selected.
 :::
 
 ### Preventing VM migration
@@ -565,11 +561,11 @@ When this option is enabled, the VM won't be able to migrate to another host.
 
 ## Migrating from VMware with V2V
 
-XCP-ng is a type 1 hypervisor, similar to VMware ESXi.
+Fragata Host is a type 1 hypervisor, similar to VMware ESXi.
 
-You can migrate your VM from VMware vSphere to a Vates environment (Fragata and XCP-ng), directly from Fragata. For this, we use V2V ("VMware to Vates").
+You can migrate your VM from VMware vSphere to a Fragata environment (Fragata and Fragata Host), directly from Fragata. For this, we use V2V ("VMware to Fragata").
 
-To know more on using V2V in Fragata to migrate your environment from VMware, refer to the [XO V2V section in the XCP-ng documentation](https://docs.xcp-ng.org/installation/migrate-to-xcp-ng/#xo-v2v).
+To know more on using V2V in Fragata to migrate your environment from VMware, refer to the [V2V migration guide](../guides/v2v-migration-guide.md).
 
 ## Hosts management
 
@@ -600,19 +596,19 @@ You can easily adjust the control domain memory under the Advanced tab of a host
 
 <UiDetail src="/img/xo5/dom0memory.png" alt="Edit the Dom0 memory from the host Advanced tab" width={460} />
 
-There is more information about Dom0 memory management in the [XCP-ng Documentation](https://docs.xcp-ng.org/guides/dom0-memory/)
+There is more information about Dom0 memory management in the [Fragata Host Documentation](https://docs.xcp-ng.org/guides/dom0-memory/)
 
 ## Pool and host updates
 
-Fragata is here to help you to manage all your pools and hosts updates. Note there's a difference on updates between XCP-ng and Citrix Hypervisor, since they are not using the same mechanism. However, the view on available updates and updating is very similar.
+Fragata is here to help you to manage all your pools and hosts updates. Note there's a difference on updates between Fragata Host and Citrix Hypervisor, since they are not using the same mechanism. However, the view on available updates and updating is very similar.
 
 :::tip
-Updates can be called both "patches" or "updates", it doesn't matter. Updates are distributed via an ISO file containing RPMs for Citrix Hypervisor, while in XCP-ng they are just traditional RPMs hosted in a central repository and its mirrors, like a regular Linux distribution.
+Updates can be called both "patches" or "updates", it doesn't matter. Updates are distributed via an ISO file containing RPMs for Citrix Hypervisor, while in Fragata Host they are just traditional RPMs hosted in a central repository and its mirrors, like a regular Linux distribution.
 :::
 
 ### Available updates
 
-You'll be notified by Fragata directly in the main XO menu (on the left), with a yellow triangle:
+You'll be notified by Fragata directly in the main Fragata menu (on the left), with a yellow triangle:
 
 <UiDetail src="/img/xo5/availableupdates.png" alt="The number of missing patches, right on the pool" width={300} />
 
@@ -624,13 +620,13 @@ You can also see how many updates to do in the Home/Pool view for your pools, an
 
 You can also see the available updates in the Dashboard view.
 
-### XCP-ng
+### Fragata Host
 
-On XCP-ng, there's multiple way to update your pools and hosts.
+On Fragata Host, there's multiple way to update your pools and hosts.
 
 #### ⚙️ How it works
 
-Fragata will request a plugin, bundled and hosted within your XCP-ng hosts. This plugin will query the status of updates. Then, when the update will be applied, it's also the plugin that will download and apply them.
+Fragata will request a plugin, bundled and hosted within your Fragata Hosts. This plugin will query the status of updates. Then, when the update will be applied, it's also the plugin that will download and apply them.
 So unlike with Citrix Hypervisor, Fragata will not fetch or download updates, but it will order the host to do it by itself. Be sure that your host(s) can access the update repositories.
 
 #### Rolling Pool Updates (RPU)
@@ -640,11 +636,11 @@ Also known as RPU, **this is the advised way to update your pool**. By just clic
 <UiDetail src="/img/xo5/rpubutton.png" alt="The Rolling Pool Update button on the pool Patches tab" width={340} />
 
 :::tip
-This powerful and fully automated mechanism requires some prerequisites: all your VMs disks must be on a one (or more) shared storage. Also, high-availability will be automatically disabled, as the XO load balancer plugin and backup jobs. Everything will be enabled back when it's done!
+This powerful and fully automated mechanism requires some prerequisites: all your VMs disks must be on a one (or more) shared storage. Also, high-availability will be automatically disabled, as the Fragata load balancer plugin and backup jobs. Everything will be enabled back when it's done!
 :::
 
 :::warning
-XO will restart the hosts one by one and wait for each host to be up and running before continuing. However, if the host takes too much time to boot, the RPU will fail with an error. By default, XO will wait up to 20 minutes before failing. You can change that value in your `fragata-server` config:
+Fragata will restart the hosts one by one and wait for each host to be up and running before continuing. However, if the host takes too much time to boot, the RPU will fail with an error. By default, Fragata will wait up to 20 minutes before failing. You can change that value in your `fragata-server` config:
 
 ```toml
 [xapiOptions]
@@ -653,7 +649,7 @@ restartHostTimeout = '40 minutes'
 
 :::
 
-<UiDetail src="/img/xo5/rpu1.png" alt="XO orchestrates everything: evacuate, patch, reboot, repeat on each host" width={620} />
+<UiDetail src="/img/xo5/rpu1.png" alt="Fragata orchestrates everything: evacuate, patch, reboot, repeat on each host" width={620} />
 
 ##### Scheduling a RPU
 
@@ -671,9 +667,9 @@ Of course, schedule the updates outside production hours. Although RPUs are desi
 
 ##### Troubleshooting a RPU
 
-XO keeps a full trace of each rolling pool update/reboot on disk. So even if `fragata-server` crashed in the middle of a run, you can still find out what happened and where it stopped.
+Fragata keeps a full trace of each rolling pool update/reboot on disk. So even if `fragata-server` crashed in the middle of a run, you can still find out what happened and where it stopped.
 
-Each run writes two files in `<datadir>/rpu-traces` (on XOA: `/var/lib/fragata-server/data/rpu-traces`):
+Each run writes two files in `<datadir>/rpu-traces` (by default `/var/lib/fragata-server/data/rpu-traces`):
 
 - `rpu-<poolId>-<timestamp>.ndjson`: the trace. One JSON line per event: steps, progress, VM migrations, errors. Lines are written synchronously, so the file stays readable even after a crash.
 - `rpu-<poolId>-<timestamp>.heartbeat.json`: rewritten every 5 seconds with the current status, as long as the run is alive.
@@ -721,20 +717,18 @@ We do NOT recommend to install updates to individual hosts. Obviously except if 
 #### ⚙️ How it works
 
 Fragata will directly request a specific XML, hosted by Citrix. It will be analyzed and compared to the patch level on your hosts.
-If there's available/missing updates, XO will download it directly, then send it to the pool, and finally ask the pool to apply it. In that scenario, you should check if Fragata can access outside to get those updates.
+If there's available/missing updates, Fragata will download it directly, then send it to the pool, and finally ask the pool to apply it. In that scenario, you should check if Fragata can access outside to get those updates.
 
 #### Pool updates
 
 It's recommended to apply patches from the entire pool, to be sure all your hosts are at the same patch level.
 
-When you click on "Install all patches", XOA will do all of the following automatically:
+When you click on "Install all patches", Fragata will do all of the following automatically:
 
 - fetch all missing patches from Citrix servers
 - unzip them
 - upload them
 - apply them in the correct order
-
-You can see [more screenshots here](https://xen-orchestra.com/blog/hotfix-xs70e004-for-xenserver-7-0).
 
 :::tip
 If you are behind a proxy, please update your `fragata-server` configuration to add a proxy server, as [explained in the appropriate section](../getting-started/configuration.md#proxy-for-updates-and-patches).
@@ -742,7 +736,7 @@ If you are behind a proxy, please update your `fragata-server` configuration to 
 
 #### Host updates
 
-As for XCP-ng, we do NOT recommend to install updates to individual hosts. Please install patches for the whole pool, even if it's a single host.
+As for Fragata Host, we do NOT recommend to install updates to individual hosts. Please install patches for the whole pool, even if it's a single host.
 
 ## Pool Management
 
@@ -753,28 +747,28 @@ As specified in the [documentation](https://xcp-ng.org/docs/requirements.html#po
 :::warning
 
 - Even with matching CPU vendors, in the case of different CPU models, XCP-ng/Citrix Hypervisor will "level" down to use the CPU having the least instructions.
-- All the hosts in a pool must run the same XCP-ng version.
+- All the hosts in a pool must run the same Fragata Host version.
   :::
 
 ### Creating a pool
 
-First you should add your new host to XOA by going to New > Server as described in [the relevant chapter](manage_infrastructure.md#add-a-host).
+First you should add your new host to Fragata by going to New > Server as described in [the relevant chapter](manage_infrastructure.md#add-a-host).
 
-When you add your host to XOA a pool will automatically be created for it, taking the host name as the default pool name. The pool name can be edited to match your needs.
+When you add your host to Fragata a pool will automatically be created for it, taking the host name as the default pool name. The pool name can be edited to match your needs.
 
 To edit the name of your pool go to Home > Pools and long click on the pool name to edit it.
 
 ### Adding a host to an existing pool
 
-If you need to add a new host to a pool, first you need to add your new host to your XOA by going to New > Server as described in [the relevant chapter](manage_infrastructure.md#add-a-host).
+If you need to add a new host to a pool, first you need to add your new host to Fragata by going to New > Server as described in [the relevant chapter](manage_infrastructure.md#add-a-host).
 
 Then you need to add the new host to the desired pool. Navigate to Home > Pools, and click on the desired pool. Then in the top right, click the Add Hosts button and select your new host.
 
 ### Adding an existing pool
 
-If your hosts are already in a pool you only need to add your pool master host to XOA, the slaves will be added automatically.
+If your hosts are already in a pool you only need to add your pool master host to Fragata, the slaves will be added automatically.
 :::danger
-Don't add pool slaves to your XOA server list! XOA will automatically find them from the master you add.
+Don't add pool slaves to your Fragata server list! Fragata will automatically find them from the master you add.
 :::
 
 ### Remove a host from an existing pool
@@ -830,13 +824,13 @@ Fragata supports the following bond types:
 6. Set the **Bond mode** to **LACP**.
 7. Leave the **MTU** field blank. This will work as-is in most cases.
 8. Click **Create network**.
-   XO will then create the bond on the host(s):
+   Fragata will then create the bond on the host(s):
    <UiDetail src="/img/xo5/bond1.png" alt="The bond and its member interfaces" width={620} />
 
 :::tip
 
 - If applied to a pool, the bond is created across all pool members, so make sure all your pool members are cabled and configured on the switch side for LACP!
-- If the host’s management interface resides on one of the selected interfaces, XO will **automatically migrate the management interface** on top of the new bond (e.g., if management was on `eth0` and the bond consists of `eth0` + `eth1`).
+- If the host’s management interface resides on one of the selected interfaces, Fragata will **automatically migrate the management interface** on top of the new bond (e.g., if management was on `eth0` and the bond consists of `eth0` + `eth1`).
   :::
 
 #### Adding VLANs on top of bonds
@@ -872,7 +866,7 @@ This way, you can do whatever is needed on the storage, and when done, re-enable
 
 ### Reclaim free space
 
-If your SAN supports it, Fragata can instruct your XCP-ng host to send a trim command to perform some cleaning.
+If your SAN supports it, Fragata can instruct your Fragata Host to send a trim command to perform some cleaning.
 
 <UiDetail src="/img/xo5/xo5reclaimfree.png" alt="Reclaim free space from the SR Advanced tab" width={620} />
 
@@ -885,10 +879,10 @@ Visualizations can help you to understand your XCP-ng/XenServer infrastructure, 
 The dashboard view gathers information on all your connected pools/hosts.
 
 :::note
-Since Fragata became the default interface, `https://your-xo/#/dashboard` opens the [new Fragata dashboard](../manage-your-infrastructure/management.md). The Fragata Classic dashboard described here now lives under `/v5/`.
+Since Fragata became the default interface, `https://your-fragata/#/dashboard` opens the [new Fragata dashboard](../manage-your-infrastructure/management.md). The Fragata Classic dashboard described here now lives under `/v5/`.
 :::
 
-<UiShot light="/img/xo5/dashboard-overview.png" alt="The Overview aggregates pools, hosts, VMs, resource usage and alarms at a glance" url="https://your-xo/v5/#/dashboard/overview" />
+<UiShot light="/img/xo5/dashboard-overview.png" alt="The Overview aggregates pools, hosts, VMs, resource usage and alarms at a glance" url="https://your-fragata/v5/#/dashboard/overview" />
 
 :::tip
 You can also update all your hosts (install missing patches) from this page.
@@ -898,7 +892,7 @@ You can also update all your hosts (install missing patches) from this page.
 
 A Parallel Coordinates visualization helps to detect proportions in a hierarchical environment. In a XCP-ng/XenServer environment, it's especially useful if you want to see useful information from a large amount of data.
 
-<UiShot light="/img/xo5/dashboard-visualizations.png" alt="Follow a resource path across vCPUs, RAM, network and storage" url="https://your-xo/v5/#/dashboard/visualizations" />
+<UiShot light="/img/xo5/dashboard-visualizations.png" alt="Follow a resource path across vCPUs, RAM, network and storage" url="https://your-fragata/v5/#/dashboard/visualizations" />
 
 ## Health
 
@@ -922,7 +916,7 @@ Hover over the storage you want to select and click on the disk icon to set it a
 
 ### Unhealthy VDIs
 
-If your infrastructure works properly, this view should be empty. If not, the causes of unhealthy VDIs can be numerous and we recommend you [open a support ticket](https://help.vates.tech/kb/en-us/8-technical-support/15-open-a-support-ticket).
+If your infrastructure works properly, this view should be empty. If not, the causes of unhealthy VDIs can be numerous and we recommend you [open an issue](https://github.com/6a8i/fragata-orchestrator/issues) or ask on the [discussions](https://github.com/6a8i/fragata-orchestrator/discussions).
 
 ### Orphan VDIs
 
@@ -930,7 +924,7 @@ Orphan VDIs are disks not associated with a VM. If you're sure you don't need it
 
 ### VDIs attached to Control Domain
 
-Having VDIs attached to the control domain during a backup job is normal, but not when it's finished. You can detach them by clicking on the Forget button, this will remove the virtual cable between the host and the disk without removing the disk. If the problem occurs on a regular basis, we recommend you [open a support ticket](https://help.vates.tech/kb/en-us/8-technical-support/15-open-a-support-ticket).
+Having VDIs attached to the control domain during a backup job is normal, but not when it's finished. You can detach them by clicking on the Forget button, this will remove the virtual cable between the host and the disk without removing the disk. If the problem occurs on a regular basis, we recommend you [open an issue](https://github.com/6a8i/fragata-orchestrator/issues) or ask on the [discussions](https://github.com/6a8i/fragata-orchestrator/discussions).
 
 ### Orphaned VM snapshot
 
@@ -950,7 +944,7 @@ List of VMs with missing or outdated guest tools. It's best practice to [install
 
 ### Alarms
 
-This sections details the alerts coming from XCP-ng/XenServer hosts. More information can be found on [this page](advanced#alerts).
+This sections details the alerts coming from XCP-ng/XenServer hosts. More information can be found on [this page](advanced.md#alerts).
 
 ### Heatmap
 
@@ -983,15 +977,17 @@ To receive reports, you first need to enable the **usage-report** plugin:
    - Storage repositories
 
 :::tip
-To include these stats in your reports, the plugin must have saved them at least once.  
-::: 8. In the **periodicity** dropdown, choose whether you want to receive reports **daily**, **weekly**, or **monthly**.  
+To include these stats in your reports, the plugin must have saved them at least once.
+:::
+
+8. In the **periodicity** dropdown, choose whether you want to receive reports **daily**, **weekly**, or **monthly**.
 9. Click **Save configuration**. Reports will be sent to the email addresses you entered at the frequency you selected.
 
 ## Software RAID
 
 ### About `mdadm`
 
-Software RAID in the Vates stack is managed using `mdadm`.
+Software RAID in Fragata Host is managed using `mdadm`.
 
 `mdadm` is a Linux utility used to manage and monitor software RAID devices. It is used in modern Linux distributions in place of older software RAID utilities such as `raidtools2` or `raidtools`.
 
@@ -1026,10 +1022,10 @@ Fragata allows you to monitor the health of your software RAID arrays directly f
 
 To check the status reported by `mdadm`, go to the **Host → Advanced** section. You'll get a clear, real-time view of your RAID array’s condition:
 
-<UiDetail src="/img/xo5/mdadm-status.png" alt="Software RAID status of the XOA, in its Dashboard" width={700} />
+<UiDetail src="/img/xo5/mdadm-status.png" alt="Software RAID status of a host, in its Advanced tab" width={700} />
 
 #### RAID status alerts
 
 If a host has a degraded software RAID array, a red warning triangle will appear in the host view. Clicking on it will display detailed information about the issue, so you can quickly identify and address critical problems:
 
-<UiDetail src="/img/xo5/raid-status-alert.png" alt="XO raises an alert when the RAID array is degraded" width={620} />
+<UiDetail src="/img/xo5/raid-status-alert.png" alt="Fragata raises an alert when the RAID array is degraded" width={620} />

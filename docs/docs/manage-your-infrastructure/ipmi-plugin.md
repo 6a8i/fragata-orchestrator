@@ -9,7 +9,7 @@ sidebar_position: 6
 When the plugin returns a sensor tagged with `"dataType": "unknown"`, it means
 the sensor name matched **none** of the regex rules configured for that host's
 vendor. Unknown sensors are still listed by the raw inventory, but they are
-**dropped** from the categorized `get_ipmi_sensors` output (consumed by the XO5
+**dropped** from the categorized `get_ipmi_sensors` output (consumed by the Fragata Classic
 UI), because the plugin only keeps sensors it knows how to classify.
 
 This guide explains how to map those unknown sensors to a known data type.
@@ -17,7 +17,7 @@ This guide explains how to map those unknown sensors to a known data type.
 ## 1. Understand the pipeline
 
 - `get_ipmi_sensors` returns sensors **grouped by data type**, after filtering
-  out everything irrelevant/unknown. This is what the XO5 UI shows. (XO6 uses
+  out everything irrelevant/unknown. This is what the Fragata Classic UI shows. (Fragata uses
   the `GET /rest/v0/plugins/ipmi-sensors/hosts/{id}/ipmi` REST route instead.)
 - `GET /rest/v0/plugins/ipmi-sensors/hosts/{id}/ipmi` returns **every raw sensor** with its resolved
   `dataType` (or `"unknown"`). Use it to discover what needs a rule.
@@ -53,7 +53,7 @@ flags are not.
 ## 3. Pick the target data type
 
 A rule maps a sensor **name** to one of these data types
-([types.mts](https://github.com/6a8i/fragata-orchestrator/blob/master/packages/fragata-server-ipmi-sensors/src/types.mts), `IPMI_SENSOR_DATA_TYPE`):
+([types.mts](https://github.com/6a8i/fragata-orchestrator/blob/main/packages/fragata-server-ipmi-sensors/src/types.mts), `IPMI_SENSOR_DATA_TYPE`):
 
 | Data type    | Meaning                         |
 | ------------ | ------------------------------- |
@@ -100,17 +100,17 @@ use the `i` flag so casing doesn't matter:
 
 ## 5. Apply the configuration
 
-- **Per deployment:** edit the plugin configuration in the XO web interface
+- **Per deployment:** edit the plugin configuration in the Fragata web interface
   (Settings → Plugins → ipmi-sensors → `vendors`). This overrides the defaults
   without touching the code.
 - **As a new default preset:** add/extend the vendor entry in
   `DEFAULT_IPMI_SENSOR_REGEX_BY_DATA_TYPE_BY_SUPPORTED_PRODUCT_NAME` in
-  [default-rules.mts](https://github.com/6a8i/fragata-orchestrator/blob/master/packages/fragata-server-ipmi-sensors/src/default-rules.mts). These ship as the built-in
+  [default-rules.mts](https://github.com/6a8i/fragata-orchestrator/blob/main/packages/fragata-server-ipmi-sensors/src/default-rules.mts). These ship as the built-in
   defaults for everyone.
 
 To support a brand-new vendor, add a new `{ vendor, sensorRegexps }` object. The
 `vendor` must equal the lowercased `system-product-name` of the host (or `dell`
-/ `lenovo`, which are normalized in [index.mts](https://github.com/6a8i/fragata-orchestrator/blob/master/packages/fragata-server-ipmi-sensors/src/index.mts)).
+/ `lenovo`, which are normalized in [index.mts](https://github.com/6a8i/fragata-orchestrator/blob/main/packages/fragata-server-ipmi-sensors/src/index.mts)).
 
 ## 6. Verify
 

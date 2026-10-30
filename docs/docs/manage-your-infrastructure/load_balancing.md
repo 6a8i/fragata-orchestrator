@@ -15,10 +15,10 @@ A generic definition, from Wikipedia:
 In the case of virtualization, you have multiple physical hosts, which run your virtual machines (VMs). The goal here is to **distribute the VM load** in the best way possible across your servers.
 
 :::tip
-You may have heard about VMware DRS (Distributed Resource Scheduler). That's the same principle here, but for XCP-ng.
+You may have heard about VMware DRS (Distributed Resource Scheduler). That's the same principle here, but for Fragata Host.
 :::
 
-The first goal is to adapt your VM placement in real time, without service interruption, depending on the load. Since Fragata is connected to [multiple pools](../getting-started/architecture.md#fragata-server) and XCP-ng supports live storage motion, we can perform load balancing on a **whole XCP-ng infrastructure**, even between remote datacenters.
+The first goal is to adapt your VM placement in real time, without service interruption, depending on the load. Since Fragata is connected to [multiple pools](../getting-started/architecture.md#fragata-server) and Fragata Host supports live storage motion, we can perform load balancing on a **whole Fragata Host infrastructure**, even between remote datacenters.
 
 :::tip
 A load balancing policy is called a **plan**.
@@ -225,7 +225,7 @@ Plans can work in one of these 3 modes:
 - **Performance:** VMs are placed to make the most of all available resources: the load is spread across every available host, to give the best overall performance.\
    To specify how the performance plan should act, see the [Performance plan behavior](#performance-plan-behavior) section.
 
-- **Density:** This time, the objective is to use the least hosts possible, and to concentrate your VMs. In this mode, emptied hosts are shut down. A few safety rules apply: the pool master is never evacuated, and only hosts with a **power-on mode** configured (so XO can power them back on later) are candidates for shutdown. A host is also skipped if any of its running VMs cannot be migrated (missing guest tools, or carrying an affinity/anti-affinity tag).
+- **Density:** This time, the objective is to use the least hosts possible, and to concentrate your VMs. In this mode, emptied hosts are shut down. A few safety rules apply: the pool master is never evacuated, and only hosts with a **power-on mode** configured (so Fragata can power them back on later) are candidates for shutdown. A host is also skipped if any of its running VMs cannot be migrated (missing guest tools, or carrying an affinity/anti-affinity tag).
 - **Simple:** This mode allows you to use [VM affinity](#vm-affinity) and [anti-affinity](#vm-anti-affinity) without any load balancing mechanism.
 
 :::tip
@@ -297,10 +297,10 @@ Only **running** VMs are considered, and a VM needs the **guest tools** installe
 
 The global situation (resource usage) is examined **every minute**, and each run works on smoothed metrics rather than instant values (see [Critical thresholds](#critical-thresholds)).
 
-Every migration decided by the plugin is visible in the XO **Tasks** view, as a task named "Load balancer migrates VM …" whose description tells you the source, the destination and the *reason*: CPU over threshold for too long, CPU significantly higher than the pool average, vCPU balancing, affinity or anti-affinity satisfaction, or a density-plan host shutdown. Nothing moves silently.
+Every migration decided by the plugin is visible in the Fragata **Tasks** view, as a task named "Load balancer migrates VM …" whose description tells you the source, the destination and the *reason*: CPU over threshold for too long, CPU significantly higher than the pool average, vCPU balancing, affinity or anti-affinity satisfaction, or a density-plan host shutdown. Nothing moves silently.
 
 :::tip
-During a [Rolling Pool Update](./manage_infrastructure#rolling-pool-updates-rpu), the load balancer is automatically suspended, and re-enabled 30 minutes after the update completes, so the two features never fight over VM placement.
+During a [Rolling Pool Update](./manage_infrastructure.md#rolling-pool-updates-rpu), the load balancer is automatically suspended, and re-enabled 30 minutes after the update completes, so the two features never fight over VM placement.
 :::
 
 ### Advanced settings

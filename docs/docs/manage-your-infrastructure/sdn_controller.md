@@ -7,19 +7,19 @@ sidebar_position: 5
 <InterfaceNote>Private networks are currently created and managed from Fragata Classic. Traffic rules moved ahead in [Fragata](../manage-your-infrastructure/management.md#traffic-rules), with more capabilities than the Fragata Classic equivalent.</InterfaceNote>
 
 :::tip
-Be sure to enable the plugin on only one XOA instance.
+Be sure to enable the plugin on only one Fragata instance.
 :::
 
-The SDN Controller enables a user to **create pool-wide and cross-pool private networks** and more. It's available as a Fragata plugin (included in XOA Premium).
+The SDN Controller enables a user to **create pool-wide and cross-pool private networks** and more. It's available as a Fragata plugin.
 
 ## Global Private Networks
 
 Interconnect your VMs and hosts within a dedicated and secured private network, even across different pools all around the world. This is a great way to protect "private links" (eg between applications and databases, management networks etc.) without any complicated deployment.
 
-<Schema label="One private network spanning two sites" legend={[["#6aabf0", "XO"], ["#8e83fe", "XCP-ng"], ["#5ac8c8", "private network tunnels"]]} maxWidth="640px">
+<Schema label="One private network spanning two sites" legend={[["#6aabf0", "Fragata"], ["#8e83fe", "Fragata Host"], ["#5ac8c8", "private network tunnels"]]} maxWidth="640px">
 <svg viewBox="0 0 640 260" role="img" aria-label="The SDN controller in Fragata builds encrypted GRE or VxLAN tunnels between the hosts of two pools in different locations, forming a single private network for the VMs">
   <rect x="280" y="10" width="80" height="34" rx="8" fill="rgba(106,171,240,0.12)" stroke="#6aabf0"/>
-  <text x="320" y="27" fontSize="12.5" fill="#6aabf0" textAnchor="middle">XO</text>
+  <text x="320" y="27" fontSize="12.5" fill="#6aabf0" textAnchor="middle">Fragata</text>
   <text x="320" y="39" fontSize="8.5" fill="#7a8699" textAnchor="middle">SDN controller</text>
   <g className="schema-flow" stroke="#7a8699" strokeWidth="1.3" strokeDasharray="5 4">
     <line x1="292" y1="44" x2="160" y2="70"/>
@@ -71,7 +71,7 @@ Interconnect your VMs and hosts within a dedicated and secured private network, 
 
 ### How does it work?
 
-Please read the [dedicated devblog on the SDN Controller](https://xen-orchestra.com/blog/xo-sdn-controller/) and its [extension for cross-pool private networks](https://xen-orchestra.com/blog/devblog-3-extending-the-sdn-controller/).
+The SDN Controller plugin acts as an OpenFlow controller for the Open vSwitch instances running on your hosts. It builds GRE or VxLAN tunnels between the hosts of a private network (within a pool or across pools) so that their VMs share a single L2 network.
 
 :::warning
 As VxLAN and GRE are protocols using extra encapsulation, they require extra bits on a network packet. If you create a Global Private Network with a default MTU at `1500`, you won't be able to use it "as is" in your VMs, unless you configure a smaller MTU for each virtual interface, in your VM operating system (eg: `1400`).
@@ -93,7 +93,7 @@ In the network creation view:
 - Create the network
 - Have fun! ☺
 
-<UiShot light="/img/xo5/sdn-controller.png" alt="Creating a private network: interface, encapsulation, encryption, and the pools to join" url="https://your-xo/v5/#/new/network" />
+<UiShot light="/img/xo5/sdn-controller.png" alt="Creating a private network: interface, encapsulation, encryption, and the pools to join" url="https://your-fragata/v5/#/new/network" />
 
 :::tip
 
@@ -114,9 +114,11 @@ The plugin's configuration contains:
 
 ### Requirements
 
-### VxLAN
+#### VxLAN
 
-### Encryption
+If you choose the `VxLAN` encapsulation, port 4789 must be open for UDP traffic on all the hosts of the network.
+
+#### Encryption
 
 To be able to encrypt the networks, the `openvswitch-ipsec` package must be installed on all the hosts:
 
@@ -133,7 +135,7 @@ systemctl start openvswitch-ipsec
 Traffic rules let you allow or block traffic per VIF, or network-wide. There are currently two backends:
 
 - One where the SDN Controller plugin talks directly to Open vSwitch through the OpenFlow protocol
-- A newer one using a XAPI plugin on XCP-ng side that directly configures Open vSwitch
+- A newer one using a XAPI plugin on Fragata Host side that directly configures Open vSwitch
 
 At this time, the two options are covered until we can fully deprecate the older, direct OpenFlow implementation.
 
@@ -154,8 +156,6 @@ Limitations:
 - Only supports per-VIF rules
 
 For now, this is the default mode in Fragata.
-
-Please see the [devblog about OpenFlow rules](https://xen-orchestra.com/blog/vms-vif-network-traffic-control/).
 
 In the VM network tab a new column has been added: _Network rules_.
 
@@ -178,12 +178,12 @@ In the VM network tab a new column has been added: _Network rules_.
 A few caveats:
 
 - This is still in BETA and should not be used in production yet.
-- This will only work on XCP-ng, not on XenServer hosts.
+- This will only work on Fragata Host, not on XenServer hosts.
 - This is not enabled by default, and requires a configuration change for `fragata-server`. See [the configuration page](../getting-started/configuration.md#sdn-controller-mode) to know more.
   :::
 
 :::tip
-This is the backend used by the [Fragata traffic rules UI](./management.md#traffic-rules) (since Fragata.5): network-wide and per-VIF rules, with a consolidated view in the pool **Traffic rules** tab. The rules can also be managed through the [REST API](../automation/restapi.md), including in-place updates (since Fragata.7).
+This is the backend used by the [Fragata traffic rules UI](./management.md#traffic-rules) : network-wide and per-VIF rules, with a consolidated view in the pool **Traffic rules** tab. The rules can also be managed through the [REST API](../automation/restapi.md), including in-place updates.
 :::
 
 - Works on any network:
@@ -195,7 +195,7 @@ This is the backend used by the [Fragata traffic rules UI](./management.md#traff
 
 To setup a per-VIF rule using the UI, follow the [openflow instructions](#openflow-protocol) above, as the UI is the same and only the backend changes.
 
-Here, we describe how to use `fragata-cli` to configure rules. First, make sure to register fragata-cli to your XOA instance as documented in [its documentation](../getting-started/architecture.md#fragata-cli).
+Here, we describe how to use `fragata-cli` to configure rules. First, make sure to register fragata-cli to your Fragata instance as documented in [its documentation](../getting-started/architecture.md#fragata-cli).
 
 - Add per-VIF rules: `fragata-cli sdnController.addRule vifId=<VIF_UUID> <parameters>`
 - Delete per-VIF rules: `fragata-cli sdnController.deleteRule vifId=<VIF_UUID> <parameters>`
@@ -270,7 +270,7 @@ python3 sdn-migration.py restore
 
 ## OpenSSL 3 + SDN upgrade path
 
-With OpenSSL 3 arriving in XCP-ng 8.3, the certificates previously generated by the Fragata SDN Controller plugin will no longer work. **You must regenerate the certificates before updating your XCP-ng pools.** The steps below only cover certificate regeneration: updating your XCP-ng pools is a separate operation that you perform as you normally would, after the certificates are in place.
+With OpenSSL 3 arriving in XCP-ng 8.3, the certificates previously generated by the Fragata SDN Controller plugin will no longer work. **You must regenerate the certificates before updating your Fragata Host pools.** The steps below only cover certificate regeneration: updating your Fragata Host pools is a separate operation that you perform as you normally would, after the certificates are in place.
 
 :::warning
 We remind you that the self-signed certificates generated by Fragata’s SDN Controller plugin are a workaround. **They are neither safe nor recommended**. You should provide your own certificates.
@@ -297,7 +297,7 @@ To check if you’re using **Global Private Networks**, you can use one of the m
 
 We provide a script to run from a host that has access to your pool. To run the script, you will need the following:
 
-- A machine to run it that has access to your pools. Your XOA may be a good place.
+- A machine to run it that has access to your pools. Your Fragata server may be a good place.
 - The list of the addresses of your pool masters.
 - (optional) If your infrastructure is on the bigger side, it may be better to have ssh agents configured with keys to avoid the need to pass all the passwords.
 
@@ -328,24 +328,12 @@ Alternatively, you can check manually in Fragata’s interface:
 
 If you did the previous check and confirm you’re using the SDN Controller features, you will unfortunately need a manual intervention before the March XCP-ng 8.3 update.
 
-There are 3 cases here:
-
-- You’re using the `latest` channel of Fragata Appliance.
-- You’re using the `stable` channel of Fragata Appliance.
-- You run Fragata from sources.
-
-:::warning
-We recommend doing this right before updating Fragata Appliance, or you’ll need to restart the `fragata-server` again manually.
-:::
-
-#### Latest Channel
-
-This is the simplest case. We have updated the self-signed certificates to work with the incoming OpenSSL 3. All you need is to remove the current certificates, start the update, and you’re good to go. The certificates will be regenerated and copied over to your hosts.
+Recent versions of Fragata generate self-signed certificates that work with OpenSSL 3. All you need is to [update Fragata](../getting-started/install-from-sources.md#updating), remove the current certificates and restart `fragata-server`: the certificates will be regenerated and copied over to your hosts.
 
 :::tip
-We suggest doing a backup of the certificates in case anything goes wrong:
+We suggest doing a backup of the certificates in case anything goes wrong. By default, they live in `/var/lib/fragata-server/data/sdn-controller` (adjust the path if your `fragata-server` data folder is elsewhere):
 
-<Terminal shell title="back up the current certificates, on your XOA">{`
+<Terminal shell title="back up the current certificates, on the Fragata server">{`
 today=$(date +%Y%m%d)
 sudo mkdir /var/lib/fragata-server/data/sdn-controller/$today-backup
 sudo mv /var/lib/fragata-server/data/sdn-controller/*.pem /var/lib/fragata-server/data/sdn-controller/$today-backup
@@ -353,32 +341,15 @@ sudo mv /var/lib/fragata-server/data/sdn-controller/*.pem /var/lib/fragata-serve
 
 :::
 
-Finally, update your XOA. On next restart, `fragata-server` will regenerate the certificates and push them to your hosts automatically. You can then update your XCP-ng pools as you normally would.
+Then restart `fragata-server` (for example with `sudo systemctl restart fragata-server`). Once it is back up, the new certificates are pushed to your hosts. You can then update your Fragata Host pools as you normally would.
 
-#### Stable Channel
-
-The update present in the `latest` channel will probably be available later than the XCP-ng 8.3 update (March 2026) that will include OpenSSL 3. In that case, you need to actually generate certificates yourself, then restart `fragata-server`.
-
-We provide a helper script to run on your XOA VM:
+If for any reason you’re running an older version of Fragata that you can’t update right now, you can generate the certificates yourself with the helper script below, using it as an inspiration. Be sure to adjust it to your installation (`fragata-server`’s data folder, permissions…), then restart `fragata-server`.
 
 [regenerate-certs.sh (download script)](../../static/sh/regenerate-certs.sh)
 
-<Terminal shell title="regenerate the certificates, on your XOA">{`
+<Terminal shell title="regenerate the certificates, on the Fragata server">{`
 sudo bash -e ./regenerate-certs.sh
-# if you have available updates, just update XOA, otherwise:
 sudo systemctl restart fragata-server
 `}</Terminal>
 
-Once `fragata-server` is back up, the new certificates are pushed to your hosts. You can then update your XCP-ng pools as you normally would.
-
-#### Running from sources
-
-If you have auto-updates from master, you likely already are in a case similar to people using the `latest` channel and already have the updated certificate generation.
-
-1. You need to find where your fragata-server's data folder lives.
-2. Move or remove your certificates.
-3. Restart fragata-server.
-
-If for any reason you’re pinning xen-orchestra to a specific release, you can use the `regenerate-certs.sh` as an insipration. However, be sure to adjust it to your installation (fragata-server’s data folder, permission…). Then, you can restart `fragata-server` with your distribution service manager.
-
-Once `fragata-server` is back up, the new certificates are pushed to your hosts. You can then update your XCP-ng pools as you normally would.
+Once `fragata-server` is back up, the new certificates are pushed to your hosts. You can then update your Fragata Host pools as you normally would.
