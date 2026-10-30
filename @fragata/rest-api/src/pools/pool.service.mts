@@ -30,10 +30,8 @@ export class PoolService {
   #hostService: HostService
   #vmService: VmService
   #alarmService: AlarmService
-  #dashboardAsyncCache = new Map<
-    keyof DashboardAsyncCache,
-    AsyncCacheEntry<DashboardAsyncCache[keyof DashboardAsyncCache]>
-  >()
+  // keyed by `<entry>:<pool id>`: the cache must not leak one pool's result to the others
+  #dashboardAsyncCache = new Map<string, AsyncCacheEntry<DashboardAsyncCache[keyof DashboardAsyncCache]>>()
   #dashboardCacheOpts: { timeout?: number; expiresIn?: number }
 
   constructor(restApi: RestApi) {
@@ -162,7 +160,7 @@ export class PoolService {
   async #getTopFiveVmsRamCpuUsage(poolId: XoPool['id']): Promise<DashboardAsyncCache['vmsTopFiveUsage']> {
     const vmsUsageResult = await getFromAsyncCache<DashboardAsyncCache['vmsTopFiveUsage']>(
       this.#dashboardAsyncCache,
-      'vmsRamCpuUsage',
+      `vmsRamCpuUsage:${poolId}`,
       async () => {
         const vms = this.#restApi.getObjectsByType<XoVm>('VM', {
           filter: vm =>

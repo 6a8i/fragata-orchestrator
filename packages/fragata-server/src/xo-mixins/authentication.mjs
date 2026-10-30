@@ -14,6 +14,9 @@ import { forEach, generateToken } from '../utils.mjs'
 
 const log = createLogger('xo:authentification')
 
+// how often the `last_uses` entry of a token is persisted for a given IP
+const LAST_USE_UPDATE_INTERVAL = 5 * 60e3
+
 const noSuchAuthenticationToken = id => noSuchObject(id, 'authenticationToken')
 
 export default class {
@@ -58,8 +61,17 @@ export default class {
       try {
         const token = await app.getAuthenticationToken(tokenId)
 
+        // persisting `last_uses` costs several Redis commands plus encryption,
+        // and the information is only informative: write it at most once per
+        // interval for a given (token, ip)
+        const now = Date.now()
+        const lastUse = token.last_uses?.[ip]?.timestamp
+        if (lastUse !== undefined && now - lastUse < LAST_USE_UPDATE_INTERVAL) {
+          return { bypassOtp: true, expiration: token.expiration, userId: token.user_id }
+        }
+
         let { last_uses = {} } = token
-        last_uses[ip] = { timestamp: Date.now() }
+        last_uses[ip] = { timestamp: now }
 
         const MAX_LAST_USE_ENTRIES = 10
         if (Object.keys(last_uses).length > MAX_LAST_USE_ENTRIES) {

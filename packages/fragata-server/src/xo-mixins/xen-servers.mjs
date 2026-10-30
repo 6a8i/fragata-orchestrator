@@ -304,14 +304,21 @@ export default class XenServers {
 
       // save pool name and description, and the pool-member addresses (so
       // master failover survives an XO restart), in the server properties
+      //
+      // the pool record is updated on every barrier and marking write, so only
+      // persist (Redis write + broadcast) when these properties really changed
       if (xapiObject.$type === 'pool') {
-        self
-          .updateXenServer(serverIdsByPool[xapiId], {
-            poolNameDescription: xapiObject.name_description,
-            poolNameLabel: xapiObject.name_label,
-            poolMembersAddresses: self._xapis[conId]?.candidateHostnames,
-          })
-          ::ignoreErrors()
+        const props = {
+          poolNameDescription: xapiObject.name_description,
+          poolNameLabel: xapiObject.name_label,
+          poolMembersAddresses: self._xapis[conId]?.candidateHostnames,
+        }
+        const serialized = JSON.stringify(props)
+        const persisted = (self._persistedPoolProps ??= { __proto__: null })
+        if (persisted[conId] !== serialized) {
+          persisted[conId] = serialized
+          self.updateXenServer(serverIdsByPool[xapiId], props)::ignoreErrors()
+        }
       }
 
       const { $ref } = xapiObject
@@ -338,6 +345,10 @@ export default class XenServers {
 
         xapiIdsToXo[xapiId] = xoId
 
+        if (xapiObject.$type === 'VM' && xapiObject.platform?.['cores-per-socket'] === undefined) {
+          self._ensureCoresPerSocket(conId, xapiObject, xoObject.CPUs?.number)
+        }
+
         const previous = objects.get(xoId, undefined)
         if (previous && previous._xapiRef !== $ref) {
           const conflicts_ = conflicts[xoId] || (conflicts[xoId] = { __proto__: null })
@@ -360,6 +371,28 @@ export default class XenServers {
 
         toRetry[xapiId] = xapiObject
       }
+    })
+  }
+
+  // XCP-ng does not set `cores-per-socket` by default (upstream issue 9111).
+  // Set it once per VM, outside the pure transform (which runs on every event),
+  // and never on read-only servers where the call would fail forever.
+  _ensureCoresPerSocket(conId, vm, nCpus) {
+    if (nCpus === undefined) {
+      return
+    }
+    const xapi = this._xapis[conId]
+    if (xapi === undefined || xapi.readOnly) {
+      return
+    }
+    const attempted = (this._coresPerSocketAttempted ??= new Set())
+    const key = conId + ':' + vm.$ref
+    if (attempted.has(key)) {
+      return
+    }
+    attempted.add(key)
+    vm.update_platform('cores-per-socket', String(nCpus)).catch(error => {
+      log.warn('unable to set default cores-per-socket', { vm: vm.$id, error })
     })
   }
 

@@ -88,8 +88,18 @@ export function useXoCollectionState<TRecord extends XoRecord, TNameConfig exten
   }
 
   function getByIds(ids: TRecord['id'][]) {
-    const idSet = new Set(ids)
-    return collection.value.filter(record => idSet.has(record.id))
+    const index = recordsById.value
+    const records: TRecord[] = []
+
+    for (const id of ids) {
+      const record = index.get(id)
+
+      if (record !== undefined) {
+        records.push(record)
+      }
+    }
+
+    return records
   }
 
   function hasById(id: TRecord['id'] | undefined) {

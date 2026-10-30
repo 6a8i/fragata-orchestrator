@@ -27,6 +27,7 @@ import { xdgConfig } from 'xdg-basedir'
 import { createLogger } from '@fragata/log'
 import { createRequire } from 'module'
 import { execFile } from 'node:child_process'
+import { sep } from 'node:path'
 import { parseDuration } from '@fragata/parse-duration'
 import { readCert } from '@fragata/self-signed/readCert'
 import { URL } from 'url'
@@ -170,10 +171,6 @@ const CSP_EXEMPT_PREFIXES = ['/netdata']
 async function createExpressApp(config) {
   const app = createExpress()
 
-  // For a nicer API
-  //
-  // https://expressjs.com/en/api.html#app.set
-  app.set('json spaces', 2)
   const isDev = (process.env.NODE_ENV ?? '').trim().toLowerCase() === 'development'
   const helmetConfig = mergeWith({}, isDev ? {} : DEFAULT_HELMET_CONFIG, config.http.helmet, (dst, src) =>
     Array.isArray(dst) ? dst.concat(src) : undefined
@@ -761,7 +758,20 @@ const setUpStaticFiles = (express, opts) => {
       // `.html` file (e.g. `/docs/xo5/calculator` → `calculator.html`), which
       // the Docusaurus docs mount needs since it is built with trailingSlash
       // false. Harmless for the SPA mounts (no route-colliding .html files).
-      express.use(url, serveStatic(path, { extensions: ['html'] }))
+      express.use(
+        url,
+        serveStatic(path, {
+          extensions: ['html'],
+          // the UI bundles are emitted with a content hash in their name
+          // (`/assets/*`): they can be cached forever, entry points cannot
+          setHeaders(res, filePath) {
+            res.setHeader(
+              'Cache-Control',
+              filePath.includes(`${sep}assets${sep}`) ? 'public, max-age=31536000, immutable' : 'no-cache'
+            )
+          },
+        })
+      )
     })
   })
 }

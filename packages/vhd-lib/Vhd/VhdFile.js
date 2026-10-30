@@ -66,7 +66,13 @@ exports.VhdFile = class VhdFile extends VhdAbstract {
 
   set #blockTable(blockTable) {
     this.#uncheckedBlockTable = blockTable
+    this.#endOfDataSectors = undefined
   }
+
+  // first sector after the last allocated block, computed lazily from the BAT
+  // and kept up to date by `_createBlock`: scanning the whole BAT for every
+  // new block made writes quadratic on large disks
+  #endOfDataSectors
 
   get batSize() {
     return computeBatSize(this.header.maxTableEntries)
@@ -174,6 +180,10 @@ exports.VhdFile = class VhdFile extends VhdAbstract {
 
   // Returns the first sector after data.
   _getEndOfData() {
+    if (this.#endOfDataSectors !== undefined) {
+      return sectorsToBytes(this.#endOfDataSectors)
+    }
+
     let end = Math.ceil(this._getEndOfHeaders() / SECTOR_SIZE)
 
     const sectorsOfFullBlock = this.sectorsOfBitmap + this.sectorsPerBlock
@@ -188,6 +198,7 @@ exports.VhdFile = class VhdFile extends VhdAbstract {
 
     debug(`End of data: ${end}.`)
 
+    this.#endOfDataSectors = end
     return sectorsToBytes(end)
   }
 
@@ -306,6 +317,8 @@ exports.VhdFile = class VhdFile extends VhdAbstract {
     const blockTable = this.#blockTable
 
     blockTable.writeUInt32BE(blockSector, i)
+    // an arbitrary address may move the end of data: recompute it next time
+    this.#endOfDataSectors = undefined
 
     return this._write(blockTable.slice(i, i + 4), this.header.tableOffset + i)
   }
@@ -319,6 +332,7 @@ exports.VhdFile = class VhdFile extends VhdAbstract {
     debug(`create block ${blockId} at ${blockAddr}`)
 
     await this._setBatEntry(blockId, blockAddr)
+    this.#endOfDataSectors = blockAddr + this.sectorsOfBitmap + this.sectorsPerBlock
 
     return blockAddr
   }

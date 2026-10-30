@@ -26,6 +26,19 @@ export type AnyPrivilegeOnParam = {
   }
 }[SupportedResource]
 
+// Building a `CPrivilege` parses its complex-matcher selectors; the same
+// privilege records are checked once per object of every listing, so the
+// parsed instance is kept for the lifetime of the record.
+const cPrivilegeByRecord = new WeakMap<object, CPrivilege<any>>()
+function getCPrivilege(userPrivilege: AnyPrivilege): CPrivilege<any> {
+  let privilege = cPrivilegeByRecord.get(userPrivilege)
+  if (privilege === undefined) {
+    privilege = new CPrivilege(userPrivilege as Privilege<typeof userPrivilege.resource>)
+    cPrivilegeByRecord.set(userPrivilege, privilege)
+  }
+  return privilege
+}
+
 export function hasPrivilegeOn<T extends SupportedResource>({
   user,
   action,
@@ -71,7 +84,7 @@ export function hasPrivilegeOn<T extends SupportedResource>({
   }
 
   for (const userPrivilege of userPrivileges) {
-    const privilege = new CPrivilege(userPrivilege as Privilege<typeof userPrivilege.resource>)
+    const privilege = getCPrivilege(userPrivilege)
 
     for (const [object, effects] of effectsByObject.entries()) {
       if (!privilege.match({ action, resource, object })) {

@@ -12,6 +12,29 @@ import { extractProperty, forEach, isEmpty, mapFilter, parseXml } from './utils.
 import { getVmDomainType, isHostRunning, isVmRunning } from './xapi/index.mjs'
 import { useUpdateSystem } from './xapi/utils.mjs'
 
+// The transforms below run for every XAPI event, and `metrics` /
+// `guest_metrics` events arrive every few seconds for each running VM. XML
+// parsing and version comparisons are therefore memoized on their exact input
+// string: a value that does not change costs nothing after the first event.
+const memoizeByString = (fn, max = 4096) => {
+  const cache = new Map()
+  return input => {
+    if (cache.has(input)) {
+      return cache.get(input)
+    }
+    const value = fn(input)
+    if (cache.size >= max) {
+      // drop the oldest entry
+      cache.delete(cache.keys().next().value)
+    }
+    cache.set(input, value)
+    return value
+  }
+}
+const parseRecommendations = memoizeByString(recommendations => parseXml(recommendations)?.restrictions?.restriction)
+const parseDockerXml = memoizeByString(xml => parseXml(xml))
+const isNestedVirtPlatform = memoizeByString(platformVersion => semver.satisfies(platformVersion, '>=3.4'))
+
 const { debug, warn } = createLogger('xo:server:xapi-objects-to-xo')
 
 // ===================================================================
@@ -140,6 +163,10 @@ const XSA468_VULNERABLE_VERSIONS = {
     xenbus: '9.0.9048.9047',
   },
 }
+// `guest_metrics` records are replaced (not mutated) when XAPI updates them,
+// so the result can be cached per record: the check only re-runs when the
+// PV driver versions actually change.
+const xsa468ByGuestMetrics = new WeakMap()
 const isVmVulnerable_XSA468 = vm => {
   if (vm.platform?.device_id !== '0002') {
     // Not a Windows VM
@@ -150,6 +177,16 @@ const isVmVulnerable_XSA468 = vm => {
   if (guestMetrics === undefined) {
     return false
   }
+
+  let result = xsa468ByGuestMetrics.get(guestMetrics)
+  if (result === undefined) {
+    result = computeXsa468Vulnerability(guestMetrics)
+    xsa468ByGuestMetrics.set(guestMetrics, result)
+  }
+  return result
+}
+
+const computeXsa468Vulnerability = guestMetrics => {
 
   if (!guestMetrics.PV_drivers_detected) {
     // No PV drivers installed: no vulnerability
@@ -483,15 +520,15 @@ const TRANSFORMS = {
 
         return {
           enabled: true,
-          info: info && parseXml(info).docker_info,
-          containers: ensureArray(process && parseXml(process).docker_ps.item),
-          process: process && parseXml(process).docker_ps, // deprecated (only used in v4)
-          version: version && parseXml(version).docker_version,
+          info: info && parseDockerXml(info).docker_info,
+          containers: ensureArray(process && parseDockerXml(process).docker_ps.item),
+          process: process && parseDockerXml(process).docker_ps, // deprecated (only used in v4)
+          version: version && parseDockerXml(version).docker_version,
         }
       })(),
       // deprecated, use isNestedVirtEnabled instead
       expNestedHvm: obj.platform['exp-nested-hvm'] === 'true',
-      isNestedVirtEnabled: semver.satisfies(String(obj.$pool.$master.software_version.platform_version), '>=3.4')
+      isNestedVirtEnabled: isNestedVirtPlatform(String(obj.$pool.$master.software_version.platform_version))
         ? obj.platform['nested-virt'] === 'true'
         : obj.platform['exp-nested-hvm'] === 'true',
       vulnerabilities:
@@ -502,7 +539,7 @@ const TRANSFORMS = {
       mainIpAddress: extractIpFromVmNetworks(guestMetrics?.networks),
       high_availability: obj.ha_restart_priority,
       isFirmwareSupported: (() => {
-        const restrictions = parseXml(obj.recommendations)?.restrictions?.restriction
+        const restrictions = parseRecommendations(obj.recommendations)
 
         if (restrictions === undefined) {
           return true
@@ -580,21 +617,11 @@ const TRANSFORMS = {
       vm.videoram = +(videoram ?? 4)
     }
 
+    // a missing `cores-per-socket` is reconciled once per VM by the xen-servers
+    // mixin (see `_ensureCoresPerSocket`), never from this pure transform
     const coresPerSocket = obj.platform['cores-per-socket']
     if (coresPerSocket !== undefined) {
       vm.coresPerSocket = +coresPerSocket
-    } else {
-      // https://github.com/6a8i/fragata-orchestrator/issues/9111
-      // TODO: Remove when correctly handled by XCP-ng
-      // also remove the workaround here: https://github.com/6a8i/fragata-orchestrator/pull/10201
-      obj
-        .update_platform('cores-per-socket', String(vm.CPUs.number))
-        .catch(err => {
-          warn(`unable to set default cores per socket property for VM: ${obj.$id}`, err)
-        })
-        .finally(() => {
-          debug(`cores-per-socket was called for: ${obj.$id}`)
-        })
     }
 
     if (obj.is_control_domain) {
