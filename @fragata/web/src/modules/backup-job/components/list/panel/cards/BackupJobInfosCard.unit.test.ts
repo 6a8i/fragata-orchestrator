@@ -6,7 +6,6 @@ import type {
   FrontXoSr,
   useXoSrCollection,
 } from '@/modules/storage-repository/remote-resources/use-xo-sr-collection.ts'
-import type { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import { createMetadataBackupJob, createVmBackupJob } from '@/test/create-backup-job.ts'
 import { createSr } from '@/test/create-sr.ts'
 import { findCardLabelledValues } from '@/test/find-rendered-values.ts'
@@ -22,12 +21,6 @@ import { ref } from 'vue'
 
 const { srs } = vi.hoisted(() => ({
   srs: [] as FrontXoSr[],
-}))
-
-vi.mock(import('@/shared/remote-resources/use-xo-routes.ts'), () => ({
-  useXoRoutes: (() => ({
-    buildXo5Route: (path: string) => `https://xo5.example.com/#${path}`,
-  })) as unknown as typeof useXoRoutes,
 }))
 
 vi.mock(import('@/modules/storage-repository/remote-resources/use-xo-sr-collection.ts'), () => ({
@@ -67,16 +60,16 @@ function findValues(wrapper: ReturnType<typeof mountInfosCard>) {
   return wrapper.findAll('.vts-card-row-key-value').map(row => row.get('.value').text())
 }
 
-it('titles the card with the backup job, linked to the Fragata Classic backup overview', () => {
+it('titles the card with the backup job, without link', () => {
   const backupJob = createVmBackupJob({ name: 'Nightly backup' })
   const title = mountInfosCard(backupJob).getComponent(UiPanelCardTitle)
 
   expect(title.props()).toMatchObject({
     id: backupJob.id,
     label: 'Nightly backup',
-    href: 'https://xo5.example.com/#/backup/overview',
     icon: 'object:backup-job',
   })
+  expect(title.findComponent(UiLink).exists()).toBe(false)
 })
 
 it('names a backup job without name as untitled', () => {

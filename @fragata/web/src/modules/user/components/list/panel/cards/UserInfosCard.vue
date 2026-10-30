@@ -4,9 +4,7 @@
       <template #label>
         <span class="name">
           <UiUserLogo size="small" />
-          <UiLink :href="xo5UsersHref" size="medium">
-            {{ user.name }}
-          </UiLink>
+          <span>{{ user.name }}</span>
         </span>
       </template>
     </UiPanelCardTitle>
@@ -43,10 +41,8 @@
 <script lang="ts" setup>
 import { useXoUserAuthenticationTokensCollection } from '@/modules/user/remote-resources/use-xo-user-authentication-tokens-collection.ts'
 import type { FrontXoUser } from '@/modules/user/remote-resources/use-xo-user-collection.ts'
-import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import VtsCardRowKeyValue from '@core/components/card/VtsCardRowKeyValue.vue'
 import VtsCopyButton from '@core/components/copy-button/VtsCopyButton.vue'
-import UiLink from '@core/components/ui/link/UiLink.vue'
 import UiPanelCard from '@core/components/ui/panel-card/UiPanelCard.vue'
 import UiPanelCardTitle from '@core/components/ui/panel-card-title/UiPanelCardTitle.vue'
 import UiUserLogo from '@core/components/ui/user-logo/UiUserLogo.vue'
@@ -59,10 +55,6 @@ const { user } = defineProps<{
 }>()
 
 const { t } = useI18n()
-
-const { buildXo5Route } = useXoRoutes()
-
-const xo5UsersHref = computed(() => buildXo5Route('/settings/users'))
 
 const { userAuthenticationTokens } = useXoUserAuthenticationTokensCollection({}, () => user.id)
 

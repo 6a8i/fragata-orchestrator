@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-import { useXoVmUtils } from '@/modules/vm/composables/xo-vm-utils.composable.ts'
 import { useXoVmDeleteJob } from '@/modules/vm/jobs/xo-vm-delete.job.ts'
 import type { FrontXoVm } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
 import { extractVmHostId } from '@/modules/vm/utils/xo-vm.util.ts'
@@ -23,8 +22,6 @@ const { vm } = defineProps<{
 const { t } = useI18n()
 
 const { run: deleteVm, canRun, isRunning } = useXoVmDeleteJob(() => [vm])
-
-const { xo5VmAdvancedHref } = useXoVmUtils(() => vm)
 
 const route = useRoute()
 
@@ -47,12 +44,7 @@ const { open: openBlockedModal } = useBlockedModal()
 
 function openModal() {
   if (!canRun.value) {
-    return openBlockedModal({
-      props: {
-        blockedOperation: 'destroy',
-        href: xo5VmAdvancedHref.value,
-      },
-    })
+    return openBlockedModal({ props: { blockedOperation: 'destroy' } })
   }
 
   return openDeleteModal({

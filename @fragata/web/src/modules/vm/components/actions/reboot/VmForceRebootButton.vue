@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-import { useXoVmUtils } from '@/modules/vm/composables/xo-vm-utils.composable.ts'
 import { useXoVmForceRebootJob } from '@/modules/vm/jobs/xo-vm-force-reboot.job.ts'
 import type { FrontXoVm } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
 import MenuItem from '@core/components/menu/MenuItem.vue'
@@ -23,8 +22,6 @@ const { t } = useI18n()
 
 const { run: forceReboot, canRun, isRunning } = useXoVmForceRebootJob(() => [vm])
 
-const { xo5VmAdvancedHref } = useXoVmUtils(() => vm)
-
 const canDisplay = logicOr(
   () => canRun.value,
   vm.power_state === VM_POWER_STATE.RUNNING,
@@ -37,9 +34,7 @@ const { open: openBlockedModal } = useBlockedModal()
 
 const openModal = () => {
   if (!canRun.value) {
-    return openBlockedModal({
-      props: { blockedOperation: 'hard_reboot', href: xo5VmAdvancedHref.value },
-    })
+    return openBlockedModal({ props: { blockedOperation: 'hard_reboot' } })
   }
 
   return openRebootModal({

@@ -4,7 +4,6 @@
       :id="backupJob.id"
       size="medium"
       :label="backupJob.name ?? t('untitled')"
-      :href="jobOverviewHref"
       icon="object:backup-job"
     />
     <div class="content">
@@ -72,7 +71,6 @@ import {
 } from '@/modules/backup-job/utils/xo-backup-job.util.ts'
 import { useXoSrUtils } from '@/modules/storage-repository/composables/xo-sr-utils.composable.ts'
 import { useXoSrCollection } from '@/modules/storage-repository/remote-resources/use-xo-sr-collection.ts'
-import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import VtsCardRowKeyValue from '@core/components/card/VtsCardRowKeyValue.vue'
 import VtsCopyAllMenuItem from '@core/components/copy-all-menu-item/VtsCopyAllMenuItem.vue'
 import VtsCopyButton from '@core/components/copy-button/VtsCopyButton.vue'
@@ -89,13 +87,9 @@ const { backupJob } = defineProps<{
 
 const { t } = useI18n()
 
-const { buildXo5Route } = useXoRoutes()
-
 const { getSrById } = useXoSrCollection()
 
 const { getSrStatusIcon } = useXoSrUtils()
-
-const jobOverviewHref = computed(() => buildXo5Route('/backup/overview'))
 
 const typeLabels = useXoBackupJobTypeLabels(() => backupJob)
 

@@ -2,7 +2,6 @@ import { useVmMigrate } from '@/modules/vm/composables/use-vm-migrate.composable
 import type { VmMigratePayload } from '@/modules/vm/form/migrate/use-vm-migrate-form.ts'
 import type { useXoVmMigrateJob } from '@/modules/vm/jobs/xo-vm-migrate.job.ts'
 import type { FrontXoVm } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
-import type { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import { createVm } from '@/test/create-vm.ts'
 import { mountComposable } from '@/test/mount-composable.ts'
 import type { useBlockedModal } from '@core/composables/modals/use-blocked-modal.ts'
@@ -14,12 +13,11 @@ type OverlayEvents = Record<string, ((...args: unknown[]) => unknown) | true>
 
 type OverlayStub = { events: OverlayEvents; open: ReturnType<typeof vi.fn> }
 
-const { useXoVmMigrateJobMock, runMock, useOverlayMock, openBlockedModalMock, buildXo5Route } = vi.hoisted(() => ({
+const { useXoVmMigrateJobMock, runMock, useOverlayMock, openBlockedModalMock } = vi.hoisted(() => ({
   useXoVmMigrateJobMock: vi.fn(),
   runMock: vi.fn(),
   useOverlayMock: vi.fn(),
   openBlockedModalMock: vi.fn(),
-  buildXo5Route: vi.fn(),
 }))
 
 vi.mock(import('@/modules/vm/jobs/xo-vm-migrate.job.ts'), () => ({
@@ -32,10 +30,6 @@ vi.mock(import('@core/packages/overlay/use-overlay.ts'), () => ({
 
 vi.mock(import('@core/composables/modals/use-blocked-modal.ts'), () => ({
   useBlockedModal: (() => ({ open: openBlockedModalMock })) as unknown as typeof useBlockedModal,
-}))
-
-vi.mock(import('@/shared/remote-resources/use-xo-routes.ts'), () => ({
-  useXoRoutes: (() => ({ buildXo5Route })) as unknown as typeof useXoRoutes,
 }))
 
 const payload: VmMigratePayload = { hostId: 'host-target' as VmMigratePayload['hostId'] }
@@ -61,7 +55,6 @@ beforeEach(() => {
   runMock.mockReset()
   useOverlayMock.mockReset()
   openBlockedModalMock.mockReset()
-  buildXo5Route.mockReset()
 
   runPayloads = []
   overlays = []
@@ -86,8 +79,6 @@ beforeEach(() => {
 
     return { open: overlay.open, abort: vi.fn() }
   })
-
-  buildXo5Route.mockImplementation((path: string) => `xo5:${path}`)
 })
 
 function mountVmMigrate(vm: FrontXoVm = createVm({ name_label: 'web-server' })) {
@@ -118,16 +109,14 @@ describe('migrateVm', () => {
   })
 
   it('opens the blocked modal instead of the drawer when the VM is protected against migration', () => {
-    const { vm, result } = mountVmMigrate(
+    const { result } = mountVmMigrate(
       createVm({ blockedOperations: { migrate_send: 'true' } as FrontXoVm['blockedOperations'] })
     )
 
     result.migrateVm()
 
     expect(result.isMigrationBlocked).toBe(true)
-    expect(openBlockedModalMock).toHaveBeenCalledWith({
-      props: { blockedOperation: 'migrate_send', href: `xo5:/vms/${vm.id}/advanced` },
-    })
+    expect(openBlockedModalMock).toHaveBeenCalledWith({ props: { blockedOperation: 'migrate_send' } })
     expect(getOverlay('onConfirm').open).not.toHaveBeenCalled()
   })
 

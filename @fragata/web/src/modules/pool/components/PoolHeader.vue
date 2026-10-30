@@ -13,11 +13,6 @@
         {{ t('dashboard') }}
       </UiTabItem>
     </RouterLink>
-    <UiTabItem>
-      <UiLink :href="xo5PoolStatsHref" size="medium">
-        {{ t('stats') }}
-      </UiLink>
-    </UiTabItem>
     <RouterLink v-slot="{ isActive, href }" :to="{ name: '/pool/[id]/system', params: { id: pool.id } }" custom>
       <UiTabItem :active="isActive" :href tag="a">
         {{ t('system') }}
@@ -58,12 +53,10 @@
 
 <script lang="ts" setup>
 import type { FrontXoPool } from '@/modules/pool/remote-resources/use-xo-pool-collection.ts'
-import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import TabList from '@core/components/tab-list/TabList.vue'
 import UiHeadBar from '@core/components/ui/head-bar/UiHeadBar.vue'
 import UiLink from '@core/components/ui/link/UiLink.vue'
 import UiTabItem from '@core/components/ui/tab-item/UiTabItem.vue'
-import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { pool } = defineProps<{
@@ -71,7 +64,4 @@ const { pool } = defineProps<{
 }>()
 
 const { t } = useI18n()
-
-const { buildXo5Route } = useXoRoutes()
-const xo5PoolStatsHref = computed(() => buildXo5Route(`/pools/${pool.id}/stats`))
 </script>

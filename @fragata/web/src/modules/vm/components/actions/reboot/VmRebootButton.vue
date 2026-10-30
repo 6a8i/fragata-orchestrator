@@ -31,7 +31,7 @@ const { vm } = defineProps<{
 const { t } = useI18n()
 
 const { run: reboot, canRun, isRunning } = useXoVmRebootJob(() => [vm])
-const { hasGuestTools, xo5VmAdvancedHref } = useXoVmUtils(() => vm)
+const { hasGuestTools } = useXoVmUtils(() => vm)
 
 const canReboot = computed(() => hasGuestTools(vm))
 
@@ -47,9 +47,7 @@ const { open: openBlockedModal } = useBlockedModal()
 
 const openModal = () => {
   if (!canRun.value) {
-    return openBlockedModal({
-      props: { blockedOperation: 'clean_reboot', href: xo5VmAdvancedHref.value },
-    })
+    return openBlockedModal({ props: { blockedOperation: 'clean_reboot' } })
   }
 
   return openRebootModal({

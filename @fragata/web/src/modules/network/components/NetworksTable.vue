@@ -29,7 +29,6 @@ import { useNetworkDelete } from '@/modules/network/composables/use-network-dele
 import type { FrontXoNetwork } from '@/modules/network/remote-resources/use-xo-network-collection.ts'
 import { getNetworkStatus } from '@/modules/network/utils/xo-network.util.ts'
 import { useXoPifCollection } from '@/modules/pif/remote-resources/use-xo-pif-collection.ts'
-import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import VtsQueryBuilder from '@core/components/query-builder/VtsQueryBuilder.vue'
 import VtsRow from '@core/components/table/VtsRow.vue'
 import VtsTable from '@core/components/table/VtsTable.vue'
@@ -108,24 +107,16 @@ const { pageRecords: paginatedNetworks, paginationBindings } = usePagination('ne
 const { HeadCells, BodyCells } = useNetworkColumns({
   exclude: internal ? ['vlan', 'status', 'selectItem'] : ['selectItem'],
   body: (network: FrontXoNetwork) => {
-    const { buildXo5Route } = useXoRoutes()
-
     const networkPifs = computed(() => getPifsByIds(network.PIFs))
 
     const status = computed(() => getNetworkStatus(networkPifs.value))
     const vlan = computed(() => getNetworkVlan(network))
     const defaultLockingMode = computed(() => getLockingMode(network.defaultIsLocked))
-    const href = computed(() => buildXo5Route(`/pools/${network.$pool}/network?s=1_0_asc-${network.id}`))
 
     const { deleteNetworks, isDeletingNetworks } = useNetworkDelete(() => [network])
 
     return {
-      network: r =>
-        r({
-          label: network.name_label,
-          icon: icon('object:network'),
-          href: href.value,
-        }),
+      network: r => r({ label: network.name_label, icon: icon('object:network') }),
       description: r => r(network.name_description),
       status: r => r(status.value),
       vlan: r => r(vlan.value),

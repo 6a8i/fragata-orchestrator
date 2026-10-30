@@ -1,4 +1,3 @@
-import { useXoVmUtils } from '@/modules/vm/composables/xo-vm-utils.composable.ts'
 import type { VmMigratePayload } from '@/modules/vm/form/migrate/use-vm-migrate-form.ts'
 import { useXoVmMigrateJob } from '@/modules/vm/jobs/xo-vm-migrate.job.ts'
 import type { FrontXoVm } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
@@ -20,8 +19,6 @@ export function useVmMigrate(rawVm: MaybeRefOrGetter<FrontXoVm>) {
     isRunning: isMigratingVm,
     errorMessage: migrateVmErrorMessage,
   } = useXoVmMigrateJob(() => vm.value, payload)
-
-  const { xo5VmAdvancedHref } = useXoVmUtils(vm)
 
   const isMigrationBlocked = computed(() => isVmMigrationBlocked(vm.value))
 
@@ -45,7 +42,7 @@ export function useVmMigrate(rawVm: MaybeRefOrGetter<FrontXoVm>) {
 
   function migrateVm() {
     if (isMigrationBlocked.value) {
-      return openBlockedModal({ props: { blockedOperation: 'migrate_send', href: xo5VmAdvancedHref.value } })
+      return openBlockedModal({ props: { blockedOperation: 'migrate_send' } })
     }
 
     return openMigrateDrawer({ props })

@@ -1,6 +1,5 @@
 import VmHeader from '@/modules/vm/components/VmHeader.vue'
 import type { FrontXoVm } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
-import type { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import { createTestRouter } from '@/test/create-test-router.ts'
 import { createVm } from '@/test/create-vm.ts'
 import { createGlobalTestConfig } from '@/test/global-test-config.ts'
@@ -8,19 +7,6 @@ import { t } from '@/test/i18n.ts'
 import VtsObjectIcon from '@core/components/object-icon/VtsObjectIcon.vue'
 import { VM_OPERATIONS, VM_POWER_STATE } from '@fragata/types'
 import { mount, type DOMWrapper } from '@vue/test-utils'
-
-const { buildXo5Route } = vi.hoisted(() => ({
-  buildXo5Route: vi.fn(),
-}))
-
-vi.mock(import('@/shared/remote-resources/use-xo-routes.ts'), () => ({
-  useXoRoutes: (() => ({ buildXo5Route })) as unknown as typeof useXoRoutes,
-}))
-
-beforeEach(() => {
-  buildXo5Route.mockReset()
-  buildXo5Route.mockImplementation((path: string) => `https://xo5.example.com/#${path}`)
-})
 
 async function mountHeader(vm: FrontXoVm = createVm({ id: 'vm-42' as FrontXoVm['id'] }), initialPath?: string) {
   const router = createTestRouter()
@@ -68,7 +54,6 @@ it('lists every tab of the VM, in order', async () => {
     t('dashboard'),
     t('console'),
     t('backups'),
-    t('stats'),
     t('system'),
     t('network'),
     t('vdis'),
@@ -77,14 +62,12 @@ it('lists every tab of the VM, in order', async () => {
   ])
 })
 
-it('points every in-app tab at the page of that VM', async () => {
+it('points every tab at the page of that VM', async () => {
   const wrapper = await mountHeader()
 
-  const inAppHrefs = findTabs(wrapper)
-    .filter(tab => tab.element.tagName === 'A')
-    .map(tab => tab.attributes('href'))
+  const hrefs = findTabs(wrapper).map(tab => tab.attributes('href'))
 
-  expect(inAppHrefs).toEqual([
+  expect(hrefs).toEqual([
     '/vm/vm-42/dashboard',
     '/vm/vm-42/console',
     '/vm/vm-42/backups',
@@ -94,15 +77,6 @@ it('points every in-app tab at the page of that VM', async () => {
     '/vm/vm-42/snapshots',
     '/vm/vm-42/tasks',
   ])
-})
-
-it('sends the stats tab to Fragata Classic rather than to an in-app page', async () => {
-  const wrapper = await mountHeader()
-
-  const statsTab = findTabs(wrapper).find(tab => tab.text() === t('stats'))!
-
-  expect(statsTab.element.tagName).not.toBe('A')
-  expect(statsTab.get('a').attributes('href')).toBe('https://xo5.example.com/#/vms/vm-42/stats')
 })
 
 it('marks the tab of the current route as the active one', async () => {
@@ -119,12 +93,6 @@ it('marks no tab as active while no VM page is open', async () => {
   const wrapper = await mountHeader()
 
   expect(findTabs(wrapper).filter(tab => tab.classes('active'))).toHaveLength(0)
-})
-
-it('links to the Fragata Classic page managing the lifecycle of the VM', async () => {
-  const wrapper = await mountHeader()
-
-  expect(wrapper.get('.ui-head-bar .actions a').attributes('href')).toBe('https://xo5.example.com/#/vms/vm-42/general')
 })
 
 it('offers the state-change and more-actions menus', async () => {

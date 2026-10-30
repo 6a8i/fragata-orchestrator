@@ -13,16 +13,12 @@
 
     <template #buttons>
       <VtsOverlayCancelButton @click="emit('close')">{{ t('action:go-back') }}</VtsOverlayCancelButton>
-      <UiLink :href icon="action:edit" size="medium" @click="emit('close')">
-        {{ t('action:edit-config') }}
-      </UiLink>
     </template>
   </UiModal>
 </template>
 
 <script lang="ts" setup>
 import VtsOverlayCancelButton from '@core/components/overlay/VtsOverlayCancelButton.vue'
-import UiLink from '@core/components/ui/link/UiLink.vue'
 import UiModal from '@core/components/ui/modal/UiModal.vue'
 import { useMapper } from '@core/packages/mapper/use-mapper.ts'
 import type { VmBlockedOperations } from '@core/types/object.type.ts'
@@ -36,7 +32,6 @@ type BlockedOperationText = {
 
 const { blockedOperation } = defineProps<{
   blockedOperation: VmBlockedOperations
-  href?: string
 }>()
 
 const emit = defineEmits<{

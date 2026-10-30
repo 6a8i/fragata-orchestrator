@@ -5,13 +5,7 @@
     </template>
     <template v-if="network" #default>
       <UiPanelCard>
-        <UiPanelCardTitle
-          :id="network.id"
-          size="medium"
-          :label="network.name_label"
-          icon="object:network"
-          :href="networkHref"
-        />
+        <UiPanelCardTitle :id="network.id" size="medium" :label="network.name_label" icon="object:network" />
         <div class="content">
           <!-- DESCRIPTION -->
           <VtsCardRowKeyValue truncate align-top>
@@ -68,7 +62,6 @@ import NetworkPifsInfoCard from '@/modules/network/components/panel/cards/Networ
 import { useNetworkDelete } from '@/modules/network/composables/use-network-delete.composable.ts'
 import type { FrontXoNetwork } from '@/modules/network/remote-resources/use-xo-network-collection.ts'
 import { useXoPifCollection } from '@/modules/pif/remote-resources/use-xo-pif-collection.ts'
-import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import VtsCardRowKeyValue from '@core/components/card/VtsCardRowKeyValue.vue'
 import VtsCopyButton from '@core/components/copy-button/VtsCopyButton.vue'
 import VtsDeleteButton from '@core/components/delete-button/VtsDeleteButton.vue'
@@ -87,12 +80,6 @@ const emit = defineEmits<{
 }>()
 
 const { deleteNetworks, isDeletingNetworks } = useNetworkDelete(() => (network !== undefined ? [network] : []))
-
-const { buildXo5Route } = useXoRoutes()
-
-const networkHref = computed(() =>
-  network !== undefined ? buildXo5Route(`/pools/${network.$pool}/network?s=1_0_asc-${network.id}`) : undefined
-)
 
 const { getPifsByNetworkId } = useXoPifCollection()
 

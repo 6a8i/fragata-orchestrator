@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-import { useXoVmUtils } from '@/modules/vm/composables/xo-vm-utils.composable.ts'
 import { useXoVmPauseJob } from '@/modules/vm/jobs/xo-vm-pause.job.ts'
 import type { FrontXoVm } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
 import MenuItem from '@core/components/menu/MenuItem.vue'
@@ -22,7 +21,6 @@ const { vm } = defineProps<{
 const { t } = useI18n()
 
 const { run: pause, canRun, isRunning } = useXoVmPauseJob(() => [vm])
-const { xo5VmAdvancedHref } = useXoVmUtils(() => vm)
 
 const canDisplay = computed(() => {
   return canRun.value || vm.power_state === VM_POWER_STATE.RUNNING
@@ -34,7 +32,7 @@ const { open: openBlockedModal } = useBlockedModal()
 
 function pauseJob() {
   if (!canRun.value) {
-    return openBlockedModal({ props: { blockedOperation: 'pause', href: xo5VmAdvancedHref.value } })
+    return openBlockedModal({ props: { blockedOperation: 'pause' } })
   }
 
   pause()

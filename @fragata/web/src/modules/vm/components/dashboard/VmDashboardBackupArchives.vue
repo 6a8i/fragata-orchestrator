@@ -19,7 +19,6 @@
 <script setup lang="ts">
 import { useXoBackupRepositoryCollection } from '@/modules/backup-repository/remote-resources/use-xo-backup-repository-collection.ts'
 import type { VmDashboardBackupArchive, XoVmDashboard } from '@/modules/vm/types/vm-dashboard.type.ts'
-import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import VtsRow from '@core/components/table/VtsRow.vue'
 import VtsTable from '@core/components/table/VtsTable.vue'
 import UiCard from '@core/components/ui/card/UiCard.vue'
@@ -40,15 +39,11 @@ const { t } = useI18n()
 const { useGetBackupRepositoryById, areBackupRepositoriesReady, hasBackupRepositoryFetchError } =
   useXoBackupRepositoryCollection()
 
-const { buildXo5Route } = useXoRoutes()
-
 const backupArchives = computed(() => vmDashboard?.backupsInfo?.backupArchives)
 
 const isEmpty = computed(() => backupArchives?.value?.length === 0)
 
 const isError = computed(() => hasBackupRepositoryFetchError.value || hasError)
-
-const xo5BackupRepositories = computed(() => buildXo5Route(`/settings/remotes`))
 
 const areBackupArchivesReady = computed(() => areBackupRepositoriesReady.value && backupArchives.value !== undefined)
 
@@ -72,11 +67,13 @@ const { HeadCells, BodyCells } = useBackupArchiveColumns({
     return {
       date: r => r(archive.timestamp),
       backupRepository: r =>
-        r({
-          label: br?.value?.name ?? archive.backupRepository,
-          href: xo5BackupRepositories.value,
-          icon: br.value?.enabled ? 'object:br:connected' : 'object:br:disconnected',
-        }),
+        br.value !== undefined
+          ? r({
+              label: br.value.name,
+              to: { name: '/admin/backup-repository/[id]/general', params: { id: br.value.id } },
+              icon: br.value.enabled ? 'object:br:connected' : 'object:br:disconnected',
+            })
+          : r({ label: archive.backupRepository, icon: 'object:br:disconnected' }),
       sizeOnDisk: r => r(formatSizeRaw(archive.size, 1).value, formatSizeRaw(archive.size, 1).prefix),
     }
   },

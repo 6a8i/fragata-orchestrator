@@ -1,7 +1,7 @@
 <template>
   <div class="token">
     <form @submit.prevent="handleSubmit">
-      Enter Fragata Classic token:
+      Enter authentication token:
       <input v-model="token" />
       <button type="submit">Register token</button>
     </form>

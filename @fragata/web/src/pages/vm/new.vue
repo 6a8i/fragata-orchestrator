@@ -667,7 +667,7 @@ function getExistingVdisDiff(vdi1: Vdi, vdi2: Vdi, includeSize: boolean) {
   return Object.keys(changes).length > 0 ? (changes as Partial<Vdi>) : undefined
 }
 
-// Same as Fragata Classic. With 'cdrom', there is no auto-grow on existing disks
+// With 'cdrom', there is no auto-grow on existing disks
 const resizableDisksInstallModes: InstallMode[] = ['ssh-key', 'cloud-init-config', 'cdrom']
 
 const canResizeExistingDisks = computed(() => {

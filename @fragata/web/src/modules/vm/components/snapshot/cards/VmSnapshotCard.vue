@@ -8,7 +8,7 @@
             v-if="snapshot?.name_label"
             icon="object:vm-snapshot"
             size="medium"
-            :href="buildXo5VmSnapshotRoute(snapshot?.$snapshot_of, snapshot?.id)"
+            :to="{ name: '/vm/[id]/snapshots', params: { id: snapshot.$snapshot_of }, query: { id: snapshot.id } }"
           >
             {{ snapshot.name_label }}
           </UiLink>
@@ -25,7 +25,6 @@
 
 <script setup lang="ts">
 import type { FrontXoVmSnapshot } from '@/modules/snapshot/components/remote-resources/use-xo-vm-snapshot-collection.ts'
-import { useXo5VmSnapshotRoute } from '@/modules/snapshot/composables/xo-vm-snapshot-route-xo5.composable.ts'
 import VtsKeyValueList from '@core/components/key-value-list/VtsKeyValueList.vue'
 import VtsKeyValueRow from '@core/components/key-value-row/VtsKeyValueRow.vue'
 import UiCard from '@core/components/ui/card/UiCard.vue'
@@ -43,6 +42,4 @@ const { snapshot } = defineProps<{
 const { t } = useI18n()
 
 const formattedDate = computed(() => (snapshot ? formatDateTime(snapshot.snapshot_time * 1000) : undefined))
-
-const { buildXo5VmSnapshotRoute } = useXo5VmSnapshotRoute()
 </script>

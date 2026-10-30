@@ -45,7 +45,6 @@ import {
 import { useVmSnapshotDelete } from '@/modules/snapshot/composables/use-vm-snapshot-delete.composable.ts'
 import { useVmSnapshotRevert } from '@/modules/snapshot/composables/use-vm-snapshot-revert.composable.ts'
 import { useSnapshotTrigger } from '@/modules/snapshot/composables/xo-snapshot-trigger.composable.ts'
-import { useXo5VmSnapshotRoute } from '@/modules/snapshot/composables/xo-vm-snapshot-route-xo5.composable.ts'
 import { useXoVmSnapshotJob } from '@/modules/vm/jobs/xo-vm-snapshot.job.ts'
 import type { FrontXoVm } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
 import { useSorted } from '@vueuse/core'
@@ -71,8 +70,6 @@ const { t } = useI18n()
 const { areSnapshotsReady, hasSnapshotFetchError } = useXoVmSnapshotCollection()
 
 const { getSnapshotTrigger } = useSnapshotTrigger()
-
-const { buildXo5VmSnapshotRoute } = useXo5VmSnapshotRoute()
 
 const { run: snapshotJob, isRunning } = useXoVmSnapshotJob(() => [vm])
 
@@ -117,12 +114,7 @@ const { HeadCells, BodyCells } = useSnapshotColumns({
     const { revertVmSnapshot, canRevertVmSnapshot, isRevertingVmSnapshot } = useVmSnapshotRevert(() => snapshot)
 
     return {
-      name: r =>
-        r({
-          label: snapshot.name_label,
-          icon: 'object:vm-snapshot',
-          href: buildXo5VmSnapshotRoute(vm.id, snapshot.id),
-        }),
+      name: r => r({ label: snapshot.name_label, icon: 'object:vm-snapshot' }),
       description: r => r(snapshot.name_description),
       creationDate: r => r(snapshot.snapshot_time * 1000),
       trigger: r => r(getSnapshotTrigger(snapshot)),

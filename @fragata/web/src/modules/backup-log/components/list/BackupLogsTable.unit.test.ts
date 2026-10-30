@@ -5,7 +5,6 @@ import type { useXoHostCollection } from '@/modules/host/remote-resources/use-xo
 import type { useXoPbdCollection } from '@/modules/pbd/remote-resources/use-xo-pbd-collection.ts'
 import type { useXoSrCollection } from '@/modules/storage-repository/remote-resources/use-xo-sr-collection.ts'
 import type { FrontXoVm, useXoVmCollection } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
-import type { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import { createBackupLog, createBackupLogVmTask } from '@/test/create-backup-log.ts'
 import { createVm } from '@/test/create-vm.ts'
 import { createGlobalTestConfig } from '@/test/global-test-config.ts'
@@ -18,12 +17,6 @@ import { ref } from 'vue'
 const { getBackupJobById, getVmById } = vi.hoisted(() => ({
   getBackupJobById: vi.fn(),
   getVmById: vi.fn(),
-}))
-
-vi.mock(import('@/shared/remote-resources/use-xo-routes.ts'), () => ({
-  useXoRoutes: (() => ({
-    buildXo5Route: (path: string) => `https://xo5.example.com/#${path}`,
-  })) as unknown as typeof useXoRoutes,
 }))
 
 vi.mock(import('@/modules/backup-job/remote-resources/use-xo-backup-job-collection.ts'), () => ({
@@ -72,11 +65,26 @@ function mountTable(backupLog: FrontXoBackupLog) {
   })
 }
 
-function findVmCell(wrapper: ReturnType<typeof mountTable>) {
+function findCell(wrapper: ReturnType<typeof mountTable>, headerLabel: string) {
   const headers = wrapper.findAll('thead th').map(header => header.text())
 
-  return wrapper.findAll('tbody tr td')[headers.indexOf(t('vm'))]
+  return wrapper.findAll('tbody tr td')[headers.indexOf(headerLabel)]
 }
+
+function findVmCell(wrapper: ReturnType<typeof mountTable>) {
+  return findCell(wrapper, t('vm'))
+}
+
+describe('job', () => {
+  it('links the job to its page in the administration, with the backup job icon', () => {
+    const backupLog = createBackupLog()
+    const jobLink = findCell(mountTable(backupLog), t('job')).getComponent(UiLink)
+
+    expect(jobLink.text()).toBe('QA delta')
+    expect(jobLink.attributes('href')).toBe(`/admin/backup-and-replication/jobs?id=${backupLog.jobId}`)
+    expect(jobLink.props('icon')).toBe('object:backup-job')
+  })
+})
 
 describe('VM', () => {
   it('links the first VM to its dashboard, with the icon of its power state and the count of the other VMs', () => {

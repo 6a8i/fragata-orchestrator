@@ -8,7 +8,6 @@ import type {
   useXoSrCollection,
 } from '@/modules/storage-repository/remote-resources/use-xo-sr-collection.ts'
 import type { FrontXoVm, useXoVmCollection } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
-import type { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import { createBackupLog, createBackupLogSrTask, createBackupLogVmTask } from '@/test/create-backup-log.ts'
 import { createSr } from '@/test/create-sr.ts'
 import { createVm } from '@/test/create-vm.ts'
@@ -22,15 +21,10 @@ import { formatDateTime } from '@core/utils/time.util.ts'
 import { mount } from '@vue/test-utils'
 import { computed, ref } from 'vue'
 
-const { buildXo5Route, useGetBackupJobById, getVmById, getSrById } = vi.hoisted(() => ({
-  buildXo5Route: vi.fn(),
+const { useGetBackupJobById, getVmById, getSrById } = vi.hoisted(() => ({
   useGetBackupJobById: vi.fn(),
   getVmById: vi.fn(),
   getSrById: vi.fn(),
-}))
-
-vi.mock(import('@/shared/remote-resources/use-xo-routes.ts'), () => ({
-  useXoRoutes: (() => ({ buildXo5Route })) as unknown as typeof useXoRoutes,
 }))
 
 vi.mock(import('@/modules/backup-job/remote-resources/use-xo-backup-job-collection.ts'), () => ({
@@ -57,12 +51,10 @@ vi.mock(import('@/modules/host/remote-resources/use-xo-host-collection.ts'), () 
 }))
 
 beforeEach(() => {
-  buildXo5Route.mockReset()
   useGetBackupJobById.mockReset()
   getVmById.mockReset()
   getSrById.mockReset()
 
-  buildXo5Route.mockImplementation((path: string) => `https://xo5.example.com/#${path}`)
   mockBackupJob({ name: 'QA delta' })
   mockVms([])
   mockSrs([])
@@ -111,12 +103,10 @@ describe('title', () => {
     expect(title.text()).toContain('backup-log-42')
   })
 
-  it('links to the backup repositories settings of Fragata Classic', () => {
+  it('has no link', () => {
     const wrapper = mountCard()
 
-    expect(wrapper.findComponent(UiPanelCardTitle).findComponent(UiLink).props('href')).toBe(
-      'https://xo5.example.com/#/settings/remotes'
-    )
+    expect(wrapper.findComponent(UiPanelCardTitle).findComponent(UiLink).exists()).toBe(false)
   })
 
   it('shows the backup log icon', () => {
@@ -258,11 +248,12 @@ describe('SR', () => {
 })
 
 describe('job', () => {
-  it('links the job to the backup repositories settings of Fragata Classic', () => {
-    const wrapper = mountCard()
+  it('links the job to its page in the administration', () => {
+    const backupLog = createBackupLog()
+    const wrapper = mountCard(backupLog)
 
-    expect(findRow(wrapper, t('job')).getComponent(UiLink).props('href')).toBe(
-      'https://xo5.example.com/#/settings/remotes'
+    expect(findRow(wrapper, t('job')).getComponent(UiLink).attributes('href')).toBe(
+      `/admin/backup-and-replication/jobs?id=${backupLog.jobId}`
     )
   })
 

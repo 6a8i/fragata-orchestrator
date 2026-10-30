@@ -1,15 +1,14 @@
 import BackupJobsTable from '@/modules/backup-job/components/list/BackupJobsTable.vue'
 import type { FrontAnyXoBackupJob } from '@/modules/backup-job/remote-resources/use-xo-backup-job-collection.ts'
 import type { useXoBackupLogCollection } from '@/modules/backup-log/remote-resources/use-xo-backup-log-collection.ts'
-import type { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import { createMetadataBackupJob, createMirrorBackupJob, createVmBackupJob } from '@/test/create-backup-job.ts'
 import { createBackupLog } from '@/test/create-backup-log.ts'
 import { createTestRouter } from '@/test/create-test-router.ts'
 import { createGlobalTestConfig } from '@/test/global-test-config.ts'
 import { t } from '@/test/i18n.ts'
+import VtsIcon from '@core/components/icon/VtsIcon.vue'
 import VtsStatus from '@core/components/status/VtsStatus.vue'
 import UiButtonIcon from '@core/components/ui/button-icon/UiButtonIcon.vue'
-import UiLink from '@core/components/ui/link/UiLink.vue'
 import UiLoader from '@core/components/ui/loader/UiLoader.vue'
 import type { XoSchedule, XoSr } from '@fragata/types'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
@@ -19,12 +18,6 @@ import type { Router } from 'vue-router'
 const { areBackupLogsReady, getLastNBackupLogsByJobId } = vi.hoisted(() => ({
   areBackupLogsReady: { value: true },
   getLastNBackupLogsByJobId: vi.fn(),
-}))
-
-vi.mock(import('@/shared/remote-resources/use-xo-routes.ts'), () => ({
-  useXoRoutes: (() => ({
-    buildXo5Route: (path: string) => `https://xo5.example.com/#${path}`,
-  })) as unknown as typeof useXoRoutes,
 }))
 
 vi.mock(import('@/modules/backup-log/remote-resources/use-xo-backup-log-collection.ts'), () => ({
@@ -54,14 +47,12 @@ function findCell(wrapper: VueWrapper, headerLabel: string) {
 }
 
 describe('backup job', () => {
-  it('links the backup job to the Fragata Classic backup overview, with the backup job icon', () => {
-    const link = findCell(mountTable([createVmBackupJob({ name: 'Nightly backup' })]), t('backup-job')).getComponent(
-      UiLink
-    )
+  it('shows the name of the backup job with the backup job icon, without link', () => {
+    const cell = findCell(mountTable([createVmBackupJob({ name: 'Nightly backup' })]), t('backup-job'))
 
-    expect(link.text()).toBe('Nightly backup')
-    expect(link.attributes('href')).toBe('https://xo5.example.com/#/backup/overview')
-    expect(link.props('icon')).toBe('object:backup-job')
+    expect(cell.text()).toBe('Nightly backup')
+    expect(cell.find('a').exists()).toBe(false)
+    expect(cell.getComponent(VtsIcon).props('name')).toBe('object:backup-job')
   })
 
   it('names a backup job without name as untitled', () => {

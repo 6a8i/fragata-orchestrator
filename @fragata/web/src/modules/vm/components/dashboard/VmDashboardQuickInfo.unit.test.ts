@@ -3,7 +3,6 @@ import type { useXoPoolCollection } from '@/modules/pool/remote-resources/use-xo
 import type { useXoUserResource } from '@/modules/user/remote-resources/use-xo-user.ts'
 import VmDashboardQuickInfo from '@/modules/vm/components/dashboard/VmDashboardQuickInfo.vue'
 import type { FrontXoVm, useXoVmCollection } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
-import type { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import { createHost } from '@/test/create-host.ts'
 import { createPool } from '@/test/create-pool.ts'
 import { createVm } from '@/test/create-vm.ts'
@@ -15,15 +14,13 @@ import { VM_POWER_STATE } from '@fragata/types'
 import { mount } from '@vue/test-utils'
 import { computed, ref } from 'vue'
 
-const { useXoVmCollectionMock, useGetPoolById, getVmHost, isMasterHost, buildXo5Route, useXoUserResourceMock } =
-  vi.hoisted(() => ({
-    useXoVmCollectionMock: vi.fn(),
-    useGetPoolById: vi.fn(),
-    getVmHost: vi.fn(),
-    isMasterHost: vi.fn(),
-    buildXo5Route: vi.fn(),
-    useXoUserResourceMock: vi.fn(),
-  }))
+const { useXoVmCollectionMock, useGetPoolById, getVmHost, isMasterHost, useXoUserResourceMock } = vi.hoisted(() => ({
+  useXoVmCollectionMock: vi.fn(),
+  useGetPoolById: vi.fn(),
+  getVmHost: vi.fn(),
+  isMasterHost: vi.fn(),
+  useXoUserResourceMock: vi.fn(),
+}))
 
 vi.mock(import('@/modules/vm/remote-resources/use-xo-vm-collection.ts'), () => ({
   useXoVmCollection: useXoVmCollectionMock as unknown as typeof useXoVmCollection,
@@ -41,23 +38,17 @@ vi.mock(import('@/modules/user/remote-resources/use-xo-user.ts'), () => ({
   useXoUserResource: useXoUserResourceMock as unknown as typeof useXoUserResource,
 }))
 
-vi.mock(import('@/shared/remote-resources/use-xo-routes.ts'), () => ({
-  useXoRoutes: (() => ({ buildXo5Route })) as unknown as typeof useXoRoutes,
-}))
-
 beforeEach(() => {
   useXoVmCollectionMock.mockReset()
   useGetPoolById.mockReset()
   getVmHost.mockReset()
   isMasterHost.mockReset()
-  buildXo5Route.mockReset()
   useXoUserResourceMock.mockReset()
 
   useXoVmCollectionMock.mockReturnValue({ areVmsReady: ref(true), getVmHost })
   useGetPoolById.mockReturnValue(computed(() => undefined))
   getVmHost.mockReturnValue(undefined)
   isMasterHost.mockReturnValue(false)
-  buildXo5Route.mockImplementation((path: string) => `https://xo5.example.com/#${path}`)
   useXoUserResourceMock.mockReturnValue({ user: computed(() => undefined) })
 })
 

@@ -23,7 +23,6 @@
 
 <script setup lang="ts">
 import type { FrontXoUser } from '@/modules/user/remote-resources/use-xo-user-collection.ts'
-import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import UiQuerySearchBar from '@core/components/ui/query-search-bar/UiQuerySearchBar.vue'
 import { useRouteQuery } from '@core/composables/route-query.composable.ts'
 import { useTableState } from '@core/composables/table-state.composable.ts'
@@ -45,8 +44,6 @@ defineSlots<{
 
 const { t } = useI18n()
 
-const { buildXo5Route } = useXoRoutes()
-
 const searchQuery = ref('')
 
 const filteredUsers = computed(() => {
@@ -61,8 +58,6 @@ const filteredUsers = computed(() => {
 
 const selectedUserId = useRouteQuery('id')
 
-const xo5UsersHref = computed(() => buildXo5Route('/settings/users'))
-
 const { pageRecords: paginatedUsers, paginationBindings } = usePagination('users', filteredUsers)
 
 const state = useTableState({
@@ -73,7 +68,7 @@ const state = useTableState({
 const { HeadCells, BodyCells } = useUserColumns({
   body: (user: FrontXoUser) => {
     return {
-      username: r => r(user.name ?? '', { href: xo5UsersHref.value }),
+      username: r => r(user.name ?? ''),
       email: r => r(user.email),
       providers: r => {
         const providers = Object.keys(user.authProviders ?? {})

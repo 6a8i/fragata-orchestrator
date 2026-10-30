@@ -17,7 +17,6 @@
       />
     </template>
     <template #header-end>
-      <UiLink :href="xo5Route" size="medium">{{ t('xo-5') }}</UiLink>
       <QuickTaskButton />
       <AccountMenu />
     </template>
@@ -45,10 +44,8 @@
 import AccountMenu from '@/modules/account/components/menu/AccountMenu.vue'
 import AppNavigationSidebar from '@/modules/navigation/components/AppNavigationSidebar.vue'
 import QuickTaskButton from '@/modules/task/components/QuickTaskButton.vue'
-import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import VtsStateHero from '@core/components/state-hero/VtsStateHero.vue'
 import UiButtonIcon from '@core/components/ui/button-icon/UiButtonIcon.vue'
-import UiLink from '@core/components/ui/link/UiLink.vue'
 import UiLogoText from '@core/components/ui/logo-text/UiLogoText.vue'
 import { vTooltip } from '@core/directives/tooltip.directive.ts'
 import CoreLayout from '@core/layouts/CoreLayout.vue'
@@ -73,9 +70,6 @@ const sseStore = useSseStore()
 const { isConnected } = storeToRefs(sseStore)
 
 const route = useRoute()
-
-const { buildXo5Route } = useXoRoutes()
-const xo5Route = computed(() => buildXo5Route('/'))
 
 const isDevPage = computed(() => route.path.startsWith('/dev'))
 

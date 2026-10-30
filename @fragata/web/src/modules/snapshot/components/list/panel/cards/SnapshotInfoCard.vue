@@ -1,12 +1,6 @@
 <template>
   <UiPanelCard class="snapshot-info-card">
-    <UiPanelCardTitle
-      :id="snapshot.id"
-      size="medium"
-      :label="snapshot.name_label"
-      :href="buildXo5VmSnapshotRoute(snapshot.$snapshot_of, snapshot.id)"
-      icon="object:vm-snapshot"
-    />
+    <UiPanelCardTitle :id="snapshot.id" size="medium" :label="snapshot.name_label" icon="object:vm-snapshot" />
     <div class="content">
       <!-- DESCRIPTION -->
       <VtsCardRowKeyValue truncate align-top>
@@ -36,7 +30,7 @@
           {{ t('trigger') }}
         </template>
         <template #value>
-          <UiLink v-if="snapshot.other?.['xo:backup:schedule']" size="small" :icon="trigger.icon" :href="trigger.href">
+          <UiLink v-if="snapshot.other?.['xo:backup:schedule']" size="small" :icon="trigger.icon" :to="trigger.to">
             {{ trigger.label }}
           </UiLink>
           <span v-else>
@@ -65,7 +59,6 @@
 <script setup lang="ts">
 import type { FrontXoVmSnapshot } from '@/modules/snapshot/components/remote-resources/use-xo-vm-snapshot-collection.ts'
 import { useSnapshotTrigger } from '@/modules/snapshot/composables/xo-snapshot-trigger.composable.ts'
-import { useXo5VmSnapshotRoute } from '@/modules/snapshot/composables/xo-vm-snapshot-route-xo5.composable.ts'
 import VtsCardRowKeyValue from '@core/components/card/VtsCardRowKeyValue.vue'
 import VtsCopyButton from '@core/components/copy-button/VtsCopyButton.vue'
 import UiInfo from '@core/components/ui/info/UiInfo.vue'
@@ -82,8 +75,6 @@ const { snapshot } = defineProps<{ snapshot: FrontXoVmSnapshot }>()
 const { t } = useI18n()
 
 const { getSnapshotTrigger } = useSnapshotTrigger()
-
-const { buildXo5VmSnapshotRoute } = useXo5VmSnapshotRoute()
 
 const formattedDate = computed(() => formatDateTime(snapshot.snapshot_time * 1000))
 

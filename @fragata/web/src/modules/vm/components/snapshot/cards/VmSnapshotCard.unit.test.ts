@@ -1,5 +1,4 @@
 import type { FrontXoVmSnapshot } from '@/modules/snapshot/components/remote-resources/use-xo-vm-snapshot-collection.ts'
-import type { useXo5VmSnapshotRoute } from '@/modules/snapshot/composables/xo-vm-snapshot-route-xo5.composable.ts'
 import VmSnapshotCard from '@/modules/vm/components/snapshot/cards/VmSnapshotCard.vue'
 import { createVmSnapshot } from '@/test/create-vm-snapshot.ts'
 import { findCopiedValues, findLabelledValues } from '@/test/find-rendered-values.ts'
@@ -7,21 +6,6 @@ import { createGlobalTestConfig } from '@/test/global-test-config.ts'
 import { t } from '@/test/i18n.ts'
 import { formatDateTime } from '@core/utils/time.util.ts'
 import { mount } from '@vue/test-utils'
-
-const { buildXo5VmSnapshotRoute } = vi.hoisted(() => ({
-  buildXo5VmSnapshotRoute: vi.fn(),
-}))
-
-vi.mock(import('@/modules/snapshot/composables/xo-vm-snapshot-route-xo5.composable.ts'), () => ({
-  useXo5VmSnapshotRoute: (() => ({ buildXo5VmSnapshotRoute })) as unknown as typeof useXo5VmSnapshotRoute,
-}))
-
-beforeEach(() => {
-  buildXo5VmSnapshotRoute.mockReset()
-  buildXo5VmSnapshotRoute.mockImplementation(
-    (vmId: string, snapshotId: string) => `https://xo5.example.com/#/vms/${vmId}/snapshots?s=1_0_asc-${snapshotId}`
-  )
-})
 
 function mountSnapshotCard(snapshot: FrontXoVmSnapshot | undefined, title = 'Oldest snapshot') {
   return mount(VmSnapshotCard, {
@@ -45,7 +29,7 @@ it('shows the name and the creation date of the snapshot', () => {
   expect(labelledValues[t('snapshot-created-on')]).toBe(formatDateTime(snapshot.snapshot_time * 1000))
 })
 
-it('links the snapshot to its Fragata Classic page', () => {
+it('links the snapshot to the snapshots page of its VM, selecting it', () => {
   const snapshot = createVmSnapshot({
     id: 'snapshot-42' as FrontXoVmSnapshot['id'],
     $snapshot_of: 'vm-42' as FrontXoVmSnapshot['$snapshot_of'],
@@ -53,9 +37,7 @@ it('links the snapshot to its Fragata Classic page', () => {
 
   const wrapper = mountSnapshotCard(snapshot)
 
-  expect(wrapper.get('a').attributes('href')).toBe(
-    'https://xo5.example.com/#/vms/vm-42/snapshots?s=1_0_asc-snapshot-42'
-  )
+  expect(wrapper.get('a').attributes('href')).toBe('/vm/vm-42/snapshots?id=snapshot-42')
 })
 
 it('offers to copy the snapshot name', () => {

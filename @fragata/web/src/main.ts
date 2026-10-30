@@ -2,8 +2,6 @@ import { formValidationConfig } from '@/plugins/form-validation.config.ts'
 import i18n from '@core/i18n.ts'
 import { useOverlayStore } from '@core/packages/overlay/use-overlay-store.ts'
 import { RegleVuePlugin } from '@regle/core'
-import type { XoUser } from '@fragata/types'
-import { useFetch } from '@vueuse/core'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
@@ -14,26 +12,6 @@ import '@core/assets/css/_themes.pcss'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 async function init() {
-  // eslint-disable-next-line no-console
-
-  // TODO: remove when non admin users are handled in XO6
-  if (import.meta.env.PROD) {
-    const { data: me } = await useFetch('/rest/v0/users/me').json<XoUser>()
-    if (me.value === null) {
-      console.error('Unexpected response from `/users/me` endpoint')
-    } else {
-      if (me.value.permission !== 'admin') {
-        // voluntary not using `useXoRoutes` we need info BEFORE mounting anything from XO6 (UI,store, ...)
-        const { data } = await useFetch<{ xo5: string; xo6: string }>('/rest/v0/gui-routes').json()
-        if (data.value !== undefined) {
-          window.location.pathname = data.value.xo5
-        } else {
-          console.error('Unexpected response from `gui-routes` endpoint')
-        }
-      }
-    }
-  }
-
   const app = createApp(App)
 
   const router = createRouter({

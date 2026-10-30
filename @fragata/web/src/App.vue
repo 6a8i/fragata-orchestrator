@@ -13,9 +13,8 @@ import VtsOverlayList from '@core/components/overlay/VtsOverlayList.vue'
 import VtsTooltipList from '@core/components/tooltip-list/VtsTooltipList.vue'
 import { useChartTheme } from '@core/composables/chart-theme.composable.ts'
 import { locales } from '@core/i18n.ts'
-import { useOverlay } from '@core/packages/overlay/use-overlay.ts'
 import { useUiStore } from '@core/stores/ui.store.ts'
-import { useActiveElement, useLocalStorage, useMagicKeys, whenever } from '@vueuse/core'
+import { useActiveElement, useMagicKeys, whenever } from '@vueuse/core'
 import { useCookies } from '@vueuse/integrations/useCookies'
 import { logicAnd } from '@vueuse/math'
 import { computed } from 'vue'
@@ -27,18 +26,6 @@ const { get } = useCookies()
 
 // Initialize theme on app load
 useTheme()
-
-// TODO: Remove when we consider XO6 in more advanced state
-const isFirstConnection = useLocalStorage('first-connection', true)
-
-const { open: openFirstConnectionModal } = useOverlay({
-  component: () => import('@/shared/components/modals/FirstConnectionModal.vue'),
-  events: {
-    onClose: () => (isFirstConnection.value = false),
-  },
-})
-
-whenever(isFirstConnection, () => openFirstConnectionModal(), { immediate: true })
 
 const cookieLang = get('lang')
 locale.value = cookieLang && locales[cookieLang] ? cookieLang : 'en'

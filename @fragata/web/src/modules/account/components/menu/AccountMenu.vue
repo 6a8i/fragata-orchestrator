@@ -39,7 +39,6 @@ defineProps<{
 
 const { t } = useI18n()
 
-// TODO: Fetch the Fragata Classic mount path from API when available
 const logout = () => window.location.assign('/signout')
 
 const links = computed<{ label: string; props: LinkOptions & { icon: IconName } }[]>(() => [

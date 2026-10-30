@@ -2,9 +2,6 @@
   <div class="storage-repositories-table">
     <UiTitle>
       {{ t('storage-repositories') }}
-      <template #action>
-        <UiLink size="medium" :href>{{ t('configure-in-xo-5') }}</UiLink>
-      </template>
     </UiTitle>
     <VtsQueryBuilder :model-value="filter" :schema @search="filter = $event" />
     <div class="container">
@@ -34,12 +31,10 @@ import {
   type FrontXoSr,
 } from '@/modules/storage-repository/remote-resources/use-xo-sr-collection.ts'
 import { getSrPageLocation } from '@/modules/storage-repository/utils/xo-sr.util.ts'
-import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import type { SrScope } from '@core/types/storage-repository.type.ts'
 import VtsQueryBuilder from '@core/components/query-builder/VtsQueryBuilder.vue'
 import VtsRow from '@core/components/table/VtsRow.vue'
 import VtsTable from '@core/components/table/VtsTable.vue'
-import UiLink from '@core/components/ui/link/UiLink.vue'
 import UiTitle from '@core/components/ui/title/UiTitle.vue'
 import { usePagination } from '@core/composables/pagination.composable.ts'
 import { useRouteQuery } from '@core/composables/route-query.composable.ts'
@@ -63,9 +58,6 @@ const {
 }>()
 
 const { t } = useI18n()
-
-const { buildXo5Route } = useXoRoutes()
-const href = computed(() => buildXo5Route('/new/sr'))
 
 const selectedSrId = useRouteQuery('id')
 

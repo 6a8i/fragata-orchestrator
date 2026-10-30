@@ -31,7 +31,7 @@ const { t } = useI18n()
 
 const { run: shutdown, canRun, isRunning } = useXoVmShutdownJob(() => [vm])
 
-const { hasGuestTools, xo5VmAdvancedHref } = useXoVmUtils(() => vm)
+const { hasGuestTools } = useXoVmUtils(() => vm)
 
 const canShutdown = computed(() => hasGuestTools(vm))
 
@@ -45,7 +45,7 @@ const { open: openShutdownModal } = useActionModal()
 
 const openModal = () => {
   if (!canRun.value) {
-    return openBlockedModal({ props: { blockedOperation: 'clean_shutdown', href: xo5VmAdvancedHref.value } })
+    return openBlockedModal({ props: { blockedOperation: 'clean_shutdown' } })
   }
 
   return openShutdownModal({

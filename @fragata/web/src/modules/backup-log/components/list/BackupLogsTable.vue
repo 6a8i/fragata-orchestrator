@@ -26,7 +26,6 @@ import { getBackupLogSrIds, getBackupLogVmIds } from '@/modules/backup-log/utils
 import { useXoSrUtils } from '@/modules/storage-repository/composables/xo-sr-utils.composable.ts'
 import { useXoSrCollection } from '@/modules/storage-repository/remote-resources/use-xo-sr-collection.ts'
 import { useXoVmCollection } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
-import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import VtsQueryBuilder from '@core/components/query-builder/VtsQueryBuilder.vue'
 import VtsRow from '@core/components/table/VtsRow.vue'
 import VtsTable from '@core/components/table/VtsTable.vue'
@@ -50,8 +49,6 @@ const { backupLogs, busy, error } = defineProps<{
 }>()
 
 const { t } = useI18n()
-
-const { buildXo5Route } = useXoRoutes()
 
 const selectedBackupLogId = useRouteQuery('id')
 
@@ -99,8 +96,6 @@ const state = useTableState({
 
 const { HeadCells, BodyCells } = useBackupLogColumns({
   body: (log: BackupLogFilterableData) => {
-    const href = computed(() => buildXo5Route(`/backup/${log.jobId}/edit`))
-
     const vmIds = computed(() => getBackupLogVmIds(log))
 
     const firstVm = computed(() => getVmById(vmIds.value[0]))
@@ -114,7 +109,12 @@ const { HeadCells, BodyCells } = useBackupLogColumns({
     const firstSr = computed(() => (firstSrId.value !== undefined ? getSrById(firstSrId.value) : undefined))
 
     return {
-      job: r => r({ label: log.jobName ?? t('untitled'), href: href.value, icon: 'object:backup-job' }),
+      job: r =>
+        r({
+          label: log.jobName ?? t('untitled'),
+          to: { name: '/admin/backup-and-replication/jobs', query: { id: log.jobId } },
+          icon: 'object:backup-job',
+        }),
       backupDate: r => r(log.start),
       vm: r => {
         if (firstVm.value !== undefined) {

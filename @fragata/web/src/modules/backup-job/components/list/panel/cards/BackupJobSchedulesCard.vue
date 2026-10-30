@@ -7,9 +7,10 @@
         <VtsCardRowKeyValue>
           <template #key>{{ t('name') }}</template>
           <template #value>
-            <UiLink size="small" icon="object:backup-schedule" :href="jobOverviewHref">
+            <span class="schedule-name">
+              <VtsIcon name="object:backup-schedule" size="medium" />
               {{ schedule.name || t('untitled') }}
-            </UiLink>
+            </span>
           </template>
           <template v-if="schedule.name" #addons>
             <VtsCopyButton :value="schedule.name" />
@@ -52,12 +53,11 @@
 <script lang="ts" setup>
 import type { FrontXoSchedule } from '@/modules/schedule/remote-resources/use-xo-schedule-collection.ts'
 import { getScheduleNextRun } from '@/modules/schedule/utils/xo-schedule.util.ts'
-import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import VtsCardRowKeyValue from '@core/components/card/VtsCardRowKeyValue.vue'
 import VtsCopyButton from '@core/components/copy-button/VtsCopyButton.vue'
 import VtsDivider from '@core/components/divider/VtsDivider.vue'
+import VtsIcon from '@core/components/icon/VtsIcon.vue'
 import VtsStatus from '@core/components/status/VtsStatus.vue'
-import UiLink from '@core/components/ui/link/UiLink.vue'
 import UiPanelCard from '@core/components/ui/panel-card/UiPanelCard.vue'
 import UiPanelCardTitle from '@core/components/ui/panel-card-title/UiPanelCardTitle.vue'
 import { formatDateTime } from '@core/utils/time.util.ts'
@@ -69,10 +69,6 @@ const { schedules } = defineProps<{
 }>()
 
 const { t } = useI18n()
-
-const { buildXo5Route } = useXoRoutes()
-
-const jobOverviewHref = computed(() => buildXo5Route('/backup/overview'))
 
 const schedulesWithNextRun = computed(() =>
   schedules.map(schedule => {
@@ -95,6 +91,12 @@ const schedulesWithNextRun = computed(() =>
 
     .divider {
       margin-block: 1.6rem;
+    }
+
+    .schedule-name {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
     }
 
     .cron-pattern {

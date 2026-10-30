@@ -30,9 +30,10 @@
   <VtsCardRowKeyValue>
     <template #key>{{ t('schedule') }}</template>
     <template #value>
-      <UiLink v-if="schedule !== undefined" size="small" icon="object:backup-schedule" :href="jobOverviewHref">
+      <span v-if="schedule !== undefined" class="schedule-name">
+        <VtsIcon name="object:backup-schedule" size="medium" />
         {{ scheduleName }}
-      </UiLink>
+      </span>
       <template v-else>{{ scheduleName }}</template>
     </template>
     <template v-if="scheduleName" #addons>
@@ -55,9 +56,9 @@ import {
   type FrontXoSchedule,
   useXoScheduleCollection,
 } from '@/modules/schedule/remote-resources/use-xo-schedule-collection.ts'
-import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import VtsCardRowKeyValue from '@core/components/card/VtsCardRowKeyValue.vue'
 import VtsCopyButton from '@core/components/copy-button/VtsCopyButton.vue'
+import VtsIcon from '@core/components/icon/VtsIcon.vue'
 import VtsStatus from '@core/components/status/VtsStatus.vue'
 import UiLink from '@core/components/ui/link/UiLink.vue'
 import UiLogEntryViewer from '@core/components/ui/log-entry-viewer/UiLogEntryViewer.vue'
@@ -70,8 +71,6 @@ const { backupRun } = defineProps<{
 }>()
 
 const { t } = useI18n()
-
-const { buildXo5Route } = useXoRoutes()
 
 const { useGetScheduleById } = useXoScheduleCollection()
 
@@ -86,8 +85,6 @@ const scheduleName = computed(() => {
 
   return schedule.value.name || t('untitled')
 })
-
-const jobOverviewHref = computed(() => buildXo5Route('/backup/overview'))
 
 const formattedRunDate = computed(() => formatDateTime(backupRun.end ?? backupRun.start))
 
@@ -114,3 +111,11 @@ const backupRunError = computed(() => {
   }
 })
 </script>
+
+<style scoped lang="postcss">
+.schedule-name {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+</style>

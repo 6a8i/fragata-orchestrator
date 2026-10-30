@@ -30,7 +30,7 @@ const { vm } = defineProps<{
 const { t } = useI18n()
 
 const { run: suspend, canRun, isRunning } = useXoVmSuspendJob(() => [vm])
-const { hasGuestTools, xo5VmAdvancedHref } = useXoVmUtils(() => vm)
+const { hasGuestTools } = useXoVmUtils(() => vm)
 
 const canSuspend = computed(() => hasGuestTools(vm))
 
@@ -44,7 +44,7 @@ const { open: openBlockedModal } = useBlockedModal()
 
 function suspendJob() {
   if (!canRun.value) {
-    return openBlockedModal({ props: { blockedOperation: 'suspend', href: xo5VmAdvancedHref.value } })
+    return openBlockedModal({ props: { blockedOperation: 'suspend' } })
   }
 
   suspend()

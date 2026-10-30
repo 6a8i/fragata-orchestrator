@@ -1,6 +1,5 @@
 import { useXoVmUtils } from '@/modules/vm/composables/xo-vm-utils.composable.ts'
 import type { FrontXoVm } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
-import type { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import { createVm } from '@/test/create-vm.ts'
 import { mountComposable } from '@/test/mount-composable.ts'
 import { getRelativeTime } from '@core/composables/relative-time.composable.ts'
@@ -8,18 +7,6 @@ import { formatDate } from '@core/utils/time.util.ts'
 import { VM_OPERATIONS, VM_POWER_STATE } from '@fragata/types'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-const { buildXo5Route } = vi.hoisted(() => ({
-  buildXo5Route: vi.fn(),
-}))
-
-vi.mock(import('@/shared/remote-resources/use-xo-routes.ts'), () => ({
-  useXoRoutes: (() => ({ buildXo5Route })) as unknown as typeof useXoRoutes,
-}))
-
-beforeEach(() => {
-  buildXo5Route.mockReset()
-})
 
 function mountVmUtils(overrides: Partial<FrontXoVm> = {}) {
   return mountComposable(() => {
@@ -232,15 +219,5 @@ describe('currentOperation', () => {
     const result = mountVmUtils({ current_operations: {} })
 
     expect(result.currentOperation).toBe('')
-  })
-})
-
-describe('xo5VmAdvancedHref', () => {
-  it('builds the XO5 advanced route for the VM id', () => {
-    buildXo5Route.mockImplementation((path: string) => `https://xo5.example.com/#${path}`)
-
-    const result = mountVmUtils({ id: 'vm-42' as FrontXoVm['id'] })
-
-    expect(result.xo5VmAdvancedHref).toBe('https://xo5.example.com/#/vms/vm-42/advanced')
   })
 })

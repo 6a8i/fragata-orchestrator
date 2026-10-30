@@ -4,12 +4,12 @@ import type {
   FrontXoSchedule,
   useXoScheduleCollection,
 } from '@/modules/schedule/remote-resources/use-xo-schedule-collection.ts'
-import type { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import { createBackupLog, createBackupLogTask } from '@/test/create-backup-log.ts'
 import { createSchedule } from '@/test/create-schedule.ts'
 import { findCardLabelledValues } from '@/test/find-rendered-values.ts'
 import { createGlobalTestConfig } from '@/test/global-test-config.ts'
 import { t } from '@/test/i18n.ts'
+import VtsIcon from '@core/components/icon/VtsIcon.vue'
 import UiLink from '@core/components/ui/link/UiLink.vue'
 import UiLogEntryViewer from '@core/components/ui/log-entry-viewer/UiLogEntryViewer.vue'
 import { formatDateTime } from '@core/utils/time.util.ts'
@@ -18,12 +18,6 @@ import { computed, toValue, type MaybeRefOrGetter } from 'vue'
 
 const { schedules } = vi.hoisted(() => ({
   schedules: [] as FrontXoSchedule[],
-}))
-
-vi.mock(import('@/shared/remote-resources/use-xo-routes.ts'), () => ({
-  useXoRoutes: (() => ({
-    buildXo5Route: (path: string) => `https://xo5.example.com/#${path}`,
-  })) as unknown as typeof useXoRoutes,
 }))
 
 vi.mock(import('@/modules/schedule/remote-resources/use-xo-schedule-collection.ts'), () => ({
@@ -70,11 +64,12 @@ it('dates a run still in progress by its start', () => {
 })
 
 describe('schedule', () => {
-  it('links the schedule of the run to the Fragata Classic backup overview', () => {
-    const scheduleLink = findScheduleRow(mountRun(createBackupLog()))?.findComponent(UiLink)
+  it('shows the schedule of the run with the schedule icon, without link', () => {
+    const scheduleRow = findScheduleRow(mountRun(createBackupLog()))
 
-    expect(scheduleLink?.text()).toBe('Nightly')
-    expect(scheduleLink?.attributes('href')).toBe('https://xo5.example.com/#/backup/overview')
+    expect(scheduleRow?.get('.value').text()).toBe('Nightly')
+    expect(scheduleRow?.findComponent(UiLink).exists()).toBe(false)
+    expect(scheduleRow?.getComponent(VtsIcon).props('name')).toBe('object:backup-schedule')
   })
 
   it('names a schedule without name as untitled', () => {
@@ -83,13 +78,13 @@ describe('schedule', () => {
     expect(findCardLabelledValues(mountRun(createBackupLog()))[t('schedule')]).toBe(t('untitled'))
   })
 
-  it('shows the id of a deleted schedule, without link', () => {
+  it('shows the id of a deleted schedule, without icon', () => {
     schedules.splice(0, schedules.length)
 
     const wrapper = mountRun(createBackupLog())
 
     expect(findCardLabelledValues(wrapper)[t('schedule')]).toBe('schedule-789')
-    expect(findScheduleRow(wrapper)?.findComponent(UiLink).exists()).toBe(false)
+    expect(findScheduleRow(wrapper)?.findComponent(VtsIcon).exists()).toBe(false)
   })
 })
 

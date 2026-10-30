@@ -1,6 +1,6 @@
 <template>
   <UiPanelCard class="backup-log-infos-card">
-    <UiPanelCardTitle :id="backupLog.id" size="medium" :label="logName" :href="logHref" icon="object:backup-run" />
+    <UiPanelCardTitle :id="backupLog.id" size="medium" :label="logName" icon="object:backup-run" />
     <div class="content">
       <VtsCardRowKeyValue>
         <template #key>{{ t('backup-date') }}</template>
@@ -46,7 +46,11 @@
       <VtsCardRowKeyValue>
         <template #key>{{ t('job') }}</template>
         <template #value>
-          <UiLink size="small" icon="object:backup-job" :href="jobHref">
+          <UiLink
+            size="small"
+            icon="object:backup-job"
+            :to="{ name: '/admin/backup-and-replication/jobs', query: { id: backupLog.jobId } }"
+          >
             {{ job?.name ?? t('untitled') }}
           </UiLink>
         </template>
@@ -97,7 +101,6 @@ import { getBackupLogSrIds, getBackupLogVmIds } from '@/modules/backup-log/utils
 import { useXoSrUtils } from '@/modules/storage-repository/composables/xo-sr-utils.composable.ts'
 import { useXoSrCollection } from '@/modules/storage-repository/remote-resources/use-xo-sr-collection.ts'
 import { useXoVmCollection } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
-import { useXoRoutes } from '@/shared/remote-resources/use-xo-routes.ts'
 import VtsCardRowKeyValue from '@core/components/card/VtsCardRowKeyValue.vue'
 import VtsCopyButton from '@core/components/copy-button/VtsCopyButton.vue'
 import VtsStatus from '@core/components/status/VtsStatus.vue'
@@ -116,8 +119,6 @@ const { backupLog } = defineProps<{
 
 const { t } = useI18n()
 
-const { buildXo5Route } = useXoRoutes()
-
 const { useGetBackupJobById } = useXoBackupJobCollection()
 
 const { getVmById } = useXoVmCollection()
@@ -135,10 +136,6 @@ const logName = computed(() => t('log-name', { date: formattedStartDate.value })
 const duration = computed(() => getBackupLogDuration(backupLog))
 
 const job = useGetBackupJobById(() => backupLog.jobId)
-
-const jobHref = computed(() => buildXo5Route('/settings/remotes'))
-
-const logHref = computed(() => buildXo5Route('/settings/remotes'))
 
 const vms = computed(() =>
   getBackupLogVmIds(backupLog).map(id => {
