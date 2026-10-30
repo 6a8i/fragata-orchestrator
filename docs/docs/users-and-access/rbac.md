@@ -4,10 +4,10 @@ sidebar_label: RBAC
 
 # RBAC: Role-Based Access Control
 
-RBAC is the access control system for the Fragata [REST API](automation/restapi.md) and the Fragata interface. It lets you define exactly what each user or group can see and do, down to individual objects, without granting them full administrator access.
+RBAC is the access control system for the Fragata [REST API](../automation/restapi.md) and the Fragata interface. It lets you define exactly what each user or group can see and do, down to individual objects, without granting them full administrator access.
 
 :::note Where RBAC applies, and why it was once called "ACL v2"
-RBAC covers the **[REST API](automation/restapi.md)** and **Fragata**. The JSON-RPC API behind the Fragata Classic interface keeps the original [ACL system](./users.md#acls), and those ACLs are not available on the REST API.
+RBAC covers the **[REST API](../automation/restapi.md)** and **Fragata**. The JSON-RPC API behind the Fragata Classic interface keeps the original [ACL system](./users.md#acls), and those ACLs are not available on the REST API.
 
 You may still come across this feature under the name **ACL v2**. That was only a working name while it was being built. It is a full rewrite of the original ACLs into a much broader model, so it is now called by what it actually is: RBAC. Same feature, current name.
 :::
@@ -16,11 +16,7 @@ You may still come across this feature under the name **ACL v2**. That was only 
 
 The original [ACL system](./users.md#acls) allowed granting access to individual objects (a VM, an SR…). Simple, but limited: there was no way to say _"this user can shutdown only VMs tagged `qa`"_. It also only covered **XAPI objects**: VMs, hosts, SRs, networks. Users, groups, backups, schedules, and jobs were out of scope.
 
-RBAC introduces a full role-based model with effects, selectors, and an action hierarchy, covering the entire infrastructure including XO management objects.
-
-:::info
-On XOA, RBAC is included in the **Essential+**, **Pro** and **Enterprise** bundles. Installations from the sources are not restricted.
-:::
+RBAC introduces a full role-based model with effects, selectors, and an action hierarchy, covering the entire infrastructure including Fragata management objects.
 
 ---
 
@@ -30,7 +26,7 @@ On XOA, RBAC is included in the **Essential+**, **Pro** and **Enterprise** bundl
 
 RBAC follows a **deny-by-default** model:
 
-- XOA admins always have full access, regardless of any ACL configuration.
+- Fragata admins always have full access, regardless of any ACL configuration.
 - Non-admin users start with **zero access**. They can only access objects they have been explicitly granted permission to.
 - A `deny` privilege always takes precedence over an `allow` privilege on the same action + resource + object combination.
 
@@ -79,16 +75,14 @@ To use them, **copy** a template into a new role and assign that copy to your us
 
 | Role                        | Description                                                                                                                                 |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Read only**               | Read access to the entire infrastructure and all XO objects. Cannot modify anything.                                                        |
+| **Read only**               | Read access to the entire infrastructure and all Fragata objects. Cannot modify anything.                                                        |
 | **VMs power state manager** | Can start, stop, reboot, pause, suspend, resume, and unpause VMs.                                                                           |
 | **VMs creator**             | Can instantiate VM templates and create VDIs and VIFs.                                                                                      |
 | **VMs read only**           | Can only list and view VMs.                                                                                                                 |
 | **VMs administrator**       | Full control over VM actions, plus read access to VM snapshots.                                                                             |
 | **Network administrator**   | Scoped admin for networking: manages networks and VIFs, creates pool networks, reads and updates PIFs, and views pools, hosts and VMs.      |
 | **Storage administrator**   | Scoped admin for storage: full control over SRs, VDIs, VBDs, PBDs and backup repositories, read access to unmanaged VDIs and storage managers. |
-| **Administrator**           | Full access to the entire infrastructure and all XO objects.                                                                                |
-
-The **Administrator** template and the two scoped administrator roles below were introduced in Fragata 6.6.
+| **Administrator**           | Full access to the entire infrastructure and all Fragata objects.                                                                                |
 
 ### Scoped administrator roles
 
@@ -135,7 +129,7 @@ Some endpoints are always accessible to a logged-in user **without any ACL privi
 
 `me` is a convenience alias: it is automatically redirected to `/rest/v0/users/{your-id}`.
 
-This is how delegation works end to end: any user, whatever their privileges, can create their own [authentication token](automation/restapi.md#authentication) and use it to call the REST API within the limits of their roles.
+This is how delegation works end to end: any user, whatever their privileges, can create their own [authentication token](../automation/restapi.md#authentication) and use it to call the REST API within the limits of their roles.
 
 :::tip
 The Swagger UI available at `/rest/v0/swagger` documents every endpoint with its required privileges. Endpoints with no declared privilege are admin-only.
@@ -160,7 +154,7 @@ Actions are written using the exact string you pass in a privilege. A parent act
 | `vdi-unmanaged` | `read`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `vif`           | `connect`, `create`, `delete`, `disconnect`, `read`, `update:allowedIpv4Addresses`, `update:allowedIpv6Addresses`, `update:lockingMode`, `update:rateLimit`, `update:txChecksumming`,`update:other_config`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | `vbd`           | `read`, `create`, `delete`, `connect`, `disconnect`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `sr`            | `read`, `create`, `delete`, `forget`, `migrate-receive`, `reclaim-space`, `scan`, `import:vdi`, `import:vm`, `update:tags`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |                                                                                                    |
+| `sr`            | `read`, `create`, `delete`, `forget`, `migrate-receive`, `reclaim-space`, `scan`, `import:vdi`, `import:vm`, `update:tags` |
 | `host`          | `read`, `allow-vm`, `join-pool`, `export:logs`, `update:tags`, `migrate-receive`, `disable`, `enable`, `evacuate`, `detach`, `shutdown:clean`, `shutdown:emergency`, `forget`, `reboot:clean`, `reboot:smart`, `restart-toolstack`, `start`, `scan-pifs`, `probe:nfs`, `probe:zfs`, `probe:hba`, `probe:iscsiiqn`, `probe:iscsilun`, `probe:iscsi-exists`, `probe:hba-exists`, `probe:nfs-exists`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `pool`          | `add-host`, `read`, `emergency-shutdown`, `rolling-reboot`, `rolling-update`, `create:network`, `create:vm`, `update:tags`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | `network`       | `read`, `create`, `delete`, `update:tags`,`update:other_config`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -174,18 +168,16 @@ Actions are written using the exact string you pass in a privilege. A parent act
 | `sm`            | `read`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `gpuGroup`      | `read`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 
-### XO management resources
+### Fragata management resources
 
 | Resource            | Available actions                                                                                                         |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `backup-job`        | `read`                                                                                                                    |
 | `backup-archive`    | `read`                                                                                                                    |
 | `backup-log`        | `read`                                                                                                                    |
-| `backup-repository` | `benchmark`, `create`, `read`, `forget`, `update:enabled`, `update:name`, `update:options`, `update:proxy`, `update:url`, |
-|                     | `reclaim-space`,                                                                                                          |
+| `backup-repository` | `benchmark`, `create`, `read`, `forget`, `update:enabled`, `update:name`, `update:options`, `update:url`, `reclaim-space` |
 | `schedule`          | `read`, `run`                                                                                                             |
 | `restore-log`       | `read`                                                                                                                    |
-| `proxy`             | `read`                                                                                                                    |
 | `server`            | `read`, `create`, `delete`, `connect`, `disconnect`                                                                       |
 | `task`              | `read`, `abort`, `delete`                                                                                                 |
 | `alarm`             | `read`                                                                                                                    |
@@ -299,21 +291,21 @@ Everything shown in the walkthrough (and more) is available as plain REST calls,
 | `GET /acl-roles/:id/privileges`                | List the privileges of a role                                  |
 | `PUT` / `DELETE /acl-roles/:id/users/:userId`  | Assign the role to a user / remove it                          |
 | `PUT` / `DELETE /acl-roles/:id/groups/:groupId`| Assign the role to a group / remove it                         |
-| `GET /acl-roles/:id/users`                     | List the users holding a role _(Fragata.7)_                       |
-| `GET /acl-roles/:id/groups`                    | List the groups holding a role _(Fragata.7)_                      |
-| `GET /groups/:id/acl-roles`                    | List the roles of a group _(Fragata.7)_                           |
+| `GET /acl-roles/:id/users`                     | List the users holding a role                       |
+| `GET /acl-roles/:id/groups`                    | List the groups holding a role                      |
+| `GET /groups/:id/acl-roles`                    | List the roles of a group                           |
 | `GET` / `POST /acl-privileges`                 | List privileges / create a privilege inside a role             |
 | `GET` / `PATCH` / `DELETE /acl-privileges/:id` | Read, update or delete a privilege                             |
 
 In the Fragata interface, the **Administration** section of the sidebar covers users and groups; role and privilege management itself currently happens through the REST API, as shown above. See [Users and administration](../manage-your-infrastructure/management.md#users-and-administration).
 
-<UiShot light="/img/xo6/administration-light.png" dark="/img/xo6/administration-dark.png" alt="The Administration section in Fragata, where users and groups are managed" url="https://your-xo/v6/#/admin/user-management/users" />
+<UiShot light="/img/xo6/administration-light.png" dark="/img/xo6/administration-dark.png" alt="The Administration section in Fragata, where users and groups are managed" url="https://your-fragata/v6/#/admin/user-management/users" />
 
 ---
 
 ## Selectors
 
-By default, a privilege applies to **all** objects of the given resource type. The optional `selector` field narrows it down using the [complex-matcher](../manage-your-infrastructure/manage_infrastructure.md#filter-syntax) syntax, the same filter syntax used in the XO UI.
+By default, a privilege applies to **all** objects of the given resource type. The optional `selector` field narrows it down using the [complex-matcher](../manage-your-infrastructure/manage_infrastructure.md#filter-syntax) syntax, the same filter syntax used in the Fragata UI.
 
 A selector is evaluated against each object's properties. If it matches, the privilege applies; otherwise it does not.
 

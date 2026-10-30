@@ -13,7 +13,7 @@ MCP enables new ways to interact with your infrastructure:
 - **Natural language queries**: ask "How many VMs are running?" instead of navigating dashboards
 - **AI-assisted monitoring**: get instant summaries of your infrastructure state
 - **Quick diagnostics**: ask about specific VMs, hosts, or pools without leaving your conversation
-- **Documentation at your fingertips**: search the XO documentation directly from the assistant
+- **Documentation at your fingertips**: search the Fragata documentation directly from the assistant
 
 All operations are **read-only by default**, ensuring safe interaction with your production environment. Write operations can be enabled explicitly, see [Write operations](#write-operations).
 
@@ -22,11 +22,11 @@ All operations are **read-only by default**, ensuring safe interaction with your
 ### Prerequisites
 
 - **Node.js** 20 or later
-- A **Fragata** instance, version **6.5 or later**, with [REST API](restapi.md) enabled
+- A **Fragata** instance with the [REST API](restapi.md) enabled
 - An **AI assistant** that supports MCP (Claude Desktop, Claude Code, etc.)
 
 :::warning
-The MCP server requires **Fragata 6.5 or later**. On an older XO it stops at startup with an error such as `Unable to verify MCP status (HTTP 404)`. Upgrade your Fragata to use it.
+The MCP server needs an up-to-date Fragata server. On an outdated one it stops at startup with an error such as `Unable to verify MCP status (HTTP 404)`: [update Fragata](../getting-started/install-from-sources.md#updating) to use it.
 :::
 
 ### Install the MCP server
@@ -47,16 +47,16 @@ The MCP server connects to Fragata via the REST API. Two authentication modes ar
 
 | Variable                | Required                | Description                                                                                   |
 | ----------------------- | ----------------------- | --------------------------------------------------------------------------------------------- |
-| `XO_URL`                | Yes                     | Fragata server URL (e.g. `https://xo.example.com`)                                      |
+| `XO_URL`                | Yes                     | Fragata server URL (e.g. `https://fragata.example.com`)                                  |
 | `XO_TOKEN`              | If no username/password | Authentication token                                                                          |
-| `XO_USERNAME`           | If no token             | XO user with admin privileges                                                                 |
-| `XO_PASSWORD`           | If no token             | XO password                                                                                   |
+| `XO_USERNAME`           | If no token             | Fragata user with admin privileges                                                                 |
+| `XO_PASSWORD`           | If no token             | Fragata password                                                                                   |
 | `XO_MCP_ENABLE_ACTIONS` | No                      | Set to `1` to expose write/destructive operations (see [Write operations](#write-operations)) |
 
-To generate a token, go to the XO user page (`/user`) or run `fragata-cli create-token`. If both `XO_TOKEN` and `XO_USERNAME`/`XO_PASSWORD` are set, token authentication takes priority.
+To generate a token, go to the Fragata user page (`/user`) or run `fragata-cli create-token`. If both `XO_TOKEN` and `XO_USERNAME`/`XO_PASSWORD` are set, token authentication takes priority.
 
 :::tip
-Only admin users can currently use the REST API. See [REST API authentication](restapi.md#authentication) for details.
+Admin users can use all REST API endpoints; other users are limited by their [RBAC](../users-and-access/rbac.md) permissions. See [REST API authentication](restapi.md#authentication) for details.
 :::
 
 ### Configure your AI assistant
@@ -70,11 +70,11 @@ Using a token (recommended):
 ```json
 {
   "mcpServers": {
-    "xo": {
+    "fragata": {
       "command": "npx",
       "args": ["@fragata/mcp"],
       "env": {
-        "XO_URL": "https://your-xo-server",
+        "XO_URL": "https://your-fragata-server",
         "XO_TOKEN": "your-token"
       }
     }
@@ -87,11 +87,11 @@ Using username/password:
 ```json
 {
   "mcpServers": {
-    "xo": {
+    "fragata": {
       "command": "npx",
       "args": ["@fragata/mcp"],
       "env": {
-        "XO_URL": "https://your-xo-server",
+        "XO_URL": "https://your-fragata-server",
         "XO_USERNAME": "admin@example.com",
         "XO_PASSWORD": "your-password"
       }
@@ -102,10 +102,10 @@ Using username/password:
 
 #### Claude Code
 
-<Terminal shell title="register the XO MCP server with Claude Code">{`
+<Terminal shell title="register the Fragata MCP server with Claude Code">{`
 # Using a token (recommended)
-claude mcp add xo \\
-  -e XO_URL=https://your-xo-server \\
+claude mcp add fragata \\
+  -e XO_URL=https://your-fragata-server \\
   -e XO_TOKEN=your-token \\
   -- npx @fragata/mcp
 `}</Terminal>
@@ -117,33 +117,33 @@ To use username/password instead, replace the `-e XO_TOKEN=…` line with `-e XO
 Run the MCP server with the environment variables set:
 
 <Terminal shell title="start the MCP server manually">{`
-XO_URL=https://your-xo-server \\
+XO_URL=https://your-fragata-server \\
 XO_TOKEN=your-token \\
 npx @fragata/mcp
 `}</Terminal>
 
 The server communicates via stdio using the MCP protocol (JSON-RPC), compatible with any MCP client.
 
-#### Multiple XO instances
+#### Multiple Fragata instances
 
-To manage several XO servers from the same assistant, add one entry per instance with a different name:
+To manage several Fragata servers from the same assistant, add one entry per instance with a different name:
 
 ```json
 {
   "mcpServers": {
-    "xo-production": {
+    "fragata-production": {
       "command": "npx",
       "args": ["@fragata/mcp"],
       "env": {
-        "XO_URL": "https://xo-production.example.com",
+        "XO_URL": "https://fragata-production.example.com",
         "XO_TOKEN": "prod-token"
       }
     },
-    "xo-staging": {
+    "fragata-staging": {
       "command": "npx",
       "args": ["@fragata/mcp"],
       "env": {
-        "XO_URL": "https://xo-staging.example.com",
+        "XO_URL": "https://fragata-staging.example.com",
         "XO_TOKEN": "staging-token"
       }
     }
@@ -151,31 +151,31 @@ To manage several XO servers from the same assistant, add one entry per instance
 }
 ```
 
-Each entry starts its own process with its own credentials. The assistant gets a separate set of tools per instance, so you can ask about a specific environment by name ("list running VMs on xo-production").
+Each entry starts its own process with its own credentials. The assistant gets a separate set of tools per instance, so you can ask about a specific environment by name ("list running VMs on fragata-production").
 
 :::tip
-Pick descriptive names (`xo-production`, `xo-dr-site`, ...) so the assistant knows which instance you're referring to.
+Pick descriptive names (`fragata-production`, `fragata-dr-site`, ...) so the assistant knows which instance you're referring to.
 :::
 
 ### Behind a corporate proxy
 
-The MCP server respects `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY`. This matters in enterprise networks: your AI assistant may need an outbound proxy to reach the public internet, but your XOA is internal and must be reached directly. Without `NO_PROXY`, internal traffic gets sent through the proxy and rejected.
+The MCP server respects `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY`. This matters in enterprise networks: your AI assistant may need an outbound proxy to reach the public internet, but your Fragata server is internal and must be reached directly. Without `NO_PROXY`, internal traffic gets sent through the proxy and rejected.
 
-`NO_PROXY` takes a comma-separated list of hostnames that bypass the proxy: an exact host (`xoa.internal.example.com`), a suffix wildcard (`.example.com` or `*.example.com`, which matches subdomains but **not** the bare domain, so list both if needed), or `*` alone to bypass everything. CIDR ranges are not supported. Proxy credentials in the URL (`http://user:pass@proxy:3128`) work with Basic auth only; NTLM/Kerberos proxies need a sidecar like cntlm.
+`NO_PROXY` takes a comma-separated list of hostnames that bypass the proxy: an exact host (`fragata.internal.example.com`), a suffix wildcard (`.example.com` or `*.example.com`, which matches subdomains but **not** the bare domain, so list both if needed), or `*` alone to bypass everything. CIDR ranges are not supported. Proxy credentials in the URL (`http://user:pass@proxy:3128`) work with Basic auth only; NTLM/Kerberos proxies need a sidecar like cntlm.
 
-Example for Claude Desktop, with a corporate proxy and a XOA on the internal network:
+Example for Claude Desktop, with a corporate proxy and Fragata on the internal network:
 
 ```json
 {
   "mcpServers": {
-    "xo": {
+    "fragata": {
       "command": "npx",
       "args": ["@fragata/mcp"],
       "env": {
-        "XO_URL": "https://xoa.internal.example.com",
+        "XO_URL": "https://fragata.internal.example.com",
         "XO_TOKEN": "your-token",
         "HTTPS_PROXY": "http://proxy.corp.example:3128",
-        "NO_PROXY": "xoa.internal.example.com"
+        "NO_PROXY": "fragata.internal.example.com"
       }
     }
   }
@@ -210,24 +210,24 @@ The kill-switch keys off the `X-XO-Client: mcp` header the official binary sends
 
 ![MCP architecture workflow](/img/xo5/mcp-workflow.png)
 
-1. On startup, the MCP server fetches the OpenAPI spec from your XO instance (`/rest/v0/docs/swagger.json`) and generates one tool per resource domain.
+1. On startup, the MCP server fetches the OpenAPI spec from your Fragata instance (`/rest/v0/docs/swagger.json`) and generates one tool per resource domain.
 2. You ask a question in natural language to your AI assistant.
 3. The assistant picks a tool (e.g. `pools_query`) and chooses an `operation` (e.g. `GetPools`, `GetPoolDashboard`).
-4. The MCP server calls the corresponding XO REST endpoint and returns a markdown-formatted response.
+4. The MCP server calls the corresponding Fragata REST endpoint and returns a markdown-formatted response.
 
-Because the tool surface is generated from the live OpenAPI spec, it always reflects the XO version you're connecting to: new endpoints become available automatically as XO evolves.
+Because the tool surface is generated from the live OpenAPI spec, it always reflects the Fragata version you're connecting to: new endpoints become available automatically as Fragata evolves.
 
 ## Capabilities {#available-tools}
 
 The server exposes:
 
-- **Three utility tools**, always present: `check_connection` (validate your setup), `get_infrastructure_summary` (aggregate pools, hosts and VMs into a single overview), and `search_documentation` (look up the XO documentation by topic).
+- **Three utility tools**, always present: `check_connection` (validate your setup), `get_infrastructure_summary` (aggregate pools, hosts and VMs into a single overview), and `search_documentation` (look up the Fragata documentation by topic).
 - **One `{domain}_query` tool per REST resource domain**, generated from the live spec: pools, hosts, VMs, storage (SRs, VDIs), network, backup jobs and logs, users, tasks, alarms, and more. All query tools share the same arguments: `operation` (the OpenAPI `operationId` to invoke), `id`, an optional [`filter` expression](../manage-your-infrastructure/manage_infrastructure.md#live-filter-search), `fields`, and `limit`.
 - **A built-in prompt**, `infrastructure-overview`, which turns the infrastructure summary into a readable report.
 
 Stats endpoints and binary downloads (`.xva`, `.vhd`, ...) are deliberately not exposed: their payloads are unsuitable for LLM context. Use the REST API directly when you need them.
 
-The exact tool list depends on your XO version, since it is generated at startup. For the complete, current reference (tool arguments, deny list, all environment variables), see the [`@fragata/mcp` README](https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/mcp), which is the source of truth.
+The exact tool list depends on your Fragata version, since it is generated at startup. For the complete, current reference (tool arguments, deny list, all environment variables), see the [`@fragata/mcp` README](https://github.com/6a8i/fragata-orchestrator/tree/master/@fragata/mcp), which is the source of truth.
 
 **Example questions:**
 
@@ -250,28 +250,28 @@ Enabling `XO_MCP_ENABLE_ACTIONS` lets the assistant mutate your infrastructure. 
 
 **Infrastructure overview:**
 
-<UiDetail src="/img/xo5/mcp-infra.gif" alt="Asking Claude for an overview of the XO infrastructure via MCP" width={720} />
+<UiDetail src="/img/xo5/mcp-infra.gif" alt="Asking Claude for an overview of the Fragata infrastructure via MCP" width={720} />
 
 **Searching documentation:**
 
-<UiDetail src="/img/xo5/mcp-doc.gif" alt="Searching the XO documentation from the assistant via MCP" width={720} />
+<UiDetail src="/img/xo5/mcp-doc.gif" alt="Searching the Fragata documentation from the assistant via MCP" width={720} />
 
 ## Troubleshooting
 
 :::note Connection refused
-Verify that `XO_URL` is correct and includes the protocol (`https://` or `http://`). Make sure the XO server is reachable from the machine running the MCP server.
+Verify that `XO_URL` is correct and includes the protocol (`https://` or `http://`). Make sure the Fragata server is reachable from the machine running the MCP server.
 :::
 
 :::note Authentication failed (401)
-If using token authentication, check that `XO_TOKEN` is valid: the token may have expired or been revoked. If using username/password, check `XO_USERNAME` and `XO_PASSWORD`. Only admin users can currently access the REST API.
+If using token authentication, check that `XO_TOKEN` is valid: the token may have expired or been revoked. If using username/password, check `XO_USERNAME` and `XO_PASSWORD`. The user must be allowed to use the REST API (admin, or a role granting access).
 :::
 
 :::note Timeout errors
-The MCP server has a 30-second timeout for API requests. If you experience timeouts, check network connectivity between the MCP server and your XO instance.
+The MCP server has a 30-second timeout for API requests. If you experience timeouts, check network connectivity between the MCP server and your Fragata instance.
 :::
 
-:::note Internal XOA blocked when behind a corporate proxy
-If your AI assistant injects `HTTPS_PROXY` into the MCP process and your XOA lives on the internal network, the proxy may silently drop or reject the requests. Add the XOA hostname to `NO_PROXY` so the traffic stays direct. See [Behind a corporate proxy](#behind-a-corporate-proxy).
+:::note Internal Fragata blocked when behind a corporate proxy
+If your AI assistant injects `HTTPS_PROXY` into the MCP process and your Fragata server lives on the internal network, the proxy may silently drop or reject the requests. Add the Fragata hostname to `NO_PROXY` so the traffic stays direct. See [Behind a corporate proxy](#behind-a-corporate-proxy).
 :::
 
 :::note Missing required environment variables
@@ -283,5 +283,5 @@ The fragata-server administrator has set `[mcp] enabled = false` in the server c
 :::
 
 :::note Unable to verify MCP status (HTTP 404)
-Your Fragata is older than **6.5**. Upgrade XO to 6.5 or later to use the MCP server, see [Prerequisites](#prerequisites).
+Your Fragata server is outdated and does not expose the MCP status endpoint. [Update Fragata](../getting-started/install-from-sources.md#updating) to use the MCP server, see [Prerequisites](#prerequisites).
 :::

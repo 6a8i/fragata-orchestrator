@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Fragata (XO) is a powerful tool for managing XCP-ng and XenServer virtualization environments. However, relying solely on the web interface can result in repetitive manual tasks. For system administrators, particularly those working in Windows-centric environments, **PowerShell** is the go-to automation tool. The [`xo-powershell`](https://github.com/vatesfr/xo-powershell) module combines the strengths of these two tools by offering PowerShell's scripting capabilities to interact directly with the Fragata API.
+Fragata is a powerful tool for managing Fragata Host and XenServer virtualization environments. However, relying solely on the web interface can result in repetitive manual tasks. For system administrators, particularly those working in Windows-centric environments, **PowerShell** is the go-to automation tool. The [`xo-powershell`](https://github.com/vatesfr/xo-powershell) module combines the strengths of these two tools by offering PowerShell's scripting capabilities to interact directly with the Fragata API. It is a third-party, community-maintained module.
 
 ## What the module provides
 
@@ -34,8 +34,8 @@ PowerShell **7.0 or later**, on Windows, Linux or macOS. Windows PowerShell 5.1 
 
 Connecting to your Fragata instance is just as straightforward, requiring only the host address and an API token:
 
-<Terminal shell title="connect to your XO instance">{`
-Connect-XoSession -HostName "https://your-xo-server" -Token "your-api-token"
+<Terminal shell title="connect to your Fragata instance">{`
+Connect-XoSession -HostName "https://your-fragata-server" -Token "your-api-token"
 `}</Terminal>
 
 :::tip Obtaining the API token
@@ -49,7 +49,7 @@ What distinguishes this module from a simple API wrapper is its deep integration
 ### Simple usage examples {#example-simple-usage-examples}
 
 <Terminal shell title="query your infrastructure">{`
-# List XCP-ng servers
+# List the servers connected to Fragata
 Get-XoServer
 # Monitor ongoing tasks
 Get-XoTask
@@ -57,7 +57,7 @@ Get-XoTask
 Get-XoVdi
 `}</Terminal>
 
-<UiDetail src="/img/xo6/powershell-servers.png" alt="Get-XoServer returns your connected XCP-ng servers as PowerShell objects" width={720} />
+<UiDetail src="/img/xo6/powershell-servers.png" alt="Get-XoServer returns your connected Fragata Host servers as PowerShell objects" width={720} />
 
 To stop all virtual machines whose name contains `Test`, one line suffices:
 
@@ -119,15 +119,14 @@ Get-XoVmSnapshot -Filter "name_label:your-snapshot-name"
 
 The snapshot also shows up in the Fragata web interface:
 
-<UiShot light="/img/xo6/powershell-snapshot-xo.png" alt="The snapshot created from PowerShell, visible in the VM's Snapshots tab" url="https://your-xo/v5/#/vms/…/snapshots" />
+<UiShot light="/img/xo6/powershell-snapshot-xo.png" alt="The snapshot created from PowerShell, visible in the VM's Snapshots tab" url="https://your-fragata/v5/#/vms/…/snapshots" />
 
-## Conclusion: Rethink your XCP-ng management {#conclusion-rethink-your-xcp-ng-management}
+## Conclusion: Rethink your Fragata Host management {#conclusion-rethink-your-xcp-ng-management}
 
-The `xo-powershell` module is much more than just a collection of commands: it is a gateway to powerful, scalable and efficient automation within the XCP-ng/Fragata ecosystem. Leveraging the PowerShell pipeline and a comprehensive set of commands aligns it with the DevOps philosophy, bringing automation practices closer to Windows administrators and helping them save valuable time while reducing the risk of human error.
+The `xo-powershell` module is much more than just a collection of commands: it is a gateway to powerful, scalable and efficient automation within the Fragata Host/Fragata ecosystem. Leveraging the PowerShell pipeline and a comprehensive set of commands aligns it with the DevOps philosophy, bringing automation practices closer to Windows administrators and helping them save valuable time while reducing the risk of human error.
 
 ## Related links
 
 - [xo-powershell on GitHub](https://github.com/vatesfr/xo-powershell) (source of truth for cmdlets and options)
 - [xo-powershell on the PowerShell Gallery](https://www.powershellgallery.com/packages/xo-powershell/)
-- [Infrastructure as Code category on the XCP-ng forum](https://xcp-ng.org/forum/category/29/infrastructure-as-code)
 - [REST API authentication](restapi.md#authentication)

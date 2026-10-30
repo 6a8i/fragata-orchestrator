@@ -2,12 +2,12 @@
 
 ## Introduction
 
-[Packer](https://developer.hashicorp.com/packer) automates the creation of machine images: describe an image once in code, and rebuild it identically whenever needed. In an XCP-ng/Fragata environment, that means building **golden VM templates** (base OS, updates, guest tools, your provisioning) instead of preparing them by hand.
+[Packer](https://developer.hashicorp.com/packer) automates the creation of machine images: describe an image once in code, and rebuild it identically whenever needed. In a Fragata Host/Fragata environment, that means building **golden VM templates** (base OS, updates, guest tools, your provisioning) instead of preparing them by hand.
 
-Vates maintains the [XenServer Packer plugin](https://github.com/vatesfr/packer-plugin-xenserver), a builder that installs an OS from an ISO on an XCP-ng host and turns the result into a reusable image. It was revived from an abandoned upstream project and is developed alongside the [Terraform provider](./terraform-provider.md) to ensure interoperability: templates built with Packer can then be cloned into VMs through the Terraform provider, the [REST API](restapi.md), or the Fragata web interface.
+The community-maintained [XenServer Packer plugin](https://github.com/vatesfr/packer-plugin-xenserver) is a builder that installs an OS from an ISO on a Fragata Host and turns the result into a reusable image. It was revived from an abandoned upstream project and is developed alongside the [Terraform provider](./terraform-provider.md) to ensure interoperability: templates built with Packer can then be cloned into VMs through the Terraform provider, the [REST API](restapi.md), or the Fragata web interface.
 
 :::note
-The plugin talks **directly to an XCP-ng host** (via XAPI and SSH), not to the Fragata API. You point it at a host with its credentials; Fragata then sees and manages the resulting templates like any other.
+The plugin talks **directly to a Fragata Host** (via XAPI and SSH), not to the Fragata API. You point it at a host with its credentials; Fragata then sees and manages the resulting templates like any other.
 :::
 
 ## Installation
@@ -39,8 +39,8 @@ The plugin provides the `xenserver-iso` builder: it creates a VM on the target h
 
 ```hcl
 source "xenserver-iso" "example" {
-  # The XCP-ng host to build on
-  remote_host     = "your-xcpng-host"
+  # The Fragata Host to build on
+  remote_host     = "your-fragata-host"
   remote_username = "root"
   remote_password = "your-password"
 

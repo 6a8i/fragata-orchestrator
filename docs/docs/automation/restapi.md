@@ -28,8 +28,8 @@ Admin users have access to all REST API endpoints. Non-admin users can use the R
 For scripts and integrations, prefer a token: it does not expose your password and it can be revoked at any time.
 
 <Terminal shell title="the two authentication forms, with curl">{`
-curl -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs https://xo.example.org/rest/v0/vms
-curl -u admin@admin.net:admin https://xo.example.org/rest/v0/vms
+curl -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs https://fragata.example.org/rest/v0/vms
+curl -u admin@admin.net:admin https://fragata.example.org/rest/v0/vms
 `}</Terminal>
 
 ### Creating a token {#creation}
@@ -37,7 +37,7 @@ curl -u admin@admin.net:admin https://xo.example.org/rest/v0/vms
 The simplest way is `fragata-cli`:
 
 <Terminal title="create a token with fragata-cli">{`
-fragata-cli create-token xo.example.org admin@admin.net
+fragata-cli create-token fragata.example.org admin@admin.net
 Password: ********
 Successfully logged with admin@admin.net
 Authentication token created
@@ -48,7 +48,7 @@ DiYBFavJwf9GODZqQJs23eAx9eh3KlsRhBi8RcoX0KM
 You can also do it through the API itself, with `POST /rest/v0/users/:id/authentication_tokens`:
 
 <Terminal title="create a token for the current user">{`
-curl -X POST -u admin@admin.net:admin https://xo.example.org/rest/v0/users/me/authentication_tokens
+curl -X POST -u admin@admin.net:admin https://fragata.example.org/rest/v0/users/me/authentication_tokens
 {
   "token": {
     "created_at": 1765187444219,
@@ -65,7 +65,7 @@ If you don't know your user ID, use the `me` alias, as above. Tokens expire (see
 
 #### Maximum token validity
 
-The maximum validity period for authentication tokens is controlled by the `maxTokenValidity` setting in the XO configuration file (`config.toml`):
+The maximum validity period for authentication tokens is controlled by the `maxTokenValidity` setting in the Fragata configuration file (`config.toml`):
 
 ```
 [authentication]
@@ -82,7 +82,7 @@ Every object type lives in a collection at `/rest/v0/<name>` (e.g. `/rest/v0/vms
 - `ndjson`: if `true`, the result is streamed in [NDJSON format](https://github.com/ndjson/ndjson-spec), one object per line
 
 <Terminal title="running VMs, two fields, at most two results">{`
-curl -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs 'https://xo.example.org/rest/v0/vms?fields=name_label,power_state&filter=power_state:running&limit=2'
+curl -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs 'https://fragata.example.org/rest/v0/vms?fields=name_label,power_state&filter=power_state:running&limit=2'
 [
   {
     "name_label": "Debian 12 web frontend",
@@ -100,7 +100,7 @@ curl -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs 'https:/
 The same request as NDJSON, convenient for large collections and line-by-line processing:
 
 <Terminal title="the same collection, streamed as NDJSON">{`
-curl -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs 'https://xo.example.org/rest/v0/vms?fields=name_label,power_state&ndjson=true'
+curl -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs 'https://fragata.example.org/rest/v0/vms?fields=name_label,power_state&ndjson=true'
 {"name_label":"Debian 12 web frontend","power_state":"Running","href":"/rest/v0/vms/770aa52a-fd42-8faf-f167-8c5c4a237cac"}
 {"name_label":"FreeNAS","power_state":"Running","href":"/rest/v0/vms/0fc14abc-ae7a-4209-79c4-d20ca1f0e567"}
 `}</Terminal>
@@ -110,7 +110,7 @@ curl -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs 'https:/
 `GET` the object's URL (the `href` returned by its collection) to get the full record:
 
 <Terminal title="fetch one VM">{`
-curl -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs https://xo.example.org/rest/v0/vms/770aa52a-fd42-8faf-f167-8c5c4a237cac
+curl -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs https://fragata.example.org/rest/v0/vms/770aa52a-fd42-8faf-f167-8c5c4a237cac
 {
   "type": "VM",
   "id": "770aa52a-fd42-8faf-f167-8c5c4a237cac",
@@ -127,7 +127,7 @@ curl -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs https://
 Operations that *do* something (start, snapshot, migrate, rolling pool update...) are exposed as actions: `POST /rest/v0/<type>/<uuid>/actions/<action>`. Parameters, when an action takes some, are passed as a JSON body:
 
 <Terminal title="snapshot a VM, with a parameter">{`
-curl -X POST -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs -H 'Content-Type: application/json' -d '{"name_label": "Before upgrade"}' https://xo.example.org/rest/v0/vms/770aa52a-fd42-8faf-f167-8c5c4a237cac/actions/snapshot
+curl -X POST -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs -H 'Content-Type: application/json' -d '{"name_label": "Before upgrade"}' https://fragata.example.org/rest/v0/vms/770aa52a-fd42-8faf-f167-8c5c4a237cac/actions/snapshot
 {"taskId":"0m7kl0j9l"}
 `}</Terminal>
 
@@ -145,13 +145,13 @@ Location: /rest/v0/tasks/0m7kl0j9l
 Fetch the task to follow it. The `wait=true` query parameter makes the request block until the task reaches a final state, so a single call gives you the outcome:
 
 <Terminal shell title="wait for the task to finish">{`
-curl -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs 'https://xo.example.org/rest/v0/tasks/0m7kl0j9l?wait=true'
+curl -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs 'https://fragata.example.org/rest/v0/tasks/0m7kl0j9l?wait=true'
 `}</Terminal>
 
 If you prefer a blocking call from the start, add `?sync=true` to the action itself: the request only returns once the action is done, with its result as JSON, and no task monitoring is needed:
 
 <Terminal title="synchronous action: the result is returned directly">{`
-curl -X POST -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs 'https://xo.example.org/rest/v0/vms/770aa52a-fd42-8faf-f167-8c5c4a237cac/actions/clean_reboot?sync=true'
+curl -X POST -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs 'https://fragata.example.org/rest/v0/vms/770aa52a-fd42-8faf-f167-8c5c4a237cac/actions/clean_reboot?sync=true'
 `}</Terminal>
 
 ## Updating an object {#properties-update}
@@ -159,7 +159,7 @@ curl -X POST -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs 
 Editable objects support `PATCH` on their URL: send only the fields you want to change (JSON body, camelCase field names) and everything else is left untouched. A successful update returns `204 No Content`. VMs, VDIs, VIFs, users, groups, backup repositories and more can be patched; the Swagger UI lists the accepted fields for each type.
 
 <Terminal shell title="rename a VM and update its description">{`
-curl -X PATCH -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs -H 'Content-Type: application/json' -d '{"nameLabel": "web-prod-01", "nameDescription": "Production web frontend"}' https://xo.example.org/rest/v0/vms/770aa52a-fd42-8faf-f167-8c5c4a237cac
+curl -X PATCH -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs -H 'Content-Type: application/json' -d '{"nameLabel": "web-prod-01", "nameDescription": "Production web frontend"}' https://fragata.example.org/rest/v0/vms/770aa52a-fd42-8faf-f167-8c5c4a237cac
 `}</Terminal>
 
 ## Deleting an object {#vm-and-vdi-destruction}
@@ -167,7 +167,7 @@ curl -X PATCH -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs
 `DELETE` on the object's URL destroys it:
 
 <Terminal shell title="delete a VM">{`
-curl -X DELETE -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs https://xo.example.org/rest/v0/vms/770aa52a-fd42-8faf-f167-8c5c4a237cac
+curl -X DELETE -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs https://fragata.example.org/rest/v0/vms/770aa52a-fd42-8faf-f167-8c5c4a237cac
 `}</Terminal>
 
 ## Watching for changes {#events}
@@ -175,7 +175,7 @@ curl -X DELETE -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTb
 For live automation, the API exposes a [Server-Sent Events (SSE)](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) endpoint at `/rest/v0/events`, which notifies you in real time when objects change (VMs, hosts, SRs...). The first event, `init`, gives you a connection ID, and a `ping` is sent every 30 seconds to keep the connection alive:
 
 <Terminal title="open the event stream">{`
-curl -N -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs https://xo.example.org/rest/v0/events
+curl -N -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs https://fragata.example.org/rest/v0/events
 event: init
 data: {"id":"0d8b28c6-e9bf-4c9d-a382-3c9e0d7cfbff"}
 `}</Terminal>
@@ -183,7 +183,7 @@ data: {"id":"0d8b28c6-e9bf-4c9d-a382-3c9e0d7cfbff"}
 A new connection has no subscriptions. Use the connection ID to subscribe to a collection, optionally restricting the fields you receive (events that do not touch the watched fields are then suppressed):
 
 <Terminal shell title="subscribe to VM events on this connection">{`
-curl -X POST -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs -H 'Content-Type: application/json' -d '{"collection": "VM", "fields": ["id", "name_label", "power_state"]}' https://xo.example.org/rest/v0/events/0d8b28c6-e9bf-4c9d-a382-3c9e0d7cfbff/subscriptions
+curl -X POST -b authenticationToken=KQxQdm2vMiv7jBIK0hgkmgxKzemd8wSJ7ugFGKFkTbs -H 'Content-Type: application/json' -d '{"collection": "VM", "fields": ["id", "name_label", "power_state"]}' https://fragata.example.org/rest/v0/events/0d8b28c6-e9bf-4c9d-a382-3c9e0d7cfbff/subscriptions
 `}</Terminal>
 
 The stream then emits `add`, `update` and `remove` events for that collection, each carrying the object's fields plus a `$subscription` property naming the collection:
@@ -207,17 +207,17 @@ A `DELETE` on `/rest/v0/events/<connection id>/subscriptions/VM` unsubscribes.
 The five patterns above are all you need to know: everything else is endpoint details, and those are documented where they can never go stale, in the [OpenAPI (Swagger)](https://swagger.io/specification/) documentation autogenerated from the API code itself. It ships with your Fragata at:
 
 ```
-https://your-xo/rest/v0/docs
+https://your-fragata/rest/v0/docs
 ```
 
-It is also one click away from the Fragata Classic web UI, via the **REST API doc** entry in the main menu (and `https://your-xo/rest/v0` redirects there too).
+It is also one click away from the Fragata Classic web UI, via the **REST API doc** entry in the main menu (and `https://your-fragata/rest/v0` redirects there too).
 
-<UiShot light="/img/xo5/swagger-example.png" alt="The Swagger UI documenting the VM endpoints, with the full VM schema and a Try it out button" url="https://your-xo/rest/v0/docs" />
+<UiShot light="/img/xo5/swagger-example.png" alt="The Swagger UI documenting the VM endpoints, with the full VM schema and a Try it out button" url="https://your-fragata/rest/v0/docs" />
 
 The Swagger UI doesn't just document every route, parameter and schema: the **Try it out** button lets you run requests directly from your browser, authenticated by your existing Fragata session, so you can experiment with the API without writing any code. You will find there everything not shown on this page, including the binary streaming endpoints (XVA export/import for VMs, VHD and raw export/import for VDIs) and the backup, pool, host, SR, network and user routes.
 
-The raw OpenAPI specification is available at `https://your-xo/rest/v0/docs/swagger.json`, ready to feed a client generator for your favorite language.
+The raw OpenAPI specification is available at `https://your-fragata/rest/v0/docs/swagger.json`, ready to feed a client generator for your favorite language.
 
 ## Missing an endpoint? {#ongoing-improvements}
 
-Almost all endpoints you may need are already covered by the REST API, and we keep expanding it. If something you need is missing, please tell us: open a request on [our feedback portal](https://feedback.vates.tech/) or start a discussion on [the Fragata forum](https://xcp-ng.org/forum/category/12/xen-orchestra). Real use cases are what drive the API's roadmap.
+Almost all endpoints you may need are already covered by the REST API, and we keep expanding it. If something you need is missing, please tell us: open a request on [the issue tracker](https://github.com/6a8i/fragata-orchestrator/issues) or start a discussion on [GitHub discussions](https://github.com/6a8i/fragata-orchestrator/discussions). Real use cases are what drive the API's roadmap.

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Dynamic inventory is a powerful Ansible feature that discovers the hosts to manage from an external source instead of a static file. The [`community.general.xen_orchestra`](https://docs.ansible.com/ansible/latest/collections/community/general/xen_orchestra_inventory.html) inventory plugin connects to your **Fragata** instance and builds an inventory from the virtual machines (VMs) it manages, so your automation always targets the real state of your infrastructure.
+Dynamic inventory is a powerful Ansible feature that discovers the hosts to manage from an external source instead of a static file. The [`community.general.xen_orchestra`](https://docs.ansible.com/ansible/latest/collections/community/general/xen_orchestra_inventory.html) inventory plugin connects to your **Fragata** instance and builds an inventory from the virtual machines (VMs) it manages, so your automation always targets the real state of your infrastructure. The plugin is a third-party, community-maintained part of the Ansible `community.general` collection that speaks the Fragata API.
 
 :::tip
 With dynamic inventory, there is no need to manually maintain static inventory files. Your VMs are automatically discovered and classified into groups based on their properties.
@@ -10,10 +10,10 @@ With dynamic inventory, there is no need to manually maintain static inventory f
 
 ## Prerequisites {#installing-prerequisites}
 
-- a running **Fragata** instance connected to an **XCP-ng** pool
+- a running **Fragata** instance connected to a **Fragata Host** pool
 - Ansible with the `community.general` collection, version 4.1.0 or newer (the version that introduced the plugin)
-- the `websocket-client` Python library, version 1.0.0 or newer (the plugin talks to the XO JSON-RPC API over a websocket)
-- an XO **user account**: this plugin authenticates with a username and password (it does not support API tokens)
+- the `websocket-client` Python library, version 1.0.0 or newer (the plugin talks to the Fragata JSON-RPC API over a websocket)
+- a Fragata **user account**: this plugin authenticates with a username and password (it does not support API tokens)
 
 <Terminal shell title="install the requirements and check the plugin is available">{`
 ansible-galaxy collection install community.general
@@ -30,11 +30,11 @@ Create a configuration file for the dynamic inventory, for example `my.xen_orche
 ```yaml
 # my.xen_orchestra.yml
 plugin: community.general.xen_orchestra
-api_host: your-xo-hostname
+api_host: your-fragata-hostname
 user: your_username
 password: your_password
 use_ssl: true        # connect over wss:// (set to false for plain ws://)
-validate_certs: true # set to false if XO uses a self-signed certificate
+validate_certs: true # set to false if Fragata uses a self-signed certificate
 ```
 
 :::tip
@@ -61,9 +61,9 @@ with the following content:
 
 ```yaml
 # vault.yml
-xo_host: your-xo-hostname
-xo_user: your_username
-xo_password: your_password
+fragata_host: your-fragata-hostname
+fragata_user: your_username
+fragata_password: your_password
 ```
 
 then reference these variables from the inventory configuration:
@@ -71,9 +71,9 @@ then reference these variables from the inventory configuration:
 ```yaml
 # my.xen_orchestra.yml
 plugin: community.general.xen_orchestra
-api_host: "{{ xo_host }}"
-user: "{{ xo_user }}"
-password: "{{ xo_password }}"
+api_host: "{{ fragata_host }}"
+user: "{{ fragata_user }}"
+password: "{{ fragata_password }}"
 use_ssl: true
 validate_certs: true
 ```
@@ -91,7 +91,7 @@ ansible-inventory -i my.xen_orchestra.yml --host=uuid-of-your-vm
 ansible -i my.xen_orchestra.yml all -m ping
 `}</Terminal>
 
-`--list` dumps the whole inventory, `--graph` displays the groups as a tree, and `--host` shows the variables of a single VM (identified by its UUID in XO). For each VM, the plugin exposes its XO properties as host variables:
+`--list` dumps the whole inventory, `--graph` displays the groups as a tree, and `--host` shows the variables of a single VM (identified by its UUID in Fragata). For each VM, the plugin exposes its Fragata properties as host variables:
 
 ```json
 {
@@ -101,7 +101,7 @@ ansible -i my.xen_orchestra.yml all -m ping
     "ip": "192.0.2.10",
     "is_managed": true,
     "memory": 2147467264,
-    "name_label": "XO Tutorial",
+    "name_label": "Fragata Tutorial",
     "os_version": {
         "distro": "Ubuntu",
         "name": "Ubuntu 24.04",
@@ -120,7 +120,7 @@ VMs are automatically grouped under their pool and host. On top of that, the plu
 
 ```yaml
 plugin: community.general.xen_orchestra
-api_host: your-xo-hostname
+api_host: your-fragata-hostname
 user: your_username
 password: your_password
 use_ssl: true
@@ -141,11 +141,11 @@ keyed_groups:
 # Custom host variables
 compose:
   ansible_user: "'ubuntu' if 'Ubuntu' in name_label else 'root'"
-  xo_vm_name: name_label
+  fragata_vm_name: name_label
 ```
 
 :::note
-`power_state` is lowercase in the inventory (`running`, `halted`), even though XO displays `Running` and `Halted` in its UI.
+`power_state` is lowercase in the inventory (`running`, `halted`), even though Fragata displays `Running` and `Halted` in its UI.
 :::
 
 ## Using it in playbooks {#use-in-ansible-playbooks}
@@ -184,8 +184,8 @@ ansible-playbook -i my.xen_orchestra.yml update-running-vms.yml
 
 ## Troubleshooting {#troubleshooting-and-debugging}
 
-1. **Connection problems**: check `api_host` (hostname only, no scheme), the credentials, and that `use_ssl` matches how your XO is exposed (HTTPS or plain HTTP).
-2. **Empty inventory**: make sure the XO account can actually see the VMs (an unprivileged user only sees the objects it has access to).
+1. **Connection problems**: check `api_host` (hostname only, no scheme), the credentials, and that `use_ssl` matches how your Fragata is exposed (HTTPS or plain HTTP).
+2. **Empty inventory**: make sure the Fragata account can actually see the VMs (an unprivileged user only sees the objects it has access to).
 3. **Missing `ansible_host`**: a VM without guest tools reports no IP address; `has_ip` is `false` and `ansible_host` stays empty.
 
 For more detail, run the inventory in debug mode:
@@ -203,5 +203,3 @@ The [plugin documentation](https://docs.ansible.com/ansible/latest/collections/c
 - [xen_orchestra inventory plugin documentation](https://docs.ansible.com/ansible/latest/collections/community/general/xen_orchestra_inventory.html)
 - [Plugin source code](https://github.com/ansible-collections/community.general/blob/main/plugins/inventory/xen_orchestra.py)
 - [Ansible documentation on dynamic inventories](https://docs.ansible.com/ansible/latest/inventory_guide/intro_dynamic_inventory.html)
-- [VirtOps #3: Ansible with Fragata (blog post)](https://xen-orchestra.com/blog/virtops3-ansible-with-xen-orchestra/)
-- [XCP-ng Forum](https://xcp-ng.org/forum/)

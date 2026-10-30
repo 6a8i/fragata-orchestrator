@@ -2,13 +2,12 @@
 
 <InterfaceNote>This page describes user management in the Fragata Classic interface. Fragata currently lists users (with their groups and tokens); creating and editing them still happens here.</InterfaceNote>
 
-Fragata involves three distinct notions of "user account". Make sure you are looking at the right one:
+Fragata involves two distinct notions of "user account". Make sure you are looking at the right one:
 
-- **XOA system accounts**: the Linux accounts (`xoa`, `root`) of the appliance itself, used for SSH and console access. See [First login](../getting-started//installation.md#first-login).
-- **XO application users**: the accounts inside the Fragata web application. This is what this page is about.
+- **Fragata application users**: the accounts inside the Fragata web application. This is what this page is about.
 - **Fragata / REST API roles**: Fragata introduces a new RBAC model with roles and fine-grained privileges. See the [RBAC page](./rbac.md).
 
-There are 2 types of XO users:
+There are 2 types of Fragata users:
 
 - **admins**, with all rights on all connected resources
 - **users**, with no rights by default
@@ -36,6 +35,10 @@ This is the default method. Creating a user is very simple:
 <UiDetail src="/img/xo5/user-creation-form.png" alt="The Users settings view, with the creation form on top and the list of existing accounts below" width={700} />
 
 By default, a _user_ won't have any permissions. At the opposite, an _admin_ will have all rights.
+
+:::note
+A fresh installation from the sources comes with a default admin account, `admin@admin.net` with the password `admin`. Log in with it, create your own admin account, then delete this one (or at least change its password).
+:::
 
 #### OTP Authentication (2FA)
 
@@ -73,7 +76,7 @@ To disable this feature, return to your profile settings and toggle the **OTP au
 
 ### LDAP
 
-XO currently supports connections to LDAP directories, like _Open LDAP_ or _Active Directory_, through the `auth-ldap` plugin.
+Fragata currently supports connections to LDAP directories, like _Open LDAP_ or _Active Directory_, through the `auth-ldap` plugin.
 
 1. **Access the plugin**:
    1. Navigate to the **Settings → Plugins** screen.
@@ -100,7 +103,7 @@ Still, here is a list of common filters:
 - `'(cn={{name}})'`, `'(sAMAccountName={{name}})'`, `'(sAMAccountName={{name}}@<domain>)'` or even `'(userPrincipalName={{name}})'` are widely used for _Active Directory_.\
   Please check with your AD Admin to find the right one.
 
-Once configured, users can authenticate using their LDAP credentials. Upon a successful initial login, the user's account will appear in the XO user list.
+Once configured, users can authenticate using their LDAP credentials. Upon a successful initial login, the user's account will appear in the Fragata user list.
 
 #### Group Synchronization
 
@@ -119,7 +122,7 @@ The LDAP plugin allows for the synchronization of user groups.
 2. **Basic group settings**:
    - **Base** and **Filter**: Similar to the user configuration. The plugin needs an entry point in the directory and a filter to find the groups.
    - **ID attribute**: The attribute used by the plugin to uniquely identify each group. The ID attribute must be unique across groups and not change over time.\
-      On each synchronization, the plugin will compare LDAP groups with XO groups, then try to match them based on this attribute and create or update XO groups if necessary.
+      On each synchronization, the plugin will compare LDAP groups with Fragata groups, then try to match them based on this attribute and create or update Fragata groups if necessary.
    - **Display name attribute**: Set the attribute used as the group's name in Fragata.
 3. **Members mapping**:
 
@@ -153,7 +156,7 @@ The plugin needs to know that Bruce Wayne is part of the **heroes** group. To do
 - **Group attribute**: the name of the _group_ attribute that is used to list users within a group. In this example, it would be `member`.
 - **User attribute**: the name of the _user_ attribute that is used to reference users in groups. In this example, it would be `uid` since `347`, `348`, etc. are user `uid`s.
 
-Save the configuration and you're good to go. From now on, every time an LDAP user logs into XO, the plugin will automatically create or update that user's groups and add them to those groups.
+Save the configuration and you're good to go. From now on, every time an LDAP user logs into Fragata, the plugin will automatically create or update that user's groups and add them to those groups.
 
 **Importing all groups manually**
 
@@ -192,7 +195,7 @@ If users can authenticate but group memberships are not reflected:
 
 2. Verify that the **Group Attribute** and **User Attribute** in the plugin configuration match the corresponding attributes in your LDAP directory.
 3. Ensure that the **ID Attribute** for both users and groups is unique and correctly specified.
-4. Check XO logs for any synchronization errors and adjust configurations accordingly.
+4. Check Fragata logs for any synchronization errors and adjust configurations accordingly.
 
 ### OpenID Connect
 
@@ -215,7 +218,7 @@ In this section, you'll learn:
 
 On the Fragata login page, click **Sign in with OpenID Connect**
 
-<UiDetail src="/img/xo5/oidc-signin-button.png" alt="The XO login page with the Sign in with OpenID Connect button" width={300} />
+<UiDetail src="/img/xo5/oidc-signin-button.png" alt="The Fragata login page with the Sign in with OpenID Connect button" width={300} />
 
 You'll be redirected to the login page of your internal portal. Once authenticated on it, you will be redirected to the Fragata home page.
 
@@ -245,7 +248,7 @@ To access advanced options:
 1. Check **Fill information (optional)** to reveal additional fields.
 2. Complete the fields as needed:
    - **Callback URL**: the redirect URI for OIDC responses (defaults to `/signin/oidc/callback`).
-   - **Username field**: the field to use as the XO username, e.g. `displayName`, `username` or `email` (defaults to `username`).
+   - **Username field**: the field to use as the Fragata username, e.g. `displayName`, `username` or `email` (defaults to `username`).
    - **Scopes**: the scopes from which to request profile information, separated by whitespace (defaults to `profile`; the `openid` scope is implicitly included).
 
 ##### Save and Activate the Plugin
@@ -255,11 +258,11 @@ To access advanced options:
    - Activate the plugin immediately.
    - Ensure it loads automatically when the Fragata server restarts.
 
-##### Enabling Passkeys in XOA with Keycloak
+##### Enabling Passkeys with Keycloak
 
 ###### Generating certificates
 
-To support passkeys in XOA, the Keycloak server must expose its OIDC endpoints over HTTPS.
+To support passkeys, the Keycloak server must expose its OIDC endpoints over HTTPS.
 The TLS certificates used by Keycloak must satisfy the following conditions:
 
 - **Common Name (CN)**: The CN of the certificate has to match the DNS name that clients will use to reach Keycloak.
@@ -288,18 +291,18 @@ Fingerprints
     dns: keycloak.poc.local
 ```
 
-With this configuration, Keycloak can participate in passkey authentication flows that XOA expects, and the `auth-oidc` plugin will correctly validate the TLS connection.
+With this configuration, Keycloak can participate in passkey authentication flows that Fragata expects, and the `auth-oidc` plugin will correctly validate the TLS connection.
 
-###### Trust the Keycloak cert in XOA
+###### Trust the Keycloak cert in Fragata
 
 1. Place the CA certificate used to sign Keycloak's cert on the fragata-server host (e.g., `/etc/ssl/poc.crt`).
 2. Edit the fragata-server systemd service at `/etc/systemd/system/fragata-server.service` to add the environment variable `NODE_EXTRA_CA_CERTS`:
 
-<Terminal shell title="xoa: fragata-server unit with the extra CA certificate">{`
+<Terminal shell title="fragata-server unit with the extra CA certificate">{`
 cat /etc/systemd/system/fragata-server.service
-# systemd service for XO-Server.
+# systemd service for Fragata-Server.
 [Unit]
-Description= XO Server
+Description= Fragata server
 After=network-online.target
 [Service]
 ExecStart=/usr/local/bin/fragata-server
@@ -315,7 +318,7 @@ WantedBy=multi-user.target
 
 1. Select your realm.
 
-- Open **Admin console → Manage realms** and choose the realm you use with XOA.
+- Open **Admin console → Manage realms** and choose the realm you use with Fragata.
 
 2. Enable required actions.
 
@@ -337,9 +340,9 @@ These settings allow users to register and log in with FIDO2 (passkeys) while ke
 
 ###### Sample
 
-1. Initiate the OIDC authentication request from the XOA client to Keycloak.
+1. Initiate the OIDC authentication request from Fragata to Keycloak.
 
-   <UiDetail src="/img/xo5/keycloak-passkey-flow-1.png" alt="XOA redirecting the OIDC authentication request to Keycloak" width={700} />
+   <UiDetail src="/img/xo5/keycloak-passkey-flow-1.png" alt="Fragata redirecting the OIDC authentication request to Keycloak" width={700} />
 
 2. The user supplies their username and password at the Keycloak login screen.
 
@@ -353,12 +356,12 @@ These settings allow users to register and log in with FIDO2 (passkeys) while ke
 
 The `auth-saml` plugin allows SAML users to authenticate to Fragata.
 
-The first time a user signs in, XO will create a new XO user with the same identifier.
+The first time a user signs in, Fragata will create a new Fragata user with the same identifier.
 
 #### Configuration
 
 :::warning
-When registering your Fragata instance to your identity provider, you must configure its callback URL to `https://<xo.company.net>/signin/saml/callback`!
+When registering your Fragata instance to your identity provider, you must configure its callback URL to `https://<fragata.company.net>/signin/saml/callback`!
 :::
 
 In the "Settings" then "Plugins" view, expand the SAML plugin configuration. Then provide the needed fields:
@@ -368,14 +371,14 @@ In the "Settings" then "Plugins" view, expand the SAML plugin configuration. The
 - **Certificate**: copy/paste the identity provider's certificate.
 - **Entry point**: entry point of the identity provider.
 - **Issuer**: issuer string to supply to the identity provider.
-- **Username field**: field to use as the XO username. Try `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress` if you are using Microsoft Entra ID (Azure Active Directory).
+- **Username field**: field to use as the Fragata username. Try `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress` if you are using Microsoft Entra ID (Azure Active Directory).
 
 Optional settings let you disable the requested authentication context (known to help with Active Directory), force re-authentication, and require signed assertions or signed responses.
 
 Save the configuration and then activate the plugin (button on top).
 
 :::warning
-Since Fragata Classic.111.1, you need to configure signature for Document **and** Assertion in your SAML Identity Provider: either the response or the assertion must be signed.
+You need to configure signature for Document **and** Assertion in your SAML Identity Provider: either the response or the assertion must be signed.
 
 - **Keycloak:** In Client Settings, Signature and Encryption, check "Sign Documents" and "Sign Assertion".
 - **Azure:** In SAML Signing Certificate options, select **Sign SAML response and assertion**.
@@ -395,16 +398,16 @@ Google documents its SAML setup on [support.google.com](https://support.google.c
 5. To see how the fields should be filled out, refer to the screenshots below.
 
 :::note
-Right now even when the authorization is successful, you will be redirected to the `https://xo.company.net/signin` page. However, just browse directly into the bare URL `https://xo.company.net`, and you'll now be logged in and can use the XO dashboard.
+Right now even when the authorization is successful, you will be redirected to the `https://fragata.company.net/signin` page. However, just browse directly into the bare URL `https://fragata.company.net`, and you'll now be logged in and can use the Fragata dashboard.
 :::
 
 :::tip
 If you get a certificate error, try to add a newline at the bottom of the Certificate field in Fragata.
 :::
 
-The first login will create the user inside XO, as a non-privileged user. An administrator then has to promote the user to the appropriate group. (XO: Settings/Users).
+The first login will create the user inside Fragata, as a non-privileged user. An administrator then has to promote the user to the appropriate group. (Fragata: Settings/Users).
 
-<UiDetail src="/img/xo5/saml-google-workspace-app-details.png" alt="The Google Workspace custom SAML app details, side by side with the matching XO plugin fields" width={700} />
+<UiDetail src="/img/xo5/saml-google-workspace-app-details.png" alt="The Google Workspace custom SAML app details, side by side with the matching Fragata plugin fields" width={700} />
 
 Also make sure to adjust the SAML attribute mapping in the Google Workspace configuration. (Primary email -> email)
 
@@ -414,7 +417,7 @@ Also make sure to adjust the SAML attribute mapping in the Google Workspace conf
 
 The `auth-github` plugin allows any GitHub user to authenticate to Fragata.
 
-The first time a user signs in, XO will create a new XO user with the same identifier (i.e. GitHub name), with _user_ permissions. An existing admin will need to apply the appropriate permissions for your environment.
+The first time a user signs in, Fragata will create a new Fragata user with the same identifier (i.e. GitHub name), with _user_ permissions. An existing admin will need to apply the appropriate permissions for your environment.
 
 First you need to configure a new app in your GitHub account. Go to your GitHub settings > "Developer Settings" > "OAuth Apps" > "New OAuth App".
 
@@ -422,7 +425,7 @@ First you need to configure a new app in your GitHub account. Go to your GitHub 
 2. Enter your Fragata URL (or IP) under "Homepage URL"
 3. Add your "Authorization callback URL" (for example, https://homepageUrl/signin/github/callback)
 
-<UiDetail src="/img/xo5/github-oauth-app-form.png" alt="The GitHub OAuth App registration form, with the XO homepage and callback URLs filled in" width={620} />
+<UiDetail src="/img/xo5/github-oauth-app-form.png" alt="The GitHub OAuth App registration form, with the Fragata homepage and callback URLs filled in" width={620} />
 
 When you get your Client ID and your Client secret, you can configure them in the GitHub plugin inside the "Settings/Plugins" view of Fragata. They are the only two fields to fill in.
 
@@ -430,13 +433,13 @@ When you get your Client ID and your Client secret, you can configure them in th
 
 Be sure to activate the plugin after you save the configuration (button on top). When it's done, you'll see a link in the login view, this is where you'll go to authenticate:
 
-<UiDetail src="/img/xo5/github-signin-link.png" alt="The XO login page with the GitHub sign in link below the credentials form" width={620} />
+<UiDetail src="/img/xo5/github-signin-link.png" alt="The Fragata login page with the GitHub sign in link below the credentials form" width={620} />
 
 ### Google
 
 The `auth-google` plugin allows Google users to authenticate to Fragata.
 
-The first time a user signs in, XO will create a new XO user with the same identifier, without any permissions.
+The first time a user signs in, Fragata will create a new Fragata user with the same identifier, without any permissions.
 
 #### Creating the Google project
 
@@ -448,13 +451,13 @@ Configure an OAuth consent screen if requested then create OAuth 2.0 credentials
 
 <UiDetail src="/img/xo5/google-create-oauth-credentials.png" alt="The Create credentials menu, with OAuth client ID selected" width={620} />
 
-<UiDetail src="/img/xo5/google-oauth-client-form.png" alt="The OAuth client creation form, with the authorized redirect URI pointing to the XO callback" width={620} />
+<UiDetail src="/img/xo5/google-oauth-client-form.png" alt="The OAuth client creation form, with the authorized redirect URI pointing to the Fragata callback" width={620} />
 
 Get your client ID and client secret:
 
 <UiDetail src="/img/xo5/google-client-id-secret.png" alt="The modal displaying the generated OAuth client ID and client secret" width={480} />
 
-#### Configure the XO plugin
+#### Configure the Fragata plugin
 
 In Settings, then Plugins, expand the Google plugin details and configure it with the information from the Google Console:
 
@@ -464,7 +467,7 @@ In Settings, then Plugins, expand the Google plugin details and configure it wit
 - **Client ID** and **Client secret**: the credentials generated above.
 
 :::warning
-The optional **scope** setting selects which profile information is used to build the XO username (Google+ name or simple email address). Changing this value after users started logging in will break existing users.
+The optional **scope** setting selects which profile information is used to build the Fragata username (Google+ name or simple email address). Changing this value after users started logging in will break existing users.
 :::
 
 Be sure to activate the plugin after you save the configuration (button on top).
@@ -483,7 +486,7 @@ This section describes the original ACLs, used by the Fragata Classic interface.
 
 ### Who can manage ACLs?
 
-Only a super admin (XO administrator) can manage ACLs.
+Only a super admin (Fragata administrator) can manage ACLs.
 
 ### How can I view and edit ACLs?
 
@@ -566,7 +569,7 @@ The self-service feature allows users to create new VMs. This is different from 
 
 To create a new set of resources to delegate, go to the "Self Service" section in the main menu:
 
-<UiDetail src="/img/xo5/self-service-menu.png" alt="The Self Service entry in the XO main menu" width={180} />
+<UiDetail src="/img/xo5/self-service-menu.png" alt="The Self Service entry in the Fragata main menu" width={180} />
 
 #### Create a set
 
@@ -620,7 +623,7 @@ As soon as a user is granted a resource set, it displays a new button in their m
 
 Now, the user can create a VM with only the resources granted in the set:
 
-<UiShot light="/img/xo5/self-service-vm-creation.png" alt="The VM creation page restricted to the sandbox resource set: only the delegated template, SR and network are selectable" url="https://your-xo/v5/#/vms/new" />
+<UiShot light="/img/xo5/self-service-vm-creation.png" alt="The VM creation page restricted to the sandbox resource set: only the delegated template, SR and network are selectable" url="https://your-fragata/v5/#/vms/new" />
 
 And the recap before creation:
 
@@ -632,7 +635,7 @@ Finally, if a user has been granted access to multiple resource sets, they can b
 
 ### Toward the Cloud
 
-Self-service is a major step in the Cloud. Combine it with our [Cloudinit compatible VM creation](../manage-your-infrastructure/vm-templates.md#cloud-init) for a full experience:
+Self-service is a major step in the Cloud. Combine it with [Cloud-init compatible VM creation](../manage-your-infrastructure/vm-templates.md#cloud-init) for a full experience:
 
 - create a Cloud ready template
 - create a set and put Cloud templates inside
@@ -642,19 +645,19 @@ Now, your authorized users can create VMs with their SSH keys, grow template dis
 
 ## Audit log
 
-XO Audit Log is a plugin that records all important actions performed by users and provides the administrators an overview of each action. This gives them an idea of the users behavior regarding their infrastructure in order to track suspicious activities.
+Fragata Audit Log is a plugin that records all important actions performed by users and provides the administrators an overview of each action. This gives them an idea of the users behavior regarding their infrastructure in order to track suspicious activities.
 
 ### How does it work?
 
-XO Audit Log listens to important actions performed by users and stores them in the XOA database using the [hash chain structure](https://en.wikipedia.org/wiki/Hash_chain).
+Fragata Audit Log listens to important actions performed by users and stores them in the Fragata database using the [hash chain structure](https://en.wikipedia.org/wiki/Hash_chain).
 
 ### Trustability of the records
 
-Stored records are secured by:
+Stored records are secured by their structure: records are chained using the hash chain structure which means that each record is linked to its parent in a cryptographically secure way. This structure prevents the alteration of old records.
 
-- structure: records are chained using the hash chain structure which means that each record is linked to its parent in a cryptographically secure way. This structure prevents the alteration of old records.
-
-- hash upload: the hash chain structure has limits, it does not protect from the rewrite of recent/all records. To reduce this risk, the Audit log plugin regularly uploads the last record hash to our database after checking the integrity of the whole record chain. This functionality keeps the records safe by notifying users in case of alteration of the records.
+:::note
+A hash chain does not protect from the rewrite of the most recent records, or of all of them at once. If this matters to you, export the records regularly and keep the copy elsewhere.
+:::
 
 ### Configuration
 
@@ -666,7 +669,7 @@ The recording of the users' actions is disabled by default. To enable it:
 
 <UiDetail src="/img/xo5/audit-log-plugin-config.png" alt="The audit plugin configuration, with the active toggle enabled" width={620} />
 
-Now, the audit plugin will record users' actions and upload the last record in the chain every day at **06:00 AM (UTC)**.
+Now, the audit plugin will record users' actions.
 
 ## Debugging
 

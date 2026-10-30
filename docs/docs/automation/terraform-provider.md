@@ -4,7 +4,7 @@
 
 Managing infrastructure by hand is error prone and hard to audit. With Infrastructure as Code (IaC), you describe your infrastructure in configuration files to make it **predictable**, **reproducible**, and **version-controlled**.
 
-Fragata has an official Terraform provider, [`vatesfr/xenorchestra`](https://registry.terraform.io/providers/vatesfr/xenorchestra/latest), published on the Terraform registry and developed [on GitHub](https://github.com/vatesfr/terraform-provider-xenorchestra). This guide walks you through deploying a VM on your Fragata (XO) instance with **Terraform**, then updating it.
+A community-maintained Terraform provider, [`vatesfr/xenorchestra`](https://registry.terraform.io/providers/vatesfr/xenorchestra/latest), published on the Terraform registry and developed [on GitHub](https://github.com/vatesfr/terraform-provider-xenorchestra), works with Fragata. This guide walks you through deploying a VM on your Fragata instance with **Terraform**, then updating it.
 
 :::note
 This guide works with both **Terraform** and **OpenTofu**, the community-driven fork that maintains compatibility with Terraform.
@@ -16,10 +16,10 @@ Terraform's two-step workflow (`plan` then `apply`) gives you full control: you 
 
 ## Prerequisites
 
-- a running **Fragata** instance (5.50.1 or newer) connected to an **XCP-ng** pool
+- a running **Fragata** instance connected to a **Fragata Host** pool
 - **Terraform** or **OpenTofu** installed on your workstation
 - a VM **template** with cloud-init support
-- an XO **user account** or **API token** for the provider to authenticate with
+- a Fragata **user account** or **API token** for the provider to authenticate with
 
 ### Installing Terraform {#installing-terraform}
 
@@ -30,11 +30,10 @@ If you haven't installed Terraform yet, follow the [official HashiCorp tutorial]
 Terraform needs a starting point to create a VM: a template that already contains an installed operating system with **cloud-init** capabilities (or **Cloudbase-init** for Windows), as well as **Xen/Guest Tools** for better integration with Fragata. This enables automatic customization during deployment: IP assignment, hostname configuration, and so on.
 
 :::info
-We recommend the pre-built cloud-init-ready templates from the **XOA Hub** (Debian, Ubuntu, and others) for optimal results. For more information about templates:
+For more information about templates:
 
-- [Creating VM templates](https://docs.xen-orchestra.com/vm-templates#creating-templates)
-- [Cloud-init and Cloudbase-init](https://docs.xen-orchestra.com/vm-templates#cloud-init-and-cloudbase-init)
-- [Windows templates with Cloudbase-init](https://xen-orchestra.com/blog/windows-templates-with-cloudbase-init-step-by-step-guide-best-practices/)
+- [Creating VM templates](../manage-your-infrastructure/vm-templates.md#creating-templates)
+- [Cloud-init and Cloudbase-init](../manage-your-infrastructure/vm-templates.md#cloud-init-and-cloudbase-init)
 :::
 
 ## Installing the provider
@@ -67,52 +66,44 @@ Terraform downloads the provider from the registry and ends with `Terraform has 
 
 ## Authentication
 
-The provider talks to the XO API over a websocket connection (`ws://`, or `wss://` behind TLS) and supports two methods: an **API token** (recommended) or a **username and password**. When a token is provided, it takes precedence and the username and password are ignored.
+The provider talks to the Fragata API over a websocket connection (`ws://`, or `wss://` behind TLS) and supports two methods: an **API token** (recommended) or a **username and password**. When a token is provided, it takes precedence and the username and password are ignored.
 
 :::tip
-Any XO user can create their own API token: see [REST API authentication](restapi.md#authentication) for how to create one.
+Any Fragata user can create their own API token: see [REST API authentication](restapi.md#authentication) for how to create one.
 :::
 
 :::warning
-Never store credentials directly in your code. The recommended method is to use environment variables.
+Never store credentials directly in your code. Pass the token through a sensitive Terraform variable, fed by an environment variable or a secrets manager.
 :::
 
-Create a file `~/.xoa` in your home directory:
-
-```bash
-# ~/.xoa
-export XOA_URL=wss://your-xo-hostname
-export XOA_TOKEN=YOUR_TOKEN
-# or, with a username and password:
-# export XOA_USER=YOUR_USERNAME
-# export XOA_PASSWORD=YOUR_PASSWORD
-```
-
-Then, before running Terraform, load these variables into your terminal session:
-
-<Terminal shell title="load the XO credentials into the current session">{`
-source ~/.xoa
-`}</Terminal>
-
-:::tip
-The same settings can be passed in the provider block instead, which is useful when the values come from Terraform variables or a secrets manager:
+Add the provider block to `provider.tf`, with the token coming from a sensitive variable:
 
 ```tf
+# provider.tf
+variable "fragata_token" {
+  type      = string
+  sensitive = true
+}
+
 provider "xenorchestra" {
-  url   = "wss://your-xo-hostname" # must be ws:// or wss://, or set XOA_URL
-  token = var.xoa_token            # or set XOA_TOKEN
-  # username/password authentication is also supported (username/password
-  # arguments, or the XOA_USER and XOA_PASSWORD environment variables),
-  # and insecure = true skips TLS verification (XOA_INSECURE)
+  url   = "wss://your-fragata-hostname" # must be ws:// or wss://
+  token = var.fragata_token
+  # username/password authentication is also supported (username and
+  # password arguments), and insecure = true skips TLS verification
 }
 ```
-:::
+
+Then, before running Terraform, provide the token through the environment, so it never lands in a file:
+
+<Terminal shell title="provide the Fragata token to Terraform">{`
+export TF_VAR_fragata_token=YOUR_TOKEN
+`}</Terminal>
 
 ## Deploying your first VM {#launching-virtual-machines-in-xo-with-terraform}
 
 ### Describe your infrastructure {#provisioning-your-vm-with-terraform}
 
-Terraform needs to know about the existing resources in XO (your pool, network, storage, template). For that, we use `data` blocks: read-only queries that fetch existing information, so you never hardcode UUIDs.
+Terraform needs to know about the existing resources in Fragata (your pool, network, storage, template). For that, we use `data` blocks: read-only queries that fetch existing information, so you never hardcode UUIDs.
 
 Create a file named `vm.tf` and add the following code, replacing the `name_label` values with the exact names of your pool, template, storage repository, and network in Fragata:
 
@@ -139,7 +130,7 @@ data "xenorchestra_network" "network" {
 ```
 
 :::tip
-At this stage you can already run `terraform plan`: it should end with `No changes. Your infrastructure matches the configuration.`, which confirms that Terraform can reach XO and found every declared resource. In real environments, prefer **unique names** for your resources to prevent conflicts when several share similar labels.
+At this stage you can already run `terraform plan`: it should end with `No changes. Your infrastructure matches the configuration.`, which confirms that Terraform can reach Fragata and found every declared resource. In real environments, prefer **unique names** for your resources to prevent conflicts when several share similar labels.
 :::
 
 Now add the VM definition at the end of `vm.tf` (or in a separate `resources.tf`):
@@ -148,7 +139,7 @@ Now add the VM definition at the end of `vm.tf` (or in a separate `resources.tf`
 resource "xenorchestra_vm" "vm" {
   memory_max = 2147467264
   cpus       = 1
-  name_label = "XO terraform tutorial"
+  name_label = "Fragata terraform tutorial"
   template   = data.xenorchestra_template.vm_template.id
 
   network {
@@ -180,9 +171,9 @@ terraform apply
 
 `terraform plan` analyzes your code and shows what it is about to do: the run should end with `Plan: 1 to add, 0 to change, 0 to destroy.`, with the full detail of the `xenorchestra_vm.vm` resource to be created. If the plan looks good, `terraform apply` shows it again and asks for confirmation: type `yes` and press `Enter`, and the VM is created on your pool.
 
-<UiShot light="/img/xo5/terraform-vm-console.png" alt="The freshly deployed VM booting, seen from its Console tab in Fragata" url="https://your-xo/#/vms/…/console" />
+<UiShot light="/img/xo5/terraform-vm-console.png" alt="The freshly deployed VM booting, seen from its Console tab in Fragata" url="https://your-fragata/#/vms/…/console" />
 
-Congratulations! Your VM is now deployed via Terraform on XO, and any future modification can be **reviewed** and **version-controlled**.
+Congratulations! Your VM is now deployed via Terraform on Fragata, and any future modification can be **reviewed** and **version-controlled**.
 
 ## Updating an existing infrastructure
 
@@ -215,9 +206,9 @@ terraform apply
 
 This time, Terraform detects that the resource already exists and needs to be **modified**, not created: the plan shows the new `network` block with a `~ update in-place` action and ends with `Plan: 0 to add, 1 to change, 0 to destroy.`. After you confirm with `yes`, the new interface is attached to the running VM.
 
-<UiShot light="/img/xo5/terraform-vm-network-single.png" alt="Before the change: the VM's Network tab shows a single interface" url="https://your-xo/#/vms/…/network" />
+<UiShot light="/img/xo5/terraform-vm-network-single.png" alt="Before the change: the VM's Network tab shows a single interface" url="https://your-fragata/#/vms/…/network" />
 
-<UiShot light="/img/xo5/terraform-vm-network-dual.png" alt="After terraform apply: a second VIF appeared on the VM" url="https://your-xo/#/vms/…/network" />
+<UiShot light="/img/xo5/terraform-vm-network-dual.png" alt="After terraform apply: a second VIF appeared on the VM" url="https://your-fragata/#/vms/…/network" />
 
 ## Debugging and logs
 
@@ -238,13 +229,10 @@ Only enable debug logging when troubleshooting, as it significantly increases lo
 This guide only scratches the surface: the provider also manages cloud-init configuration, extra disks and VDIs, networks, ACLs, resource sets, and more. The [provider documentation on the Terraform registry](https://registry.terraform.io/providers/vatesfr/xenorchestra/latest/docs) is the reference for every resource and data source, and is always up to date with the latest release.
 
 :::note
-**Commercial support**: contact our support team through your customer portal.
-
 **Community support**:
 
-- [XCP-ng Forum](https://xcp-ng.org/forum/)
-- [Discord Community](https://discord.com/invite/ZpNq8ez)
-- [GitHub Issues](https://github.com/vatesfr/terraform-provider-xenorchestra/issues)
+- [Fragata discussions](https://github.com/6a8i/fragata-orchestrator/discussions), for questions about Fragata
+- [GitHub Issues](https://github.com/vatesfr/terraform-provider-xenorchestra/issues), for bugs of the provider itself
 :::
 
 ## Related links
