@@ -3,7 +3,7 @@ import type { BaseName, CollectionState, NameConfig } from '@/shared/composables
 import type { ResourceContext } from '@core/packages/remote-resource/types.ts'
 import type { XoRecord } from '@fragata/types'
 import { reactify } from '@vueuse/shared'
-import { type Ref } from 'vue'
+import { computed, type Ref } from 'vue'
 
 export function useXoCollectionState<TRecord extends Partial<XoRecord>, const TBaseName extends string>(
   collection: Ref<TRecord[]>,
@@ -66,12 +66,25 @@ export function useXoCollectionState<TRecord extends XoRecord, TNameConfig exten
     baseName: TNameConfig
   }
 ) {
+  // Lookups by id are called for every row of every table and tree, so a
+  // linear scan per call turns large collections quadratic. The index is
+  // rebuilt lazily, once per change of the collection.
+  const recordsById = computed(() => {
+    const index = new Map<TRecord['id'], TRecord>()
+
+    for (const record of collection.value) {
+      index.set(record.id, record)
+    }
+
+    return index
+  })
+
   function getById(id: TRecord['id'] | undefined) {
     if (id === undefined) {
       return undefined
     }
 
-    return collection.value.find(record => record.id === id)
+    return recordsById.value.get(id)
   }
 
   function getByIds(ids: TRecord['id'][]) {
@@ -84,7 +97,7 @@ export function useXoCollectionState<TRecord extends XoRecord, TNameConfig exten
       return false
     }
 
-    return collection.value.some(record => record.id === id)
+    return recordsById.value.has(id)
   }
 
   const names = toNameConfig(config.baseName)

@@ -38,7 +38,8 @@ export default defineConfig({
     }),
     vue(),
     vueI18n({
-      include: resolve(__dirname, '../web-core/lib/locales/**'),
+      // Locale files are plain JSON loaded on demand (see `@core/i18n.ts`)
+      runtimeOnly: false,
     }),
   ] as PluginOption[],
   define: {

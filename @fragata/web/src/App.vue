@@ -12,23 +12,17 @@ import { useTheme } from '@/shared/composables/theme.composable.ts'
 import VtsOverlayList from '@core/components/overlay/VtsOverlayList.vue'
 import VtsTooltipList from '@core/components/tooltip-list/VtsTooltipList.vue'
 import { useChartTheme } from '@core/composables/chart-theme.composable.ts'
-import { locales } from '@core/i18n.ts'
+import { setLocale } from '@core/i18n.ts'
 import { useUiStore } from '@core/stores/ui.store.ts'
 import { useActiveElement, useMagicKeys, whenever } from '@vueuse/core'
-import { useCookies } from '@vueuse/integrations/useCookies'
 import { logicAnd } from '@vueuse/math'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const uiStore = useUiStore()
-const { locale } = useI18n()
-const { get } = useCookies()
 
 // Initialize theme on app load
 useTheme()
-
-const cookieLang = get('lang')
-locale.value = cookieLang && locales[cookieLang] ? cookieLang : 'en'
 
 useChartTheme()
 
@@ -47,6 +41,6 @@ if (import.meta.env.DEV) {
 
   whenever(logicAnd(D, canToggle), () => (uiStore.colorMode = uiStore.colorMode === 'dark' ? 'light' : 'dark'))
 
-  whenever(logicAnd(L, canToggle), () => (locale.value = locale.value === 'en' ? 'fr' : 'en'))
+  whenever(logicAnd(L, canToggle), () => setLocale(locale.value === 'en' ? 'fr' : 'en'))
 }
 </script>

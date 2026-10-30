@@ -120,7 +120,7 @@ import UiHeadBar from '@core/components/ui/head-bar/UiHeadBar.vue'
 import UiInfo from '@core/components/ui/info/UiInfo.vue'
 import UiLink from '@core/components/ui/link/UiLink.vue'
 import UiTitle from '@core/components/ui/title/UiTitle.vue'
-import { locales } from '@core/i18n.ts'
+import { availableLocales, locales } from '@core/i18n.ts'
 import { useFormSelect } from '@core/packages/form-select'
 import { useUiStore } from '@core/stores/ui.store.ts'
 import type { BasicColorSchema } from '@vueuse/core'
@@ -130,7 +130,7 @@ import { useI18n } from 'vue-i18n'
 const xoLiteVersion = XO_LITE_VERSION
 const xoLiteGitHead = XO_LITE_GIT_HEAD
 
-const { t, locale, availableLocales } = useI18n()
+const { t, locale } = useI18n()
 
 usePageTitleStore().setTitle(() => t('settings'))
 

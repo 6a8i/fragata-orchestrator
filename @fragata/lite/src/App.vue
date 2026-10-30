@@ -27,6 +27,7 @@ import VtsBackdrop from '@core/components/backdrop/VtsBackdrop.vue'
 import VtsOverlayList from '@core/components/overlay/VtsOverlayList.vue'
 import VtsTooltipList from '@core/components/tooltip-list/VtsTooltipList.vue'
 import { useChartTheme } from '@core/composables/chart-theme.composable.ts'
+import { setLocale } from '@core/i18n.ts'
 import { useLeftSidebarStore } from '@core/packages/sidebar'
 import { useUiStore } from '@core/stores/ui.store.ts'
 import { useActiveElement, useMagicKeys, whenever } from '@vueuse/core'
@@ -63,7 +64,7 @@ if (import.meta.env.DEV) {
 
   whenever(logicAnd(D, canToggle), () => (uiStore.colorMode = uiStore.colorMode === 'dark' ? 'light' : 'dark'))
 
-  whenever(logicAnd(L, canToggle), () => (locale.value = locale.value === 'en' ? 'fr' : 'en'))
+  whenever(logicAnd(L, canToggle), () => setLocale(locale.value === 'en' ? 'fr' : 'en'))
 }
 
 whenever(

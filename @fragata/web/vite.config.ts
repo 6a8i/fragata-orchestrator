@@ -18,13 +18,19 @@ export default defineConfig(({ mode }) => {
       }),
       vue(),
       vueI18n({
-        include: fileURLToPath(new URL('../web-core/lib/locales/**', import.meta.url)),
+        // The locale JSON files are imported as plain JSON (lazily, see
+        // `@core/i18n.ts`), so vue-i18n needs its message compiler at runtime:
+        // pre-compiling them here would clash with Vite's own JSON plugin.
+        runtimeOnly: false,
       }),
     ] as PluginOption[],
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
         '@core': fileURLToPath(new URL('../web-core/lib', import.meta.url)),
+        // `@fragata/cron` pulls moment-timezone, whose default entry embeds the
+        // full tz database (~700 KB). Schedules only need current rules.
+        'moment-timezone': 'moment-timezone/builds/moment-timezone-with-data-1970-2030.js',
       },
     },
     server: {

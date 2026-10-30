@@ -1,6 +1,6 @@
 import App from '@/App.vue'
 import { formValidationConfig } from '@/plugins/form-validation.config.ts'
-import i18n from '@core/i18n.ts'
+import i18n, { setLocale } from '@core/i18n.ts'
 import { useOverlayStore } from '@core/packages/overlay/use-overlay-store.ts'
 import { RegleVuePlugin } from '@regle/core'
 import { noop } from '@vueuse/core'
@@ -23,11 +23,19 @@ router
     router.afterEach(() => useOverlayStore().abortAll())
   })
 
-const app = createApp(App)
+async function init() {
+  // Only English ships in the main bundle: load the persisted locale (if any)
+  // before anything is rendered so the first paint is already translated.
+  await setLocale(localStorage.getItem('lang'))
 
-app.use(i18n)
-app.use(createPinia())
-app.use(router)
-app.use(RegleVuePlugin, formValidationConfig)
+  const app = createApp(App)
 
-app.mount('#root')
+  app.use(i18n)
+  app.use(createPinia())
+  app.use(router)
+  app.use(RegleVuePlugin, formValidationConfig)
+
+  app.mount('#root')
+}
+
+init()
