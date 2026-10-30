@@ -14,7 +14,7 @@ export const ALL_VISIBLE = () => true
 /**
  * Builds the predicate deciding whether a user may see an XO object.
  *
- * It is the very same resolver fragata-web-classic uses to filter its own store, so the
+ * It is the very same resolver the web UI uses to filter its own store, so the
  * result is identical to what a non-admin UI already displays.
  *
  * The returned predicate memoizes its answers and must therefore not outlive

@@ -80,7 +80,7 @@ This is an advanced setting which should only be used if you encounter issues.
           description: 'ignore certificates error (e.g. self-signed certificate)',
         },
 
-        // FIXME: fragata-web-classic does not support edition of too nested
+        // FIXME: the plugin configuration UI does not support edition of too nested
         user: {
           type: 'string',
           description: 'name to use to authenticate',

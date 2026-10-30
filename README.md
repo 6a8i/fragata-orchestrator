@@ -18,7 +18,6 @@ Sem agente nos hosts: o Fragata conversa com os pools pela XAPI. Oferece interfa
 - `packages/fragata-server`: backend, API JSON-RPC e REST, backups, autenticação.
 - `packages/fragata-server-*`: plugins (autenticação LDAP, SAML, OIDC, GitHub, Google; alertas; load balancer; Netbox; SDN; transportes de notificação).
 - `@fragata/web` e `@fragata/web-core`: interface principal (Vue 3).
-- `packages/fragata-web-classic`: interface clássica (React), servida em `/v5`.
 - `@fragata/lite`: Fragata Deck.
 - `@fragata/backups`, `@fragata/backup-archive`, `@fragata/fs`, `packages/vhd-lib`: motor de backup e storage remoto.
 - `@fragata/rest-api`, `@fragata/mcp`, `packages/fragata-cli`: API REST, servidor MCP e CLI.

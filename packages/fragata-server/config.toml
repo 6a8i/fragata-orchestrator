@@ -135,9 +135,9 @@ enabled = false
 threshold = 1000
 
 [http]
-# Trust X-Forwarded-* headers from loopback only: the proxies below (e.g.
-# `/v5/api`) forward requests to fragata-server itself through `localhost`, which
-# would otherwise hide the real IP address of clients (e.g. in the audit log)
+# Trust X-Forwarded-* headers from loopback only: proxies that forward requests
+# to fragata-server itself through `localhost` would otherwise hide the real IP
+# address of clients (e.g. in the audit log)
 useForwardedHeaders = ['loopback']
 
 # Helmet handles HTTP security via headers
@@ -179,14 +179,12 @@ requestTimeout = 0
 # These mount points are exposed without needing to be authenticated.
 [http.publicMounts]
 '/robots.txt' = './robots.txt'
+# Assets used by the sign-in page (logo, favicon)
+'/public' = './public/'
 
 # These mount points are exposed only when authenticated.
 [http.mounts]
-# Uncomment to setup a default version.
-# Otherwise, XO5 will be the default for stable channel and XO6 for latest and source
-# '/' = '../fragata-web-classic/dist/'
-
-'/v5' = '../fragata-web-classic/dist/'
+# The web UI. It is also served at '/' unless a '/' mount is configured.
 '/v6' = '../../@fragata/web/dist/'
 
 # Documentation site (Docusaurus), built for the /docs base URL, see
@@ -198,9 +196,6 @@ requestTimeout = 0
 [http.proxies]
 # [port] is used to reuse the same port declared in [http.listen.0]
 '/openmetrics' = 'http://localhost:9004'
-'/v5/api' = '[protocol]//localhost:[port]/api'
-'/v5/netdata' = '[protocol]//localhost:[port]/netdata'
-'/v5/rest' = '[protocol]//localhost:[port]/rest'
 
 [iscsi]
 # Address this appliance is reachable at *from the hosts*: it is handed to them

@@ -67,10 +67,9 @@ export class XoaController extends Controller {
   @Extension('x-mcp-exposure', 'allow')
   @Get('gui-routes')
   async getGuiRoutes(): Promise<XoGuiRoutes> {
-    const { v5, v6 } = await this.#restApi.xoApp.config.getGuiRoutes()
+    const { v6 } = await this.#restApi.xoApp.config.getGuiRoutes()
 
     return {
-      xo5: v5?.url,
       xo6: v6?.url,
     }
   }

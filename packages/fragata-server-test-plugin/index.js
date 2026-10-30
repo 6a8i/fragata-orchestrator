@@ -7,7 +7,7 @@
 // This (optional) schema is used to describe the expected
 // configuration of the plugin.
 //
-// It will be used to generate a configuration UI (fragata-web-classic) and to
+// It will be used to generate a configuration UI and to
 // validate the provided configuration.
 exports.configurationSchema = {
   type: 'object',

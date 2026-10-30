@@ -1154,7 +1154,7 @@ export default function xapiObjectToXo(xapiObj, dependents = {}) {
     xoObj.uuid = xapiObj.uuid
   }
   xoObj.$pool = xapiObj.$pool.$id
-  xoObj.$poolId = xoObj.$pool // TODO: deprecated, remove when no longer used in fragata-web-classic
+  xoObj.$poolId = xoObj.$pool // TODO: deprecated, remove when no longer used by clients
 
   // Internal properties.
   defineProperties(xoObj, {

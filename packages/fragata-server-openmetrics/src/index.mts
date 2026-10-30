@@ -664,8 +664,8 @@ function tryParsePluginJson(raw: unknown, pluginLabel: string, contextId: string
 /**
  * Validate and normalize the `smartctl.py health` plugin response.
  *
- * Real shape (confirmed against XCP-ng 8.3 and the consumer in
- * `fragata-web-classic/src/xo-app/host/tab-advanced.js`): `{ [device]: string }` where
+ * Real shape (confirmed against XCP-ng 8.3 and the former classic UI consumer):
+ * `{ [device]: string }` where
  * the value is the overall-health string directly (e.g. `'PASSED'`).
  * Older or variant builds may wrap each entry in `{ status: '...' }`; both
  * shapes are accepted. Malformed entries collapse to `'UNKNOWN'`.

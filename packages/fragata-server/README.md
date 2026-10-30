@@ -9,7 +9,7 @@ It contains all the logic of Fragata and handles:
 - connections to all XAPI servers/pools;
 - a cache system to provide the best response time possible;
 - users authentication and authorizations (work in progress);
-- a JSON-RPC based interface for Fragata clients (i.e. [Fragata Classic](https://github.com/6a8i/fragata-orchestrator/tree/main/packages/fragata-web-classic)).
+- a JSON-RPC and a REST interface for Fragata clients (the web UI in `@fragata/web`, the CLI, …).
 
 ---
 
@@ -33,4 +33,4 @@ yarn run dev
 
 ## How to report a bug?
 
-All bug reports should go into the [bugtracker of fragata-web-classic](https://github.com/6a8i/fragata-orchestrator/issues).
+All bug reports should go into the [bugtracker](https://github.com/6a8i/fragata-orchestrator/issues).

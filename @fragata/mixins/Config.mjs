@@ -6,7 +6,7 @@ import { parseDuration } from '@fragata/parse-duration'
 import { watch } from 'app-conf'
 import assert from 'node:assert'
 
-const { warn, info } = createLogger('xo:mixins:config')
+const { warn } = createLogger('xo:mixins:config')
 
 // if path is undefined, an empty string or an empty array, returns the root value
 const niceGet = (value, path) => (path === undefined || path.length === 0 ? value : get(value, path))
@@ -97,13 +97,6 @@ export default class Config {
   async getGuiRoutes() {
     const mounts = this.getOptional('http.mounts') ?? {}
 
-    let channel = 'latest'
-    try {
-      channel = await this._app.getCurrentChannel?.()
-    } catch (error) {
-      info('Unable to get current channel, fallback to latest', error)
-    }
-
     const guiRoutes = {}
 
     for (let [url, path] of Object.entries(mounts)) {
@@ -116,26 +109,14 @@ export default class Config {
       guiRoutes[key] = { url, path }
     }
 
-    // Try to find the normal v5 and v5 paths
-    const v5 = Object.values(guiRoutes).find(route => route.path.includes('fragata-web-classic/dist'))
+    // The web UI mount
     const v6 = Object.values(guiRoutes).find(route => route.path.includes('@fragata/web/dist'))
-
-    guiRoutes.v5 = v5
     guiRoutes.v6 = v6
 
-    // If no defaut route is present, we set it to the appropriate path depending on the channel and available paths.
+    // If no default route is present, the web UI is also served at '/'
     if (Object.values(guiRoutes).find(route => route.url === '/') === undefined) {
-      if (channel === 'stable') {
-        assert.notStrictEqual(v5, undefined, `No path for v5 found in config`)
-        guiRoutes.default = { path: v5.path, url: '/' }
-      } else {
-        if (v6 === undefined) {
-          assert.notStrictEqual(v5, undefined, `No path for v5 found in config`)
-          guiRoutes.default = { path: v5.path, url: '/' }
-        } else {
-          guiRoutes.default = { path: v6.path, url: '/' }
-        }
-      }
+      assert.notStrictEqual(v6, undefined, 'No path for the web UI (@fragata/web/dist) found in config')
+      guiRoutes.default = { path: v6.path, url: '/' }
     }
 
     return guiRoutes

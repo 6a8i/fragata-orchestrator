@@ -5,16 +5,83 @@ html
     meta(http-equiv = 'X-UA-Compatible' content = 'IE=edge,chrome=1')
     meta(name = 'viewport' content = 'width=device-width, initial-scale=1.0')
     title Fragata
-    meta(name = 'author' content = 'Vates SAS')
-    link(rel = 'stylesheet' href = `${xo5Mount}index.css`)
-    link(rel = 'icon' href = `${xo5Mount}assets/favicon.svg` type = 'image/svg+xml')
+    link(rel = 'icon' href = '/public/favicon.svg' type = 'image/svg+xml')
     style.
+      :root {
+        color-scheme: light dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
       body {
+        margin: 0;
+        display: flex;
+        min-height: 100vh;
+        font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
         color: #F8F8F8;
         background-color: #111225;
       }
+      main {
+        margin: auto;
+        width: 20em;
+        max-width: calc(100vw - 2em);
+        padding: 1em;
+      }
+      .logo {
+        display: flex;
+      }
+      .logo img {
+        margin: auto;
+        max-width: 100%;
+      }
+      h2 {
+        text-align: center;
+        font-weight: 500;
+        margin: 1em 0;
+      }
+      fieldset {
+        border: 0;
+        margin: 0;
+        padding: 0;
+      }
+      input[type=text], input[type=password] {
+        display: block;
+        width: 100%;
+        margin-bottom: 0.75em;
+        padding: 0.6em 0.8em;
+        font: inherit;
+        color: inherit;
+        background-color: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 0.4em;
+      }
+      input[type=text]:focus, input[type=password]:focus {
+        outline: 2px solid #8F84FF;
+        outline-offset: 1px;
+      }
+      .checkbox {
+        margin-bottom: 0.75em;
+      }
       button {
+        display: block;
+        width: 100%;
+        margin-bottom: 0.75em;
+        padding: 0.6em 0.8em;
+        font: inherit;
+        font-weight: 600;
+        color: #FFFFFF;
         background-color: #8F84FF;
+        border: 0;
+        border-radius: 0.4em;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #7B6FF2;
+      }
+      hr {
+        border: 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.25);
+        margin: 1em 0;
       }
       .error {
         color: #EC535D;
@@ -24,37 +91,38 @@ html
           color: #1A1B38;
           background-color: #FFFFFF;
         }
+        input[type=text], input[type=password] {
+          background-color: #FFFFFF;
+          border-color: rgba(26, 27, 56, 0.3);
+        }
+        hr {
+          border-top-color: rgba(26, 27, 56, 0.3);
+        }
         .error {
           color: #BE1621;
         }
       }
-  body(style = 'display: flex; height: 100vh;')
-    div(style = 'margin: auto; width: 20em;')
-      div(style = 'display: flex;')
-        img(src = `${xo5Mount}assets/logo.svg` style = 'margin: auto; max-width: 100%;')
-      h2.text-xs-center.mb-2 Welcome to Fragata
+  body
+    main
+      .logo
+        img(src = '/public/logo.svg' alt = 'Fragata')
+      h2 Welcome to Fragata
 
       if error
         p.error #{error}
       if otp
         form(action = 'signin-otp' method = 'post')
           fieldset
-            .input-group.mb-1
-              span.input-group-addon
-                i.fa.fa-key.fa-fw
-              input.form-control(
-                autocomplete = 'off'
-                autofocus
-                name = 'otp'
-                type = 'text'
-                inputmode = 'numeric'
-                placeholder = 'Code'
-                required
-              )
-            div
-              button.btn.btn-block
-                i.fa.fa-sign-in
-                |  Sign in
+            input(
+              autocomplete = 'off'
+              autofocus
+              name = 'otp'
+              type = 'text'
+              inputmode = 'numeric'
+              placeholder = 'Code'
+              required
+            )
+            button Sign in
       else
         if Object.keys(strategies).length !== 0
           form(action = 'signin/dispatch' method = 'post')
@@ -67,29 +135,23 @@ html
                 | &nbsp;
                 | Remember me
             each label, id in strategies
-              div: button(type = 'submit' name = 'provider' value = id).btn.btn-block.mb-1 Sign in with #{label}
+              button(type = 'submit' name = 'provider' value = id) Sign in with #{label}
           hr
         form(action = 'signin/local' method = 'post')
           fieldset
-            .input-group.mb-1
-              span.input-group-addon
-                i.xo-icon-user.fa-fw
-              input.form-control(
-                autofocus
-                name = 'username'
-                placeholder = 'Username'
-                required
-                type = 'text'
-              )
-            .input-group.mb-1
-              span.input-group-addon
-                i.fa.fa-key.fa-fw
-              input.form-control(
-                name = 'password'
-                type = 'password'
-                placeholder = 'Password'
-                required
-              )
+            input(
+              autofocus
+              name = 'username'
+              placeholder = 'Username'
+              required
+              type = 'text'
+            )
+            input(
+              name = 'password'
+              type = 'password'
+              placeholder = 'Password'
+              required
+            )
             .checkbox
               label
                 input(
@@ -98,9 +160,7 @@ html
                 )
                 | &nbsp;
                 | Remember me
-            div
-              button.btn.btn-block
-                |  Sign in with password
+            button Sign in with password
     //- Note: if this script changes, make sure to update the hash in fragata-server/src/index.mjs to match the new content.
     script.
       (function () {

@@ -81,7 +81,7 @@
 # - a list of trusted addresses: the headers will be used only if the connection
 #   is coming from one of these addresses
 #
-# Default: ['loopback'], required for the internal proxies (e.g. `/v5/api`) to
+# Default: ['loopback'], required for internal proxies to
 # forward the real IP address of clients. When overriding this setting, keep
 # 'loopback' in the list (e.g. ['loopback', '10.0.0.1']).
 #
@@ -156,7 +156,6 @@ port = 80
 # List of files/directories which will be served.
 [http.mounts]
 #'/any/url' = '/path/to/directory'
-# '/v5' = '../fragata-web-classic/dist/'
 # '/v6' = '../../@fragata/web/dist/'
 
 # List of proxied URLs (HTTP & WebSockets).

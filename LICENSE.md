@@ -48,7 +48,6 @@ Below is the list of the various components and their corresponding licenses, AG
 - fragata-server-usage-report - AGPL-3.0-or-later
 - fragata-server-web-hooks - AGPL-3.0-or-later
 - fragata-vmdk-to-vhd - AGPL-3.0-or-later
-- fragata-web-classic - AGPL-3.0-or-later
 
 - @fragata/async-each - ISC
 - @fragata/cached-dns.lookup - ISC

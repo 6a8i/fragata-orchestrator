@@ -152,10 +152,9 @@ const DEFAULT_HELMET_CONFIG = {
     directives: {
       'default-src': ["'self'"],
       'connect-src': ["'self'", 'https://api.github.com'],
-      // Hashes of XO's own inline scripts. If either changes, update its hash.
+      // Hash of the sign-in page's inline script. If it changes, update its hash.
       'script-src': [
         "'self'",
-        "'sha256-sIj1FFjxCJxsQo5Hw5ZkhT+9Gc+Q6LmIkJzdjARCn0o='", // fragata-web-classic/src/index.pug
         "'sha256-Z5hWOtGcISU7nkyObsPm3ZZvPpAYxzoiQutkJucVkm8='", // fragata-server/signin.pug
       ],
       'style-src': ["'self'", "'unsafe-inline'"],
@@ -165,9 +164,8 @@ const DEFAULT_HELMET_CONFIG = {
 }
 
 // Proxied third-party markup (e.g. Netdata) can't satisfy the hash
-// allowlist above, so it gets a more permissive CSP instead of none,
-// `/v5/netdata` self-proxies to `/netdata` (see config.toml)
-const CSP_EXEMPT_PREFIXES = ['/v5/netdata', '/netdata']
+// allowlist above, so it gets a more permissive CSP instead of none.
+const CSP_EXEMPT_PREFIXES = ['/netdata']
 
 async function createExpressApp(config) {
   const app = createExpress()
@@ -267,15 +265,10 @@ async function setUpPassport(express, xo, { authentication: authCfg, http: { coo
         errorMsg = req.flash('error')[0]
       }
 
-      // TODO:
-      // The login page uses certain files from the fragata-web-classic package (css,svg)
-      // remove once XO5 is no more used and update `signin.pug` to use `public/logo.svg`, ...
-      const { v5 } = await xo.config.getGuiRoutes()
       res.send(
         signInPage({
           error: errorMsg,
           strategies,
-          xo5Mount: v5?.url + '/',
         })
       )
     } catch (error) {
@@ -294,16 +287,11 @@ async function setUpPassport(express, xo, { authentication: authCfg, http: { coo
         return res.redirect('/signin')
       }
 
-      // TODO:
-      // The login page uses certain files from the fragata-web-classic package (css,svg)
-      // remove once XO5 is no more used and update `signin.pug` to use `public/logo.svg`, ...
-      const { v5 } = await xo.config.getGuiRoutes()
       res.send(
         signInPage({
           error: req.flash('error')[0],
           otp: true,
           strategies,
-          xo5Mount: v5?.url + '/',
         })
       )
     } catch (error) {
@@ -964,7 +952,9 @@ export default async function main(args) {
     log.warn('could not detect current commit', { error })
   }
 
-  log.info(`Starting ${APP_NAME} v${APP_VERSION} (https://github.com/6a8i/fragata-orchestrator/commit/${__GIT_COMMIT__})`)
+  log.info(
+    `Starting ${APP_NAME} v${APP_VERSION} (https://github.com/6a8i/fragata-orchestrator/commit/${__GIT_COMMIT__})`
+  )
 
   const config = await loadConfiguration()
 

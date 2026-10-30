@@ -37,7 +37,7 @@ export const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
  *
  * The whole suite rests on this: an admin connection arranges the fixtures
  * while a low-privilege connection observes what the server actually sends it.
- * The bug is only visible on the wire — fragata-web-classic filters client-side, so the UI
+ * The bug is only visible on the wire — the web UI filters client-side, so the UI
  * looks identical whether or not the server does its job.
  *
  * @param {object} credentials

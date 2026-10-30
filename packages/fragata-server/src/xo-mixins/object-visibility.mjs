@@ -277,7 +277,7 @@ export default class ObjectVisibility {
    * object that already exists would not hear about it until they reload:
    * their whole visible set is pushed instead, and their client merges it.
    *
-   * The opposite case needs nothing: fragata-web-classic keeps filtering client-side and
+   * The opposite case needs nothing: the web UI keeps filtering client-side and
    * refreshes its permissions every 5s.
    *
    * @param {import('../connection.mjs').default} connection

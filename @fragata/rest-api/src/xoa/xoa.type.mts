@@ -75,9 +75,7 @@ export type XoaDashboard = {
   }
   missingPatches: MissingPatchesInfo | HasNoAuthorization | PromiseWriteInStreamError
   backupRepositories?:
-    | IsMaybeExpired<DashboardBackupRepositoriesSizeInfo>
-    | IsMaybeExpired<IsEmptyData>
-    | PromiseWriteInStreamError
+    IsMaybeExpired<DashboardBackupRepositoriesSizeInfo> | IsMaybeExpired<IsEmptyData> | PromiseWriteInStreamError
   storageRepositories: SrSizeInfo | PromiseWriteInStreamError | IsEmptyData
 
   backups?: IsMaybeExpired<DashboardBackupsInfo> | IsMaybeExpired<IsEmptyData> | PromiseWriteInStreamError
@@ -103,6 +101,5 @@ export type PingResponse = {
 }
 
 export type XoGuiRoutes = {
-  xo5?: string
   xo6?: string
 }

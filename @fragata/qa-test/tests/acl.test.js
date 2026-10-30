@@ -90,7 +90,7 @@ describe('ACL — server-side object filtering', () => {
       assert.equal(granted.length, 0, `expected no ACL, got: ${granted.join(', ')}`)
     })
 
-    // Path 1 of 2: the bulk fetch fragata-web-classic performs on sign-in.
+    // Path 1 of 2: the bulk fetch a JSON-RPC client performs on sign-in.
     it('receives no object from xo.getAllObjects', async () => {
       const objects = await fetchAllObjects(user)
       const received = Object.keys(objects).length

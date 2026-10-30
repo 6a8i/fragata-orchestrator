@@ -360,7 +360,7 @@ const STATS = {
     vbdAvgLatency: {
       test: /^vbd_xvd(.)_latency$/,
       getPath: matches => ['vbdAvgLatency', matches[1]],
-      transformValue: value => value / 1e3, // µs to ms (for fragata-web-classic formatTime)
+      transformValue: value => value / 1e3, // µs to ms (for the web UI formatTime)
     },
     vbdIowait: {
       test: /^vbd_xvd(.)_iowait$/,

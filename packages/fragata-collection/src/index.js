@@ -86,7 +86,7 @@ export class Index {
       if (type != null) {
         ;(itemsByType[type] ||
           // FIXME: We do not use objects without prototype for now
-          // because it breaks Angular in fragata-web-classic, change it back when
+          // because it broke Angular in the former classic UI, change it back when
           // this is fixed.
           (itemsByType[type] = {}))[key] = value
 

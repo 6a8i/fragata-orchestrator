@@ -182,7 +182,7 @@ function shouldPackageBeReleased(name, dependencies, depName, depVersion) {
     return false
   }
 
-  if (['fragata-web-classic', 'fragata-server', '@fragata/proxy', '@fragata/web'].includes(name)) {
+  if (['fragata-server', '@fragata/proxy', '@fragata/web'].includes(name)) {
     debug('forced release due to dependency update', {
       package: name,
       dependency: depName,

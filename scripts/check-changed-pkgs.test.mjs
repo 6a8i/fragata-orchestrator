@@ -31,7 +31,7 @@ describe('isIgnoredFile', function () {
     'packages/fragata-cli/.USAGE.md',
     'packages/fragata-server/.npmignore',
     'packages/fragata-server/perf.load.mjs',
-    'packages/fragata-web-classic/src/common/index.spec.js',
+    '@fragata/web/src/shared/utils/index.spec.ts',
   ]) {
     it(`ignores ${file}`, function () {
       assert.equal(isIgnoredFile(file), true)
@@ -47,7 +47,7 @@ describe('isIgnoredFile', function () {
     // `docs` and `test` as file names, not as directories
     'packages/fragata-server/docs.md',
     'packages/fragata-server/test.mjs',
-    'packages/fragata-web-classic/src/common/index.js',
+    '@fragata/web/src/shared/utils/index.ts',
   ]) {
     it(`does not ignore ${file}`, function () {
       assert.equal(isIgnoredFile(file), false)
@@ -95,11 +95,7 @@ describe('getChangedPackages', function () {
 
   it('ignores packages which are never listed in the changelog', function () {
     assert.deepEqual(
-      changedPackageNames([
-        '@fragata/babel-config/index.js',
-        '@fragata/lite/src/App.vue',
-        '@fragata/types/index.mts',
-      ]),
+      changedPackageNames(['@fragata/babel-config/index.js', '@fragata/lite/src/App.vue', '@fragata/types/index.mts']),
       ['@fragata/types']
     )
   })

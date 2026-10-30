@@ -23,9 +23,6 @@
 
 /packages/fragata-server-auth-ldap/ldap.cache.conf
 
-/packages/fragata-web-classic/src/common/intl/locales/index.js
-/packages/fragata-web-classic/src/common/themes/index.js
-
 npm-debug.log
 npm-debug.log.*
 pnpm-debug.log
