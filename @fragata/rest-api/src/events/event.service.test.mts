@@ -41,6 +41,7 @@ function createRestApi(vmBackupArchives: EventEmitter) {
         return {}
       },
     },
+    getUserWithPrivileges: async () => ({ user, userPrivileges: [] }),
     xoApp: {
       config: { get: () => 1 },
       getUser: async () => user,

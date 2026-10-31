@@ -10,7 +10,7 @@ import { createLogger } from '@fragata/log'
 import { dirname, join } from 'node:path'
 import pickBy from 'lodash/pickBy.js'
 import { defer } from 'golike-defer'
-import { NegativeDisk } from '@fragata/disk-transform'
+import { NegativeDisk, ReadAhead } from '@fragata/disk-transform'
 import { normalizeVdiRestoreTargets } from './_vdiRestoreTargets.mjs'
 import { openDiskChain } from '@fragata/backup-archive/disks'
 import { resetVmOtherConfig } from './_otherConfig.mjs'
@@ -163,10 +163,14 @@ export class ImportVmBackup {
         continue
       }
 
-      const parent = await openDiskChain({
-        handler: this._adapter._handler,
-        path: vhdPath,
-      })
+      // blocks are consumed sequentially by the import: prefetch them so the
+      // transfer is not bound by the remote latency (10x on object storage)
+      const parent = new ReadAhead(
+        await openDiskChain({
+          handler: this._adapter._handler,
+          path: vhdPath,
+        })
+      )
 
       // this will also clean if another disk of this VM backup fails
       // if user really only need to restore non failing disks he can retry with ignoredVdis
@@ -194,11 +198,13 @@ export class ImportVmBackup {
             vdiRef,
           })
 
-          descendant = await openDiskChain({
-            handler: this._adapter._handler,
-            path: backupWithSnapshotPath,
-            until: vhdPath,
-          })
+          descendant = new ReadAhead(
+            await openDiskChain({
+              handler: this._adapter._handler,
+              path: backupWithSnapshotPath,
+              until: vhdPath,
+            })
+          )
 
           debug('got vhd synthetic of descendants')
           negativeDisk = new NegativeDisk(parent, descendant)

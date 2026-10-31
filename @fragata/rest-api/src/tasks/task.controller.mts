@@ -140,11 +140,7 @@ export class TaskController extends XoController<XoTask> {
 
       const userId = this.restApi.getCurrentUser().id
       const update = async (task: XoTask) => {
-        const user = await this.restApi.xoApp.getUser(userId)
-        const userPrivileges =
-          user.permission === 'admin'
-            ? []
-            : ((await this.restApi.xoApp.getAclV2UserPrivileges(user.id)) as AnyPrivilege[])
+        const { user, userPrivileges } = await this.restApi.getUserWithPrivileges(userId)
 
         if (
           hasPrivilegeOn({ user, userPrivileges, action: 'read', resource: 'task', objects: task }) &&
@@ -154,11 +150,7 @@ export class TaskController extends XoController<XoTask> {
         }
       }
       const remove = async (task: XoTask) => {
-        const user = await this.restApi.xoApp.getUser(userId)
-        const userPrivileges =
-          user.permission === 'admin'
-            ? []
-            : ((await this.restApi.xoApp.getAclV2UserPrivileges(user.id)) as AnyPrivilege[])
+        const { user, userPrivileges } = await this.restApi.getUserWithPrivileges(userId)
 
         if (
           hasPrivilegeOn({ user, userPrivileges, action: 'read', resource: 'task', objects: task }) &&

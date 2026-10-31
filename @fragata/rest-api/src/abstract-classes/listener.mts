@@ -1,6 +1,6 @@
 import { createLogger } from '@fragata/log'
 import type { EventEmitter } from 'node:events'
-import { AnyPrivilege, hasPrivilegeOn, SupportedResource } from '@fragata/acl'
+import { hasPrivilegeOn, SupportedResource } from '@fragata/acl'
 import { XAPI_TYPES, type XapiXoRecord, type XoUser } from '@fragata/types'
 import type { CollectionEventType, EventType, NonXapiListenerType, XoListenerType } from '../events/event.type.mjs'
 import { iocContainer } from '../ioc/ioc.mjs'
@@ -137,7 +137,7 @@ export abstract class Listener<Type extends XoListenerType | undefined = undefin
     }
 
     const restApi = iocContainer.get(RestApi)
-    const user = await restApi.xoApp.getUser(userId)
+    const { user, userPrivileges } = await restApi.getUserWithPrivileges(userId)
     if (user.permission === 'admin') {
       return event
     }
@@ -147,7 +147,6 @@ export abstract class Listener<Type extends XoListenerType | undefined = undefin
       return
     }
 
-    const userPrivileges = (await restApi.xoApp.getAclV2UserPrivileges(user.id)) as AnyPrivilege[]
     let resource: SupportedResource | undefined
 
     if (!XAPI_TYPES.includes(this.type)) {

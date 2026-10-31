@@ -790,20 +790,34 @@ export class RemoteAdapter {
     }
   }
 
-  async readVmBackupMetadata(path) {
-    let json
-    let isImmutable = false
-    let remoteIsImmutable = false
-    // if the remote is immutable, check if this metadata is also immutable
+  // the immutability marker is a property of the remote and is read for every
+  // backup metadata: look it up at most once per minute
+  #remoteIsImmutable
+  async #isRemoteImmutable() {
+    const now = Date.now()
+    const cached = this.#remoteIsImmutable
+    if (cached !== undefined && cached.expires > now) {
+      return cached.value
+    }
+    let value = false
     try {
       // this file is not encrypted
       await this._handler._readFile(IMMUTABILITY_METADATA_FILENAME)
-      remoteIsImmutable = true
+      value = true
     } catch (error) {
       if (error.code !== 'ENOENT') {
         throw error
       }
     }
+    this.#remoteIsImmutable = { value, expires: now + 60e3 }
+    return value
+  }
+
+  async readVmBackupMetadata(path) {
+    let json
+    let isImmutable = false
+    // if the remote is immutable, check if this metadata is also immutable
+    const remoteIsImmutable = await this.#isRemoteImmutable()
 
     try {
       // this will trigger an EPERM error if the file is immutable

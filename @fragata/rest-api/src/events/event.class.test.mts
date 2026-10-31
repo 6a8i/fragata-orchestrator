@@ -47,6 +47,7 @@ function bindRestApi(user: Partial<XoUser>, userPrivileges: AnyPrivilege[] = [])
     iocContainer.unbind(RestApi)
   }
   iocContainer.bind(RestApi).toConstantValue({
+    getUserWithPrivileges: async () => ({ user: _user, userPrivileges }),
     xoApp: {
       getUser: async () => _user,
       getAclV2UserPrivileges: async () => userPrivileges,
