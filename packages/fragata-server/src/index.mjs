@@ -778,6 +778,9 @@ const setUpStaticFiles = (express, opts) => {
 
 // ===================================================================
 
+// bytes a WebSocket client may leave unread before being disconnected
+const MAX_WS_BUFFERED_AMOUNT = 64 * 1024 * 1024
+
 const setUpApi = (webServer, xo, config, useForwardedHeaders) => {
   const webSocketServer = new WebSocketServer({
     ...config.apiWebSocketOptions,
@@ -802,6 +805,26 @@ const setUpApi = (webServer, xo, config, useForwardedHeaders) => {
       }
     })
     connection.notify = jsonRpc.notify.bind(jsonRpc)
+
+    // A client that stops reading (dropped link, sleeping laptop) would otherwise
+    // have every object notification queued in its socket forever. Close it
+    // instead: the client reconnects and fetches the whole collection again.
+    const send = data => {
+      if (socket.readyState !== WebSocket.OPEN) {
+        return
+      }
+      if (socket.bufferedAmount > MAX_WS_BUFFERED_AMOUNT) {
+        log.warn('WebSocket client too slow, closing its connection', {
+          bufferedAmount: socket.bufferedAmount,
+          remoteAddress,
+        })
+        connection.close()
+        return
+      }
+      socket.send(data, onSend)
+    }
+    // sends an already serialized JSON-RPC message (shared by several connections)
+    connection.notifyRaw = send
 
     // Close the XO connection with this WebSocket.
     socket.once('close', () => {
@@ -828,13 +851,9 @@ const setUpApi = (webServer, xo, config, useForwardedHeaders) => {
         }
       }
     }
-    jsonRpc.on('data', data => {
-      // The socket may have been closed during the API method
-      // execution.
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.send(data, onSend)
-      }
-    })
+    // The socket may have been closed during the API method execution:
+    // `send` checks it.
+    jsonRpc.on('data', send)
   }
   webServer.on('upgrade', (req, socket, head) => {
     if (req.url === '/api/') {

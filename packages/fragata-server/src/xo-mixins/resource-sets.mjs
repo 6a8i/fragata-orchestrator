@@ -440,11 +440,11 @@ export default class {
     await Promise.all(
       mapToArray(this._app.getAllXapis(), xapi =>
         Promise.all(
-          mapToArray(xapi.objects.all, async object => {
+          // only VMs matter: use the type index instead of scanning every object
+          mapToArray(xapi.objects.indexes.type.VM ?? {}, async object => {
             let id
             let set
             if (
-              object.$type !== 'VM' ||
               object.other_config['xo:backup:job'] !== undefined ||
               // No set for this VM.
               !(id = xapi.xo.getData(object, 'resourceSet')) ||

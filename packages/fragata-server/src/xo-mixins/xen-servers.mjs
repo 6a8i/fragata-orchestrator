@@ -288,7 +288,7 @@ export default class XenServers {
     return serverId
   }
 
-  _onXenAdd(newXapiObjects, xapiIdsToXo, toRetry, conId, dependents, xapiObjects) {
+  _onXenAdd(newXapiObjects, xapiIdsToXo, toRetry, conId, dependents, xapiObjects, failureCounts) {
     const conflicts = this._objectConflicts
     const objects = this._app._objects
 
@@ -344,6 +344,7 @@ export default class XenServers {
         }
 
         xapiIdsToXo[xapiId] = xoId
+        delete failureCounts[xapiId]
 
         if (xapiObject.$type === 'VM' && xapiObject.platform?.['cores-per-socket'] === undefined) {
           self._ensureCoresPerSocket(conId, xapiObject, xoObject.CPUs?.number)
@@ -357,13 +358,14 @@ export default class XenServers {
           objects.set(xoId, xoObject)
         }
       } catch (error) {
-        // only log the error if the object was already in `toRetry`
-        //
-        // otherwise there will be too many logs, some of them irrelevant (transient
-        // and simply due to the order objects are processed)
-        if (xapiId in toRetry) {
+        // the first failure is usually transient (objects are processed in an
+        // arbitrary order): log the second one, then every 1000th so that an
+        // object which never transforms stays visible without flooding the logs
+        const attempts = (failureCounts[xapiId] = (failureCounts[xapiId] ?? 0) + 1)
+        if (attempts === 2 || attempts % 1000 === 0) {
           const { $pool, $ref, $type, uuid } = xapiObject
           log.error('xapiObjectToXo', {
+            attempts,
             error,
             xapiObject: { $pool: pick($pool, ['$ref', 'uuid']), $ref, $type, uuid },
           })
@@ -544,8 +546,11 @@ export default class XenServers {
 
         const dependents = { __proto__: null }
 
+        // consecutive transform failures per XAPI object, for the log guard
+        const failureCounts = { __proto__: null }
+
         const onAddOrUpdate = objects => {
-          this._onXenAdd(objects, xapiIdsToXo, toRetryNext, conId, dependents, xapi.objects.all)
+          this._onXenAdd(objects, xapiIdsToXo, toRetryNext, conId, dependents, xapi.objects.all, failureCounts)
         }
         const onRemove = objects => {
           this._onXenRemove(objects, xapiIdsToXo, toRetry, conId, dependents)

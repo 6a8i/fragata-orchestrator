@@ -231,7 +231,8 @@ export default class BackupNg {
             }
 
             vmIds = Object.keys(
-              app.getObjects({
+              // the type index avoids a scan of every object of every pool
+              app.getObjectsByType('VM', {
                 filter: (() => {
                   const isMatchingVm = createPredicate({
                     type: 'VM',

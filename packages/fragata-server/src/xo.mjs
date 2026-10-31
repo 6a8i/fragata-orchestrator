@@ -36,6 +36,9 @@ import { generateToken, noop } from './utils.mjs'
 
 const log = createLogger('xo:xo')
 
+// JSON-RPC 2.0 notification, as `json-rpc-peer` would format it
+const formatNotification = (method, params) => JSON.stringify({ jsonrpc: '2.0', method, params })
+
 @mixinLegacy(Object.values(mixins))
 export default class Xo extends EventEmitter {
   /**
@@ -485,13 +488,27 @@ export default class Xo extends EventEmitter {
             isObjectVisible: objectFilter,
           })
 
+          // serialized once per user, not once per connection
+          const enterMessage = enter === undefined ? undefined : formatNotification('all', { type: 'enter', items: enter })
+          const exitMessage = exit === undefined ? undefined : formatNotification('all', { type: 'exit', items: exit })
+
           for (const userConnection of userConnections) {
-            if (enter !== undefined) {
-              userConnection.notify('all', { type: 'enter', items: enter })
+            if (userConnection.notifyRaw === undefined) {
+              // connection without a raw channel: fall back to the JSON-RPC peer
+              if (enter !== undefined) {
+                userConnection.notify('all', { type: 'enter', items: enter })
+              }
+              if (exit !== undefined) {
+                userConnection.notify('all', { type: 'exit', items: exit })
+              }
+              continue
             }
 
-            if (exit !== undefined) {
-              userConnection.notify('all', { type: 'exit', items: exit })
+            if (enterMessage !== undefined) {
+              userConnection.notifyRaw(enterMessage)
+            }
+            if (exitMessage !== undefined) {
+              userConnection.notifyRaw(exitMessage)
             }
           }
         }
