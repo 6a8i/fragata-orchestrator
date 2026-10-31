@@ -165,7 +165,18 @@ export class TaskController extends XoController<XoTask> {
       return stream
     }
 
-    const tasks = Object.values(await this.getObjects({ filter }))
+    // Filter while iterating the task store instead of loading every task first.
+    // The limit is applied there only for administrators: for other users the
+    // ACL filtering of `sendObjects` happens afterwards.
+    const user = this.restApi.getCurrentUser()
+    const predicate = filter === undefined ? undefined : safeParseComplexMatcher(filter).createPredicate()
+    const tasks: XoTask[] = []
+    for await (const task of this.restApi.tasks.list({
+      filter: predicate,
+      limit: user.permission === 'admin' ? limit : undefined,
+    })) {
+      tasks.push(task)
+    }
     return this.sendObjects(tasks, req, {
       limit,
       privilege: { action: 'read', resource: 'task' },

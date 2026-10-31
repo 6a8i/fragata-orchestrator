@@ -27,8 +27,10 @@ export class BackupJobService {
     return this.#backupJobTypes.includes(anyJob.type)
   }
 
-  async isVmInBackupJob(backupJobId: XoVmBackupJob['id'], vmId: XoVm['id']): Promise<boolean> {
-    const backupJob = await this.#restApi.xoApp.getJob<XoVmBackupJob>(backupJobId)
+  async isVmInBackupJob(backupJobOrId: XoVmBackupJob['id'] | XoVmBackupJob, vmId: XoVm['id']): Promise<boolean> {
+    // callers iterating all the jobs already hold them: do not fetch each one again
+    const backupJob =
+      typeof backupJobOrId === 'string' ? await this.#restApi.xoApp.getJob<XoVmBackupJob>(backupJobOrId) : backupJobOrId
     const vm = this.#restApi.getObject<XoVm>(vmId, 'VM')
 
     if (vmContainsNoBakTag(vm)) {
@@ -45,8 +47,9 @@ export class BackupJobService {
     }
   }
 
-  async backupJobHasAtLeastOneScheduleEnabled(id: XoVmBackupJob['id']): Promise<boolean> {
-    const backupJob = await this.#restApi.xoApp.getJob<XoVmBackupJob>(id)
+  async backupJobHasAtLeastOneScheduleEnabled(backupJobOrId: XoVmBackupJob['id'] | XoVmBackupJob): Promise<boolean> {
+    const backupJob =
+      typeof backupJobOrId === 'string' ? await this.#restApi.xoApp.getJob<XoVmBackupJob>(backupJobOrId) : backupJobOrId
 
     for (const maybeScheduleId in backupJob.settings) {
       if (maybeScheduleId === '') {

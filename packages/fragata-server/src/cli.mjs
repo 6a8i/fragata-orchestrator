@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// must come first: sizes the libuv threadpool before anything uses it
+import './_threadpool.mjs'
 import * as SourceMapSupport from 'source-map-support'
 import Bluebird from 'bluebird'
 import execPromise from 'exec-promise'

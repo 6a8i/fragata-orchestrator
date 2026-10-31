@@ -36,6 +36,9 @@ const MAX_PART_NUMBER = 10000
 const MIN_PART_SIZE = 5 * 1024 * 1024
 const { debug, info, warn } = createLogger('xo:fs:s3')
 
+// upper bound for the data buffered by a single multipart upload
+const MAX_UPLOAD_BUFFER_SIZE = 256 * 1024 * 1024
+
 export default class S3Handler extends RemoteHandlerAbstract {
   #bucket
   #dir
@@ -257,6 +260,11 @@ export default class S3Handler extends RemoteHandlerAbstract {
     const Body = new PassThrough()
     pipeline(input, streamCutter, Body, () => {})
 
+    // lib-storage buffers `queueSize` parts (4 by default): with the large
+    // parts computed for multi-TB disks that is hundreds of MiB per upload,
+    // so keep the in-flight data under a fixed budget instead
+    const queueSize = Math.max(1, Math.min(4, Math.floor(MAX_UPLOAD_BUFFER_SIZE / partSize)))
+
     const upload = new Upload({
       client: this.#s3,
       params: {
@@ -264,6 +272,7 @@ export default class S3Handler extends RemoteHandlerAbstract {
         Body,
       },
       partSize,
+      queueSize,
       leavePartsOnError: false,
     })
 

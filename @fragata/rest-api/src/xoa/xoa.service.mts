@@ -433,7 +433,7 @@ export class XoaService {
         sevenDaysAgo.setHours(0, 0, 0, 0)
 
         for (const job of jobs) {
-          if (!(await this.#backupJobService.backupJobHasAtLeastOneScheduleEnabled(job.id))) {
+          if (!(await this.#backupJobService.backupJobHasAtLeastOneScheduleEnabled(job))) {
             _processVmsProtection(job, false)
             disabledJobs++
             continue

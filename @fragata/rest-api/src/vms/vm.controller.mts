@@ -910,7 +910,7 @@ export class VmController extends XapiXoController<XoVm> {
 
     const vmBackupJobs: XoVmBackupJob[] = []
     for (const backupJob of backupJobs) {
-      if (await this.#backupJobService.isVmInBackupJob(backupJob.id, id as XoVm['id'])) {
+      if (await this.#backupJobService.isVmInBackupJob(backupJob, id as XoVm['id'])) {
         vmBackupJobs.push(backupJob)
       }
     }

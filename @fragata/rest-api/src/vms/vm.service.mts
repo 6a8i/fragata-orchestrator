@@ -350,10 +350,10 @@ export class VmService {
     const relevantJobsWithSchedule: XoVmBackupJob[] = []
 
     for (const backupJob of allBackupJobs) {
-      if (await this.#backupJobService.isVmInBackupJob(backupJob.id, vm.id)) {
+      if (await this.#backupJobService.isVmInBackupJob(backupJob, vm.id)) {
         relevantJobIds.push(backupJob.id)
 
-        if (await this.#backupJobService.backupJobHasAtLeastOneScheduleEnabled(backupJob.id)) {
+        if (await this.#backupJobService.backupJobHasAtLeastOneScheduleEnabled(backupJob)) {
           relevantJobsWithSchedule.push(backupJob)
         }
       }
