@@ -35,6 +35,27 @@ const ALLOWED_METHOD_PROPS = {
   resolve: true,
 }
 
+// Every JSON-RPC call resolves its user from Redis (plus a decrypt): keep it
+// for a couple of seconds, which is also the bound on how long a permission
+// change takes to apply to an open connection.
+const USER_CACHE_TTL = 2_000
+const userCache = new Map()
+const getCachedUser = (app, userId) => {
+  const now = Date.now()
+  const cached = userCache.get(userId)
+  if (cached !== undefined && cached.expires > now) {
+    return cached.promise
+  }
+  const promise = app.getUser(userId)
+  promise.catch(() => userCache.delete(userId))
+  userCache.set(userId, { expires: now + USER_CACHE_TTL, promise })
+  return promise
+}
+
+// Read-only methods are called continuously by the UI: persisting a task
+// (3 LevelDB writes and 2 events) for each of them brings nothing.
+const READ_METHOD_RE = /^[a-zA-Z]+\.(get|list|is|has|stats|check|count)[A-Za-z]*$/
+
 const NO_LOG_METHODS = {
   __proto__: null,
 
@@ -327,7 +348,7 @@ export default class Api {
     let user
     const userId = connection.get('user_id', undefined)
     if (userId !== undefined) {
-      user = await this._app.getUser(userId)
+      user = await getCachedUser(this._app, userId)
     }
 
     return this.runWithApiContext(user, () => {
@@ -417,7 +438,7 @@ export default class Api {
       const resolvedParams = await resolveParams.call(app, method, params)
 
       const run = () =>
-        name in NO_LOG_METHODS
+        name in NO_LOG_METHODS || READ_METHOD_RE.test(name)
           ? method.call(app, resolvedParams)
           : app.tasks
               .create(

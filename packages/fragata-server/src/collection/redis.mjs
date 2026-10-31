@@ -180,6 +180,7 @@ export default class Redis extends Collection {
           delete model.id
         }
 
+        let staleIndexKeys = []
         const newEntry = await redis.sAdd(prefix + '_ids', id)
 
         if (newEntry) {
@@ -198,21 +199,8 @@ export default class Redis extends Collection {
           if (previous !== undefined) {
             await this._beforeUpdate(model, this._unserialize(previous) ?? previous)
 
-            // remove the previous values from indexes
-            if (indexes.length !== 0) {
-              await asyncMapSettled(indexes, async index => {
-                let value = previous[index]
-                if (value !== undefined) {
-                  if (this.#crypto && !this.#crypto.isDegraded()) {
-                    value = await this.#crypto.hmacIndex(String(value).toLowerCase())
-                  } else {
-                    value = String(value).toLowerCase()
-                  }
-
-                  return redis.sRem(`${prefix}_${index}:${value}`, id)
-                }
-              })
-            }
+            // the previous index entries are removed in the same transaction as the write below
+            staleIndexKeys = await this.#indexKeys(previous)
           } else {
             log.warn(`The id ${prefix}:${id} had no attached entries.`)
           }
@@ -227,27 +215,42 @@ export default class Redis extends Collection {
           serialized = await this.#crypto.encrypt(serialized)
         }
 
-        await redis.set(key, serialized)
-
-        // Update indexes.
-        await asyncMapSettled(indexes, async index => {
-          let value = model[index]
-          if (value === undefined) return
-
-          if (this.#crypto && !this.#crypto.isDegraded()) {
-            value = await this.#crypto.hmacIndex(String(value).toLowerCase())
-          } else {
-            value = String(value).toLowerCase()
-          }
-
-          return redis.sAdd(`${prefix}_${index}:${value}`, id)
-        })
+        // index values are hashed in parallel, then the record and its index
+        // entries are written in a single round trip
+        const newIndexKeys = await this.#indexKeys(model)
+        const multi = redis.multi()
+        for (const indexKey of staleIndexKeys) {
+          multi.sRem(indexKey, id)
+        }
+        multi.set(key, serialized)
+        for (const indexKey of newIndexKeys) {
+          multi.sAdd(indexKey, id)
+        }
+        await multi.exec()
 
         model = this._unserialize(model) ?? model
         model.id = id
         return model
       })
     )
+  }
+
+  // keys of the index sets a model belongs to (values are hashed when the
+  // collection is encrypted)
+  async #indexKeys(model) {
+    const { indexes, prefix } = this
+    const keys = await Promise.all(
+      indexes.map(async index => {
+        const value = model[index]
+        if (value === undefined) {
+          return
+        }
+        const lower = String(value).toLowerCase()
+        const hashed = this.#crypto && !this.#crypto.isDegraded() ? await this.#crypto.hmacIndex(lower) : lower
+        return `${prefix}_${index}:${hashed}`
+      })
+    )
+    return keys.filter(key => key !== undefined)
   }
 
   /**
