@@ -43,3 +43,39 @@ type UnbrandedXoMirrorBackupJob = Omit<XoMirrorBackupJob, 'settings' | 'remotes'
 export type UnbrandXoMirrorBackupJob = Unbrand<UnbrandedXoMirrorBackupJob>
 
 export type UnbrandAnyXoBackupJob = UnbrandXoVmBackupJob | UnbrandXoMetadataBackupJob | UnbrandXoMirrorBackupJob
+
+export type VmBackupJobScheduleBody = {
+  cron: string
+  enabled: boolean
+  name?: string
+  timezone?: string
+}
+
+export type CreateVmBackupJobBody = {
+  name?: string
+  mode: 'full' | 'delta'
+  compression?: '' | 'native' | 'zstd'
+  proxy?: string
+  /** complex-matcher pattern, e.g. `{ "id": { "__or": ["<id>", "<id>"] } }` */
+  remotes?: Record<string, unknown>
+  /** complex-matcher pattern, e.g. `{ "id": { "__or": ["<id>", "<id>"] } }` */
+  srs?: Record<string, unknown>
+  /** complex-matcher pattern, e.g. `{ "id": { "__or": ["<id>", "<id>"] } }` */
+  vms: Record<string, unknown>
+  /** `''` holds the general settings, the other keys are schedule ids (or temporary ids, see `schedules`) */
+  settings: Record<string, Record<string, unknown>>
+  /** schedules to create with the job, keyed by a temporary id matching their entry in `settings` */
+  schedules?: Record<string, VmBackupJobScheduleBody>
+}
+
+export type UpdateVmBackupJobBody = Partial<Omit<CreateVmBackupJobBody, 'schedules' | 'proxy'>> & {
+  /** `null` removes the proxy */
+  proxy?: string | null
+}
+
+export type RunBackupJobBody = {
+  /** defaults to the first schedule of the job */
+  scheduleId?: string
+  /** restrict the run to these VMs */
+  vms?: string[]
+}

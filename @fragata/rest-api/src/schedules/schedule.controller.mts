@@ -1,9 +1,12 @@
 import type { XoSchedule } from '@fragata/types'
 import {
+  Body,
+  Delete,
   Example,
   Extension,
   Get,
   Middlewares,
+  Patch,
   Path,
   Post,
   Query,
@@ -16,13 +19,15 @@ import {
 } from 'tsoa'
 import { inject } from 'inversify'
 import { provide } from 'inversify-binding-decorators'
-import type { Request as ExRequest } from 'express'
+import { json, type Request as ExRequest } from 'express'
 
 import { acl } from '../middlewares/acl.middleware.mjs'
 import {
   asynchronousActionResp,
   badRequestResp,
+  createdResp,
   featureUnauthorized,
+  invalidParameters,
   forbiddenOperationResp,
   internalServerErrorResp,
   noContentResp,
@@ -36,6 +41,16 @@ import type { SendObjects } from '../helpers/helper.type.mjs'
 import { XoController } from '../abstract-classes/xo-controller.mjs'
 import type { CreateActionReturnType } from '../abstract-classes/base-controller.mjs'
 import { RestApi } from '../rest-api/rest-api.mjs'
+
+export type CreateScheduleBody = {
+  jobId: string
+  cron: string
+  enabled: boolean
+  name?: string
+  timezone?: string
+}
+
+export type UpdateScheduleBody = Partial<Omit<CreateScheduleBody, 'jobId'>>
 
 @Route('schedules')
 @Security('*')
@@ -151,5 +166,100 @@ export class ScheduleController extends XoController<XoSchedule> {
       statusCode: noContentResp.status,
       taskProperties: { name: 'run schedule', objectId: scheduleId },
     })
+  }
+
+
+  /**
+   * Creates a schedule for a job.
+   *
+   * Required privilege:
+   * - resource: schedule, action: create
+   */
+  @Example({ id: 'cf7249f8-d20b-494f-97f4-b1f32f94e780' })
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('')
+  @Middlewares([
+    json(),
+    acl({
+      resource: 'schedule',
+      action: 'create',
+      object: ({ req }) => req.body,
+    }),
+  ])
+  @SuccessResponse(createdResp.status, createdResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(invalidParameters.status, invalidParameters.description)
+  async createSchedule(@Body() body: CreateScheduleBody): Promise<{ id: Unbrand<XoSchedule>['id'] }> {
+    const schedule = await this.restApi.xoApp.createSchedule({
+      ...body,
+      jobId: body.jobId as XoSchedule['jobId'],
+      userId: this.restApi.getCurrentUser().id,
+    })
+
+    return { id: schedule.id }
+  }
+
+  /**
+   * Updates a schedule.
+   *
+   * Required privilege:
+   * - resource: schedule, action: update
+   *
+   * @example id "cf7249f8-d20b-494f-97f4-b1f32f94e780"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Patch('{id}')
+  @Middlewares([
+    json(),
+    acl({
+      resource: 'schedule',
+      action: 'update',
+      objectId: 'params.id',
+      getObject:
+        ({ restApi }) =>
+        id =>
+          restApi.xoApp.getSchedule(id),
+    }),
+  ])
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParameters.status, invalidParameters.description)
+  async updateSchedule(@Path() id: string, @Body() body: UpdateScheduleBody): Promise<void> {
+    const scheduleId = id as XoSchedule['id']
+    await this.getObject(scheduleId)
+    await this.restApi.xoApp.updateSchedule({ ...body, id: scheduleId })
+    this.setStatus(noContentResp.status)
+  }
+
+  /**
+   * Deletes a schedule. The settings the job keeps for it are left as they are.
+   *
+   * Required privilege:
+   * - resource: schedule, action: delete
+   *
+   * @example id "cf7249f8-d20b-494f-97f4-b1f32f94e780"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Delete('{id}')
+  @Middlewares(
+    acl({
+      resource: 'schedule',
+      action: 'delete',
+      objectId: 'params.id',
+      getObject:
+        ({ restApi }) =>
+        id =>
+          restApi.xoApp.getSchedule(id),
+    })
+  )
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async deleteSchedule(@Path() id: string): Promise<void> {
+    const scheduleId = id as XoSchedule['id']
+    await this.getObject(scheduleId)
+    await this.restApi.xoApp.deleteSchedule(scheduleId)
+    this.setStatus(noContentResp.status)
   }
 }

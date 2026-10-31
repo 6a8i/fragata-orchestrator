@@ -1,6 +1,7 @@
 import type { EventEmitter, Readable } from 'node:stream'
 import type {
   AnyXoJob,
+  AnyXoBackupJob,
   AnyXoLog,
   NonXapiXoRecord,
   XapiXoRecord,
@@ -20,6 +21,7 @@ import type {
   XoUser,
   XoVif,
   XoVm,
+  XoVmBackupJob,
   XoVmBackupArchive,
 } from './xo.mjs'
 import { VatesTask } from './lib/vates-task.mjs'
@@ -318,6 +320,36 @@ export type XoApp = EventEmitter & {
     expiresIn?: string | number
     userId: XoUser['id']
   }): Promise<XoAuthenticationToken>
+  createBackupNgJob(
+    type: 'backup',
+    props: Omit<XoVmBackupJob, 'id' | 'type'>,
+    /** keyed by a temporary id that is also the key of the matching entry in `props.settings` */
+    schedules?: Record<string, { cron: string; enabled: boolean; name?: string; timezone?: string }>
+  ): Promise<XoVmBackupJob>
+  createSchedule(params: {
+    cron: string
+    enabled: boolean
+    jobId: AnyXoJob['id']
+    name?: string
+    timezone?: string
+    userId?: XoUser['id']
+  }): Promise<XoSchedule>
+  deleteBackupNgJob(id: AnyXoBackupJob['id'], type: AnyXoBackupJob['type']): Promise<void>
+  runJobSequence(
+    idSequence: AnyXoJob['id'][],
+    schedule: XoSchedule,
+    data?: { vms?: XoVm['id'][]; settings?: Record<string, unknown> }
+  ): Promise<void>
+  /** `null` values remove the property; `merge` false replaces the whole job */
+  updateJob(job: { id: AnyXoJob['id']; [key: string]: unknown }, merge?: boolean): Promise<void>
+  updateSchedule(params: {
+    id: XoSchedule['id']
+    cron?: string
+    enabled?: boolean
+    jobId?: AnyXoJob['id']
+    name?: string
+    timezone?: string
+  }): Promise<void>
   createRemote(params: {
     name: string
     options?: string

@@ -5,34 +5,45 @@ import {
   XoMirrorBackupJob,
   AnyXoLog,
   XoBackupLog,
+  XoSchedule,
+  XoVm,
 } from '@fragata/types'
 import { createLogger } from '@fragata/log'
 import { inject } from 'inversify'
 import { noSuchObject } from 'fragata-common/api-errors.js'
 import {
+  Body,
+  Delete,
   Deprecated,
   Example,
   Extension,
   Get,
   Hidden,
   Middlewares,
+  Patch,
   Path,
+  Post,
   Query,
   Request,
   Response,
   Route,
   Security,
+  SuccessResponse,
   Tags,
 } from 'tsoa'
-import type { Request as ExRequest, Response as ExResponse } from 'express'
+import { json, type Request as ExRequest, type Response as ExResponse } from 'express'
 import { provide } from 'inversify-binding-decorators'
 
 import { acl, autoBindService } from '../middlewares/acl.middleware.mjs'
 import { backupLog, backupLogIds, partialBackupLogs } from '../open-api/oa-examples/backup-log.oa-example.mjs'
 import { BackupLogService } from '../backup-logs/backup-log.service.mjs'
 import {
+  asynchronousActionResp,
   badRequestResp,
+  createdResp,
   forbiddenOperationResp,
+  invalidParameters,
+  noContentResp,
   notFoundResp,
   unauthorizedResp,
   Unbrand,
@@ -40,11 +51,17 @@ import {
 import { RestApi } from '../rest-api/rest-api.mjs'
 import { BASE_URL, limitAndFilterArray, safeParseComplexMatcher } from '../helpers/utils.helper.mjs'
 import type {
+  CreateVmBackupJobBody,
+  RunBackupJobBody,
   UnbrandAnyXoBackupJob,
   UnbrandXoMetadataBackupJob,
   UnbrandXoMirrorBackupJob,
   UnbrandXoVmBackupJob,
+  UpdateVmBackupJobBody,
 } from './backup-job.type.mjs'
+import type { CreateActionReturnType } from '../abstract-classes/base-controller.mjs'
+import { ApiError } from '../helpers/error.helper.mjs'
+import { taskLocation } from '../open-api/oa-examples/task.oa-example.mjs'
 import { SendObjects } from '../helpers/helper.type.mjs'
 import { XoController } from '../abstract-classes/xo-controller.mjs'
 import {
@@ -137,6 +154,160 @@ export class BackupJobController extends XoController<AnyXoBackupJob> {
   @Response(notFoundResp.status, notFoundResp.description)
   getBackupJob(@Path() id: string): Promise<UnbrandAnyXoBackupJob> {
     return this.getObject(id as AnyXoBackupJob['id'])
+  }
+
+  /**
+   * Creates a VM backup job. Schedules are created with it: each one is keyed
+   * by a temporary id, and its settings go under the same key in `settings`.
+   *
+   * Required privilege:
+   * - resource: backup-job, action: create
+   */
+  @Example({ id: 'd33f3dc1-92b4-469c-ad58-4c2a106a4721' })
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('vm')
+  @Middlewares([
+    json(),
+    acl({
+      resource: 'backup-job',
+      action: 'create',
+      object: ({ req }) => req.body,
+    }),
+  ])
+  @SuccessResponse(createdResp.status, createdResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(invalidParameters.status, invalidParameters.description)
+  async createVmBackupJob(@Body() body: CreateVmBackupJobBody): Promise<{ id: Unbrand<XoVmBackupJob>['id'] }> {
+    const { schedules, ...props } = body
+    const job = await this.restApi.xoApp.createBackupNgJob(
+      'backup',
+      props as unknown as Omit<XoVmBackupJob, 'id' | 'type'>,
+      schedules
+    )
+
+    return { id: job.id }
+  }
+
+  /**
+   * Updates a VM backup job. `settings` replaces the whole settings object:
+   * send every schedule entry, not only the changed ones.
+   *
+   * Required privilege:
+   * - resource: backup-job, action: update
+   *
+   * @example id "d33f3dc1-92b4-469c-ad58-4c2a106a4721"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Patch('vm/{id}')
+  @Middlewares([
+    json(),
+    acl({
+      resource: 'backup-job',
+      action: 'update',
+      objectId: 'params.id',
+      getObject: autoBindService(BackupJobService, 'getBackupJob'),
+    }),
+  ])
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParameters.status, invalidParameters.description)
+  async updateVmBackupJob(@Path() id: string, @Body() body: UpdateVmBackupJobBody): Promise<void> {
+    const jobId = id as XoVmBackupJob['id']
+    const job = await this.getObject(jobId)
+    if (job.type !== 'backup') {
+      throw noSuchObject(jobId, 'backup-job')
+    }
+
+    await this.restApi.xoApp.updateJob({ ...body, id: jobId })
+    this.setStatus(noContentResp.status)
+  }
+
+  /**
+   * Deletes a backup job and its schedules.
+   *
+   * Required privilege:
+   * - resource: backup-job, action: delete
+   *
+   * @example id "d33f3dc1-92b4-469c-ad58-4c2a106a4721"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Delete('{id}')
+  @Middlewares(
+    acl({
+      resource: 'backup-job',
+      action: 'delete',
+      objectId: 'params.id',
+      getObject: autoBindService(BackupJobService, 'getBackupJob'),
+    })
+  )
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async deleteBackupJob(@Path() id: string): Promise<void> {
+    const jobId = id as AnyXoBackupJob['id']
+    const job = await this.getObject(jobId)
+
+    await this.restApi.xoApp.deleteBackupNgJob(jobId, job.type)
+    this.setStatus(noContentResp.status)
+  }
+
+  /**
+   * Runs a backup job now, with one of its schedules (the first one by default).
+   *
+   * Required privilege:
+   * - resource: backup-job, action: run
+   *
+   * @example id "d33f3dc1-92b4-469c-ad58-4c2a106a4721"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/run')
+  @Middlewares([
+    json(),
+    acl({
+      resource: 'backup-job',
+      action: 'run',
+      objectId: 'params.id',
+      getObject: autoBindService(BackupJobService, 'getBackupJob'),
+    }),
+  ])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(badRequestResp.status, badRequestResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async runBackupJob(
+    @Path() id: string,
+    @Body() body: RunBackupJobBody,
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const jobId = id as AnyXoBackupJob['id']
+    const xoApp = this.restApi.xoApp
+    const job = await this.getObject(jobId)
+
+    let schedule: XoSchedule | undefined
+    if (body.scheduleId !== undefined) {
+      schedule = await xoApp.getSchedule(body.scheduleId as XoSchedule['id'])
+      if (schedule.jobId !== job.id) {
+        throw new ApiError('the schedule does not belong to this job', 400)
+      }
+    } else {
+      schedule = (await xoApp.getAllSchedules()).find(_schedule => _schedule.jobId === job.id)
+      if (schedule === undefined) {
+        throw new ApiError('this job has no schedule: create one before running it', 400)
+      }
+    }
+
+    const action = async () => {
+      await xoApp.runJobSequence([job.id], schedule, { vms: body.vms as XoVm['id'][] | undefined })
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: { name: 'run backup job', objectId: jobId },
+    })
   }
 }
 

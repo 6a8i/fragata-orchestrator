@@ -1,6 +1,9 @@
 <template>
   <UiTitle>
     {{ t('backup-jobs') }}
+    <template #action>
+      <slot name="title-actions" />
+    </template>
   </UiTitle>
   <VtsQueryBuilder :model-value="filter" :schema @search="filter = $event" />
 
