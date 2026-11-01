@@ -214,6 +214,97 @@ export class VmController extends XapiXoController<XoVm> {
     await this.#vmService.updateVm(id as XoVm['id'], body)
   }
 
+
+  /**
+   * Turns the VM into a template. Removable media are ejected first.
+   *
+   * Required privilege:
+   * - resource: vm, action: convert-to-template
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/convert_to_template')
+  @Middlewares(acl({ resource: 'vm', action: 'convert-to-template', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async convertVmToTemplate(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const vmId = id as XoVm['id']
+    const action = async () => {
+      const xapiVm = this.getXapiObject(vmId)
+      const xapi = xapiVm.$xapi
+
+      // a template cannot keep a CD inserted: eject what can be ejected
+      await Promise.all(
+        xapiVm.VBDs.map(ref =>
+          xapi.callAsync('VBD.eject', ref).catch((error: { code?: string }) => {
+            if (error.code !== 'VBD_IS_EMPTY' && error.code !== 'VBD_NOT_REMOVABLE_MEDIA') {
+              throw error
+            }
+          })
+        )
+      )
+
+      await xapiVm.$call('set_is_a_template', true)
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: { name: 'convert VM to template', objectId: vmId },
+    })
+  }
+
+  /**
+   * Ejects the medium of the VM CD drive.
+   *
+   * Required privilege:
+   * - resource: vm, action: eject-cd
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/eject_cd')
+  @Middlewares(acl({ resource: 'vm', action: 'eject-cd', objectId: 'params.id' }))
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async ejectVmCd(@Path() id: string): Promise<void> {
+    const vmId = id as XoVm['id']
+    await this.getXapi(vmId).ejectCdFromVm(vmId)
+    this.setStatus(noContentResp.status)
+  }
+
+  /**
+   * Inserts an ISO into the VM CD drive (created when the VM has none).
+   *
+   * Required privilege:
+   * - resource: vm, action: insert-cd
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   * @example body { "vdiId": "4a3c7a45-fe1d-4a9b-8c06-8f4e6c5ad3a0" }
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/insert_cd')
+  @Middlewares([json(), acl({ resource: 'vm', action: 'insert-cd', objectId: 'params.id' })])
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async insertVmCd(@Path() id: string, @Body() body: { vdiId: string; force?: boolean }): Promise<void> {
+    const vmId = id as XoVm['id']
+    // 404 on an unknown ISO rather than an XAPI error inside the call
+    const vdi = this.restApi.getObject<XoVdi>(body.vdiId as XoVdi['id'], 'VDI')
+    await this.getXapi(vmId).insertCdIntoVm(vdi.id, vmId, { force: body.force ?? true })
+    this.setStatus(noContentResp.status)
+  }
+
   /**
    * Required privilege:
    * - resource: vm, action: delete

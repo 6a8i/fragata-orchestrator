@@ -275,6 +275,8 @@ type XenApiVmCallMethods = TagCallMethods & {
   (method: 'suspend'): Promise<void>
   (method: 'record_data_source', dataSource: string): Promise<void>
   (method: 'forget_data_source_archives', dataSource: string): Promise<void>
+  (method: 'set_is_a_template', value: boolean): Promise<void>
+  (method: 'set_HVM_boot_params', value: Record<string, string>): Promise<void>
 }
 export interface XenApiVm {
   $ref: Branded<'VM'>

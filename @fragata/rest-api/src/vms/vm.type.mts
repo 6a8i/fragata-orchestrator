@@ -15,6 +15,8 @@ export interface UpdateVmRequestBody extends EditVmProps {
    * of that resource set. `false` is a no-op.
    */
   share?: boolean
+  /** HVM boot order: a string of device letters, e.g. `cdn` (disk, CD, network) */
+  bootOrder?: string
 }
 
 type VmDashboardRun = { backupJobId: XoVmBackupJob['id']; timestamp: number; status: string }

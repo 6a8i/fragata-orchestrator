@@ -1,7 +1,10 @@
 export default {
   clone: true,
+  'convert-to-template': true,
   delete: true,
+  'eject-cd': true,
   export: true,
+  'insert-cd': true,
   'migrate-send': true,
   pause: true,
   read: true,
@@ -23,6 +26,7 @@ export default {
     affinityHost: true,
     autoPoweron: true,
     blockedOperations: true,
+    bootOrder: true,
     coresPerSocket: true,
     cpuCap: true,
     cpuMask: true,

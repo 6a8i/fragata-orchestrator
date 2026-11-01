@@ -1,4 +1,5 @@
 import { createLogger } from '@fragata/log'
+import { invalidParameters } from 'fragata-common/api-errors.js'
 import { type Defer, defer } from 'golike-defer'
 import { Task } from '@fragata/task'
 import {
@@ -222,7 +223,7 @@ export class VmService {
   }
 
   async updateVm(id: XoVm['id'], body: UpdateVmRequestBody): Promise<void> {
-    const { resourceSet, share, ...editProps } = body
+    const { resourceSet, share, bootOrder, ...editProps } = body
 
     // Touch the object so 404 is raised before any side effect.
     void this.#restApi.getObject<XoVm>(id, 'VM')
@@ -233,6 +234,14 @@ export class VmService {
     } else if (share) {
       // `share: false` is a no-op.
       await xoApp.shareVmResourceSet(id)
+    }
+
+    if (bootOrder !== undefined) {
+      const xapiVm = xoApp.getXapiObject<XoVm>(id, 'VM')
+      if (xapiVm.domain_type !== 'hvm' && xapiVm.HVM_boot_policy === '') {
+        throw invalidParameters('the boot order can only be set on an HVM guest')
+      }
+      await xapiVm.$call('set_HVM_boot_params', { ...xapiVm.HVM_boot_params, order: bootOrder })
     }
 
     if (Object.keys(editProps).length === 0) {

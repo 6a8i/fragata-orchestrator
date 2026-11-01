@@ -335,6 +335,9 @@ export interface Xapi {
     checkLimits?: (limits: Record<string, number>, vm: XenApiVmWrapped) => Promise<void>
   ): Promise<void>
   editVif(id: XoVif['id'], props: EditVifProps): Promise<void>
+  ejectCdFromVm(vmId: XoVm['id']): Promise<void>
+  /** `force` ejects the current medium first */
+  insertCdIntoVm(vdiId: XoVdi['id'], vmId: XoVm['id'], opts?: { force?: boolean }): Promise<void>
   startVm(
     id: XoVm['id'],
     opts?: {
