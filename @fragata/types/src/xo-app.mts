@@ -493,6 +493,18 @@ export type XoApp = EventEmitter & {
     xo: Record<XoBackupRepository['id'], XoConfigBackupArchive[]>
     pool: Record<XoBackupRepository['id'], Record<XoPool['id'], XoPoolBackupArchive[]>>
   }>
+  /** restores the VM of a backup archive on `srId`, resolves with the id of the new VM */
+  importVmBackupNg(
+    id: XoVmBackupArchive['id'],
+    srId: XoSr['id'],
+    settings?: {
+      additionalVmTag?: string
+      mapVdisSrs?: Record<string, string>
+      newMacAddresses?: boolean
+      useDifferentialRestore?: boolean
+      vmNamePrefix?: string
+    }
+  ): Promise<XoVm['id']>
   /** `null` when the listing of a backup repository failed */
   listVmBackupsNg(
     backupRepositoryIds: XoBackupRepository['id'][],

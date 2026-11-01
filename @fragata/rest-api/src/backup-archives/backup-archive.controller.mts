@@ -18,7 +18,7 @@ import { inject } from 'inversify'
 import { provide } from 'inversify-binding-decorators'
 import { json, type Request as ExRequest } from 'express'
 import { noSuchObject } from 'fragata-common/api-errors.js'
-import type { BackupArchiveDiskMount, XoBackupRepository, XoHost, XoVm, XoVmBackupArchive } from '@fragata/types'
+import type { BackupArchiveDiskMount, XoBackupRepository, XoHost, XoSr, XoVm, XoVmBackupArchive } from '@fragata/types'
 
 import {
   asynchronousActionResp,
@@ -43,7 +43,7 @@ import {
 import { taskLocation } from '../open-api/oa-examples/task.oa-example.mjs'
 import { SendObjects } from '../helpers/helper.type.mjs'
 import { BackupArchiveService } from './backup-archive.service.mjs'
-import type { MountLiveDiskBody } from './backup-archive.type.mjs'
+import type { MountLiveDiskBody, RestoreBackupArchiveBody } from './backup-archive.type.mjs'
 import { acl, autoBindService } from '../middlewares/acl.middleware.mjs'
 
 @Route('backup-archives')
@@ -190,6 +190,67 @@ export class BackupArchiveController extends XoController<XoVmBackupArchive> {
       sync,
       statusCode: createdResp.status,
       taskProperties: { name: 'mount backup archive disk', objectId: archiveId, params: body },
+    })
+  }
+
+
+  /**
+   * Restores the VM of this archive on a storage repository, as a new VM.
+   *
+   * Required privilege:
+   * - resource: backup-archive, action: restore
+   *
+   * @example id "231264c3-af43-4ec0-a3be-394c5b1fdbfc/xo-vm-backups/6ef7c09e-677b-1e6f-0546-7ab30413c61c/20250801T080832Z.json"
+   * @example body { "srId": "a5954951-3dfa-42b8-803f-4bc270b22a0b", "generateNewMacAddresses": true, "startOnRestore": false }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/restore')
+  @Middlewares([
+    json(),
+    acl({
+      resource: 'backup-archive',
+      action: 'restore',
+      objectId: 'params.id',
+      getObject: autoBindService(BackupArchiveService, 'getBackupArchive'),
+    }),
+  ])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response<{ id: string }>(createdResp.status, createdResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParameters.status, invalidParameters.description)
+  async restoreBackupArchive(
+    @Path() id: string,
+    @Body() body: RestoreBackupArchiveBody,
+    @Query() sync?: boolean
+  ): CreateActionReturnType<{ id: Unbrand<XoVm>['id'] }> {
+    const archiveId = id as XoVmBackupArchive['id']
+    const srId = body.srId as XoSr['id']
+    const xoApp = this.restApi.xoApp
+
+    // fails early with a 404 rather than inside the task
+    const sr = xoApp.getObject<XoSr>(srId, 'SR')
+
+    const action = async () => {
+      const vmId = await xoApp.importVmBackupNg(archiveId, sr.id, {
+        newMacAddresses: body.generateNewMacAddresses,
+        vmNamePrefix: body.vmNamePrefix === '' ? undefined : body.vmNamePrefix,
+        additionalVmTag: body.additionalVmTag === '' ? undefined : body.additionalVmTag,
+        useDifferentialRestore: body.useDifferentialRestore,
+      })
+
+      if (body.startOnRestore) {
+        await xoApp.getXapi(vmId).startVm(vmId, { startOnly: true })
+      }
+
+      return { id: vmId }
+    }
+
+    return this.createAction<{ id: XoVm['id'] }>(action, {
+      sync,
+      statusCode: createdResp.status,
+      taskProperties: { name: 'restore backup archive', objectId: archiveId, params: body },
     })
   }
 
