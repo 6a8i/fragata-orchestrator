@@ -2,6 +2,9 @@
   <div class="storage-repositories-table">
     <UiTitle>
       {{ t('storage-repositories') }}
+      <template #action>
+        <slot name="title-actions" />
+      </template>
     </UiTitle>
     <VtsQueryBuilder :model-value="filter" :schema @search="filter = $event" />
     <div class="container">

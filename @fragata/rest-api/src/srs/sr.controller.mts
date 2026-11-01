@@ -19,7 +19,7 @@ import {
 import { inject } from 'inversify'
 import { provide } from 'inversify-binding-decorators'
 import { json, Request as ExRequest } from 'express'
-import type { XenApiVdi, XoMessage, XoTask, XoVdi, XoAlarm, XoSr } from '@fragata/types'
+import type { XenApiVdi, XoMessage, XoTask, XoVbd, XoVdi, XoVm, XoAlarm, XoSr } from '@fragata/types'
 import { SUPPORTED_VDI_FORMAT } from '@fragata/types'
 import { acl } from '../middlewares/acl.middleware.mjs'
 import { AlarmService } from '../alarms/alarm.service.mjs'
@@ -389,6 +389,97 @@ export class SrController extends XapiXoController<XoSr> {
         name: 'SR scan',
         objectId: srId,
       },
+    })
+  }
+
+
+  /**
+   * Puts the SR in maintenance mode: every host is unplugged from it.
+   * VMs running with a disk on it must be shut down first, or `shutdownVms`
+   * must be set to shut them down (cleanly, falling back to a hard shutdown).
+   *
+   * Required privilege:
+   * - resource: sr, action: maintenance-mode
+   *
+   * @example id "c4284e12-37c9-7967-b9e8-83ef229c3e03"
+   * @example body { "shutdownVms": true }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/enable_maintenance_mode')
+  @Middlewares([json(), acl({ resource: 'sr', action: 'maintenance-mode', objectId: 'params.id' })])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async enableSrMaintenanceMode(
+    @Path() id: string,
+    @Body() body: { shutdownVms?: boolean },
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const srId = id as XoSr['id']
+    const xapiSr = this.getXapiObject(srId)
+
+    const action = async () => {
+      let vmsToShutdown: XoVm['uuid'][] = []
+
+      if (body?.shutdownVms) {
+        // VMs currently using a disk of this SR
+        const vdis = this.restApi.getObjectsByType<XoVdi>('VDI', { filter: vdi => vdi.$SR === srId }) ?? {}
+        const vmIds = new Set<XoVm['id']>()
+        for (const vdi of Object.values(vdis)) {
+          for (const vbdId of vdi.$VBDs) {
+            const vbd = this.restApi.getObject<XoVbd>(vbdId, 'VBD')
+            vmIds.add(vbd.VM as XoVm['id'])
+          }
+        }
+        vmsToShutdown = [...vmIds]
+          .map(vmId => this.restApi.getObject<XoVm>(vmId, 'VM'))
+          .filter(vm => vm.power_state === 'Running' || vm.power_state === 'Paused')
+          .map(vm => vm.uuid)
+      }
+
+      await xapiSr.$xapi.SR_enableMaintenanceMode(xapiSr.$ref, { vmsToShutdown })
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: { name: 'enable SR maintenance mode', objectId: srId, params: body },
+    })
+  }
+
+  /**
+   * Leaves maintenance mode: the hosts unplugged by it are plugged back and
+   * the VMs it shut down are started again (best effort).
+   *
+   * Required privilege:
+   * - resource: sr, action: maintenance-mode
+   *
+   * @example id "c4284e12-37c9-7967-b9e8-83ef229c3e03"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/disable_maintenance_mode')
+  @Middlewares(acl({ resource: 'sr', action: 'maintenance-mode', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async disableSrMaintenanceMode(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const srId = id as XoSr['id']
+    const xapiSr = this.getXapiObject(srId)
+
+    const action = async () => {
+      await xapiSr.$xapi.SR_disableMaintenanceMode(xapiSr.$ref)
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: { name: 'disable SR maintenance mode', objectId: srId },
     })
   }
 

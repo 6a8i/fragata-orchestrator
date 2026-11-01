@@ -6,6 +6,8 @@
         <template #trigger="{ open }">
           <UiButtonIcon accent="brand" icon="action:more-actions" size="medium" @click="open($event)" />
         </template>
+        <SrMaintenanceActions :sr />
+        <MenuSeparator />
         <SrDisconnectButton :scope :sr />
         <SrDeleteButton :sr />
       </MenuList>
@@ -30,6 +32,8 @@ import { useXoPbdCollection } from '@/modules/pbd/remote-resources/use-xo-pbd-co
 import SrConnectButton from '@/modules/storage-repository/components/actions/connect/SrConnectButton.vue'
 import SrDeleteButton from '@/modules/storage-repository/components/actions/delete/SrDeleteButton.vue'
 import SrDisconnectButton from '@/modules/storage-repository/components/actions/disconnect/SrDisconnectButton.vue'
+import SrMaintenanceActions from '@/modules/storage-repository/components/actions/SrMaintenanceActions.vue'
+import MenuSeparator from '@core/components/menu/MenuSeparator.vue'
 import StorageRepositoryCustomFieldsCard from '@/modules/storage-repository/components/list/panel/cards/StorageRepositoryCustomFieldsCard.vue'
 import StorageRepositoryHostsCard from '@/modules/storage-repository/components/list/panel/cards/StorageRepositoryHostsCard.vue'
 import StorageRepositoryInfosCard from '@/modules/storage-repository/components/list/panel/cards/StorageRepositoryInfosCard.vue'

@@ -1,7 +1,19 @@
 <template>
   <VtsContentSidePanel class="storage">
     <UiCard class="container">
-      <StorageRepositoriesTable :srs :busy="!isReady" :error="hasFetchError" :scope />
+      <StorageRepositoriesTable :srs :busy="!isReady" :error="hasFetchError" :scope>
+        <template #title-actions>
+          <UiButton
+            variant="primary"
+            accent="brand"
+            size="medium"
+            left-icon="fa:plus"
+            @click="openNewSrDrawer(host.$pool, host.id)"
+          >
+            {{ t('new') }}
+          </UiButton>
+        </template>
+      </StorageRepositoriesTable>
     </UiCard>
     <StorageRepositorySidePanel :sr="selectedSr" :scope @close="selectedSr = undefined" />
   </VtsContentSidePanel>
@@ -17,7 +29,10 @@ import {
   type FrontXoSr,
 } from '@/modules/storage-repository/remote-resources/use-xo-sr-collection.ts'
 import VtsContentSidePanel from '@core/components/layout/VtsContentSidePanel.vue'
+import UiButton from '@core/components/ui/button/UiButton.vue'
 import UiCard from '@core/components/ui/card/UiCard.vue'
+import { useNewSrDrawer } from '@/modules/storage-repository/composables/use-new-sr-drawer.composable.ts'
+import { useI18n } from 'vue-i18n'
 import { useRouteQuery } from '@core/composables/route-query.composable.ts'
 import { SR_SCOPE_TYPE, type SrScope } from '@core/types/storage-repository.type.ts'
 import { logicAnd, logicOr } from '@vueuse/math'
@@ -26,6 +41,10 @@ import { computed } from 'vue'
 const { host } = defineProps<{
   host: FrontXoHost
 }>()
+
+const { t } = useI18n()
+
+const { openNewSrDrawer } = useNewSrDrawer()
 
 const { srsByHost, getSrById, areSrsReady, hasSrFetchError } = useXoSrCollection()
 const { arePbdsReady, hasPbdFetchError } = useXoPbdCollection()

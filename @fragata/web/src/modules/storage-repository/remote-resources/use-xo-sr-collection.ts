@@ -33,6 +33,7 @@ const srFields = [
   'other_config',
   'tags',
   'allocationStrategy',
+  'inMaintenanceMode',
   '$PBDs',
 ] as const satisfies readonly (keyof XoSr)[]
 

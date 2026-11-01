@@ -245,6 +245,10 @@ export interface Xapi {
   powerOnHost(hostId: XoHost['id']): Promise<void>
   rebootHost(hostId: XoHost['id'], force?: boolean): Promise<void>
   shutdownHost(hostId: XoHost['id'], opts?: { force?: boolean; bypassEvacuate?: boolean }): Promise<void>
+  /** unplugs every host; running VMs using the SR must be listed in `vmsToShutdown` */
+  SR_enableMaintenanceMode(ref: XenApiSr['$ref'], opts?: { vmsToShutdown?: XoVm['uuid'][] }): Promise<void>
+  /** best effort: plugs the hosts back and restarts the VMs shut down by the maintenance */
+  SR_disableMaintenanceMode(ref: XenApiSr['$ref']): Promise<void>
   SR_create(params: {
     content_type?: XoSr['content_type']
     // index signature, not `Record<string, string>`: tsoa emits an empty schema for `Record`

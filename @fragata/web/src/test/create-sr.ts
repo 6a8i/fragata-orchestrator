@@ -24,6 +24,7 @@ export function createSr(overrides: Partial<FrontXoSr> = {}): FrontXoSr {
     other_config: {},
     tags: [],
     allocationStrategy: 'thin',
+    inMaintenanceMode: false,
     $PBDs: [],
     ...overrides,
   }

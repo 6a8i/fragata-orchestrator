@@ -6,6 +6,7 @@ export default {
     vdi: true,
     vm: true,
   },
+  'maintenance-mode': true,
   'migrate-receive': true,
   read: true,
   'reclaim-space': true,
