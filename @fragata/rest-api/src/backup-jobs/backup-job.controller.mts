@@ -51,12 +51,16 @@ import {
 import { RestApi } from '../rest-api/rest-api.mjs'
 import { BASE_URL, limitAndFilterArray, safeParseComplexMatcher } from '../helpers/utils.helper.mjs'
 import type {
+  CreateMetadataBackupJobBody,
+  CreateMirrorBackupJobBody,
   CreateVmBackupJobBody,
   RunBackupJobBody,
   UnbrandAnyXoBackupJob,
   UnbrandXoMetadataBackupJob,
   UnbrandXoMirrorBackupJob,
   UnbrandXoVmBackupJob,
+  UpdateMetadataBackupJobBody,
+  UpdateMirrorBackupJobBody,
   UpdateVmBackupJobBody,
 } from './backup-job.type.mjs'
 import type { CreateActionReturnType } from '../abstract-classes/base-controller.mjs'
@@ -219,6 +223,112 @@ export class BackupJobController extends XoController<AnyXoBackupJob> {
       throw noSuchObject(jobId, 'backup-job')
     }
 
+    await this.restApi.xoApp.updateJob({ ...body, id: jobId })
+    this.setStatus(noContentResp.status)
+  }
+
+  /**
+   * Creates a metadata backup job: the configuration of the orchestrator and/or the metadata of pools. Schedules
+   * are created with it, like for a VM backup job.
+   *
+   * Required privilege:
+   * - resource: backup-job, action: create
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('metadata')
+  @Middlewares([json(), acl({ resource: 'backup-job', action: 'create', object: ({ req }) => req.body })])
+  @SuccessResponse(createdResp.status, createdResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(invalidParameters.status, invalidParameters.description)
+  async createMetadataBackupJob(@Body() body: CreateMetadataBackupJobBody): Promise<{ id: string }> {
+    const { schedules = {}, ...props } = body
+    const job = await this.restApi.xoApp.createMetadataBackupJob(
+      { ...props, userId: this.restApi.getCurrentUser().id },
+      schedules
+    )
+    return { id: job.id }
+  }
+
+  /**
+   * Updates a metadata backup job. `settings` replaces the whole settings object.
+   *
+   * Required privilege:
+   * - resource: backup-job, action: update
+   *
+   * @example id "d33f3dc1-92b4-469c-ad58-4c2a106a4721"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Patch('metadata/{id}')
+  @Middlewares([
+    json(),
+    acl({
+      resource: 'backup-job',
+      action: 'update',
+      objectId: 'params.id',
+      getObject: autoBindService(BackupJobService, 'getBackupJob'),
+    }),
+  ])
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async updateMetadataBackupJob(@Path() id: string, @Body() body: UpdateMetadataBackupJobBody): Promise<void> {
+    await this.#updateJobOfType(id, 'metadataBackup', body)
+  }
+
+  /**
+   * Creates a mirror backup job: copies the backups of a backup repository to other ones.
+   *
+   * Required privilege:
+   * - resource: backup-job, action: create
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('mirror')
+  @Middlewares([json(), acl({ resource: 'backup-job', action: 'create', object: ({ req }) => req.body })])
+  @SuccessResponse(createdResp.status, createdResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(invalidParameters.status, invalidParameters.description)
+  async createMirrorBackupJob(@Body() body: CreateMirrorBackupJobBody): Promise<{ id: string }> {
+    const { schedules, ...props } = body
+    const job = await this.restApi.xoApp.createBackupNgJob(
+      'mirrorBackup' as 'backup',
+      props as unknown as Omit<XoVmBackupJob, 'id' | 'type'>,
+      schedules
+    )
+    return { id: job.id }
+  }
+
+  /**
+   * Updates a mirror backup job. `settings` replaces the whole settings object.
+   *
+   * Required privilege:
+   * - resource: backup-job, action: update
+   *
+   * @example id "d33f3dc1-92b4-469c-ad58-4c2a106a4721"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Patch('mirror/{id}')
+  @Middlewares([
+    json(),
+    acl({
+      resource: 'backup-job',
+      action: 'update',
+      objectId: 'params.id',
+      getObject: autoBindService(BackupJobService, 'getBackupJob'),
+    }),
+  ])
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async updateMirrorBackupJob(@Path() id: string, @Body() body: UpdateMirrorBackupJobBody): Promise<void> {
+    await this.#updateJobOfType(id, 'mirrorBackup', body)
+  }
+
+  async #updateJobOfType(id: string, type: string, body: object): Promise<void> {
+    const jobId = id as AnyXoBackupJob['id']
+    const job = await this.getObject(jobId)
+    if (job.type !== type) {
+      throw noSuchObject(jobId, 'backup-job')
+    }
     await this.restApi.xoApp.updateJob({ ...body, id: jobId })
     this.setStatus(noContentResp.status)
   }

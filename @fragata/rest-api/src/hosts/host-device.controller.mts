@@ -1,4 +1,17 @@
-import { Body, Example, Get, Middlewares, Path, Post, Query, Response, Route, Security, SuccessResponse, Tags } from 'tsoa'
+import {
+  Body,
+  Example,
+  Get,
+  Middlewares,
+  Path,
+  Post,
+  Query,
+  Response,
+  Route,
+  Security,
+  SuccessResponse,
+  Tags,
+} from 'tsoa'
 import { inject } from 'inversify'
 import { provide } from 'inversify-binding-decorators'
 import { json } from 'express'

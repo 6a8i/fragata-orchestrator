@@ -11,6 +11,7 @@ import { asyncEach } from '@fragata/async-each'
 import { fromCallback } from 'promise-toolbox'
 
 import { debounceWithKey } from '../_pDebounceWithKey.mjs'
+import { isXcpFamilyBrand } from '../_xcpFamily.mjs'
 
 /** @typedef {import('@fragata/types').XoHost} XoHost */
 /** @typedef {import('@fragata/types').XoPif} XoPif */
@@ -631,10 +632,10 @@ getMdadmHealth.resolve = {
 
 export async function getBlockdevices({ host }) {
   const xapi = this.getXapi(host)
-  if (host.productBrand !== 'XCP-ng') {
+  if (!isXcpFamilyBrand(host.productBrand)) {
     throw incorrectState({
       actual: host.productBrand,
-      expected: 'XCP-ng',
+      expected: 'XCP-ng or Fragata Host',
       object: host.id,
       property: 'productBrand',
     })

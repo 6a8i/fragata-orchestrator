@@ -17,12 +17,12 @@
 </template>
 
 <script lang="ts" setup>
-import HostSystemPassthrough from '@/modules/host/components/system/HostSystemPassthrough.vue'
 import HostSystemDiskHealth from '@/modules/host/components/system/HostSystemDiskHealth.vue'
 import HostSystemGeneralInformation from '@/modules/host/components/system/HostSystemGeneralInformation.vue'
 import HostSystemHardwareSpecifications from '@/modules/host/components/system/HostSystemHardwareSpecifications.vue'
 // import HostSystemLicensing from '@/components/host/system/HostSystemLicensing.vue'
 import HostSystemNetworking from '@/modules/host/components/system/HostSystemNetworking.vue'
+import HostSystemPassthrough from '@/modules/host/components/system/HostSystemPassthrough.vue'
 import HostSystemResourceManagement from '@/modules/host/components/system/HostSystemResourceManagement.vue'
 import HostSystemSoftwareTooling from '@/modules/host/components/system/HostSystemSoftwareTooling.vue'
 import type { FrontXoHost } from '@/modules/host/remote-resources/use-xo-host-collection.ts'

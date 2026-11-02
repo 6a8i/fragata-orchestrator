@@ -8,7 +8,8 @@ export function redirectMeAlias(
   res: Response,
   next: NextFunction
 ) {
-  const meAliasRegex = /\/users\/me(?=\/|$)/
+  // `me` is followed by a sub-path, the query string or nothing
+  const meAliasRegex = /\/users\/me(?=[/?]|$)/
   const originalUrl = req.originalUrl
   const currentUser = req.user
 

@@ -18,7 +18,7 @@ import {
   Tags,
 } from 'tsoa'
 import { createLogger } from '@fragata/log'
-import { forbiddenOperation } from 'fragata-common/api-errors.js'
+import { forbiddenOperation, noSuchObject } from 'fragata-common/api-errors.js'
 import { inject } from 'inversify'
 import { json, type Request as ExRequest } from 'express'
 import { provide } from 'inversify-binding-decorators'
@@ -322,6 +322,33 @@ export class UserController extends XoController<XoUser> {
     const tokens = await this.restApi.xoApp.getAuthenticationTokensForUser(user.id)
 
     return limitAndFilterArray(tokens, { filter, limit })
+  }
+
+  /**
+   * Revokes an authentication token. You can only revoke your own tokens.
+   *
+   * @example id "722d17b9-699b-49d2-8193-be1ac573d3de"
+   * @example tokenId "Bp8Zbk-sd7bWK3bjhZMYAVCh3bHgMiYQ0j3cPNJ2C0I"
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Delete('{id}/authentication_tokens/{tokenId}')
+  @Security('*', ['acl'])
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  async deleteAuthenticationToken(@Path() id: string, @Path() tokenId: string): Promise<void> {
+    const user = await this.getObject(id as XoUser['id'])
+
+    const me = this.restApi.getCurrentUser()
+    if (me.id !== user.id) {
+      throw forbiddenOperation('revoke authentication token', 'can only revoke own authentication tokens')
+    }
+
+    const tokens = await this.restApi.xoApp.getAuthenticationTokensForUser(user.id)
+    if (!tokens.some(token => token.id === tokenId)) {
+      throw noSuchObject(tokenId, 'authenticationToken')
+    }
+    await this.restApi.xoApp.deleteAuthenticationToken(tokenId)
   }
 
   /**

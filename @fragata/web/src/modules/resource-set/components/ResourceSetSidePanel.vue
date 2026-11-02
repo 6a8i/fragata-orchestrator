@@ -11,6 +11,17 @@
         {{ t('action:edit') }}
       </UiButton>
       <UiButton
+        v-tooltip="t('resource-set:grant-access-info')"
+        accent="brand"
+        variant="secondary"
+        size="medium"
+        left-icon="fa:user"
+        :busy="isGranting"
+        @click="grantAccess()"
+      >
+        {{ t('action:grant-access') }}
+      </UiButton>
+      <UiButton
         v-tooltip="!canDelete && deleteErrorMessage"
         accent="danger"
         variant="secondary"
@@ -25,6 +36,7 @@
     </template>
 
     <template v-if="resourceSet" #default>
+      <UiAlert v-if="grantMessage !== undefined" :accent="grantMessage.accent">{{ grantMessage.content }}</UiAlert>
       <UiPanelCard>
         <UiPanelCardTitle size="medium" :label="resourceSet.name" />
         <VtsCardRowKeyValue>
@@ -75,18 +87,21 @@ import { useXoResourceSetDeleteJob } from '@/modules/resource-set/jobs/xo-resour
 import type { FrontXoResourceSet } from '@/modules/resource-set/remote-resources/use-xo-resource-set-collection.ts'
 import { formatGib, formatUsage } from '@/modules/resource-set/utils/resource-set.util.ts'
 import { useXoSrCollection } from '@/modules/storage-repository/remote-resources/use-xo-sr-collection.ts'
+import { toErrorMessage } from '@/modules/system/utils/system.util.ts'
 import { useXoUserCollection } from '@/modules/user/remote-resources/use-xo-user-collection.ts'
 import { useXoVmTemplateCollection } from '@/modules/vm/remote-resources/use-xo-vm-template-collection.ts'
+import { fetchPost } from '@/shared/utils/fetch.util.ts'
+import type { IconName } from '@core/icons'
 import VtsCardRowKeyValue from '@core/components/card/VtsCardRowKeyValue.vue'
 import VtsIcon from '@core/components/icon/VtsIcon.vue'
 import VtsSidePanel from '@core/components/panel/VtsSidePanel.vue'
+import UiAlert from '@core/components/ui/alert/UiAlert.vue'
 import UiButton from '@core/components/ui/button/UiButton.vue'
 import UiPanelCard from '@core/components/ui/panel-card/UiPanelCard.vue'
 import UiPanelCardTitle from '@core/components/ui/panel-card-title/UiPanelCardTitle.vue'
 import { useDeleteModal } from '@core/composables/modals/use-delete-modal.ts'
 import { vTooltip } from '@core/directives/tooltip.directive.ts'
-import type { IconName } from '@core/icons'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { resourceSet } = defineProps<{
@@ -134,6 +149,25 @@ const objects = computed<Row[]>(() =>
     return { id, label: network?.name_label ?? id, icon: 'object:network' }
   })
 )
+
+const isGranting = ref(false)
+const grantMessage = ref<{ accent: 'success' | 'danger'; content: string }>()
+
+async function grantAccess() {
+  if (resourceSet === undefined) {
+    return
+  }
+  isGranting.value = true
+  grantMessage.value = undefined
+  try {
+    await fetchPost(`resource-sets/${resourceSet.id}/actions/grant_access`)
+    grantMessage.value = { accent: 'success', content: t('resource-set:access-granted') }
+  } catch (error) {
+    grantMessage.value = { accent: 'danger', content: toErrorMessage(error) }
+  } finally {
+    isGranting.value = false
+  }
+}
 
 const {
   run: deleteResourceSet,

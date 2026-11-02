@@ -24,13 +24,13 @@
 </template>
 
 <script lang="ts" setup>
-import HostAdminActions from '@/modules/host/components/actions/HostAdminActions.vue'
 import HostDetachButton from '@/modules/host/components/actions/detach/HostDetachButton.vue'
 import HostDisableButton from '@/modules/host/components/actions/disable/HostDisableButton.vue'
 import HostDisableAndEvacuateVmsButton from '@/modules/host/components/actions/disable-and-evacuate-vms/HostDisableAndEvacuateVmsButton.vue'
 import HostDownloadButton from '@/modules/host/components/actions/download/HostDownloadButton.vue'
 import HostEnableButton from '@/modules/host/components/actions/enable/HostEnableButton.vue'
 import HostForgetButton from '@/modules/host/components/actions/forget/HostForgetButton.vue'
+import HostAdminActions from '@/modules/host/components/actions/HostAdminActions.vue'
 import HostPowerStateActions from '@/modules/host/components/actions/HostPowerStateActions.vue'
 import HostRestartToolstackButton from '@/modules/host/components/actions/restart-toolstack/HostRestartToolstackButton.vue'
 import type { FrontXoHost } from '@/modules/host/remote-resources/use-xo-host-collection.ts'

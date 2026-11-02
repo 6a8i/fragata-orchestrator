@@ -11,6 +11,7 @@ import { extractIpFromVmNetworks } from './_extractIpFromVmNetworks.mjs'
 import { extractProperty, forEach, isEmpty, mapFilter, parseXml } from './utils.mjs'
 import { getVmDomainType, isHostRunning, isVmRunning } from './xapi/index.mjs'
 import { useUpdateSystem } from './xapi/utils.mjs'
+import { isXcpFamilyBrand } from './_xcpFamily.mjs'
 
 // The transforms below run for every XAPI event, and `metrics` /
 // `guest_metrics` events arrive every few seconds for each running VM. XML
@@ -187,7 +188,6 @@ const isVmVulnerable_XSA468 = vm => {
 }
 
 const computeXsa468Vulnerability = guestMetrics => {
-
   if (!guestMetrics.PV_drivers_detected) {
     // No PV drivers installed: no vulnerability
     return false
@@ -378,10 +378,9 @@ const TRANSFORMS = {
           }
         }),
       agentStartTime: toTimestamp(otherConfig.agent_start_time),
-      rebootRequired:
-        softwareVersion.product_brand === 'XCP-ng'
-          ? toTimestamp(otherConfig.boot_time) < +otherConfig.rpm_patch_installation_time
-          : !isEmpty(obj.updates_requiring_reboot),
+      rebootRequired: isXcpFamilyBrand(softwareVersion.product_brand)
+        ? toTimestamp(otherConfig.boot_time) < +otherConfig.rpm_patch_installation_time
+        : !isEmpty(obj.updates_requiring_reboot),
       tags: obj.tags,
       version: softwareVersion.product_version,
       productBrand: softwareVersion.product_brand,

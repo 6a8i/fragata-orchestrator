@@ -20,6 +20,7 @@ import { forEach, mapFilter, parseXml } from '../../utils.mjs'
 
 import { useUpdateSystem } from '../utils.mjs'
 import { incorrectState, notImplemented } from 'fragata-common/api-errors.js'
+import { isXcpFamilyBrand } from '../../_xcpFamily.mjs'
 
 // TOC -------------------------------------------------------------------------
 
@@ -52,7 +53,7 @@ const PENDING_GUIDANCES_LEVEL = {
 
 const log = createLogger('xo:xapi')
 
-const _isXcp = host => host.software_version.product_brand === 'XCP-ng'
+const _isXcp = host => isXcpFamilyBrand(host.software_version.product_brand)
 const _isXs = host => host.software_version.product_brand === 'XenServer'
 const _isXsWithCdnUpdates = host => _isXs(host) && semver.gt(host.software_version.product_version, '8.3.0')
 
@@ -541,7 +542,9 @@ const methods = {
   async _poolWideInstall($defer, patches, xsCredentials) {
     // New XS patching system: https://support.citrix.com/article/CTX473972/upcoming-changes-in-xencenter
     if (xsCredentials?.username === undefined || xsCredentials?.apikey === undefined) {
-      throw new Error('XenServer credentials not found. See https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/configuration.md#xenserver-updates')
+      throw new Error(
+        'XenServer credentials not found. See https://github.com/6a8i/fragata-orchestrator/blob/main/docs/docs/getting-started/configuration.md#xenserver-updates'
+      )
     }
 
     // Legacy XS patches

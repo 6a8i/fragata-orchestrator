@@ -13,6 +13,7 @@
     </VtsColumn>
     <VtsColumn>
       <BackupRepositoryDetailSpeed :br />
+      <BackupRepositoryDetailMetadataBackups :br />
     </VtsColumn>
   </VtsColumns>
 </template>
@@ -21,6 +22,7 @@
 import BackupRepositoryDetailAzureAzurite from '@/modules/backup-repository/components/detail/BackupRepositoryDetailAzureAzurite.vue'
 import BackupRepositoryDetailGeneralInfo from '@/modules/backup-repository/components/detail/BackupRepositoryDetailGeneralInfo.vue'
 import BackupRepositoryDetailLocal from '@/modules/backup-repository/components/detail/BackupRepositoryDetailLocal.vue'
+import BackupRepositoryDetailMetadataBackups from '@/modules/backup-repository/components/detail/BackupRepositoryDetailMetadataBackups.vue'
 import BackupRepositoryDetailNfs from '@/modules/backup-repository/components/detail/BackupRepositoryDetailNfs.vue'
 import BackupRepositoryDetailS3 from '@/modules/backup-repository/components/detail/BackupRepositoryDetailS3.vue'
 import BackupRepositoryDetailSmb from '@/modules/backup-repository/components/detail/BackupRepositoryDetailSmb.vue'

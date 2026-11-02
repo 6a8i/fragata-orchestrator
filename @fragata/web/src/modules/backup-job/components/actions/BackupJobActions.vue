@@ -42,11 +42,11 @@
       />
     </template>
     <MenuItem
-      v-tooltip="!canEditBackupJob && editBackupJobErrorMessage"
+      v-tooltip="otherKind === undefined && !canEditBackupJob && editBackupJobErrorMessage"
       accent="brand"
       icon="action:edit"
-      :disabled="!canEditBackupJob"
-      @click="openEditVmBackupJobDrawer()"
+      :disabled="otherKind === undefined && !canEditBackupJob"
+      @click="edit()"
     >
       {{ t('action:edit') }}
     </MenuItem>
@@ -67,6 +67,10 @@
 <script lang="ts" setup>
 import { useBackupJobDelete } from '@/modules/backup-job/composables/use-backup-job-delete.composable.ts'
 import { useBackupJobRun } from '@/modules/backup-job/composables/use-backup-job-run.composable.ts'
+import {
+  otherBackupJobKind,
+  useOtherBackupJobModal,
+} from '@/modules/backup-job/composables/use-other-backup-job-modal.composable.ts'
 import { useVmBackupJobDrawer } from '@/modules/backup-job/composables/use-vm-backup-job-drawer.composable.ts'
 import type { FrontAnyXoBackupJob } from '@/modules/backup-job/remote-resources/use-xo-backup-job-collection.ts'
 import MenuItem from '@core/components/menu/MenuItem.vue'
@@ -75,6 +79,7 @@ import MenuSeparator from '@core/components/menu/MenuSeparator.vue'
 import UiButton from '@core/components/ui/button/UiButton.vue'
 import UiButtonIcon from '@core/components/ui/button-icon/UiButtonIcon.vue'
 import { vTooltip } from '@core/directives/tooltip.directive.ts'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { backupJob } = defineProps<{
@@ -86,9 +91,18 @@ const { t } = useI18n()
 const { schedules, hasSchedule, runBackupJob, canRunBackupJob, isRunningBackupJob, runBackupJobErrorMessage } =
   useBackupJobRun(() => backupJob)
 
-const { openEditVmBackupJobDrawer, canEditBackupJob, editBackupJobErrorMessage } = useVmBackupJobDrawer(
-  () => backupJob
-)
+const { openEditVmBackupJobDrawer, canEditBackupJob, editBackupJobErrorMessage } = useVmBackupJobDrawer(() => backupJob)
+
+const otherKind = computed(() => otherBackupJobKind(backupJob))
+
+const { openOtherBackupJobModal } = useOtherBackupJobModal()
+
+function edit() {
+  if (otherKind.value === undefined) {
+    return openEditVmBackupJobDrawer()
+  }
+  return openOtherBackupJobModal(otherKind.value, backupJob as Parameters<typeof openOtherBackupJobModal>[1])
+}
 
 const { deleteBackupJobs, canDeleteBackupJobs, isDeletingBackupJobs, deleteBackupJobsErrorMessage } =
   useBackupJobDelete(() => [backupJob])

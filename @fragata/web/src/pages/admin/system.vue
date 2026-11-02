@@ -6,12 +6,14 @@
     </VtsColumn>
     <VtsColumn>
       <ApiLogsCard />
+      <AuditLogCard />
     </VtsColumn>
   </VtsColumns>
 </template>
 
 <script setup lang="ts">
 import ApiLogsCard from '@/modules/system/components/ApiLogsCard.vue'
+import AuditLogCard from '@/modules/system/components/AuditLogCard.vue'
 import ConfigBackupCard from '@/modules/system/components/ConfigBackupCard.vue'
 import VtsColumn from '@core/components/column/VtsColumn.vue'
 import VtsColumns from '@core/components/columns/VtsColumns.vue'

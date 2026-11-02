@@ -39,7 +39,7 @@
           {{ vm.nameLabel }}
         </UiCheckbox>
         <span class="sublabel typo-body-regular-small">
-          {{ vm.nCpus }} vCPU · {{ formatSize(vm.memory) }} · {{ formatSize(vm.storage.used) }} · {{ vm.powerState }}
+          {{ vmSummary(vm) }}
         </span>
         <UiInfo v-if="!vm.hasAllExtentsListed" accent="warning">{{ t('import:vmware-disk-unreadable') }}</UiInfo>
       </div>
@@ -168,6 +168,9 @@ watch(poolId, () => {
 })
 
 const formatSize = (bytes: number) => formatBytes(bytes, 1)
+
+const vmSummary = (vm: EsxiVm) =>
+  [`${vm.nCpus} vCPU`, formatSize(vm.memory), formatSize(vm.storage.used), vm.powerState].join(' · ')
 
 const canConnect = computed(
   () => poolId.value !== undefined && connection.host !== '' && connection.user !== '' && connection.password !== ''

@@ -119,6 +119,7 @@
 
 <script setup lang="ts">
 import { useXoHostCollection } from '@/modules/host/remote-resources/use-xo-host-collection.ts'
+import type { FrontXoVm } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
 import VmDeviceListCard from '@/modules/vm-device/components/VmDeviceListCard.vue'
 import { useXoVmDevices } from '@/modules/vm-device/remote-resources/use-xo-vm-devices.ts'
 import {
@@ -131,7 +132,6 @@ import {
   deleteVmVusb,
   detachVmPcis,
 } from '@/modules/vm-device/utils/vm-device.api.ts'
-import type { FrontXoVm } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
 import { ApiError } from '@/shared/error/api.error.ts'
 import VtsColumn from '@core/components/column/VtsColumn.vue'
 import VtsColumns from '@core/components/columns/VtsColumns.vue'

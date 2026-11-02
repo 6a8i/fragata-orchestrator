@@ -25,7 +25,10 @@ export const useXoPifReconfigureIpJob = defineJob('pif.reconfigure-ip', [xoPifAr
 
   return {
     async run(pif: FrontXoPif, payload: PifIpPayload) {
-      const { taskId } = await fetchPost<{ taskId: FrontXoTask['id'] }>(`pifs/${pif.id}/actions/reconfigure_ip`, payload)
+      const { taskId } = await fetchPost<{ taskId: FrontXoTask['id'] }>(
+        `pifs/${pif.id}/actions/reconfigure_ip`,
+        payload
+      )
       await monitorTask(taskId)
     },
 

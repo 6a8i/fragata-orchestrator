@@ -79,3 +79,42 @@ export type RunBackupJobBody = {
   /** restrict the run to these VMs */
   vms?: string[]
 }
+
+export type CreateMetadataBackupJobBody = {
+  name?: string
+  proxy?: string
+  /** complex-matcher pattern of the backup repositories, e.g. `{ "id": { "__or": ["<id>"] } }` */
+  remotes: Record<string, unknown>
+  /** complex-matcher pattern of the pools whose metadata is saved */
+  pools?: Record<string, unknown>
+  /** saves the configuration of the orchestrator */
+  xoMetadata?: boolean
+  /** `''` holds the general settings, the other keys are schedule ids (or temporary ids, see `schedules`) */
+  settings: Record<string, Record<string, unknown>>
+  schedules?: Record<string, VmBackupJobScheduleBody>
+}
+
+export type UpdateMetadataBackupJobBody = Partial<
+  Omit<CreateMetadataBackupJobBody, 'schedules' | 'proxy' | 'pools'>
+> & {
+  /** `null` removes the proxy */
+  proxy?: string | null
+  /** `null` stops saving the pools */
+  pools?: Record<string, unknown> | null
+}
+
+export type CreateMirrorBackupJobBody = {
+  name?: string
+  mode: 'full' | 'delta'
+  proxy?: string
+  /** backup repository copied from */
+  sourceRemote: string
+  /** complex-matcher pattern of the backup repositories copied to */
+  remotes: Record<string, unknown>
+  /** restricts the copy to some VMs, e.g. `{ "vm": { "uuid": { "__or": ["<uuid>"] } } }` */
+  filter?: Record<string, unknown>
+  settings: Record<string, Record<string, unknown>>
+  schedules?: Record<string, VmBackupJobScheduleBody>
+}
+
+export type UpdateMirrorBackupJobBody = Partial<Omit<CreateMirrorBackupJobBody, 'schedules'>>

@@ -33,7 +33,7 @@
           </VtsTabularKeyValueList>
         </VtsColumn>
         <VtsColumn>
-          <div class="typo-h6">Fragata Host</div>
+          <div class="typo-h6">{{ FRAGATA_HOST_NAME }}</div>
           <VtsTabularKeyValueList>
             <VtsTabularKeyValueRow :label="t('news')">
               <template #value>
@@ -112,6 +112,10 @@
         </div>
       </div>
     </div>
+    <!-- API TOKENS -->
+    <div class="container">
+      <AccountTokens />
+    </div>
     <!-- LANGUAGE -->
     <div class="container">
       <UiTitle>{{ t('language-preferences') }}</UiTitle>
@@ -128,9 +132,7 @@
           <VtsTabularKeyValueList>
             <VtsTabularKeyValueRow :label="t('translation-tool')">
               <template #value>
-                <UiLink size="medium" :href="FRAGATA_LINKS.TRANSLATION">
-                  GitHub
-                </UiLink>
+                <UiLink size="medium" :href="FRAGATA_LINKS.TRANSLATION">{{ GITHUB }}</UiLink>
               </template>
             </VtsTabularKeyValueRow>
           </VtsTabularKeyValueList>
@@ -141,6 +143,7 @@
 </template>
 
 <script setup lang="ts">
+import AccountTokens from '@/modules/account/components/tokens/AccountTokens.vue'
 import { useTheme } from '@/shared/composables/theme.composable.ts'
 import { FRAGATA_HOST_LINKS, FRAGATA_LINKS } from '@/shared/constants.ts'
 import VtsColumn from '@core/components/column/VtsColumn.vue'
@@ -164,6 +167,10 @@ import { watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t, locale } = useI18n()
+
+// product and service names are not translated
+const FRAGATA_HOST_NAME = 'Fragata Host'
+const GITHUB = 'GitHub'
 
 const cookies = useCookies(['lang'])
 

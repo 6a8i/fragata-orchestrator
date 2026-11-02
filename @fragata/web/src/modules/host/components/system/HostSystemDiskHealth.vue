@@ -20,18 +20,23 @@
           <UiInfo accent="info">{{ t('disk-health:no-disk') }}</UiInfo>
         </template>
       </VtsTabularKeyValueRow>
-      <VtsTabularKeyValueRow v-for="disk of disks" v-else :key="disk.device" :label="disk.device">
-        <template #value>
-          <UiInfo :accent="disk.healthy ? 'success' : 'danger'">{{ disk.status }}</UiInfo>
-        </template>
-      </VtsTabularKeyValueRow>
+      <template v-else>
+        <VtsTabularKeyValueRow v-for="disk of disks" :key="disk.device" :label="disk.device">
+          <template #value>
+            <UiInfo :accent="disk.healthy ? 'success' : 'danger'">{{ disk.status }}</UiInfo>
+          </template>
+        </VtsTabularKeyValueRow>
+      </template>
     </VtsTabularKeyValueList>
   </UiCard>
 </template>
 
 <script setup lang="ts">
-import { useXoHostMdadmHealth, useXoHostSmartctlHealth } from '@/modules/host/remote-resources/use-xo-host-disk-health.ts'
 import type { FrontXoHost } from '@/modules/host/remote-resources/use-xo-host-collection.ts'
+import {
+  useXoHostMdadmHealth,
+  useXoHostSmartctlHealth,
+} from '@/modules/host/remote-resources/use-xo-host-disk-health.ts'
 import VtsStateHero from '@core/components/state-hero/VtsStateHero.vue'
 import VtsTabularKeyValueList from '@core/components/tabular-key-value-list/VtsTabularKeyValueList.vue'
 import VtsTabularKeyValueRow from '@core/components/tabular-key-value-row/VtsTabularKeyValueRow.vue'

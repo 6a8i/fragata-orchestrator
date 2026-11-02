@@ -31,11 +31,11 @@ import VmSystemNetworking from '@/modules/vm/components/system/VmSystemNetworkin
 import VmSystemResource from '@/modules/vm/components/system/VmSystemResource.vue'
 import VmSystemStorageConfig from '@/modules/vm/components/system/VmSystemStorageConfig.vue'
 import VmSystemVirtualizationAndBoot from '@/modules/vm/components/system/VmSystemVirtualizationAndBoot.vue'
+import { useVmSettingsDrawer } from '@/modules/vm/composables/use-vm-settings-drawer.composable.ts'
 import type { FrontXoVm } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
 import VtsColumn from '@core/components/column/VtsColumn.vue'
 import VtsColumns from '@core/components/columns/VtsColumns.vue'
 import UiButton from '@core/components/ui/button/UiButton.vue'
-import { useVmSettingsDrawer } from '@/modules/vm/composables/use-vm-settings-drawer.composable.ts'
 import { useI18n } from 'vue-i18n'
 
 const { vm } = defineProps<{ vm: FrontXoVm }>()

@@ -15,6 +15,7 @@ import { incorrectState } from 'fragata-common/api-errors.js'
 
 import { acquireRpuGuard } from '../_rpuGuard.mjs'
 import { gcRpuTraces, getRpuTracesConfig, openRpuTrace, reconcileRpuTraces } from '../_rpuObservability.mjs'
+import { isXcpFamilyBrand } from '../_xcpFamily.mjs'
 import {
   listUnrestoredItems,
   readClosableRpuRecoveryRecord,
@@ -189,7 +190,10 @@ export default class Pools {
     for (const sourceId of sourceIds) {
       const source = _app.getObject(sourceId)
       const sourceHost = _app.getObject(source.master)
-      if (sourceHost.productBrand !== targetHost.productBrand) {
+      const isSameFamily =
+        sourceHost.productBrand === targetHost.productBrand ||
+        (isXcpFamilyBrand(sourceHost.productBrand) && isXcpFamilyBrand(targetHost.productBrand))
+      if (!isSameFamily) {
         throw new Error(`a ${sourceHost.productBrand} pool cannot be merged into a ${targetHost.productBrand} pool`)
       }
       if (sourceHost.version !== targetHost.version) {

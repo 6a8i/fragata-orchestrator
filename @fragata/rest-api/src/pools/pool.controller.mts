@@ -418,6 +418,8 @@ export class PoolController extends XapiXoController<XoPool> {
     if (crashDumpSrId !== undefined) {
       await xapi.call('pool.set_crash_dump_SR', pool.$ref, srRef(crashDumpSrId))
     }
+    // the pool read back by the next requests is updated from the XAPI events
+    await xapi.barrier(pool.$ref)
   }
 
   /**
@@ -566,6 +568,20 @@ export class PoolController extends XapiXoController<XoPool> {
         .sort((a, b) => Number(b.$ref === pool.master) - Number(a.$ref === pool.master))
       for (const host of xapiHosts) {
         await xapi.call('host.restart_agent', host.$ref)
+        // the call returns before the toolstack is back: wait for it, the next actions on the pool would fail
+        const end = Date.now() + 10 * 60e3
+        for (;;) {
+          await new Promise(resolve => setTimeout(resolve, 5e3))
+          try {
+            if (await xapi.call<boolean>('host.get_enabled', host.$ref)) {
+              break
+            }
+          } catch (error) {
+            if (Date.now() > end) {
+              throw error
+            }
+          }
+        }
       }
     }
 
@@ -1204,12 +1220,13 @@ export class PoolController extends XapiXoController<XoPool> {
   ): CreateActionReturnType<void> {
     const poolId = id as XoPool['id']
     const action = async () => {
-      const {
-        _auth: { user, password },
-        _url: { hostnameRaw },
-      } = this.restApi.xoApp.getXapi(poolId)
-      const hostXapi = this.restApi.xoApp.getXapi(body.host as XoHost['id'])
-      await hostXapi.joinPool(hostnameRaw, user, password, body.force)
+      const sourcePoolId = this.restApi.xoApp.getObject<XoHost>(body.host as XoHost['id'], 'host').$pool
+      if (sourcePoolId === poolId) {
+        throw invalidParameters('the host is already in this pool')
+      }
+      // unlike a plain join, stops following the events of the pool of the host and forgets its connection: both
+      // connections would otherwise share the objects of the merged pool, and forgetting one would drop them
+      await this.restApi.xoApp.mergeXenPools(sourcePoolId, poolId, body.force)
     }
 
     return this.createAction<void>(action, {

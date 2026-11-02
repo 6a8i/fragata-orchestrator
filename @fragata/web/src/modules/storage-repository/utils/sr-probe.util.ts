@@ -27,3 +27,15 @@ export function probeIscsiLuns(
 ): Promise<IscsiLun[]> {
   return fetchPost<IscsiLun[]>(`hosts/${hostId}/actions/probe_iscsi_luns?sync=true`, target)
 }
+
+export type HbaDevice = { id: string; scsiId: string; vendor: string; serial: string; size: number; path: string }
+
+export function probeHba(hostId: string): Promise<HbaDevice[]> {
+  return fetchPost<HbaDevice[]>(`hosts/${hostId}/actions/probe_hba?sync=true`)
+}
+
+/** ZFS pools of the host, by name; empty when the ZFS plugin is not installed */
+export async function probeZfs(hostId: string): Promise<{ name: string; mountpoint: string }[]> {
+  const pools = await fetchPost<Record<string, { mountpoint?: string }>>(`hosts/${hostId}/actions/probe_zfs?sync=true`)
+  return Object.entries(pools).map(([name, { mountpoint }]) => ({ name, mountpoint: mountpoint ?? `/${name}` }))
+}

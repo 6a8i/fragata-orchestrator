@@ -159,6 +159,48 @@
           </VtsInputWrapper>
         </div>
 
+        <!-- HBA -->
+        <div v-if="srKind === 'lvmohba'" class="section">
+          <UiTitle>{{ t('sr-form:hba-device') }}</UiTitle>
+          <div class="row">
+            <VtsInputWrapper :label="t('sr-form:device')" :message="errorFor('lun')">
+              <VtsSelect :id="hbaSelectId" accent="brand" />
+            </VtsInputWrapper>
+            <UiButton
+              accent="brand"
+              variant="secondary"
+              size="medium"
+              left-icon="fa:magnifying-glass"
+              :busy="isProbing"
+              :disabled="hostId === undefined"
+              @click="discoverHba()"
+            >
+              {{ t('sr-form:discover') }}
+            </UiButton>
+          </div>
+        </div>
+
+        <!-- ZFS -->
+        <div v-if="srKind === 'zfs'" class="section">
+          <UiTitle>{{ t('sr-form:zfs-pool') }}</UiTitle>
+          <div class="row">
+            <VtsInputWrapper :label="t('sr-form:zfs-pool')" :message="errorFor('path')">
+              <VtsSelect :id="zfsSelectId" accent="brand" />
+            </VtsInputWrapper>
+            <UiButton
+              accent="brand"
+              variant="secondary"
+              size="medium"
+              left-icon="fa:magnifying-glass"
+              :busy="isProbing"
+              :disabled="hostId === undefined"
+              @click="discoverZfs()"
+            >
+              {{ t('sr-form:discover') }}
+            </UiButton>
+          </div>
+        </div>
+
         <UiAlert v-if="probeError !== undefined" accent="danger">{{ probeError }}</UiAlert>
       </div>
     </template>
@@ -176,10 +218,13 @@ import type { NewSrPayload } from '@/modules/storage-repository/jobs/xo-sr-creat
 import {
   type IscsiIqn,
   type IscsiLun,
+  type HbaDevice,
   type NfsExport,
   probeIscsiIqns,
   probeIscsiLuns,
+  probeHba,
   probeNfs,
+  probeZfs,
 } from '@/modules/storage-repository/utils/sr-probe.util.ts'
 import type { InputWrapperMessage } from '@core/components/input-wrapper/VtsInputWrapper.vue'
 import VtsInputWrapper from '@core/components/input-wrapper/VtsInputWrapper.vue'
@@ -192,10 +237,11 @@ import UiDrawer from '@core/components/ui/drawer/UiDrawer.vue'
 import UiInput from '@core/components/ui/input/UiInput.vue'
 import UiTitle from '@core/components/ui/title/UiTitle.vue'
 import { useFormSelect } from '@core/packages/form-select'
+import { formatSize } from '@core/utils/size.util.ts'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-type SrKind = 'nfs' | 'smb' | 'lvmoiscsi' | 'lvm' | 'ext' | 'iso'
+type SrKind = 'nfs' | 'smb' | 'lvmoiscsi' | 'lvmohba' | 'lvm' | 'ext' | 'zfs' | 'iso'
 type IsoSource = 'nfs' | 'smb' | 'local'
 type Field = 'host' | 'name' | 'server' | 'path' | 'iqn' | 'lun' | 'device'
 
@@ -234,6 +280,8 @@ const device = ref('')
 const nfsExports = ref<NfsExport[]>([])
 const iqns = ref<IscsiIqn[]>([])
 const luns = ref<IscsiLun[]>([])
+const hbaDevices = ref<HbaDevice[]>([])
+const zfsPools = ref<{ name: string; mountpoint: string }[]>([])
 const isProbing = ref(false)
 const probeError = ref<string>()
 const submitted = ref(false)
@@ -244,6 +292,8 @@ watch([server, srKind, isoSource, hostId], () => {
   iqns.value = []
   luns.value = []
   iqn.value = undefined
+  hbaDevices.value = []
+  zfsPools.value = []
   lun.value = undefined
   probeError.value = undefined
 })
@@ -259,8 +309,10 @@ const typeOptions = computed(() => [
   { id: 'nfs', label: t('sr-type:nfs'), value: 'nfs' as const },
   { id: 'smb', label: t('sr-type:smb'), value: 'smb' as const },
   { id: 'lvmoiscsi', label: t('sr-type:iscsi'), value: 'lvmoiscsi' as const },
+  { id: 'lvmohba', label: t('sr-type:hba'), value: 'lvmohba' as const },
   { id: 'lvm', label: t('sr-type:local-lvm'), value: 'lvm' as const },
   { id: 'ext', label: t('sr-type:local-ext'), value: 'ext' as const },
+  { id: 'zfs', label: t('sr-type:zfs'), value: 'zfs' as const },
   { id: 'iso', label: t('sr-type:iso'), value: 'iso' as const },
 ])
 
@@ -318,6 +370,22 @@ const { id: lunSelectId } = useFormSelect(luns, {
   },
 })
 
+const { id: hbaSelectId } = useFormSelect(hbaDevices, {
+  model: lun,
+  required: true,
+  option: {
+    id: 'scsiId',
+    label: item => `${item.vendor} ${item.serial} — ${item.path} (${formatSize(item.size, 1)})`,
+    value: 'scsiId',
+  },
+})
+
+const { id: zfsSelectId } = useFormSelect(zfsPools, {
+  model: path,
+  required: true,
+  option: { id: 'name', label: pool => `${pool.name} (${pool.mountpoint})`, value: 'mountpoint' },
+})
+
 async function probe(fn: () => Promise<void>) {
   isProbing.value = true
   probeError.value = undefined
@@ -357,6 +425,24 @@ function discoverLuns() {
   })
 }
 
+function discoverHba() {
+  return probe(async () => {
+    hbaDevices.value = await probeHba(hostId.value!)
+    if (hbaDevices.value.length === 0) {
+      probeError.value = t('sr-form:nothing-found')
+    }
+  })
+}
+
+function discoverZfs() {
+  return probe(async () => {
+    zfsPools.value = await probeZfs(hostId.value!)
+    if (zfsPools.value.length === 0) {
+      probeError.value = t('sr-form:zfs-nothing-found')
+    }
+  })
+}
+
 function iscsiTarget() {
   return {
     targetIp: server.value,
@@ -381,6 +467,8 @@ const missingFields = computed<Set<Field>>(() => {
     if (lun.value === undefined) missing.add('lun')
   }
   if ((kind === 'lvm' || kind === 'ext') && device.value === '') missing.add('device')
+  if (kind === 'lvmohba' && lun.value === undefined) missing.add('lun')
+  if (kind === 'zfs' && path.value === '') missing.add('path')
 
   return missing
 })
@@ -430,6 +518,10 @@ function buildPayload(): NewSrPayload {
           ...(username.value !== '' && { chapuser: username.value, chappassword: password.value }),
         },
       }
+    case 'lvmohba':
+      return { ...base, SR_type: 'lvmohba', device_config: { SCSIid: lun.value! } }
+    case 'zfs':
+      return { ...base, SR_type: 'zfs', device_config: { location: path.value } }
     case 'lvm':
     case 'ext':
       return { ...base, SR_type: srKind.value, device_config: { device: device.value } }

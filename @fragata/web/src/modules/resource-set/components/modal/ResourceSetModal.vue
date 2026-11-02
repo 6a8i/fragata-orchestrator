@@ -29,7 +29,12 @@
             <UiInput v-model="quotas.cpus" type="number" accent="brand" :placeholder="t('resource-set:no-quota')" />
           </VtsInputWrapper>
           <VtsInputWrapper :label="`${t('ram')} (GiB)`">
-            <UiInput v-model="quotas.memoryGib" type="number" accent="brand" :placeholder="t('resource-set:no-quota')" />
+            <UiInput
+              v-model="quotas.memoryGib"
+              type="number"
+              accent="brand"
+              :placeholder="t('resource-set:no-quota')"
+            />
           </VtsInputWrapper>
           <VtsInputWrapper :label="`${t('disk-space')} (GiB)`">
             <UiInput v-model="quotas.diskGib" type="number" accent="brand" :placeholder="t('resource-set:no-quota')" />

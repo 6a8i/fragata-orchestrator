@@ -169,7 +169,9 @@ export class Xapi extends Base {
     nbdOptions,
     syncHookSecret,
     syncHookTimeout,
-    vdiDestroyRetryWhenInUse = { delay: 5e3, tries: 10 },
+    // the VDI of an export is usually released within a second: a short delay keeps backups fast, the number
+    // of tries keeps the same total budget
+    vdiDestroyRetryWhenInUse = { delay: 1e3, tries: 50 },
     vdiDelayBeforeRemovingCloudConfigDrive = '5 min',
     ...opts
   }) {

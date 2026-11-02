@@ -15,9 +15,9 @@ function numberToIpv4(n: number): string {
  * Other addresses (IPv6) are listed as is, after the IPv4 ones.
  */
 export function collapseAddresses(addresses: string[]): string[] {
-  const ipv4 = [
-    ...new Set(addresses.map(ipv4ToNumber).filter((n): n is number => n !== undefined)),
-  ].sort((a, b) => a - b)
+  const ipv4 = [...new Set(addresses.map(ipv4ToNumber).filter((n): n is number => n !== undefined))].sort(
+    (a, b) => a - b
+  )
   const others = addresses.filter(address => ipv4ToNumber(address) === undefined)
 
   const entries: string[] = []

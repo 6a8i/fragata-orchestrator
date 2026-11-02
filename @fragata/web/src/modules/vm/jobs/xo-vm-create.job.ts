@@ -28,6 +28,7 @@ export type NewVmVdiPayload =
 type TCreateVmPayload = {
   autoPoweron?: boolean
   memory?: number
+  cpus?: number
   name_description?: string
   name_label: string
   clone?: boolean
@@ -50,7 +51,29 @@ type TCreateVmPayload = {
   copyHostBiosString?: boolean
   hvmBootFirmware?: 'uefi' | 'bios'
   createVtpm?: boolean
+  /** creates the VM in this resource set (self-service) instead of with the privileges of the user */
+  resourceSetId?: string
 }
+/** the subset of the payload a resource set accepts: new disks and VIFs only */
+function toResourceSetBody(payload: Omit<TCreateVmPayload, 'poolId' | 'resourceSetId'>) {
+  return {
+    name_label: payload.name_label,
+    name_description: payload.name_description,
+    template: payload.template,
+    cpus: payload.cpus,
+    memory: payload.memory,
+    vdis: payload.vdis?.flatMap(vdi =>
+      'userdevice' in vdi || vdi.sr === undefined ? [] : [{ name_label: vdi.name_label, size: vdi.size, sr: vdi.sr }]
+    ),
+    vifs: (payload.vifs as { network?: string }[] | undefined)?.flatMap(vif =>
+      vif.network === undefined ? [] : [{ network: vif.network }]
+    ),
+    cloud_config: payload.cloud_config,
+    network_config: payload.network_config,
+    boot: payload.boot,
+  }
+}
+
 const payloadsArg = defineJobArg<Ref<TCreateVmPayload>>({
   identify: payload => payload.value.poolId,
   toArray: true,
@@ -64,7 +87,14 @@ export const useXoVmCreateJob = defineJob('vm.create', [payloadsArg], () => {
     run(payloads): Promise<PromiseSettledResult<XoVm['id']>[]> {
       return Promise.allSettled(
         payloads.map(async payload => {
-          const { poolId, ...rest } = payload.value
+          const { poolId, resourceSetId, ...rest } = payload.value
+          if (resourceSetId !== undefined) {
+            const { id } = await fetchPost<{ id: XoVm['id'] }>(
+              `resource-sets/${resourceSetId}/actions/create_vm`,
+              toResourceSetBody(rest)
+            )
+            return id
+          }
           const { taskId } = await fetchPost<{ taskId: XoTask['id'] }>(`pools/${poolId}/actions/create_vm`, rest)
           const { id } = await monitorTask<{ id: XoVm['id'] }>(taskId)
           return id

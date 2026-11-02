@@ -9,7 +9,7 @@
     <div v-for="pci of pcis" :key="pci.id" class="row">
       <div class="label">
         <span>{{ pci.deviceName }}</span>
-        <span class="sublabel typo-body-regular-small">{{ pci.pciId }} · {{ pci.className }}</span>
+        <span class="sublabel typo-body-regular-small">{{ [pci.pciId, pci.className].join(' · ') }}</span>
       </div>
       <UiInfo :accent="pci.dom0Access === 'enabled' ? 'muted' : 'success'">
         {{ dom0AccessLabel(pci.dom0Access) }}

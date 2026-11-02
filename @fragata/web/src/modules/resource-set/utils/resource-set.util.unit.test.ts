@@ -20,7 +20,10 @@ describe('toQuotas', () => {
 describe('toLimits', () => {
   it('drops empty quotas and keeps IP pool quotas', () => {
     expect(
-      toLimits({ cpus: 4, memoryGib: '', diskGib: 1.5 }, { 'ipPool:abc': { total: 3, usage: 1 }, memory: { total: 1, usage: 0 } })
+      toLimits(
+        { cpus: 4, memoryGib: '', diskGib: 1.5 },
+        { 'ipPool:abc': { total: 3, usage: 1 }, memory: { total: 1, usage: 0 } }
+      )
     ).toEqual({ 'ipPool:abc': 3, cpus: 4, disk: 1.5 * GIB })
   })
 })

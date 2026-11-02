@@ -9,6 +9,12 @@
     <div class="card-container">
       <form @submit.prevent="createNewVM()">
         <UiCard v-if="vmState.pool">
+          <template v-if="resourceSets.length > 0">
+            <UiTitle>{{ t('self-service') }}</UiTitle>
+            <VtsInputWrapper :label="t('resource-set')" :message="t('new-vm:resource-set-info')">
+              <VtsSelect :id="resourceSetSelectId" accent="brand" />
+            </VtsInputWrapper>
+          </template>
           <!-- TEMPLATE SECTION -->
           <UiTitle>{{ t('template') }}</UiTitle>
           <div class="template-container">
@@ -45,6 +51,11 @@
                 </UiRadioButton>
               </UiRadioButtonGroup>
               <VtsSelect v-if="vmState.installMode === 'cdrom'" :id="vdiSelectId" accent="brand" />
+              <CloudConfigTemplatePicker
+                v-if="vmState.installMode === 'cloud-init-config'"
+                v-model:user-config="vmState.cloudConfig"
+                v-model:network-config="vmState.networkConfig"
+              />
               <div v-if="vmState.installMode === 'cloud-init-config'" class="install-custom-config">
                 <div>
                   <UiTextarea
@@ -256,7 +267,9 @@ import { useXoHostCollection } from '@/modules/host/remote-resources/use-xo-host
 import { useXoNetworkCollection } from '@/modules/network/remote-resources/use-xo-network-collection.ts'
 import { useXoPifCollection } from '@/modules/pif/remote-resources/use-xo-pif-collection.ts'
 import { useXoPoolCollection } from '@/modules/pool/remote-resources/use-xo-pool-collection.ts'
+import { useXoResourceSetCollection } from '@/modules/resource-set/remote-resources/use-xo-resource-set-collection.ts'
 import { useXoSrCollection } from '@/modules/storage-repository/remote-resources/use-xo-sr-collection.ts'
+import CloudConfigTemplatePicker from '@/modules/system/components/CloudConfigTemplatePicker.vue'
 import { useXoVbdCollection } from '@/modules/vbd/remote-resources/use-xo-vbd-collection.ts'
 import { type FrontXoVdi, useXoVdiCollection } from '@/modules/vdi/remote-resources/use-xo-vdi-collection.ts'
 import { useXoVifCollection } from '@/modules/vif/remote-resources/use-xo-vif-collection.ts'
@@ -426,6 +439,21 @@ const ramFormatted = computed({
   },
 })
 
+// self-service: a VM created in a resource set uses its templates, SRs and networks
+const { resourceSets } = useXoResourceSetCollection()
+const resourceSetId = ref<string>()
+const resourceSetObjects = computed(
+  () => new Set(resourceSets.value.find(set => set.id === resourceSetId.value)?.objects ?? [])
+)
+const isInResourceSet = (id: string) => resourceSetId.value === undefined || resourceSetObjects.value.has(id)
+
+const { id: resourceSetSelectId } = useFormSelect(resourceSets, {
+  model: resourceSetId,
+  searchable: true,
+  placeholder: () => t('new-vm:no-resource-set'),
+  option: { id: set => set.id, value: set => set.id, label: set => set.name },
+})
+
 const hosts = computed(() => {
   if (!vmState.pool) {
     return []
@@ -439,10 +467,12 @@ const vmsTemplates = computed(() => {
     return []
   }
 
-  return vmsTemplatesByPool.value.get(vmState.pool.id) ?? []
+  return (vmsTemplatesByPool.value.get(vmState.pool.id) ?? []).filter(template => isInResourceSet(template.id))
 })
 
-const filteredNetworks = computed(() => networks.value.filter(network => network.$pool === vmState.pool?.id))
+const filteredNetworks = computed(() =>
+  networks.value.filter(network => network.$pool === vmState.pool?.id && isInResourceSet(network.id))
+)
 
 const generateRandomString = (length: number) => {
   return Math.random()
@@ -521,7 +551,9 @@ const copyHostBiosStringsTooltipContent = computed(() =>
 )
 
 const filteredSrs = computed(() => {
-  return srs.value.filter(sr => sr.content_type !== 'iso' && sr.physical_usage > 0 && sr.$pool === vmState.pool?.id)
+  return srs.value.filter(
+    sr => sr.content_type !== 'iso' && sr.physical_usage > 0 && sr.$pool === vmState.pool?.id && isInResourceSet(sr.id)
+  )
 })
 
 const getVmTemplateVdis = (template: FrontXoVmTemplate) =>
@@ -824,7 +856,7 @@ const vmData = computed(() => {
   }
 })
 
-const payload = computed(() => ({ ...vmData.value, poolId: vmState.pool?.id }))
+const payload = computed(() => ({ ...vmData.value, poolId: vmState.pool?.id, resourceSetId: resourceSetId.value }))
 // TODO: multiple VM creation not possible in the UI for now
 // Only pass a single payload
 const { run, isRunning, canRun } = useXoVmCreateJob([payload])

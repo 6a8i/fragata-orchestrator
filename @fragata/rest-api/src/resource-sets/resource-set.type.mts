@@ -37,3 +37,22 @@ export type UpdateResourceSetBody = {
   shareByDefault?: boolean
   tags?: string[]
 }
+
+export type CreateVmInResourceSetBody = {
+  name_label: string
+  name_description?: string
+  /** UUID of a template of the set */
+  template: string
+  cpus?: number
+  /** bytes */
+  memory?: number
+  /** new disks, on SRs of the set */
+  vdis?: { name_label: string; size: number; sr: string }[]
+  /** VIFs on networks of the set; the VIFs of the template are replaced */
+  vifs?: { network: string }[]
+  cloud_config?: string
+  network_config?: string
+  boot?: boolean
+  /** gives every subject of the set access to the VM (default: the share setting of the set) */
+  share?: boolean
+}

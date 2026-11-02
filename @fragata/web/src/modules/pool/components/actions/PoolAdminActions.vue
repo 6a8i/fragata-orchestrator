@@ -41,6 +41,16 @@
   >
     {{ t('action:enable-ha') }}
   </MenuItem>
+  <MenuItem
+    v-tooltip="!canAddHost && addHostErrorMessage"
+    accent="neutral"
+    icon="fa:plus"
+    :disabled="!canAddHost"
+    :busy="isAddingHost"
+    @click="openAddHost()"
+  >
+    {{ t('action:add-host') }}
+  </MenuItem>
   <MenuSeparator />
   <MenuItem
     v-tooltip="!canInstallPatches && installPatchesErrorMessage"
@@ -77,6 +87,7 @@
 <script lang="ts" setup>
 import {
   type EditPoolPayload,
+  useXoPoolAddHostJob,
   useXoPoolDisableHaJob,
   useXoPoolEditJob,
   useXoPoolEnableHaJob,
@@ -166,6 +177,33 @@ const { open: openSetMasterModal } = useOverlay({
 function openSetMaster() {
   closeMenu?.()
   return openSetMasterModal({ props: { pool } })
+}
+
+// add a host
+
+const joiningHostId = ref<string>()
+
+const {
+  run: addHost,
+  canRun: canAddHost,
+  isRunning: isAddingHost,
+  errorMessage: addHostErrorMessage,
+} = useXoPoolAddHostJob(() => pool, joiningHostId)
+
+const { open: openAddHostModal } = useOverlay({
+  component: () => import('@/modules/pool/components/modal/PoolAddHostModal.vue'),
+  events: {
+    onConfirm: (hostId: string) => {
+      joiningHostId.value = hostId
+      addHost({ detached: true })
+    },
+    onCancel: true,
+  },
+})
+
+function openAddHost() {
+  closeMenu?.()
+  return openAddHostModal({ props: { pool } })
 }
 
 // HA

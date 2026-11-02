@@ -464,6 +464,39 @@ export type XoApp = EventEmitter & {
   getAllSchedules(): Promise<XoSchedule[]>
   getAllUsers(opts?: { obfuscatePassword?: boolean }): Promise<XoUser[]>
   getAllXenServers(): Promise<XoServer[]>
+  createMetadataBackupJob(
+    props: Record<string, unknown>,
+    schedules: Record<string, { cron: string; enabled: boolean; name?: string; timezone?: string }>
+  ): Promise<{ id: string }>
+  /** copies the VM to the SR while it runs, then stops it for a last delta */
+  warmMigrateVm(
+    vmId: XoVm['id'],
+    srId: XoSr['id'],
+    startDestinationVm?: boolean,
+    deleteSourceVm?: boolean
+  ): Promise<void>
+  /** partitions of a disk of a VM backup */
+  listBackupNgDiskPartitions(
+    remoteId: string,
+    diskId: string
+  ): Promise<{ id: string; name?: string; size?: number; type?: string }[]>
+  /** entries of a directory of a partition, keyed by name (directories end with `/`) */
+  listBackupNgPartitionFiles(
+    remoteId: string,
+    diskId: string,
+    partitionId: string | undefined,
+    path: string
+  ): Promise<Record<string, object>>
+  /** an archive (`zip` or `tgz`) of files of a partition */
+  fetchBackupNgPartitionFiles(
+    remoteId: string,
+    diskId: string,
+    partitionId: string | undefined,
+    paths: string[],
+    format: 'zip' | 'tgz'
+  ): Promise<Readable>
+  /** the master of the source pool joins the target pool; the connection of the source pool is forgotten */
+  mergeXenPools(sourcePoolId: XoPool['id'], targetPoolId: XoPool['id'], force?: boolean): Promise<void>
   /** VMs of a VMware ESXi or vCenter host */
   connectToEsxiAndList(opts: { host: string; user: string; password: string; sslVerify?: boolean }): Promise<
     {
@@ -525,6 +558,7 @@ export type XoApp = EventEmitter & {
     props: { addresses?: Record<string, object | null>; name?: string; networks?: string[] }
   ): Promise<void>
   getAuthenticationTokensForUser(userId: XoUser['id']): Promise<XoAuthenticationToken[]>
+  deleteAuthenticationToken(id: XoAuthenticationToken['id'] | string): Promise<void>
   /** Archive/host a live-mounted disk belongs to, as recorded by `mountBackupArchiveDisk` */
   getBackupArchiveDiskMountOwner(id: BackupArchiveDiskMount['id']): {
     archiveId: XoVmBackupArchive['id']
@@ -556,7 +590,9 @@ export type XoApp = EventEmitter & {
   getTotalBackupSizeOnRemote(id: XoBackupRepository['id']): Promise<{ onDisk: number }>
   getSchedule(id: XoSchedule['id']): Promise<XoSchedule>
   /** log entries of a namespace (`api` holds the failed API calls), by id */
-  getLogs(namespace: string): Promise<
+  getLogs(
+    namespace: string
+  ): Promise<
     Record<string, { level: string; message: string; data?: Record<string, unknown>; namespace: string; time: number }>
   >
   getLogger(namespace: string): Promise<{ del(id: string | string[]): void }>
@@ -590,6 +626,7 @@ export type XoApp = EventEmitter & {
   hasFeatureAuthorization(featureCode: string): Promise<boolean>
   hasObject<T extends XapiXoRecord>(id: T['id'], type: T['type']): boolean
   loadPlugin(id: XoPlugin['id']): Promise<void>
+  restoreMetadataBackup(opts: { id: string; poolUuid?: string }): Promise<void>
   listMetadataBackups(backupRepositoryIds: XoBackupRepository['id'][]): Promise<{
     xo: Record<XoBackupRepository['id'], XoConfigBackupArchive[]>
     pool: Record<XoBackupRepository['id'], Record<XoPool['id'], XoPoolBackupArchive[]>>
@@ -691,6 +728,8 @@ export type XoApp = EventEmitter & {
       ipPools?: string[]
     }
   ): Promise<void>
+  /** throws `unauthorized` when the user is not a subject of the set, or (with `objectIds`) an object is not in it */
+  checkResourceSetConstraints(id: string, userId: XoUser['id'], objectIds?: string[]): Promise<void>
   setVmResourceSet(vmId: XoVm['id'], resourceSetId: string | null, force?: boolean): Promise<void>
   shareVmResourceSet(vmId: XoVm['id']): Promise<void>
   removeUserFromGroup(userId: XoUser['id'], id: XoGroup['id']): Promise<void>

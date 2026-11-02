@@ -334,5 +334,7 @@ export class NetworkController extends XapiXoController<XoNetwork> {
     if (purposeToAdd !== undefined) {
       await xapi.call('network.add_purpose', ref, purposeToAdd)
     }
+    // the network read back by the next requests is updated from the XAPI events
+    await xapi.barrier(ref)
   }
 }

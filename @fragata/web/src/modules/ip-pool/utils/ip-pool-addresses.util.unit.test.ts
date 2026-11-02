@@ -3,7 +3,10 @@ import { describe, expect, it } from 'vitest'
 
 describe('collapseAddresses', () => {
   it('collapses consecutive IPv4 addresses into ranges', () => {
-    expect(collapseAddresses(['10.0.0.3', '10.0.0.1', '10.0.0.2', '10.0.0.10'])).toEqual(['10.0.0.1-10.0.0.3', '10.0.0.10'])
+    expect(collapseAddresses(['10.0.0.3', '10.0.0.1', '10.0.0.2', '10.0.0.10'])).toEqual([
+      '10.0.0.1-10.0.0.3',
+      '10.0.0.10',
+    ])
   })
 
   it('crosses octet boundaries', () => {

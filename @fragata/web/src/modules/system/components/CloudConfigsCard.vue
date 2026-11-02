@@ -14,7 +14,13 @@
       <UiInfo :accent="config.type === 'network' ? 'info' : 'muted'">
         {{ config.type === 'network' ? t('cloud-configs:network') : t('cloud-configs:user-data') }}
       </UiInfo>
-      <UiButtonIcon v-tooltip="t('action:edit')" icon="action:edit" accent="brand" size="small" @click="openModal(config)" />
+      <UiButtonIcon
+        v-tooltip="t('action:edit')"
+        icon="action:edit"
+        accent="brand"
+        size="small"
+        @click="openModal(config)"
+      />
       <UiButtonIcon
         v-tooltip="t('action:delete')"
         icon="fa:trash"

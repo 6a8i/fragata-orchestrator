@@ -6,6 +6,7 @@ import {
   invalidCredentials,
   invalidParameters,
   noSuchObject,
+  notEnoughResources,
   notImplemented,
   objectAlreadyExists,
   unauthorized,
@@ -44,7 +45,7 @@ export default function genericErrorHandler(error: unknown, req: Request, res: R
     statusCode = 403
   } else if (invalidCredentials.is(error)) {
     statusCode = 401
-    res.setHeader('WWW-Authenticate', 'Basic realm="xo"')
+    res.setHeader('WWW-Authenticate', 'Basic realm="Fragata"')
   } else if (objectAlreadyExists.is(error)) {
     statusCode = 409
   } else if (invalidParameters.is(error)) {
@@ -52,6 +53,9 @@ export default function genericErrorHandler(error: unknown, req: Request, res: R
   } else if (notImplemented.is(error)) {
     statusCode = 501
   } else if (incorrectState.is(error)) {
+    statusCode = 409
+  } else if (notEnoughResources.is(error)) {
+    // a quota of a resource set is exceeded
     statusCode = 409
   } else if (serviceUnavailable.is(error)) {
     statusCode = 503

@@ -16,17 +16,47 @@ import { RestApi } from '../rest-api/rest-api.mjs'
 import { XapiXoController } from '../abstract-classes/xapi-xo-controller.mjs'
 
 /**
- * XOSTOR (LINSTOR) storage: hyperconverged SRs replicated between the hosts of a pool.
+ * Health of SRs: the chains of their VDIs, and the state of XOSTOR (LINSTOR) SRs.
  */
 @Route('srs')
 @Security('*')
 @Response(badRequestResp.status, badRequestResp.description)
 @Response(unauthorizedResp.status, unauthorizedResp.description)
 @Tags('srs')
-@provide(SrXostorController)
-export class SrXostorController extends XapiXoController<XoSr> {
+@provide(SrHealthController)
+export class SrHealthController extends XapiXoController<XoSr> {
   constructor(@inject(RestApi) restApi: RestApi) {
     super('SR', restApi)
+  }
+
+  /**
+   * Chains of VDIs (VHD) waiting to be coalesced: a long chain slows down the disk and blocks snapshots.
+   * `unhealthyVdis` gives, by VDI UUID, the number of parents to coalesce; `vdisWithUnknownVhdParent` the VDIs whose
+   * parent is missing.
+   *
+   * Required privilege:
+   * - resource: sr, action: read
+   *
+   * @example id "c787b75c-3e0d-70fa-d0c3-cbfd382d7e33"
+   */
+  @Get('{id}/vdi_chains')
+  @Middlewares(acl({ resource: 'sr', action: 'read', objectId: 'params.id' }))
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  getSrVdiChains(@Path() id: string): {
+    unhealthyVdis: Record<string, number>
+    vdisWithUnknownVhdParent: Record<string, string>
+    nUnhealthyVdis: number
+  } {
+    const sr = this.getObject(id as XoSr['id'])
+    const xapi = this.getXapi(sr) as unknown as {
+      getVdiChainsInfo(sr: string): {
+        unhealthyVdis: Record<string, number>
+        vdisWithUnknownVhdParent: Record<string, string>
+        nUnhealthyVdis: number
+      }
+    }
+    return xapi.getVdiChainsInfo(sr._xapiRef)
   }
 
   /**

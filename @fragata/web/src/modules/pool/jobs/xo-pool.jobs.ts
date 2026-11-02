@@ -163,3 +163,33 @@ export const useXoPoolRollingUpdateJob = definePoolTaskAction('pool.rolling-upda
 export const useXoPoolInstallPatchesJob = definePoolTaskAction('pool.install-patches', 'install_patches', pool =>
   pool.HA_enabled ? 'job:pool-install-patches:ha-enabled' : undefined
 )
+
+/** Id of the host joining the pool: the only host of another pool */
+export const poolJoiningHostArg = defineJobArg<string>({
+  identify: false,
+  toArray: false,
+})
+
+export const useXoPoolAddHostJob = defineJob('pool.add-host', [xoPoolArg, poolJoiningHostArg], () => {
+  const { t } = useI18n()
+  const { monitorTask } = useXoTaskUtils()
+
+  return {
+    async run(pool: FrontXoPool, hostId: string) {
+      const { taskId } = await fetchPost<{ taskId: FrontXoTask['id'] }>(`pools/${pool.id}/actions/add_host`, {
+        host: hostId,
+      })
+      await monitorTask(taskId)
+    },
+
+    validate(isRunning, pool: FrontXoPool | undefined) {
+      if (pool === undefined) {
+        throw new JobError(t('job:arg:pool-required'))
+      }
+
+      if (isRunning) {
+        throw new JobRunningError(t('job:pool:in-progress'))
+      }
+    },
+  }
+})

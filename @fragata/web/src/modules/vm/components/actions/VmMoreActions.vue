@@ -7,6 +7,7 @@
   </MenuItem>
   <VmEditSettingsButton :vm />
   <VmMigrateButton :vm />
+  <VmWarmMigrateButton :vm />
   <VmSnapshotButton :vm />
   <VmDuplicateButton :vm />
   <VmExportButton :vm />
@@ -19,13 +20,14 @@
 <script lang="ts" setup>
 import VmCdButtons from '@/modules/vm/components/actions/cd/VmCdButtons.vue'
 import VmDeleteButton from '@/modules/vm/components/actions/delete/VmDeleteButton.vue'
-import VmEditSettingsButton from '@/modules/vm/components/actions/edit/VmEditSettingsButton.vue'
 import VmDuplicateButton from '@/modules/vm/components/actions/duplicate/VmDuplicateButton.vue'
+import VmEditSettingsButton from '@/modules/vm/components/actions/edit/VmEditSettingsButton.vue'
 import VmExportButton from '@/modules/vm/components/actions/export/VmExportButton.vue'
 import VmMigrateButton from '@/modules/vm/components/actions/migrate/VmMigrateButton.vue'
 import VmSnapshotButton from '@/modules/vm/components/actions/snapshot/VmSnapshotButton.vue'
 import VmConvertToTemplateButton from '@/modules/vm/components/actions/template/VmConvertToTemplateButton.vue'
 import VmPowerStateActions from '@/modules/vm/components/actions/VmPowerStateActions.vue'
+import VmWarmMigrateButton from '@/modules/vm/components/actions/warm-migrate/VmWarmMigrateButton.vue'
 import type { FrontXoVm } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
 import MenuItem from '@core/components/menu/MenuItem.vue'
 import MenuSeparator from '@core/components/menu/MenuSeparator.vue'

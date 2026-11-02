@@ -24,6 +24,8 @@
         <UiAlert v-if="role.isTemplate" accent="info">{{ t('roles:template-cannot-be-assigned') }}</UiAlert>
       </UiPanelCard>
 
+      <AclRolePrivilegesCard :role-id="role.id" :editable="!role.isTemplate" />
+
       <template v-if="!role.isTemplate">
         <UiPanelCard>
           <UiPanelCardTitle size="medium" :label="t('users')" :counter="assignedUsers.length" />
@@ -92,6 +94,7 @@
 </template>
 
 <script lang="ts" setup>
+import AclRolePrivilegesCard from '@/modules/acl-role/components/AclRolePrivilegesCard.vue'
 import type { FrontXoAclRole } from '@/modules/acl-role/remote-resources/use-xo-acl-role-collection.ts'
 import { useXoGroupCollection } from '@/modules/group/remote-ressources/use-xo-group-collection.ts'
 import { useNameInputModal } from '@/modules/user/composables/use-name-input-modal.composable.ts'

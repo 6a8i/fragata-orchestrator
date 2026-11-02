@@ -468,6 +468,8 @@ export class HostController extends XapiXoController<XoHost> {
     if (syslogDestination !== undefined) {
       await xapi.setRemoteSyslogHost(hostId, syslogDestination === '' ? null : syslogDestination)
     }
+    // the host read back by the next requests is updated from the XAPI events
+    await xapi.barrier(host.$ref)
   }
 
   /**
@@ -482,7 +484,10 @@ export class HostController extends XapiXoController<XoHost> {
   @Example(taskLocation)
   @Extension('x-mcp-exposure', 'confirm')
   @Post('{id}/actions/install_certificate')
-  @Middlewares([json({ limit: '1mb' }), acl({ resource: 'host', action: 'install-certificate', objectId: 'params.id' })])
+  @Middlewares([
+    json({ limit: '1mb' }),
+    acl({ resource: 'host', action: 'install-certificate', objectId: 'params.id' }),
+  ])
   @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
   @Response(noContentResp.status, noContentResp.description)
   @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
@@ -539,7 +544,12 @@ export class HostController extends XapiXoController<XoHost> {
       }
 
       if (host.controlDomain === undefined) {
-        throw incorrectState({ actual: undefined, expected: 'a control domain', object: hostId, property: 'controlDomain' })
+        throw incorrectState({
+          actual: undefined,
+          expected: 'a control domain',
+          object: hostId,
+          property: 'controlDomain',
+        })
       }
 
       const controlDomain = this.restApi.getXapiObject<XoVmController>(host.controlDomain, 'VM-controller')

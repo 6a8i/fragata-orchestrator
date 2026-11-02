@@ -65,9 +65,7 @@ const { id: hostSelectId } = useFormSelect(candidates, {
 })
 
 const error = computed<InputWrapperMessage | undefined>(() =>
-  submitted.value && hostId.value === undefined
-    ? { content: t('job:arg:host-required'), accent: 'danger' }
-    : undefined
+  submitted.value && hostId.value === undefined ? { content: t('job:arg:host-required'), accent: 'danger' } : undefined
 )
 
 function handleConfirm() {

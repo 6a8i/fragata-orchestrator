@@ -70,21 +70,21 @@
 </template>
 
 <script setup lang="ts">
-import { type EditNetworkPayload, useXoNetworkEditJob } from '@/modules/network/jobs/xo-network-edit.job.ts'
 import NetworkPifsInfoCard from '@/modules/network/components/panel/cards/NetworkPifsInfoCard.vue'
 import { useNetworkDelete } from '@/modules/network/composables/use-network-delete.composable.ts'
+import { type EditNetworkPayload, useXoNetworkEditJob } from '@/modules/network/jobs/xo-network-edit.job.ts'
 import type { FrontXoNetwork } from '@/modules/network/remote-resources/use-xo-network-collection.ts'
 import { useXoPifCollection } from '@/modules/pif/remote-resources/use-xo-pif-collection.ts'
 import VtsCardRowKeyValue from '@core/components/card/VtsCardRowKeyValue.vue'
 import VtsCopyButton from '@core/components/copy-button/VtsCopyButton.vue'
 import VtsDeleteButton from '@core/components/delete-button/VtsDeleteButton.vue'
 import VtsSidePanel from '@core/components/panel/VtsSidePanel.vue'
+import UiButton from '@core/components/ui/button/UiButton.vue'
 import UiPanelCard from '@core/components/ui/panel-card/UiPanelCard.vue'
 import UiPanelCardTitle from '@core/components/ui/panel-card-title/UiPanelCardTitle.vue'
+import { vTooltip } from '@core/directives/tooltip.directive.ts'
 import { KEEP_OVERLAY_OPEN } from '@core/packages/overlay/symbols.ts'
 import { useOverlay } from '@core/packages/overlay/use-overlay.ts'
-import UiButton from '@core/components/ui/button/UiButton.vue'
-import { vTooltip } from '@core/directives/tooltip.directive.ts'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -112,7 +112,9 @@ const networkVlan = computed(() => {
   return pifs.value[0].vlan !== -1 ? pifs.value[0].vlan.toString() : t('none')
 })
 
-const networkNbd = computed(() => (network?.insecureNbd ? t('nbd:insecure') : network?.nbd ? t('nbd:secure') : t('off')))
+const networkNbd = computed(() =>
+  network?.insecureNbd ? t('nbd:insecure') : network?.nbd ? t('nbd:secure') : t('off')
+)
 
 const editPayload = ref<EditNetworkPayload>()
 

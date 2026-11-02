@@ -72,11 +72,11 @@ import type { XoVm } from '@fragata/types'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const CONTAINER_ACTIONS = ['start', 'stop', 'restart', 'pause', 'unpause'] as const
-
 const { vm } = defineProps<{
   vm: FrontXoVm
 }>()
+
+const CONTAINER_ACTIONS = ['start', 'stop', 'restart', 'pause', 'unpause'] as const
 
 const { t } = useI18n()
 

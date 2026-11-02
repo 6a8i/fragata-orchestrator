@@ -1,4 +1,4 @@
-import type { AnyPrivilege } from '@fragata/acl'
+import { type AnyPrivilege, SUPPORTED_ACTIONS_BY_RESOURCE } from '@fragata/acl'
 import {
   Body,
   Delete,
@@ -85,6 +85,25 @@ export class AclPrivilegeController extends XoController<AnyPrivilege> {
       limit,
       privilege: { action: 'read', resource: 'acl-privilege' },
     })
+  }
+
+  /**
+   * The resources a privilege can apply to, with their actions. `*` matches every action, `update` every
+   * `update:…` action.
+   */
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('supported_actions')
+  @Security('*', ['acl'])
+  getAclV2SupportedActions(): Record<string, string[]> {
+    const flatten = (actions: object, prefix = ''): string[] =>
+      Object.entries(actions).flatMap(([name, value]) => {
+        const action = prefix + name
+        return value === true ? [action] : [action, ...flatten(value as object, action + ':')]
+      })
+
+    return Object.fromEntries(
+      Object.entries(SUPPORTED_ACTIONS_BY_RESOURCE).map(([resource, actions]) => [resource, ['*', ...flatten(actions)]])
+    )
   }
 
   /**

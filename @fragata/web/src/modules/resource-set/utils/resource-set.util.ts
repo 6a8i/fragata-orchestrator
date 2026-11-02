@@ -25,7 +25,10 @@ export function toQuotas(limits: FrontXoResourceSet['limits']): ResourceSetQuota
 /**
  * Builds the `limits` body: quotas left empty are dropped, the IP pool quotas of the set are kept as they are.
  */
-export function toLimits(quotas: ResourceSetQuotas, previous: FrontXoResourceSet['limits'] = {}): Record<string, number> {
+export function toLimits(
+  quotas: ResourceSetQuotas,
+  previous: FrontXoResourceSet['limits'] = {}
+): Record<string, number> {
   const limits: Record<string, number> = {}
 
   for (const [key, limit] of Object.entries(previous)) {

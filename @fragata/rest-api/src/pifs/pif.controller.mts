@@ -230,6 +230,8 @@ export class PifController extends XapiXoController<XoPif> {
         throw invalidParameters('only a VLAN PIF can change its VLAN tag')
       }
       await this.getXapiObject(pifId).$xapi.editPif(pifId, { vlan: body.vlan })
+      const xapiPif = this.getXapiObject(pifId)
+      await xapiPif.$xapi.barrier(xapiPif.$ref)
     }
   }
 

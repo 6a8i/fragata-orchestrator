@@ -27,6 +27,7 @@
 </template>
 
 <script setup lang="ts">
+import { toErrorMessage } from '@/modules/system/utils/system.util.ts'
 import TaskErrorsCard from '@/modules/task/components/list/panel/cards/TaskErrorsCard.vue'
 import TaskInfosCard from '@/modules/task/components/list/panel/cards/TaskInfosCard.vue'
 import TaskObjectsCard from '@/modules/task/components/list/panel/cards/TaskObjectsCard.vue'
@@ -35,7 +36,6 @@ import TaskQuickInfosCard from '@/modules/task/components/list/panel/cards/TaskQ
 import TaskWarningsCard from '@/modules/task/components/list/panel/cards/TaskWarningsCard.vue'
 import { useXoTaskPropertiesUtils } from '@/modules/task/composables/xo-task-properties-utils.composable.ts'
 import type { FrontXoTask } from '@/modules/task/remote-resources/use-xo-task-collection.ts'
-import { toErrorMessage } from '@/modules/system/utils/system.util.ts'
 import { fetchPost } from '@/shared/utils/fetch.util.ts'
 import VtsSidePanel from '@core/components/panel/VtsSidePanel.vue'
 import UiAlert from '@core/components/ui/alert/UiAlert.vue'
