@@ -22,6 +22,8 @@ const networkFields = [
   'other_config',
   'type',
   'isBonded',
+  'automatic',
+  'insecureNbd',
 ] as const satisfies readonly (keyof XoNetwork)[]
 
 export const useXoNetworkCollection = defineRemoteResource({

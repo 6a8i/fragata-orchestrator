@@ -2,6 +2,7 @@
   <VtsSidePanel :has-selection="!!pif" class="pif-side-panel" @close="emit('close')">
     <template v-if="pif" #actions>
       <PifSetManagementButton :pif />
+      <PifAdminActions :pif />
     </template>
     <template v-if="pif">
       <!-- PIF -->
@@ -228,6 +229,7 @@
 <script setup lang="ts">
 import { useXoNetworkCollection } from '@/modules/network/remote-resources/use-xo-network-collection.ts'
 import { getPoolNetworkRoute } from '@/modules/network/utils/xo-network.util.ts'
+import PifAdminActions from '@/modules/pif/components/actions/PifAdminActions.vue'
 import PifSetManagementButton from '@/modules/pif/components/actions/set-management/PifSetManagementButton.vue'
 import { type FrontXoPif, useXoPifCollection } from '@/modules/pif/remote-resources/use-xo-pif-collection.ts'
 import VtsCardRowKeyValue from '@core/components/card/VtsCardRowKeyValue.vue'

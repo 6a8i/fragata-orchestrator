@@ -1,9 +1,11 @@
 import {
+  Body,
   Delete,
   Example,
   Extension,
   Get,
   Middlewares,
+  Patch,
   Path,
   Put,
   Query,
@@ -16,7 +18,9 @@ import {
 } from 'tsoa'
 import { inject } from 'inversify'
 import { provide } from 'inversify-binding-decorators'
-import { Request as ExRequest } from 'express'
+import { json, Request as ExRequest } from 'express'
+import { invalidParameters } from 'fragata-common/api-errors.js'
+import { SUPPORTED_ACTIONS_BY_RESOURCE, type SupportedActions } from '@fragata/acl'
 import type { XoAlarm, XoMessage, XoNetwork, XoTask } from '@fragata/types'
 
 import { AlarmService } from '../alarms/alarm.service.mjs'
@@ -26,6 +30,7 @@ import { network, networkIds, partialNetworks } from '../open-api/oa-examples/ne
 import {
   badRequestResp,
   forbiddenOperationResp,
+  invalidParameters as invalidParametersResp,
   noContentResp,
   notFoundResp,
   unauthorizedResp,
@@ -36,7 +41,12 @@ import type { SendObjects } from '../helpers/helper.type.mjs'
 import { XapiXoController } from '../abstract-classes/xapi-xo-controller.mjs'
 import { messageIds, partialMessages } from '../open-api/oa-examples/message.oa-example.mjs'
 import { partialTasks, taskIds } from '../open-api/oa-examples/task.oa-example.mjs'
-import { acl } from '../middlewares/acl.middleware.mjs'
+import { acl, actionsFromBody } from '../middlewares/acl.middleware.mjs'
+import type { UpdateNetworkBody } from './network.type.mjs'
+
+const UPDATE_NETWORK_ACTIONS = Object.keys(SUPPORTED_ACTIONS_BY_RESOURCE.network.update)
+  .filter(action => action !== 'tags' && action !== 'other_config')
+  .map(k => `update:${k}` as SupportedActions<'network'>)
 
 @Route('networks')
 @Security('*')
@@ -249,5 +259,80 @@ export class NetworkController extends XapiXoController<XoNetwork> {
   async deleteNetworkTag(@Path() id: string, @Path() tag: string): Promise<void> {
     const network = this.getXapiObject(id as XoNetwork['id'])
     await network.$call('remove_tags', tag)
+  }
+
+  /**
+   * Partial update of a network. Only the fields present in the body are modified.
+   *
+   * Required privilege per field provided in the body:
+   * - resource: network, action: update:&lt;field&gt; (e.g. update:nameLabel, update:mtu, ...)
+   *
+   * `nbd` and `insecureNbd` are mutually exclusive: enabling one disables the other.
+   *
+   * @example id "9fe12ca3-d75d-cfb0-492e-cfd2bc6c568f"
+   * @example body { "nameLabel": "backup", "nbd": true }
+   */
+  @Patch('{id}')
+  @Middlewares([
+    json(),
+    acl({ resource: 'network', actions: actionsFromBody(UPDATE_NETWORK_ACTIONS), objectId: 'params.id' }),
+  ])
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  async updateNetwork(@Path() id: string, @Body() body: UpdateNetworkBody): Promise<void> {
+    const { nameLabel, nameDescription, mtu, automatic, defaultIsLocked, nbd, insecureNbd } = body
+    if (nbd === true && insecureNbd === true) {
+      throw invalidParameters('nbd and insecureNbd are mutually exclusive')
+    }
+
+    const network = this.getXapiObject(id as XoNetwork['id'])
+    const xapi = network.$xapi
+    const ref = network.$ref
+
+    if (nameLabel !== undefined) {
+      await xapi.call('network.set_name_label', ref, nameLabel)
+    }
+    if (nameDescription !== undefined) {
+      await xapi.call('network.set_name_description', ref, nameDescription)
+    }
+    if (mtu !== undefined) {
+      await xapi.call('network.set_MTU', ref, mtu)
+    }
+    if (automatic !== undefined) {
+      await xapi.call('network.remove_from_other_config', ref, 'automatic')
+      if (automatic) {
+        await xapi.call('network.add_to_other_config', ref, 'automatic', 'true')
+      }
+    }
+    if (defaultIsLocked !== undefined) {
+      await xapi.call('network.set_default_locking_mode', ref, defaultIsLocked ? 'disabled' : 'unlocked')
+    }
+
+    // nbd and insecure_nbd are incompatible purposes: the other one is removed before adding one
+    const purposesToRemove = new Set<string>()
+    let purposeToAdd: string | undefined
+    if (nbd === true) {
+      purposesToRemove.add('insecure_nbd')
+      purposeToAdd = 'nbd'
+    } else if (nbd === false) {
+      purposesToRemove.add('nbd')
+    }
+    if (insecureNbd === true) {
+      purposesToRemove.add('nbd')
+      purposeToAdd = 'insecure_nbd'
+    } else if (insecureNbd === false) {
+      purposesToRemove.add('insecure_nbd')
+    }
+    const currentPurposes: string[] = network.purpose ?? []
+    for (const purpose of purposesToRemove) {
+      if (currentPurposes.includes(purpose)) {
+        await xapi.call('network.remove_purpose', ref, purpose)
+      }
+    }
+    if (purposeToAdd !== undefined) {
+      await xapi.call('network.add_purpose', ref, purposeToAdd)
+    }
   }
 }

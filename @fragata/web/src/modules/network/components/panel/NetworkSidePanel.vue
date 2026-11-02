@@ -1,6 +1,18 @@
 <template>
   <VtsSidePanel :has-selection="!!network" class="network-side-panel" @close="emit('close')">
     <template v-if="network" #actions>
+      <UiButton
+        v-tooltip="!canEditNetwork && editNetworkErrorMessage"
+        size="medium"
+        variant="tertiary"
+        accent="brand"
+        left-icon="action:edit"
+        :disabled="!canEditNetwork"
+        :busy="isEditingNetwork"
+        @click="openEditDrawer()"
+      >
+        {{ t('action:edit') }}
+      </UiButton>
       <VtsDeleteButton :busy="isDeletingNetworks" @click="deleteNetworks()" />
     </template>
     <template v-if="network" #default>
@@ -58,6 +70,7 @@
 </template>
 
 <script setup lang="ts">
+import { type EditNetworkPayload, useXoNetworkEditJob } from '@/modules/network/jobs/xo-network-edit.job.ts'
 import NetworkPifsInfoCard from '@/modules/network/components/panel/cards/NetworkPifsInfoCard.vue'
 import { useNetworkDelete } from '@/modules/network/composables/use-network-delete.composable.ts'
 import type { FrontXoNetwork } from '@/modules/network/remote-resources/use-xo-network-collection.ts'
@@ -68,7 +81,11 @@ import VtsDeleteButton from '@core/components/delete-button/VtsDeleteButton.vue'
 import VtsSidePanel from '@core/components/panel/VtsSidePanel.vue'
 import UiPanelCard from '@core/components/ui/panel-card/UiPanelCard.vue'
 import UiPanelCardTitle from '@core/components/ui/panel-card-title/UiPanelCardTitle.vue'
-import { computed } from 'vue'
+import { KEEP_OVERLAY_OPEN } from '@core/packages/overlay/symbols.ts'
+import { useOverlay } from '@core/packages/overlay/use-overlay.ts'
+import UiButton from '@core/components/ui/button/UiButton.vue'
+import { vTooltip } from '@core/directives/tooltip.directive.ts'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { network } = defineProps<{
@@ -95,7 +112,43 @@ const networkVlan = computed(() => {
   return pifs.value[0].vlan !== -1 ? pifs.value[0].vlan.toString() : t('none')
 })
 
-const networkNbd = computed(() => (network?.nbd ? t('on') : t('off')))
+const networkNbd = computed(() => (network?.insecureNbd ? t('nbd:insecure') : network?.nbd ? t('nbd:secure') : t('off')))
+
+const editPayload = ref<EditNetworkPayload>()
+
+const {
+  run: editNetwork,
+  canRun: canEditNetwork,
+  isRunning: isEditingNetwork,
+  errorMessage: editNetworkErrorMessage,
+} = useXoNetworkEditJob(() => network, editPayload)
+
+const { open: openDrawer } = useOverlay({
+  component: () => import('@/modules/network/components/drawer/NetworkEditDrawer.vue'),
+  events: {
+    onConfirm: async (payload: EditNetworkPayload) => {
+      if (Object.keys(payload).length === 0) {
+        return
+      }
+
+      editPayload.value = payload
+
+      try {
+        await editNetwork()
+      } catch (error) {
+        console.error('Failed to edit network', error)
+        return KEEP_OVERLAY_OPEN
+      }
+    },
+    onCancel: true,
+  },
+})
+
+function openEditDrawer() {
+  if (network !== undefined) {
+    return openDrawer({ props: { network } })
+  }
+}
 
 const networkDefaultLockingMode = computed(() => (network?.defaultIsLocked ? t('disabled') : t('unlocked')))
 </script>

@@ -1,16 +1,38 @@
-import { Example, Extension, Get, Middlewares, Path, Query, Request, Response, Route, Security, Tags } from 'tsoa'
+import {
+  Body,
+  Example,
+  Extension,
+  Get,
+  Middlewares,
+  Patch,
+  Path,
+  Post,
+  Query,
+  Request,
+  Response,
+  Route,
+  Security,
+  SuccessResponse,
+  Tags,
+} from 'tsoa'
 import { inject } from 'inversify'
 import { provide } from 'inversify-binding-decorators'
-import type { Request as ExRequest } from 'express'
+import { json, type Request as ExRequest } from 'express'
+import { invalidParameters } from 'fragata-common/api-errors.js'
 import type { XoAlarm, XoMessage, XoPif, XoTask } from '@fragata/types'
 
 import { AlarmService } from '../alarms/alarm.service.mjs'
 import { escapeUnsafeComplexMatcher } from '../helpers/utils.helper.mjs'
-import { acl } from '../middlewares/acl.middleware.mjs'
+import { acl, actionsFromBody } from '../middlewares/acl.middleware.mjs'
+import type { CreateActionReturnType } from '../abstract-classes/base-controller.mjs'
+import type { ReconfigurePifIpBody, UpdatePifBody } from './pif.type.mjs'
 import { genericAlarmsExample } from '../open-api/oa-examples/alarm.oa-example.mjs'
 import {
+  asynchronousActionResp,
   badRequestResp,
   forbiddenOperationResp,
+  invalidParameters as invalidParametersResp,
+  noContentResp,
   notFoundResp,
   unauthorizedResp,
   type Unbrand,
@@ -20,7 +42,7 @@ import { RestApi } from '../rest-api/rest-api.mjs'
 import type { SendObjects } from '../helpers/helper.type.mjs'
 import { XapiXoController } from '../abstract-classes/xapi-xo-controller.mjs'
 import { messageIds, partialMessages } from '../open-api/oa-examples/message.oa-example.mjs'
-import { partialTasks, taskIds } from '../open-api/oa-examples/task.oa-example.mjs'
+import { partialTasks, taskIds, taskLocation } from '../open-api/oa-examples/task.oa-example.mjs'
 
 type UnbrandedXoPif = Unbrand<XoPif>
 
@@ -181,6 +203,144 @@ export class PifController extends XapiXoController<XoPif> {
       path: 'tasks',
       limit,
       privilege: { action: 'read', resource: 'task' },
+    })
+  }
+
+  /**
+   * Changes the VLAN tag of a VLAN PIF. Every PIF of its network, on every host, is recreated with the new tag.
+   *
+   * Required privilege:
+   * - resource: pif, action: update:vlan
+   *
+   * @example id "d9e42451-3794-089f-de81-4ee0e6137bee"
+   * @example body { "vlan": 42 }
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Patch('{id}')
+  @Middlewares([json(), acl({ resource: 'pif', actions: actionsFromBody(['update:vlan']), objectId: 'params.id' })])
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  async updatePif(@Path() id: string, @Body() body: UpdatePifBody): Promise<void> {
+    const pifId = id as XoPif['id']
+    if (body.vlan !== undefined) {
+      const pif = this.getObject(pifId)
+      if (pif.vlan === -1) {
+        throw invalidParameters('only a VLAN PIF can change its VLAN tag')
+      }
+      await this.getXapiObject(pifId).$xapi.editPif(pifId, { vlan: body.vlan })
+    }
+  }
+
+  /**
+   * Plugs the PIF.
+   *
+   * Required privilege:
+   * - resource: pif, action: connect
+   *
+   * @example id "d9e42451-3794-089f-de81-4ee0e6137bee"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/connect')
+  @Middlewares(acl({ resource: 'pif', action: 'connect', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  connectPif(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const pifId = id as XoPif['id']
+    const action = async () => {
+      const pif = this.getXapiObject(pifId)
+      await pif.$xapi.callAsync('PIF.plug', pif.$ref)
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: { name: 'connect PIF', objectId: pifId },
+    })
+  }
+
+  /**
+   * Unplugs the PIF. The management PIF cannot be unplugged.
+   *
+   * Required privilege:
+   * - resource: pif, action: disconnect
+   *
+   * @example id "d9e42451-3794-089f-de81-4ee0e6137bee"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/disconnect')
+  @Middlewares(acl({ resource: 'pif', action: 'disconnect', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  disconnectPif(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const pifId = id as XoPif['id']
+    const action = async () => {
+      if (this.getObject(pifId).management) {
+        throw invalidParameters('the management PIF cannot be disconnected')
+      }
+      const pif = this.getXapiObject(pifId)
+      await pif.$xapi.callAsync('PIF.unplug', pif.$ref)
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: { name: 'disconnect PIF', objectId: pifId },
+    })
+  }
+
+  /**
+   * Reconfigures the IP of the PIF. On the management PIF, the management interface is reconfigured too.
+   *
+   * Required privilege:
+   * - resource: pif, action: reconfigure-ip
+   *
+   * @example id "d9e42451-3794-089f-de81-4ee0e6137bee"
+   * @example body { "mode": "Static", "ip": "192.168.1.10", "netmask": "255.255.255.0", "gateway": "192.168.1.1", "dns": "192.168.1.1" }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/reconfigure_ip')
+  @Middlewares([json(), acl({ resource: 'pif', action: 'reconfigure-ip', objectId: 'params.id' })])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  reconfigurePifIp(
+    @Path() id: string,
+    @Body() body: ReconfigurePifIpBody,
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const pifId = id as XoPif['id']
+    const action = async () => {
+      const { mode, ip = '', netmask = '', gateway = '', dns = '' } = body
+      if (mode === 'Static' && (ip === '' || netmask === '')) {
+        throw invalidParameters('a static configuration needs an IP and a netmask')
+      }
+
+      const xoPif = this.getObject(pifId)
+      const pif = this.getXapiObject(pifId)
+      const xapi = pif.$xapi
+
+      await xapi.call('PIF.reconfigure_ip', pif.$ref, mode, ip, netmask, gateway, dns)
+      if (xoPif.management) {
+        await xapi.call('host.management_reconfigure', pif.$ref)
+      }
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: { name: 'reconfigure PIF IP', objectId: pifId, params: body },
     })
   }
 }

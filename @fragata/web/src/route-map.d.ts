@@ -135,6 +135,13 @@ declare module 'vue-router/auto-routes' {
       { id: ParamValue<false> },
       | never
     >,
+    '/admin/ip-pools': RouteRecordInfo<
+      '/admin/ip-pools',
+      '/admin/ip-pools',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/admin/plugin/[id]': RouteRecordInfo<
       '/admin/plugin/[id]',
       '/admin/plugin/:id',
@@ -655,6 +662,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/admin/backup-repository/[id]/general.vue': {
       routes:
         | '/admin/backup-repository/[id]/general'
+      views:
+        | never
+    }
+    'src/pages/admin/ip-pools.vue': {
+      routes:
+        | '/admin/ip-pools'
       views:
         | never
     }

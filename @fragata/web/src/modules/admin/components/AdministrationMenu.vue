@@ -61,7 +61,10 @@ const sections = computed<AdminMenuSection[]>(() => [
   },
   {
     title: t('settings'),
-    items: [{ label: t('plugins'), to: { name: '/admin/plugins' } }],
+    items: [
+      { label: t('plugins'), to: { name: '/admin/plugins' } },
+      { label: t('ip-pools'), to: { name: '/admin/ip-pools' } },
+    ],
   },
 ])
 </script>

@@ -131,6 +131,16 @@ type License = {
   bundleInfo?: { name: string; id: string }
 }
 
+/** IP addresses reserved for the VIFs of some networks */
+export type XoIpPool = {
+  id: string
+  name: string
+  /** address → the VIFs it is allocated to */
+  addresses?: Record<string, { vifs?: string[] }>
+  networks?: string[]
+  resourceSets?: string[]
+}
+
 export type PoolRollingUpdateRecoveryStep = {
   status: 'pending' | 'running' | 'observed-succeeded' | 'failed' | 'not-needed'
   startedAt?: string
@@ -428,6 +438,17 @@ export type XoApp = EventEmitter & {
   getAllSchedules(): Promise<XoSchedule[]>
   getAllUsers(opts?: { obfuscatePassword?: boolean }): Promise<XoUser[]>
   getAllXenServers(): Promise<XoServer[]>
+  /** resolves to the id of the new IP pool */
+  createIpPool(props: { addresses?: Record<string, object>; name: string; networks?: string[] }): Promise<string>
+  deleteIpPool(id: string): Promise<void>
+  /** without `userId`, every IP pool */
+  getAllIpPools(userId?: string): Promise<XoIpPool[]>
+  getIpPool(id: string): Promise<XoIpPool>
+  /** `null` as an address value removes it */
+  updateIpPool(
+    id: string,
+    props: { addresses?: Record<string, object | null>; name?: string; networks?: string[] }
+  ): Promise<void>
   getAuthenticationTokensForUser(userId: XoUser['id']): Promise<XoAuthenticationToken[]>
   /** Archive/host a live-mounted disk belongs to, as recorded by `mountBackupArchiveDisk` */
   getBackupArchiveDiskMountOwner(id: BackupArchiveDiskMount['id']): {

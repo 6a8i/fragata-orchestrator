@@ -18,6 +18,7 @@ export function createNetwork(overrides: Partial<FrontXoNetwork> = {}): FrontXoN
     other_config: {},
     type: 'network',
     isBonded: false,
+    automatic: false,
     ...overrides,
   }
 }
