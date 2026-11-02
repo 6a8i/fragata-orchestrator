@@ -7,6 +7,7 @@
     <VtsColumn>
       <StorageRepositorySpace :sr />
       <StorageRepositoryCustomFields :sr />
+      <StorageRepositoryXostorHealth v-if="sr.SR_type === 'linstor'" :sr />
     </VtsColumn>
   </VtsColumns>
 </template>
@@ -16,6 +17,7 @@ import StorageRepositoryCustomFields from '@/modules/storage-repository/componen
 import StorageRepositoryGeneralInformation from '@/modules/storage-repository/components/general/StorageRepositoryGeneralInformation.vue'
 import StorageRepositoryPbdDetails from '@/modules/storage-repository/components/general/StorageRepositoryPbdDetails.vue'
 import StorageRepositorySpace from '@/modules/storage-repository/components/general/StorageRepositorySpace.vue'
+import StorageRepositoryXostorHealth from '@/modules/storage-repository/components/general/StorageRepositoryXostorHealth.vue'
 import type { FrontXoSr } from '@/modules/storage-repository/remote-resources/use-xo-sr-collection.ts'
 import VtsColumn from '@core/components/column/VtsColumn.vue'
 import VtsColumns from '@core/components/columns/VtsColumns.vue'

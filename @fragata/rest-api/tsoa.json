@@ -92,6 +92,21 @@
             "tags": ["docs"],
             "x-mcp-exposure": "deny"
           }
+        },
+        "/config/actions/import": {
+          "post": {
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/octet-stream": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

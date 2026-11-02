@@ -56,6 +56,7 @@ const sections = computed<AdminMenuSection[]>(() => [
       { label: t('users'), to: { name: '/admin/user-management' } },
       { label: t('groups'), to: { name: '/admin/user-management/groups' } },
       { label: t('roles'), to: { name: '/admin/user-management/roles' } },
+      { label: t('self-service'), to: { name: '/admin/self-service' } },
       { label: t('ldap-auth-providers'), to: { name: '/admin/plugins', query: { 'qb.plugins': 'name:/^auth-/' } } },
     ],
   },
@@ -64,6 +65,9 @@ const sections = computed<AdminMenuSection[]>(() => [
     items: [
       { label: t('plugins'), to: { name: '/admin/plugins' } },
       { label: t('ip-pools'), to: { name: '/admin/ip-pools' } },
+      { label: t('tags-and-templates'), to: { name: '/admin/customization' } },
+      { label: t('import'), to: { name: '/admin/import' } },
+      { label: t('system'), to: { name: '/admin/system' } },
     ],
   },
 ])

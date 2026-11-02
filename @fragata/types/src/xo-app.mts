@@ -10,6 +10,7 @@ import type {
   XoConfigBackupArchive,
   XoGroup,
   XoHost,
+  XoNetwork,
   XoPlugin,
   XoPool,
   XoPoolBackupArchive,
@@ -23,6 +24,7 @@ import type {
   XoVm,
   XoVmBackupJob,
   XoVmBackupArchive,
+  XoVmTemplate,
 } from './xo.mjs'
 import { VatesTask } from './lib/vates-task.mjs'
 import type { PluginRestRouteDefinition } from './lib/rest-api.mjs'
@@ -129,6 +131,30 @@ type License = {
   rebound?: number
   productTypes?: LicenseProductType[]
   bundleInfo?: { name: string; id: string }
+}
+
+/** cloud-init template: user data, or network configuration when `type` is `network` */
+export type XoCloudConfig = {
+  id: string
+  name: string
+  template: string
+  type?: 'network'
+}
+
+/** Self-service: what a set of users and groups may use and how much of it */
+export type XoResourceSet = {
+  id: string
+  name: string
+  /** users and groups allowed to use the set */
+  subjects: string[]
+  /** templates, SRs and networks the subjects can use */
+  objects: string[]
+  ipPools: string[]
+  /** `cpus`, `memory` (bytes), `disk` (bytes) or `ipPool:<id>` → quota and current usage */
+  limits: Record<string, { total?: number; usage: number }>
+  /** new VMs are shared with every subject of the set */
+  shareByDefault: boolean
+  tags: string[]
 }
 
 /** IP addresses reserved for the VIFs of some networks */
@@ -438,6 +464,55 @@ export type XoApp = EventEmitter & {
   getAllSchedules(): Promise<XoSchedule[]>
   getAllUsers(opts?: { obfuscatePassword?: boolean }): Promise<XoUser[]>
   getAllXenServers(): Promise<XoServer[]>
+  /** VMs of a VMware ESXi or vCenter host */
+  connectToEsxiAndList(opts: { host: string; user: string; password: string; sslVerify?: boolean }): Promise<
+    {
+      id: string
+      nameLabel: string
+      memory: number
+      nCpus: number
+      firmware: string
+      powerState: string
+      hasAllExtentsListed: boolean
+      storage: { used: number; free: number }
+    }[]
+  >
+  /** resolves to the UUID of the new VM */
+  migrationfromEsxi(opts: {
+    host: string
+    user: string
+    password: string
+    sslVerify?: boolean
+    vm: string
+    sr: XoSr['id']
+    network: XoNetwork['id']
+    template: XoVmTemplate['id']
+    stopSource?: boolean
+  }): Promise<string>
+  updateXenServer(
+    id: XoServer['id'],
+    props: {
+      label?: string | null
+      host?: string
+      username?: string
+      password?: string
+      allowUnauthorized?: boolean
+      readOnly?: boolean
+      httpProxy?: string | null
+    }
+  ): Promise<void>
+  /** a Buffer: JSON, gzipped when `compress`, OpenPGP-encrypted with the passphrase when given */
+  exportConfig(opts?: { compress?: boolean; entries?: string[]; passphrase?: string }): Promise<Buffer | string>
+  importConfig(config: Buffer, opts?: { passphrase?: string }): Promise<void>
+  getConfiguredTags(): Promise<{ id: string; color?: string }[]>
+  /** `null` removes the color */
+  setTag(id: string, props: { color?: string | null }): Promise<void>
+  getAllCloudConfigs(): Promise<XoCloudConfig[]>
+  getAllNetworkConfigs(): Promise<XoCloudConfig[]>
+  getCloudConfig(id: string): Promise<XoCloudConfig>
+  createCloudConfig(props: { name: string; template: string; type?: 'network' }): Promise<XoCloudConfig>
+  updateCloudConfig(props: { id: string; name?: string; template?: string }): Promise<void>
+  deleteCloudConfig(id: string): Promise<void>
   /** resolves to the id of the new IP pool */
   createIpPool(props: { addresses?: Record<string, object>; name: string; networks?: string[] }): Promise<string>
   deleteIpPool(id: string): Promise<void>
@@ -480,6 +555,11 @@ export type XoApp = EventEmitter & {
   ) => Record<T['id'], T> | undefined
   getTotalBackupSizeOnRemote(id: XoBackupRepository['id']): Promise<{ onDisk: number }>
   getSchedule(id: XoSchedule['id']): Promise<XoSchedule>
+  /** log entries of a namespace (`api` holds the failed API calls), by id */
+  getLogs(namespace: string): Promise<
+    Record<string, { level: string; message: string; data?: Record<string, unknown>; namespace: string; time: number }>
+  >
+  getLogger(namespace: string): Promise<{ del(id: string | string[]): void }>
   getStore(namespace: string): Promise<{
     /** rejects with an error having `notFound: true` when the key does not exist */
     get(key: string): Promise<unknown>
@@ -586,6 +666,31 @@ export type XoApp = EventEmitter & {
   ): Promise<void>
   getRollingUpdateRecovery(poolId: XoPool['id']): Promise<PoolRollingUpdateRecovery | undefined>
   finalizeRollingUpdate(pool: XoPool, opts?: { force?: boolean; parentTask?: VatesTask }): Promise<void>
+  createResourceSet(
+    name: string,
+    subjects?: string[],
+    objects?: string[],
+    limits?: Record<string, number>,
+    shareByDefault?: boolean,
+    tags?: string[]
+  ): Promise<XoResourceSet>
+  deleteResourceSet(id: string): Promise<void>
+  /** with a `userId`, only the sets that user is a subject of (directly or through a group), unless admin */
+  getAllResourceSets(userId?: string): Promise<XoResourceSet[]>
+  getResourceSet(id: string): Promise<XoResourceSet>
+  recomputeResourceSetsLimits(): Promise<void>
+  updateResourceSet(
+    id: string,
+    props: {
+      name?: string
+      shareByDefault?: boolean
+      subjects?: string[]
+      objects?: string[]
+      tags?: string[]
+      limits?: Record<string, number>
+      ipPools?: string[]
+    }
+  ): Promise<void>
   setVmResourceSet(vmId: XoVm['id'], resourceSetId: string | null, force?: boolean): Promise<void>
   shareVmResourceSet(vmId: XoVm['id']): Promise<void>
   removeUserFromGroup(userId: XoUser['id'], id: XoGroup['id']): Promise<void>

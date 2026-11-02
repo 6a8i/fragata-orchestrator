@@ -5,6 +5,7 @@ import {
   Extension,
   Get,
   Middlewares,
+  Patch,
   Path,
   Post,
   Query,
@@ -20,7 +21,7 @@ import { inject } from 'inversify'
 import { provide } from 'inversify-binding-decorators'
 import type { XoServer, XoTask } from '@fragata/types'
 
-import type { InsertableXoServer } from './server.type.mjs'
+import type { InsertableXoServer, UpdateXoServerBody } from './server.type.mjs'
 
 import { acl } from '../middlewares/acl.middleware.mjs'
 import {
@@ -158,6 +159,35 @@ export class ServerController extends XoController<XoServer> {
   async addServer(@Body() body: InsertableXoServer): Promise<{ id: string }> {
     const server = await this.restApi.xoApp.registerXenServer(body)
     return { id: server.id }
+  }
+
+  /**
+   * Partial update of a server. Changing the address, the credentials, the proxy or `allowUnauthorized`
+   * disconnects then reconnects it.
+   *
+   * Required privilege:
+   * - resource: server, action: update
+   *
+   * @example id "f07ab729-c0e8-721c-45ec-f11276377030"
+   * @example body { "label": "lab pool", "readOnly": true }
+   */
+  @Extension('x-mcp-exposure', 'confirm')
+  @Patch('{id}')
+  @Middlewares([
+    json(),
+    acl({
+      resource: 'server',
+      action: 'update',
+      objectId: 'params.id',
+      getObject: ({ restApi }) => restApi.xoApp.getXenServer,
+    }),
+  ])
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParameters.status, invalidParameters.description)
+  async updateServer(@Path() id: string, @Body() body: UpdateXoServerBody): Promise<void> {
+    await this.restApi.xoApp.updateXenServer(id as XoServer['id'], body)
   }
 
   /**

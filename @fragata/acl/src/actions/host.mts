@@ -11,6 +11,7 @@ export default {
   'install-certificate': true,
   'install-supplemental-pack': true,
   'join-pool': true,
+  'manage-devices': true,
   'migrate-receive': true,
   read: true,
   'read-health': true,

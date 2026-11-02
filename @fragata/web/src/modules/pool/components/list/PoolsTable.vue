@@ -28,6 +28,7 @@ import {
   type PoolFilterableData,
   usePoolEnhancedData,
 } from '@/modules/pool/composables/use-pool-enhanced-data.composable.ts'
+import type { ServerEditPayload } from '@/modules/server/components/modal/ServerEditModal.vue'
 import { useServerDisconnect } from '@/modules/server/composables/use-server-disconnect.composable.ts'
 import { useServerForget } from '@/modules/server/composables/use-server-forget.composable.ts'
 import { useXoServerConnectJob } from '@/modules/server/jobs/xo-server-connect.job.ts'
@@ -35,6 +36,7 @@ import {
   type FrontXoServer,
   useXoServerCollection,
 } from '@/modules/server/remote-resources/use-xo-server-collection.ts'
+import { fetchPatch } from '@/shared/utils/fetch.util.ts'
 import VtsQueryBuilder from '@core/components/query-builder/VtsQueryBuilder.vue'
 import VtsRow from '@core/components/table/VtsRow.vue'
 import VtsTable from '@core/components/table/VtsTable.vue'
@@ -42,12 +44,14 @@ import UiTitle from '@core/components/ui/title/UiTitle.vue'
 import { usePagination } from '@core/composables/pagination.composable.ts'
 import { useRouteQuery } from '@core/composables/route-query.composable.ts'
 import { useTableState } from '@core/composables/table-state.composable.ts'
+import { KEEP_OVERLAY_OPEN } from '@core/packages/overlay/symbols.ts'
+import { useOverlay } from '@core/packages/overlay/use-overlay.ts'
 import { useQueryBuilderSchema } from '@core/packages/query-builder/schema/use-query-builder-schema.ts'
 import { useQueryBuilderFilter } from '@core/packages/query-builder/use-query-builder-filter.ts'
 import { useServerColumns } from '@core/tables/column-sets/server-columns.ts'
 import { useStringSchema } from '@core/utils/query-builder/use-string-schema.ts'
 import { logicNot } from '@vueuse/math'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { servers: rawServers } = defineProps<{
@@ -59,6 +63,35 @@ const { t } = useI18n()
 const { areServersReady, hasServerFetchError } = useXoServerCollection()
 
 const selectedServerId = useRouteQuery('id')
+
+const editedServerId = ref<FrontXoServer['id']>()
+
+const { open: openServerEditModal } = useOverlay({
+  component: () => import('@/modules/server/components/modal/ServerEditModal.vue'),
+  events: {
+    onConfirm: async (payload: Partial<ServerEditPayload>) => {
+      if (editedServerId.value === undefined || Object.keys(payload).length === 0) {
+        return
+      }
+      try {
+        await fetchPatch(`servers/${editedServerId.value}`, payload)
+      } catch (error) {
+        console.error('Error when editing server:', error)
+        return KEEP_OVERLAY_OPEN
+      }
+    },
+    onCancel: true,
+  },
+})
+
+function editServer(serverId: FrontXoServer['id']) {
+  const server = rawServers.find(candidate => candidate.id === serverId)
+  if (server === undefined) {
+    return
+  }
+  editedServerId.value = serverId
+  return openServerEditModal({ props: { server } })
+}
 
 const { filterableServers, getDisplayData } = usePoolEnhancedData(() => rawServers)
 
@@ -174,6 +207,11 @@ const { HeadCells, BodyCells } = useServerColumns({
                   disabled: !canConnectServer.value,
                   onClick: () => handleConnect(),
                 },
+            {
+              label: t('action:edit-connection'),
+              icon: 'action:edit',
+              onClick: () => editServer(server.id),
+            },
             {
               label: t('action:download-bugtools-archive'),
               icon: 'action:download',

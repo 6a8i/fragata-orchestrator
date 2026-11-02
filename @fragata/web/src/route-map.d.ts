@@ -142,6 +142,27 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/admin/import': RouteRecordInfo<
+      '/admin/import',
+      '/admin/import',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/admin/customization': RouteRecordInfo<
+      '/admin/customization',
+      '/admin/customization',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/admin/system': RouteRecordInfo<
+      '/admin/system',
+      '/admin/system',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/admin/plugin/[id]': RouteRecordInfo<
       '/admin/plugin/[id]',
       '/admin/plugin/:id',
@@ -152,6 +173,13 @@ declare module 'vue-router/auto-routes' {
     '/admin/plugins': RouteRecordInfo<
       '/admin/plugins',
       '/admin/plugins',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/admin/self-service': RouteRecordInfo<
+      '/admin/self-service',
+      '/admin/self-service',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -482,6 +510,7 @@ declare module 'vue-router/auto-routes' {
       | '/vm/[id]/backups'
       | '/vm/[id]/console'
       | '/vm/[id]/dashboard'
+      | '/vm/[id]/devices'
       | '/vm/[id]/networks'
       | '/vm/[id]/snapshots'
       | '/vm/[id]/system'
@@ -505,6 +534,13 @@ declare module 'vue-router/auto-routes' {
     '/vm/[id]/dashboard': RouteRecordInfo<
       '/vm/[id]/dashboard',
       '/vm/:id/dashboard',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
+    '/vm/[id]/devices': RouteRecordInfo<
+      '/vm/[id]/devices',
+      '/vm/:id/devices',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
       | never
@@ -671,6 +707,24 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/admin/import.vue': {
+      routes:
+        | '/admin/import'
+      views:
+        | never
+    }
+    'src/pages/admin/customization.vue': {
+      routes:
+        | '/admin/customization'
+      views:
+        | never
+    }
+    'src/pages/admin/system.vue': {
+      routes:
+        | '/admin/system'
+      views:
+        | never
+    }
     'src/pages/admin/plugin/[id].vue': {
       routes:
         | '/admin/plugin/[id]'
@@ -680,6 +734,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/admin/plugins.vue': {
       routes:
         | '/admin/plugins'
+      views:
+        | never
+    }
+    'src/pages/admin/self-service.vue': {
+      routes:
+        | '/admin/self-service'
       views:
         | never
     }
@@ -970,6 +1030,7 @@ declare module 'vue-router/auto-routes' {
         | '/vm/[id]/backups'
         | '/vm/[id]/console'
         | '/vm/[id]/dashboard'
+        | '/vm/[id]/devices'
         | '/vm/[id]/networks'
         | '/vm/[id]/snapshots'
         | '/vm/[id]/system'
@@ -993,6 +1054,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/vm/[id]/dashboard.vue': {
       routes:
         | '/vm/[id]/dashboard'
+      views:
+        | never
+    }
+    'src/pages/vm/[id]/devices.vue': {
+      routes:
+        | '/vm/[id]/devices'
       views:
         | never
     }

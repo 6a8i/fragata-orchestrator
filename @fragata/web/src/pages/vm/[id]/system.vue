@@ -15,11 +15,15 @@
       <VmSystemVirtualizationAndBoot :vm />
       <VmSystemManagement :vm />
       <VmSystemGraphics :vm />
+      <VmSystemCustomFields :vm />
+      <VmSystemDocker :vm />
     </VtsColumn>
   </VtsColumns>
 </template>
 
 <script setup lang="ts">
+import VmSystemCustomFields from '@/modules/vm/components/system/VmSystemCustomFields.vue'
+import VmSystemDocker from '@/modules/vm/components/system/VmSystemDocker.vue'
 import VmSystemGeneralInfo from '@/modules/vm/components/system/VmSystemGeneralInfo.vue'
 import VmSystemGraphics from '@/modules/vm/components/system/VmSystemGraphics.vue'
 import VmSystemManagement from '@/modules/vm/components/system/VmSystemManagement.vue'

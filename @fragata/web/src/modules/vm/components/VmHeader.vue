@@ -55,6 +55,11 @@
         {{ t('system') }}
       </UiTabItem>
     </RouterLink>
+    <RouterLink v-slot="{ isActive, href }" :to="{ name: '/vm/[id]/devices', params: { id: vm.id } }" custom>
+      <UiTabItem :active="isActive" :href tag="a">
+        {{ t('devices') }}
+      </UiTabItem>
+    </RouterLink>
     <RouterLink v-slot="{ isActive, href }" :to="{ name: '/vm/[id]/networks', params: { id: vm.id } }" custom>
       <UiTabItem :active="isActive" :href tag="a">
         {{ t('network') }}

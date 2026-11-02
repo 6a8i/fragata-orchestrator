@@ -14,7 +14,7 @@ register.resolve = {
 // -----------------------------------------------------------------------------
 
 export async function deregister({ vm }) {
-  await this.getXapi(vm).unregisterDockerContainer(vm._xapiId)
+  await this.getXapi(vm).deregisterDockerContainer(vm._xapiId)
 }
 deregister.description = 'Deregister the VM for Docker management'
 

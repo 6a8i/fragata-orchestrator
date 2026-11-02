@@ -11,11 +11,13 @@
       <HostSystemSoftwareTooling :host />
       <HostSystemHardwareSpecifications :host />
       <HostSystemDiskHealth :host />
+      <HostSystemPassthrough :host />
     </VtsColumn>
   </VtsColumns>
 </template>
 
 <script lang="ts" setup>
+import HostSystemPassthrough from '@/modules/host/components/system/HostSystemPassthrough.vue'
 import HostSystemDiskHealth from '@/modules/host/components/system/HostSystemDiskHealth.vue'
 import HostSystemGeneralInformation from '@/modules/host/components/system/HostSystemGeneralInformation.vue'
 import HostSystemHardwareSpecifications from '@/modules/host/components/system/HostSystemHardwareSpecifications.vue'

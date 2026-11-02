@@ -25,6 +25,7 @@ export const taskFields = [
   'progress',
   'tasks',
   'result',
+  'abortionRequestedAt',
 ] as const satisfies readonly (keyof XoTask)[]
 
 export function createTaskCollectionState<TArgs extends any[] = []>(
