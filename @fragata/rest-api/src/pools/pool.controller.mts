@@ -1,6 +1,7 @@
 import {
   Body,
   Delete,
+  Patch,
   Example,
   Extension,
   Get,
@@ -23,7 +24,8 @@ import { provide } from 'inversify-binding-decorators'
 import { json, type Request as ExRequest, type Response as ExResponse } from 'express'
 import type { VatesTask } from '@fragata/types/lib/vates/task'
 
-import { acl } from '../middlewares/acl.middleware.mjs'
+import { acl, actionsFromBody } from '../middlewares/acl.middleware.mjs'
+import { SUPPORTED_ACTIONS_BY_RESOURCE, type SupportedActions } from '@fragata/acl'
 import { RestApi } from '../rest-api/rest-api.mjs'
 import {
   asynchronousActionResp,
@@ -86,6 +88,9 @@ import type {
   PoolDashboard,
   RollingPoolActionBody,
   RollingPoolUpdateBody,
+  EnablePoolHaBody,
+  SetPoolMasterBody,
+  UpdatePoolBody,
 } from './pool.type.mjs'
 import { partialTasks, taskIds, taskLocation } from '../open-api/oa-examples/task.oa-example.mjs'
 import { createNetwork } from '../open-api/oa-examples/schedule.oa-example.mjs'
@@ -95,6 +100,10 @@ import { BASE_URL, escapeUnsafeComplexMatcher, NDJSON_CONTENT_TYPE } from '../he
 import { messageIds, partialMessages } from '../open-api/oa-examples/message.oa-example.mjs'
 import type { CreateActionReturnType } from '../abstract-classes/base-controller.mjs'
 import { NetworkService } from '../networks/network.service.mjs'
+
+const UPDATE_POOL_ACTIONS = Object.keys(SUPPORTED_ACTIONS_BY_RESOURCE.pool.update)
+  .filter(action => action !== 'tags')
+  .map(k => `update:${k}` as SupportedActions<'pool'>)
 
 @Route('pools')
 @Security('*')
@@ -357,6 +366,213 @@ export class PoolController extends XapiXoController<XoPool> {
         name: 'pool emergency shutdown',
         objectId: poolId,
       },
+    })
+  }
+
+  /**
+   * Partial update of a pool. Only the fields present in the body are modified.
+   *
+   * Required privilege per field provided in the body:
+   * - resource: pool, action: update:&lt;field&gt; (e.g. update:nameLabel, update:defaultSrId, ...)
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629677"
+   * @example body { "nameLabel": "prod", "autoPoweron": true }
+   */
+  @Patch('{id}')
+  @Middlewares([
+    json(),
+    acl({ resource: 'pool', actions: actionsFromBody(UPDATE_POOL_ACTIONS), objectId: 'params.id' }),
+  ])
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  async updatePool(@Path() id: string, @Body() body: UpdatePoolBody): Promise<void> {
+    const pool = this.getXapiObject(id as XoPool['id'])
+    const xapi = pool.$xapi
+    const srRef = (srId: string | null) =>
+      srId === null ? 'OpaqueRef:NULL' : this.restApi.getXapiObject<XoSr>(srId as XoSr['id'], 'SR').$ref
+
+    const { nameLabel, nameDescription, autoPoweron, migrationCompression, defaultSrId, suspendSrId, crashDumpSrId } =
+      body
+
+    if (nameLabel !== undefined) {
+      await xapi.call('pool.set_name_label', pool.$ref, nameLabel)
+    }
+    if (nameDescription !== undefined) {
+      await xapi.call('pool.set_name_description', pool.$ref, nameDescription)
+    }
+    if (autoPoweron !== undefined) {
+      await xapi.call('pool.remove_from_other_config', pool.$ref, 'auto_poweron')
+      await xapi.call('pool.add_to_other_config', pool.$ref, 'auto_poweron', String(autoPoweron))
+    }
+    if (migrationCompression !== undefined) {
+      await xapi.call('pool.set_migration_compression', pool.$ref, migrationCompression)
+    }
+    if (defaultSrId !== undefined) {
+      await xapi.call('pool.set_default_SR', pool.$ref, srRef(defaultSrId))
+    }
+    if (suspendSrId !== undefined) {
+      await xapi.call('pool.set_suspend_image_SR', pool.$ref, srRef(suspendSrId))
+    }
+    if (crashDumpSrId !== undefined) {
+      await xapi.call('pool.set_crash_dump_SR', pool.$ref, srRef(crashDumpSrId))
+    }
+  }
+
+  /**
+   * Makes another host of the pool its master.
+   *
+   * Required privilege:
+   * - resource: pool, action: set-master
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629677"
+   * @example body { "hostId": "b61a5c92-700e-4966-a13b-00633f03eea8" }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/set_master')
+  @Middlewares([json(), acl({ resource: 'pool', action: 'set-master', objectId: 'params.id' })])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  setPoolMaster(
+    @Path() id: string,
+    @Body() body: SetPoolMasterBody,
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const poolId = id as XoPool['id']
+    const action = async () => {
+      const pool = this.getXapiObject(poolId)
+      const host = this.restApi.getXapiObject<XoHost>(body.hostId as XoHost['id'], 'host')
+      if (host.$pool.$ref !== pool.$ref) {
+        throw invalidParameters('the host is not in this pool')
+      }
+      await pool.$xapi.call('pool.designate_new_master', host.$ref)
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: { name: 'set pool master', objectId: poolId, params: body },
+    })
+  }
+
+  /**
+   * Enables high availability on the pool.
+   *
+   * Required privilege:
+   * - resource: pool, action: ha
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629677"
+   * @example body { "heartbeatSrIds": ["c4284e12-37c9-7967-b9e8-83ef229c3e03"] }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/enable_ha')
+  @Middlewares([json(), acl({ resource: 'pool', action: 'ha', objectId: 'params.id' })])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  enablePoolHa(
+    @Path() id: string,
+    @Body() body: EnablePoolHaBody,
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const poolId = id as XoPool['id']
+    const action = async () => {
+      if (body.heartbeatSrIds.length === 0) {
+        throw invalidParameters('at least one heartbeat SR is required')
+      }
+      const pool = this.getXapiObject(poolId)
+      const srRefs = body.heartbeatSrIds.map(srId => this.restApi.getXapiObject<XoSr>(srId as XoSr['id'], 'SR').$ref)
+      await pool.$xapi.call('pool.enable_ha', srRefs, {})
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: { name: 'enable pool HA', objectId: poolId, params: body },
+    })
+  }
+
+  /**
+   * Disables high availability on the pool.
+   *
+   * Required privilege:
+   * - resource: pool, action: ha
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629677"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/disable_ha')
+  @Middlewares(acl({ resource: 'pool', action: 'ha', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  disablePoolHa(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const poolId = id as XoPool['id']
+    const action = async () => {
+      await this.getXapiObject(poolId).$xapi.call('pool.disable_ha')
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: { name: 'disable pool HA', objectId: poolId },
+    })
+  }
+
+  /**
+   * Installs the missing patches on every host of the pool, then restarts their toolstack (master first).
+   * Hosts are not rebooted: use `rolling_update` to also reboot them one by one.
+   *
+   * HA must be disabled.
+   *
+   * Required privilege:
+   * - resource: pool, action: install-patches
+   *
+   * @example id "355ee47d-ff4c-4924-3db2-fd86ae629677"
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/install_patches')
+  @Middlewares(acl({ resource: 'pool', action: 'install-patches', objectId: 'params.id' }))
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  installPoolPatches(@Path() id: string, @Query() sync?: boolean): CreateActionReturnType<void> {
+    const poolId = id as XoPool['id']
+    const action = async () => {
+      const pool = this.getXapiObject(poolId)
+      if (pool.ha_enabled) {
+        throw invalidParameters('HA must be disabled to install patches')
+      }
+
+      const xapi = pool.$xapi
+      await xapi.installPatches()
+
+      const hosts = this.restApi.getObjectsByType<XoHost>('host', { filter: host => host.$pool === poolId })
+      // the master first: the other hosts reconnect to it
+      const xapiHosts = Object.keys(hosts)
+        .map(hostId => this.restApi.getXapiObject<XoHost>(hostId as XoHost['id'], 'host'))
+        .sort((a, b) => Number(b.$ref === pool.master) - Number(a.$ref === pool.master))
+      for (const host of xapiHosts) {
+        await xapi.call('host.restart_agent', host.$ref)
+      }
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: { name: 'install pool patches', objectId: poolId },
     })
   }
 

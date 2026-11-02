@@ -5,6 +5,7 @@ import {
   Extension,
   Get,
   Middlewares,
+  Patch,
   Path,
   Post,
   Put,
@@ -36,10 +37,11 @@ import type {
   XoPool,
   XoTask,
   XoVm,
+  XoVmController,
   XsPatches,
 } from '@fragata/types'
 
-import { acl } from '../middlewares/acl.middleware.mjs'
+import { acl, actionsFromBody } from '../middlewares/acl.middleware.mjs'
 import { AlarmService } from '../alarms/alarm.service.mjs'
 import { escapeUnsafeComplexMatcher } from '../helpers/utils.helper.mjs'
 import { genericAlarmsExample } from '../open-api/oa-examples/alarm.oa-example.mjs'
@@ -76,8 +78,20 @@ import type { CreateActionReturnType } from '../abstract-classes/base-controller
 import { HostService } from './host.service.mjs'
 import { messageIds, partialMessages } from '../open-api/oa-examples/message.oa-example.mjs'
 import { partialTasks, taskIds, taskLocation } from '../open-api/oa-examples/task.oa-example.mjs'
-import type { SupportedActions } from '@fragata/acl'
-import type { XoSrHbaExport, XoSrIscsiIqnsExport, XoSrIscsiLunsExport, XoSrNfsExport } from './host.type.mjs'
+import { SUPPORTED_ACTIONS_BY_RESOURCE, type SupportedActions } from '@fragata/acl'
+import type {
+  InstallHostCertificateBody,
+  SetControlDomainMemoryBody,
+  UpdateHostBody,
+  XoSrHbaExport,
+  XoSrIscsiIqnsExport,
+  XoSrIscsiLunsExport,
+  XoSrNfsExport,
+} from './host.type.mjs'
+
+const UPDATE_HOST_ACTIONS = Object.keys(SUPPORTED_ACTIONS_BY_RESOURCE.host.update)
+  .filter(action => action !== 'tags')
+  .map(k => `update:${k}` as SupportedActions<'host'>)
 
 @Route('hosts')
 @Security('*')
@@ -406,6 +420,230 @@ export class HostController extends XapiXoController<XoHost> {
   async deleteHostTag(@Path() id: string, @Path() tag: string): Promise<void> {
     const host = this.getXapiObject(id as XoHost['id'])
     await host.$call('remove_tags', tag)
+  }
+
+  /**
+   * Partial update of a host. Only the fields present in the body are modified.
+   *
+   * Required privilege per field provided in the body:
+   * - resource: host, action: update:&lt;field&gt; (e.g. update:nameLabel, update:multipathing, ...)
+   *
+   * @example id "b61a5c92-700e-4966-a13b-00633f03eea8"
+   * @example body { "nameLabel": "host-01", "syslogDestination": "logs.example.org:514" }
+   */
+  @Patch('{id}')
+  @Middlewares([
+    json(),
+    acl({ resource: 'host', actions: actionsFromBody(UPDATE_HOST_ACTIONS), objectId: 'params.id' }),
+  ])
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  async updateHost(@Path() id: string, @Body() body: UpdateHostBody): Promise<void> {
+    const hostId = id as XoHost['id']
+    const host = this.getXapiObject(hostId)
+    const xapi = host.$xapi
+    const { nameLabel, nameDescription, iscsiIqn, multipathing, syslogDestination } = body
+
+    if (nameLabel !== undefined) {
+      await xapi.call('host.set_name_label', host.$ref, nameLabel)
+    }
+    if (nameDescription !== undefined) {
+      await xapi.call('host.set_name_description', host.$ref, nameDescription)
+    }
+    if (iscsiIqn !== undefined) {
+      if (host.iscsi_iqn !== undefined) {
+        await xapi.call('host.set_iscsi_iqn', host.$ref, iscsiIqn)
+      } else {
+        await xapi.call('host.remove_from_other_config', host.$ref, 'iscsi_iqn')
+        if (iscsiIqn !== '') {
+          await xapi.call('host.add_to_other_config', host.$ref, 'iscsi_iqn', iscsiIqn)
+        }
+      }
+    }
+    if (multipathing !== undefined) {
+      await xapi.setHostMultipathing(hostId, multipathing)
+    }
+    if (syslogDestination !== undefined) {
+      await xapi.setRemoteSyslogHost(hostId, syslogDestination === '' ? null : syslogDestination)
+    }
+  }
+
+  /**
+   * Installs a TLS certificate on the host. The toolstack of the host restarts to use it.
+   *
+   * Required privilege:
+   * - resource: host, action: install-certificate
+   *
+   * @example id "b61a5c92-700e-4966-a13b-00633f03eea8"
+   * @example body { "certificate": "-----BEGIN CERTIFICATE-----...", "privateKey": "-----BEGIN PRIVATE KEY-----..." }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/install_certificate')
+  @Middlewares([json({ limit: '1mb' }), acl({ resource: 'host', action: 'install-certificate', objectId: 'params.id' })])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(invalidParametersResp.status, invalidParametersResp.description)
+  installHostCertificate(
+    @Path() id: string,
+    @Body() body: InstallHostCertificateBody,
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const hostId = id as XoHost['id']
+    const action = async () => {
+      await this.getXapiObject(hostId).$xapi.installCertificateOnHost(hostId, body)
+    }
+
+    // the key must not end up in the task
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: { name: 'install host certificate', objectId: hostId },
+    })
+  }
+
+  /**
+   * Sets the memory of the control domain, then reboots the host to apply it.
+   *
+   * The host must be disabled first (and so evacuated).
+   *
+   * Required privilege:
+   * - resource: host, action: set-control-domain-memory
+   *
+   * @example id "b61a5c92-700e-4966-a13b-00633f03eea8"
+   * @example body { "memory": 4294967296 }
+   */
+  @Example(taskLocation)
+  @Extension('x-mcp-exposure', 'confirm')
+  @Post('{id}/actions/set_control_domain_memory')
+  @Middlewares([json(), acl({ resource: 'host', action: 'set-control-domain-memory', objectId: 'params.id' })])
+  @SuccessResponse(asynchronousActionResp.status, asynchronousActionResp.description)
+  @Response(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(incorrectStateResp.status, incorrectStateResp.description)
+  setControlDomainMemory(
+    @Path() id: string,
+    @Body() body: SetControlDomainMemoryBody,
+    @Query() sync?: boolean
+  ): CreateActionReturnType<void> {
+    const hostId = id as XoHost['id']
+    const action = async () => {
+      const host = this.getObject(hostId)
+      if (host.enabled) {
+        throw incorrectState({ actual: true, expected: false, object: hostId, property: 'enabled' })
+      }
+
+      if (host.controlDomain === undefined) {
+        throw incorrectState({ actual: undefined, expected: 'a control domain', object: hostId, property: 'controlDomain' })
+      }
+
+      const controlDomain = this.restApi.getXapiObject<XoVmController>(host.controlDomain, 'VM-controller')
+      const xapi = controlDomain.$xapi
+      const { memory } = body
+      await xapi.call(
+        'VM.set_memory_limits',
+        controlDomain.$ref,
+        controlDomain.memory_static_min,
+        memory,
+        memory,
+        memory
+      )
+      await xapi.rebootHost(hostId)
+    }
+
+    return this.createAction<void>(action, {
+      sync,
+      statusCode: noContentResp.status,
+      taskProperties: { name: 'set control domain memory', objectId: hostId, params: body },
+    })
+  }
+
+  // For this endpoint, the requestBody type is written directly to `tsoa.json` because TSOA does not provide a decorator for "octet-stream" file uploads
+  /**
+   * Installs a supplemental pack (ISO file sent as the request body) on the host.
+   *
+   * Required privilege:
+   * - resource: host, action: install-supplemental-pack
+   *
+   * @example id "b61a5c92-700e-4966-a13b-00633f03eea8"
+   */
+  @Extension('x-mcp-exposure', 'deny')
+  @Post('{id}/supplemental_pack')
+  @Middlewares(acl({ resource: 'host', action: 'install-supplemental-pack', objectId: 'params.id' }))
+  @SuccessResponse(noContentResp.status, noContentResp.description)
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async installSupplementalPack(@Request() req: ExRequest, @Path() id: string): Promise<void> {
+    const hostId = id as XoHost['id']
+    const xapi = this.getXapiObject(hostId).$xapi
+
+    req.setTimeout(12 * 60 * 60 * 1e3)
+    ;(req as ExRequest & { length?: string }).length = req.headers['content-length']
+    await xapi.installSupplementalPack(req, { hostId })
+  }
+
+  /**
+   * Health of the disks of the host, from SMART (smartctl). `null` when the plugin is not installed.
+   *
+   * Required privilege:
+   * - resource: host, action: read-health
+   *
+   * @example id "b61a5c92-700e-4966-a13b-00633f03eea8"
+   */
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/smartctl_health')
+  @Middlewares(acl({ resource: 'host', action: 'read-health', objectId: 'params.id' }))
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async getHostSmartctlHealth(@Path() id: string): Promise<Record<string, string> | null> {
+    const hostId = id as XoHost['id']
+    return this.getXapiObject(hostId).$xapi.getSmartctlHealth(hostId)
+  }
+
+  /**
+   * Detailed SMART information of the disks of the host. `null` when the plugin is not installed.
+   *
+   * Required privilege:
+   * - resource: host, action: read-health
+   *
+   * @example id "b61a5c92-700e-4966-a13b-00633f03eea8"
+   * @example devices "sda,sdb"
+   */
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/smartctl_information')
+  @Middlewares(acl({ resource: 'host', action: 'read-health', objectId: 'params.id' }))
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async getHostSmartctlInformation(
+    @Path() id: string,
+    @Query() devices?: string
+  ): Promise<Record<string, unknown> | null> {
+    const hostId = id as XoHost['id']
+    return this.getXapiObject(hostId).$xapi.getSmartctlInformation(hostId, devices?.split(','))
+  }
+
+  /**
+   * Health of the software RAID (mdadm) of the host. `null` when the plugin is not installed.
+   *
+   * Required privilege:
+   * - resource: host, action: read-health
+   *
+   * @example id "b61a5c92-700e-4966-a13b-00633f03eea8"
+   */
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/mdadm_health')
+  @Middlewares(acl({ resource: 'host', action: 'read-health', objectId: 'params.id' }))
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  async getHostMdadmHealth(@Path() id: string): Promise<unknown> {
+    const host = this.getXapiObject(id as XoHost['id'])
+    return host.$xapi.host_getMdadmHealth(host.$ref)
   }
 
   /**

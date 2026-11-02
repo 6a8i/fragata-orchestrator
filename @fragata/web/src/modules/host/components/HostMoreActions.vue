@@ -18,10 +18,13 @@
   <HostDetachButton :host />
   <HostForgetButton :host />
   <VtsDivider type="stretch" />
+  <HostAdminActions :host />
+  <VtsDivider type="stretch" />
   <HostDownloadButton :host-id="host.id" />
 </template>
 
 <script lang="ts" setup>
+import HostAdminActions from '@/modules/host/components/actions/HostAdminActions.vue'
 import HostDetachButton from '@/modules/host/components/actions/detach/HostDetachButton.vue'
 import HostDisableButton from '@/modules/host/components/actions/disable/HostDisableButton.vue'
 import HostDisableAndEvacuateVmsButton from '@/modules/host/components/actions/disable-and-evacuate-vms/HostDisableAndEvacuateVmsButton.vue'

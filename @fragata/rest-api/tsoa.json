@@ -35,6 +35,21 @@
             }
           }
         },
+        "/hosts/{id}/supplemental_pack": {
+          "post": {
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/octet-stream": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
         "/srs/{id}/vdis": {
           "post": {
             "requestBody": {

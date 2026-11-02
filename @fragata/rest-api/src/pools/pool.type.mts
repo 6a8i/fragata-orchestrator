@@ -165,3 +165,26 @@ export type RollingPoolUpdateBody = RollingPoolActionBody & {
    */
   acceptCurrentStateAsBaseline?: boolean
 }
+
+export type UpdatePoolBody = {
+  nameLabel?: string
+  nameDescription?: string
+  /** Start the VMs flagged for auto power on when the pool boots */
+  autoPoweron?: boolean
+  migrationCompression?: boolean
+  /** `null` unsets it */
+  defaultSrId?: string | null
+  /** `null` unsets it */
+  suspendSrId?: string | null
+  /** `null` unsets it */
+  crashDumpSrId?: string | null
+}
+
+export type SetPoolMasterBody = {
+  hostId: string
+}
+
+export type EnablePoolHaBody = {
+  /** SRs used for the HA heartbeat (shared SRs) */
+  heartbeatSrIds: string[]
+}

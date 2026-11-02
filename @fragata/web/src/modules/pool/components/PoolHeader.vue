@@ -5,6 +5,18 @@
       <UiLink size="medium" :to="{ name: '/vm/new', query: { poolid: pool.id } }" icon="fa:plus">
         {{ t('new-vm') }}
       </UiLink>
+      <MenuList placement="bottom-end">
+        <template #trigger="{ open }">
+          <UiButtonIcon
+            v-tooltip="{ placement: 'left', content: t('more-actions') }"
+            icon="action:more-actions"
+            accent="brand"
+            size="medium"
+            @click="open($event)"
+          />
+        </template>
+        <PoolAdminActions :pool />
+      </MenuList>
     </template>
   </UiHeadBar>
   <TabList>
@@ -52,11 +64,15 @@
 </template>
 
 <script lang="ts" setup>
+import PoolAdminActions from '@/modules/pool/components/actions/PoolAdminActions.vue'
 import type { FrontXoPool } from '@/modules/pool/remote-resources/use-xo-pool-collection.ts'
+import MenuList from '@core/components/menu/MenuList.vue'
 import TabList from '@core/components/tab-list/TabList.vue'
+import UiButtonIcon from '@core/components/ui/button-icon/UiButtonIcon.vue'
 import UiHeadBar from '@core/components/ui/head-bar/UiHeadBar.vue'
 import UiLink from '@core/components/ui/link/UiLink.vue'
 import UiTabItem from '@core/components/ui/tab-item/UiTabItem.vue'
+import { vTooltip } from '@core/directives/tooltip.directive.ts'
 import { useI18n } from 'vue-i18n'
 
 const { pool } = defineProps<{

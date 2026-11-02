@@ -188,6 +188,8 @@ export interface Xapi {
     mtu?: number
   }): Promise<XenApiNetworkWrapped>
   deleteNetwork(id: XoNetwork['id']): Promise<void>
+  /** Recreates the VLAN of the network of the PIF, on every host, with the new tag */
+  editPif(pifId: XoPif['id'], opts: { vlan: number }): Promise<void>
   deleteVif(vifId: XoVif['id']): Promise<void>
   disconnectVif(vifId: XoVif['id']): Promise<void>
   exportVmOva(vmRef: XenApiVm['$ref']): Promise<PassThrough>
@@ -214,6 +216,8 @@ export interface Xapi {
   joinPool(masterAddress: string, masterUsername: string, masterPassword: string, force?: boolean): Promise<void>
   listMissingPatches(host: XoHost['id']): Promise<XcpPatches[] | XsPatches[]>
   pool_emergencyShutdown(): Promise<void>
+  /** Installs the missing patches on the given hosts (every host of the pool by default), without rebooting them */
+  installPatches(opts?: { hosts?: XenApiHostWrapped[]; patches?: string[] }): Promise<void>
   resumeVm(id: XoVm['id']): Promise<void>
   revertVm(snapshotId: XoVmSnapshot['id']): Promise<void>
   unpauseVm(id: XoVm['id']): Promise<void>
@@ -244,6 +248,17 @@ export interface Xapi {
   forgetHost(hostId: XoHost['id']): Promise<void>
   powerOnHost(hostId: XoHost['id']): Promise<void>
   rebootHost(hostId: XoHost['id'], force?: boolean): Promise<void>
+  setHostMultipathing(hostId: XoHost['id'], multipathing: boolean): Promise<void>
+  setRemoteSyslogHost(hostId: XoHost['id'], syslogDestination: string | null): Promise<void>
+  installCertificateOnHost(
+    hostId: XoHost['id'],
+    opts: { certificate: string; privateKey: string; chain?: string }
+  ): Promise<void>
+  installSupplementalPack(stream: unknown, opts: { hostId: XoHost['id'] }): Promise<void>
+  /** `null` when the smartctl plugin is not installed on the host */
+  getSmartctlHealth(hostId: XoHost['id']): Promise<Record<string, string> | null>
+  getSmartctlInformation(hostId: XoHost['id'], deviceNames?: string[]): Promise<Record<string, unknown> | null>
+  host_getMdadmHealth(hostRef: XenApiHostWrapped['$ref']): Promise<unknown>
   shutdownHost(hostId: XoHost['id'], opts?: { force?: boolean; bypassEvacuate?: boolean }): Promise<void>
   /** unplugs every host; running VMs using the SR must be listed in `vmsToShutdown` */
   SR_enableMaintenanceMode(ref: XenApiSr['$ref'], opts?: { vmsToShutdown?: XoVm['uuid'][] }): Promise<void>

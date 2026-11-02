@@ -36,3 +36,31 @@ export type XoSrIscsiIqnsExport = {
   iqn: string
   ip: string
 }
+
+export type UpdateHostBody = {
+  nameLabel?: string
+  nameDescription?: string
+  /** iSCSI initiator name of the host */
+  iscsiIqn?: string
+  /** Changing it unplugs then replugs the shared SRs of the host */
+  multipathing?: boolean
+  /** Remote syslog destination (`host` or `host:port`), `null` to log locally only */
+  syslogDestination?: string | null
+}
+
+export type InstallHostCertificateBody = {
+  /** PEM encoded certificate */
+  certificate: string
+  /** PEM encoded private key of the certificate */
+  privateKey: string
+  /** PEM encoded intermediate certificates */
+  chain?: string
+}
+
+export type SetControlDomainMemoryBody = {
+  /**
+   * Memory of the control domain, in bytes
+   * @minimum 1
+   */
+  memory: number
+}
