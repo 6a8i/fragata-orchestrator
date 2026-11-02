@@ -57,7 +57,7 @@ export default function genericErrorHandler(error: unknown, req: Request, res: R
     statusCode = 503
   } else {
     if (error.name === 'XapiError') {
-      responseError.info = 'This is a XenServer/XCP-ng error, not an XO error'
+      responseError.info = 'This error comes from the host (XAPI), not from Fragata'
     }
     statusCode = 500
     log.error(error)

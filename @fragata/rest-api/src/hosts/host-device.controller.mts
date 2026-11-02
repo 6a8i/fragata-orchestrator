@@ -201,7 +201,10 @@ export class HostDeviceController extends XapiXoController<XoHost> {
     if (pusb === undefined) {
       throw invalidParameters(`the USB device ${body.pusbId} is not on this host`)
     }
-    await this.getXapiObject(id as XoHost['id']).$xapi.call('PUSB.set_passthrough_enabled', pusb._xapiRef, body.enabled)
+    const host = this.getXapiObject(id as XoHost['id'])
+    await host.$xapi.call('PUSB.set_passthrough_enabled', pusb._xapiRef, body.enabled)
+    // the listing reads the objects updated from the XAPI events
+    await host.$xapi.barrier(host.$ref)
   }
 
   /**
@@ -220,5 +223,6 @@ export class HostDeviceController extends XapiXoController<XoHost> {
   async scanHostUsbs(@Path() id: string): Promise<void> {
     const host = this.getXapiObject(id as XoHost['id'])
     await host.$xapi.call('PUSB.scan', host.$ref)
+    await host.$xapi.barrier(host.$ref)
   }
 }

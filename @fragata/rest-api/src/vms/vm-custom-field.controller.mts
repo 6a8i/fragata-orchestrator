@@ -86,6 +86,7 @@ export class VmCustomFieldController extends XapiXoController<XoVm> {
     // add_to_other_config fails on an existing key
     await vm.$xapi.call('VM.remove_from_other_config', vm.$ref, KEY_PREFIX + name)
     await vm.$xapi.call('VM.add_to_other_config', vm.$ref, KEY_PREFIX + name, body.value)
+    await vm.$xapi.barrier(vm.$ref)
   }
 
   /**
@@ -104,5 +105,6 @@ export class VmCustomFieldController extends XapiXoController<XoVm> {
     checkName(name)
     const vm = this.getXapiObject(id as XoVm['id'])
     await vm.$xapi.call('VM.remove_from_other_config', vm.$ref, KEY_PREFIX + name)
+    await vm.$xapi.barrier(vm.$ref)
   }
 }

@@ -65,6 +65,12 @@ export class VmDeviceController extends XapiXoController<XoVm> {
     return object
   }
 
+  /** resolves once the change made on the VM is visible in the objects the other routes read */
+  async #synced(vmId: XoVm['id']): Promise<void> {
+    const xapiVm = this.getXapiObject(vmId)
+    await xapiVm.$xapi.barrier(xapiVm.$ref)
+  }
+
   /**
    * Devices of the VM, and the devices of its pool it could use.
    *
@@ -175,6 +181,7 @@ export class VmDeviceController extends XapiXoController<XoVm> {
     const xapiVm = this.getXapiObject(vm.id)
     await xapiVm.$xapi.call('VM.remove_from_other_config', xapiVm.$ref, 'pci')
     await xapiVm.$xapi.call('VM.add_to_other_config', xapiVm.$ref, 'pci', formatPciIds(addresses))
+    await this.#synced(vm.id)
   }
 
   /**
@@ -197,6 +204,7 @@ export class VmDeviceController extends XapiXoController<XoVm> {
     if (remaining.length > 0) {
       await xapiVm.$xapi.call('VM.add_to_other_config', xapiVm.$ref, 'pci', formatPciIds(remaining))
     }
+    await this.#synced(vm.id)
   }
 
   /**
@@ -222,6 +230,7 @@ export class VmDeviceController extends XapiXoController<XoVm> {
 
     const ref = await xapi.call<string>('VGPU.create', xapiVm.$ref, gpuGroup._xapiRef, '0', {}, vgpuType._xapiRef)
     const uuid = await xapi.call<string>('VGPU.get_uuid', ref)
+    await this.#synced(id as XoVm['id'])
     this.setStatus(createdResp.status)
     return { id: uuid }
   }
@@ -245,6 +254,7 @@ export class VmDeviceController extends XapiXoController<XoVm> {
       throw invalidParameters('the vGPU does not belong to this VM')
     }
     await this.getXapiObject(vm.id).$xapi.call('VGPU.destroy', vgpu._xapiRef)
+    await this.#synced(vm.id)
   }
 
   /**
@@ -265,6 +275,7 @@ export class VmDeviceController extends XapiXoController<XoVm> {
     const xapi = xapiVm.$xapi
     const ref = await xapi.VTPM_create({ VM: xapiVm.$ref })
     const uuid = await xapi.call<string>('VTPM.get_uuid', ref)
+    await this.#synced(id as XoVm['id'])
     this.setStatus(createdResp.status)
     return { id: uuid }
   }
@@ -290,6 +301,7 @@ export class VmDeviceController extends XapiXoController<XoVm> {
     }
     const vtpm = this.#object(vtpmId, 'VTPM')
     await this.getXapiObject(vm.id).$xapi.call('VTPM.destroy', vtpm._xapiRef)
+    await this.#synced(vm.id)
   }
 
   /**
@@ -313,6 +325,7 @@ export class VmDeviceController extends XapiXoController<XoVm> {
     const xapi = xapiVm.$xapi
     const ref = await xapi.call<string>('VUSB.create', xapiVm.$ref, usbGroup._xapiRef, {})
     const uuid = await xapi.call<string>('VUSB.get_uuid', ref)
+    await this.#synced(id as XoVm['id'])
     this.setStatus(createdResp.status)
     return { id: uuid }
   }
@@ -340,5 +353,6 @@ export class VmDeviceController extends XapiXoController<XoVm> {
       await xapi.call('VUSB.unplug', vusb._xapiRef)
     }
     await xapi.call('VUSB.destroy', vusb._xapiRef)
+    await this.#synced(vm.id)
   }
 }
