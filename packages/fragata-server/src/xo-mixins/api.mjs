@@ -376,7 +376,7 @@ export default class Api {
 
     if (app.isDegraded()) {
       // TODO: Add "Use fragata-server-crypto CLI to fix." to error message when CLI is implemented.
-      throw new Error('XO is running in degraded mode: credential decryption failed.')
+      throw new Error('Fragata is running in degraded mode: credential decryption failed.')
     }
 
     const startTime = Date.now()

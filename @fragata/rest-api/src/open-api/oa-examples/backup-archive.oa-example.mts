@@ -15,7 +15,7 @@ export const partialBackupArchives = [
       },
       {
         id: '/xo-vm-backups/6ef7c09e-677b-1e6f-0546-7ab30413c61c/vdis/8b650248-ddd6-4188-ad8b-c0502865ac6c/870e6142-d4e4-4622-bd19-6b101c8da3cc/20250801T080832Z.vhd',
-        name: 'XO CloudConfigDrive',
+        name: 'Fragata CloudConfigDrive',
         uuid: 'bea8193d-80ba-4a72-94e4-901f03ffc225',
       },
     ],

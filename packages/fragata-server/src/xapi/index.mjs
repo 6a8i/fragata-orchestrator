@@ -1543,7 +1543,7 @@ export default class Xapi extends XapiBase {
     }
     const vdi = await this._getOrWaitObject(
       await this.VDI_create({
-        name_label: 'XO CloudConfigDrive',
+        name_label: 'Fragata CloudConfigDrive',
         SR: sr.$ref,
         virtual_size: buffer.length,
       })

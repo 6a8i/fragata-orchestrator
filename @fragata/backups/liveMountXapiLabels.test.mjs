@@ -8,7 +8,7 @@ const TIMESTAMP = 1754035712000 // 2025-08-01T08:08:32Z
 describe('liveMountXapiLabels', () => {
   it('keeps the name of the disk and names the SR after the restore point', () => {
     assert.deepEqual(liveMountXapiLabels({ timestamp: TIMESTAMP, vdiNameLabel: 'system', vmNameLabel: 'web01' }), {
-      srNameLabel: '[XO live mount] web01 (20250801T080832Z)',
+      srNameLabel: '[Fragata live mount] web01 (20250801T080832Z)',
       vdiNameLabel: 'system',
       vdiNameDescription: 'Read-only live mount of web01 (20250801T080832Z), removed on unmount.',
     })
@@ -21,7 +21,7 @@ describe('liveMountXapiLabels', () => {
       vdiNameLabel: 'system',
       vmNameLabel: 'web01',
     })
-    assert.equal(xapiLabels.srNameLabel, '[XO live restore] web01 (20250801T080832Z)')
+    assert.equal(xapiLabels.srNameLabel, '[Fragata live restore] web01 (20250801T080832Z)')
     assert.match(xapiLabels.vdiNameDescription, /lost on unmount/)
   })
 })

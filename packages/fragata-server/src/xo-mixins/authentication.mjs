@@ -169,7 +169,7 @@ export default class {
       task = await tasks.create(
         {
           type: 'xo:authentication:authenticateUser',
-          name: 'XO user authentication',
+          name: 'Fragata user authentication',
           credentials: Obfuscate.replace(credentials, '* obfuscated *'),
           userData,
         },

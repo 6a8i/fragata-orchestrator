@@ -149,7 +149,7 @@ describe('ImportVmBackup#_decorateIncrementalVmMetadata()', () => {
           hostId: HOST,
           // named after the backed up VM and disk, not after the file on the backup repository
           xapiLabels: {
-            srNameLabel: '[XO live mount] a vm (20250801T080832Z)',
+            srNameLabel: '[Fragata live mount] a vm (20250801T080832Z)',
             vdiNameLabel: 'data',
             vdiNameDescription: 'Read-only live mount of a vm (20250801T080832Z), removed on unmount.',
           },
@@ -183,7 +183,7 @@ describe('ImportVmBackup#_decorateIncrementalVmMetadata()', () => {
 
       const [mounted] = liveMount.mounted
       assert.equal(mounted.cacheSrUuid, OTHER_SR)
-      assert.equal(mounted.xapiLabels.srNameLabel, '[XO live restore] a vm (20250801T080832Z)')
+      assert.equal(mounted.xapiLabels.srNameLabel, '[Fragata live restore] a vm (20250801T080832Z)')
       assert.equal(backup.vdis[DATA.ref].liveMountedReadOnly, false)
     })
 

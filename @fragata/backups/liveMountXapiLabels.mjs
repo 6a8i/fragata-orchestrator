@@ -19,7 +19,7 @@ export function liveMountXapiLabels({ vmNameLabel, vdiNameLabel, timestamp, read
   const what = readWrite ? 'live restore' : 'live mount'
   const restorePoint = `${vmNameLabel} (${formatFilenameDate(new Date(timestamp))})`
   return {
-    srNameLabel: `[XO ${what}] ${restorePoint}`,
+    srNameLabel: `[Fragata ${what}] ${restorePoint}`,
     vdiNameLabel,
     vdiNameDescription: readWrite
       ? `Live restore of ${restorePoint}: what is written to it is lost on unmount.`

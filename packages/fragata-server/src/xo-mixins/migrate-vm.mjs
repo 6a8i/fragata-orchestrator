@@ -11,7 +11,7 @@ export default class MigrateVm {
   #createWarmBackup(sourceVmId, srId, jobId) {
     const app = this._app
     const config = {
-      snapshotNameLabelTpl: '[XO warm migration {job.name}] {vm.name_label}',
+      snapshotNameLabelTpl: '[Fragata warm migration] {vm.name_label}',
     }
     const job = {
       type: 'backup',
@@ -108,6 +108,8 @@ export default class MigrateVm {
     // new vm is ready to start
     // incremental xapi  writer has set this as blocked
     await targetVm.update_blocked_operations({ start: null, start_on: null })
+    // the replica is named after its job: the migrated VM keeps the name of the source
+    await targetVm.set_name_label(sourceVm.name_label)
 
     if (startDestVm) {
       // boot it
