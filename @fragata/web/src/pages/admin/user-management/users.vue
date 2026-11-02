@@ -5,7 +5,13 @@
         {{ t('alert-user-roles') }}
       </UiAlert>
       <UiCard>
-        <UsersTable :users />
+        <UsersTable :users>
+          <template #title-actions>
+            <UiButton variant="primary" accent="brand" size="medium" left-icon="fa:plus" @click="openNewUserDrawer()">
+              {{ t('new') }}
+            </UiButton>
+          </template>
+        </UsersTable>
       </UiCard>
     </div>
 
@@ -19,7 +25,9 @@ import UsersTable from '@/modules/user/components/list/UsersTable.vue'
 import { type FrontXoUser, useXoUserCollection } from '@/modules/user/remote-resources/use-xo-user-collection.ts'
 import VtsContentSidePanel from '@core/components/layout/VtsContentSidePanel.vue'
 import UiAlert from '@core/components/ui/alert/UiAlert.vue'
+import UiButton from '@core/components/ui/button/UiButton.vue'
 import UiCard from '@core/components/ui/card/UiCard.vue'
+import { useUserManagement } from '@/modules/user/composables/use-user-management.composable.ts'
 import { useRouteQuery } from '@core/composables/route-query.composable.ts'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -33,6 +41,8 @@ const { t } = useI18n()
 const { getUserById } = useXoUserCollection()
 
 const alertDismissed = ref(false)
+
+const { openNewUserDrawer } = useUserManagement()
 
 const selectedUser = useRouteQuery<FrontXoUser | undefined>('id', {
   toData: id => getUserById(id as FrontXoUser['id']),

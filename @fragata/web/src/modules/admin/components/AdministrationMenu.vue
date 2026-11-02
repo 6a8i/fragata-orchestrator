@@ -54,6 +54,8 @@ const sections = computed<AdminMenuSection[]>(() => [
     title: t('user-management'),
     items: [
       { label: t('users'), to: { name: '/admin/user-management' } },
+      { label: t('groups'), to: { name: '/admin/user-management/groups' } },
+      { label: t('roles'), to: { name: '/admin/user-management/roles' } },
       { label: t('ldap-auth-providers'), to: { name: '/admin/plugins', query: { 'qb.plugins': 'name:/^auth-/' } } },
     ],
   },

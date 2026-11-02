@@ -6,7 +6,7 @@ import type { XoGroup } from '@fragata/types'
 
 export type FrontXoGroup = Pick<XoGroup, (typeof groupFields)[number]>
 
-const groupFields = ['id', 'name'] as const satisfies readonly (keyof XoGroup)[]
+const groupFields = ['id', 'name', 'users', 'aclRoleIds'] as const satisfies readonly (keyof XoGroup)[]
 
 export const useXoGroupCollection = defineRemoteResource({
   url: `${BASE_URL}/groups?fields=${groupFields.join(',')}&ndjson=true`,

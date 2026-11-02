@@ -154,7 +154,23 @@ declare module 'vue-router/auto-routes' {
       '/admin/user-management',
       Record<never, never>,
       Record<never, never>,
+      | '/admin/user-management/groups'
+      | '/admin/user-management/roles'
       | '/admin/user-management/users'
+    >,
+    '/admin/user-management/groups': RouteRecordInfo<
+      '/admin/user-management/groups',
+      '/admin/user-management/groups',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/admin/user-management/roles': RouteRecordInfo<
+      '/admin/user-management/roles',
+      '/admin/user-management/roles',
+      Record<never, never>,
+      Record<never, never>,
+      | never
     >,
     '/admin/user-management/users': RouteRecordInfo<
       '/admin/user-management/users',
@@ -657,9 +673,23 @@ declare module 'vue-router/auto-routes' {
     'src/pages/admin/user-management.vue': {
       routes:
         | '/admin/user-management'
+        | '/admin/user-management/groups'
+        | '/admin/user-management/roles'
         | '/admin/user-management/users'
       views:
         | 'default'
+    }
+    'src/pages/admin/user-management/groups.vue': {
+      routes:
+        | '/admin/user-management/groups'
+      views:
+        | never
+    }
+    'src/pages/admin/user-management/roles.vue': {
+      routes:
+        | '/admin/user-management/roles'
+      views:
+        | never
     }
     'src/pages/admin/user-management/users.vue': {
       routes:
