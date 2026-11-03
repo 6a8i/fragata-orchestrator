@@ -10,8 +10,8 @@ import { submitDrawer } from '@/test/drawer.ts'
 import { createGlobalTestConfig } from '@/test/global-test-config.ts'
 import { t } from '@/test/i18n.ts'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
-import { computed, ref } from 'vue'
 import { parse as parseBackupRepositoryUrl } from 'fragata-remote-parser'
+import { computed, ref } from 'vue'
 
 vi.mock(import('@/modules/proxy/remote-resources/use-xo-proxy-collection.ts'), () => ({
   useXoProxyCollection: (() => ({

@@ -52,9 +52,9 @@ import VtsCardRowKeyValue from '@core/components/card/VtsCardRowKeyValue.vue'
 import VtsCopyButton from '@core/components/copy-button/VtsCopyButton.vue'
 import UiPanelCard from '@core/components/ui/panel-card/UiPanelCard.vue'
 import UiPanelCardTitle from '@core/components/ui/panel-card-title/UiPanelCardTitle.vue'
+import type { ParsedSmbBackupRepositoryUrl } from 'fragata-remote-parser'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { ParsedSmbBackupRepositoryUrl } from 'fragata-remote-parser'
 
 const { smb, options } = defineProps<{
   smb: ParsedSmbBackupRepositoryUrl

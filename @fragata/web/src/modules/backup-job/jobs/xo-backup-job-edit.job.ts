@@ -34,7 +34,8 @@ export const useXoVmBackupJobEditJob = defineJob(
         }
 
         // the settings of the other schedules of the job are kept as they are
-        const { '': _previousGeneral, ...otherSettings } = backupJob.settings as Record<string, unknown>
+        const otherSettings = { ...(backupJob.settings as Record<string, unknown>) }
+        delete otherSettings['']
 
         await fetchPatch(`backup-jobs/vm/${backupJob.id}`, {
           ...payload.job,

@@ -25,9 +25,9 @@ import {
   useBackupRepositoryGeneralForm,
 } from '@/modules/backup-repository/form/use-backup-repository-general-form.ts'
 import type { FrontXoProxy } from '@/modules/proxy/remote-resources/use-xo-proxy-collection.ts'
+import { type BackupRepositoryUrlOptions, format as formatBackupRepositoryUrl } from 'fragata-remote-parser'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { type BackupRepositoryUrlOptions, format as formatBackupRepositoryUrl } from 'fragata-remote-parser'
 
 export type BackupRepositoryPayload = {
   name: string

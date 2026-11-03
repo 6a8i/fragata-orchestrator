@@ -2,8 +2,8 @@ import { useXoBackupRepositoryParsedUrl } from '@/modules/backup-repository/comp
 import type { FrontXoBackupRepository } from '@/modules/backup-repository/remote-resources/use-xo-backup-repository-collection.ts'
 import { createBr } from '@/test/create-br.ts'
 import { mountComposable } from '@/test/mount-composable.ts'
-import { ref } from 'vue'
 import { parse as parseBackupRepositoryUrl } from 'fragata-remote-parser'
+import { ref } from 'vue'
 
 function mountParsedUrl(br: FrontXoBackupRepository | undefined) {
   return mountComposable(() => ({ parsedUrl: useXoBackupRepositoryParsedUrl(br) })).wrapper.vm

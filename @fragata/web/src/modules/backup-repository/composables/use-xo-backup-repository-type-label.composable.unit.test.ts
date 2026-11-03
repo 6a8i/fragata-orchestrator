@@ -1,8 +1,8 @@
 import { useXoBackupRepositoryTypeLabel } from '@/modules/backup-repository/composables/use-xo-backup-repository-type-label.composable.ts'
 import { mountComposable } from '@/test/mount-composable.ts'
+import { BACKUP_REPOSITORY_TYPE, type BackupRepositoryType } from 'fragata-remote-parser'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { BACKUP_REPOSITORY_TYPE, type BackupRepositoryType } from 'fragata-remote-parser'
 
 function mountTypeLabel(type: BackupRepositoryType | undefined) {
   return mountComposable(() => {

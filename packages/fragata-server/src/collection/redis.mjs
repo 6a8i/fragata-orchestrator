@@ -164,7 +164,7 @@ export default class Redis extends Collection {
     // TODO: remove “replace” which is a temporary measure, implement
     // “set()” instead.
 
-    const { indexes, prefix, redis } = this
+    const { prefix, redis } = this
 
     return Promise.all(
       map(models, async model => {

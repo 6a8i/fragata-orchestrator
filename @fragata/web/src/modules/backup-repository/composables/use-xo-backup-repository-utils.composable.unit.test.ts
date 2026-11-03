@@ -4,9 +4,9 @@ import type { useXoProxyCollection } from '@/modules/proxy/remote-resources/use-
 import { createBr } from '@/test/create-br.ts'
 import { mountComposable } from '@/test/mount-composable.ts'
 import type { XoProxy } from '@fragata/types'
+import { parse as parseBackupRepositoryUrl } from 'fragata-remote-parser'
 import { computed, ref, toValue } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { parse as parseBackupRepositoryUrl } from 'fragata-remote-parser'
 
 const { useGetProxyById } = vi.hoisted(() => ({
   useGetProxyById: vi.fn(),

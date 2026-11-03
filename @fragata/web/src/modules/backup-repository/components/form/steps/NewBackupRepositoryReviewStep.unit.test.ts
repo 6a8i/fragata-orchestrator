@@ -11,8 +11,8 @@ import { createGlobalTestConfig } from '@/test/global-test-config.ts'
 import { t } from '@/test/i18n.ts'
 import { mountComposable } from '@/test/mount-composable.ts'
 import { flushPromises, mount } from '@vue/test-utils'
-import { computed, type MaybeRefOrGetter, ref, toValue } from 'vue'
 import type { BackupRepositoryType } from 'fragata-remote-parser'
+import { computed, type MaybeRefOrGetter, ref, toValue } from 'vue'
 
 const { PROXY } = vi.hoisted(() => ({
   PROXY: { id: 'proxy-1', name: 'Proxy 1' } as FrontXoProxy,

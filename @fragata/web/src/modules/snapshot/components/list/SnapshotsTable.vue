@@ -47,7 +47,6 @@ import { useVmSnapshotRevert } from '@/modules/snapshot/composables/use-vm-snaps
 import { useSnapshotTrigger } from '@/modules/snapshot/composables/xo-snapshot-trigger.composable.ts'
 import { useXoVmSnapshotJob } from '@/modules/vm/jobs/xo-vm-snapshot.job.ts'
 import type { FrontXoVm } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
-import { useSorted } from '@vueuse/core'
 import VtsRow from '@fragata/web-core/components/table/VtsRow.vue'
 import VtsTable from '@fragata/web-core/components/table/VtsTable.vue'
 import UiButton from '@fragata/web-core/components/ui/button/UiButton.vue'
@@ -57,6 +56,7 @@ import { usePagination } from '@fragata/web-core/composables/pagination.composab
 import { useRouteQuery } from '@fragata/web-core/composables/route-query.composable.ts'
 import { useTableState } from '@fragata/web-core/composables/table-state.composable.ts'
 import { useSnapshotColumns } from '@fragata/web-core/tables/column-sets/snapshot-columns.ts'
+import { useSorted } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 

@@ -1,7 +1,7 @@
 import { useMapper } from '@core/packages/mapper'
+import { BACKUP_REPOSITORY_TYPE, type BackupRepositoryType } from 'fragata-remote-parser'
 import type { MaybeRefOrGetter } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { BACKUP_REPOSITORY_TYPE, type BackupRepositoryType } from 'fragata-remote-parser'
 
 export function useXoBackupRepositoryTypeLabel(rawType: MaybeRefOrGetter<BackupRepositoryType | undefined>) {
   const { t } = useI18n()

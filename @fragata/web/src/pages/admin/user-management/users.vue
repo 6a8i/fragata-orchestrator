@@ -22,12 +22,12 @@
 <script setup lang="ts">
 import UserSidePanel from '@/modules/user/components/list/panel/UserSidePanel.vue'
 import UsersTable from '@/modules/user/components/list/UsersTable.vue'
+import { useUserManagement } from '@/modules/user/composables/use-user-management.composable.ts'
 import { type FrontXoUser, useXoUserCollection } from '@/modules/user/remote-resources/use-xo-user-collection.ts'
 import VtsContentSidePanel from '@core/components/layout/VtsContentSidePanel.vue'
 import UiAlert from '@core/components/ui/alert/UiAlert.vue'
 import UiButton from '@core/components/ui/button/UiButton.vue'
 import UiCard from '@core/components/ui/card/UiCard.vue'
-import { useUserManagement } from '@/modules/user/composables/use-user-management.composable.ts'
 import { useRouteQuery } from '@core/composables/route-query.composable.ts'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'

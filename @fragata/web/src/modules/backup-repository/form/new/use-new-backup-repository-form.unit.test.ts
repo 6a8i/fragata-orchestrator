@@ -6,9 +6,9 @@ import {
 import type { FrontXoProxy, useXoProxyCollection } from '@/modules/proxy/remote-resources/use-xo-proxy-collection.ts'
 import { mountComposable } from '@/test/mount-composable.ts'
 import { flushPromises } from '@vue/test-utils'
+import { type BackupRepositoryType, format as formatBackupRepositoryUrl } from 'fragata-remote-parser'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { type BackupRepositoryType, format as formatBackupRepositoryUrl } from 'fragata-remote-parser'
 
 const PROXY_ID = 'proxy-1' as FrontXoProxy['id']
 

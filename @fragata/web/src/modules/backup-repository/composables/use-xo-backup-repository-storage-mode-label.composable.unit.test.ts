@@ -1,8 +1,8 @@
 import { useXoBackupRepositoryStorageModeLabel } from '@/modules/backup-repository/composables/use-xo-backup-repository-storage-mode-label.composable.ts'
 import { mountComposable } from '@/test/mount-composable.ts'
+import { type ParsedBackupRepositoryUrl, parse as parseBackupRepositoryUrl } from 'fragata-remote-parser'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { type ParsedBackupRepositoryUrl, parse as parseBackupRepositoryUrl } from 'fragata-remote-parser'
 
 function mountStorageModeLabel(parsedUrl: ParsedBackupRepositoryUrl | undefined) {
   return mountComposable(() => {

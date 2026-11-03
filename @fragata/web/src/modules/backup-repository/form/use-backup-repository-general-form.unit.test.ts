@@ -11,9 +11,9 @@ import { t } from '@/test/i18n.ts'
 import { mountComposable } from '@/test/mount-composable.ts'
 import UiInput from '@core/components/ui/input/UiInput.vue'
 import { flushPromises, mount } from '@vue/test-utils'
+import type { BackupRepositoryType } from 'fragata-remote-parser'
 import { defineComponent, h, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { BackupRepositoryType } from 'fragata-remote-parser'
 
 vi.mock(import('@/modules/proxy/remote-resources/use-xo-proxy-collection.ts'), () => ({
   useXoProxyCollection: (() => ({ proxies: ref([]) })) as unknown as typeof useXoProxyCollection,

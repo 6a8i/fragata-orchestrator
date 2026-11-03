@@ -28,8 +28,8 @@
 
 <script lang="ts" setup>
 import AccountMenu from '@/components/account-menu/AccountMenu.vue'
-import PoolOverrideWarning from '@/components/PoolOverrideWarning.vue'
 import OrchestratorButton from '@/components/OrchestratorButton.vue'
+import PoolOverrideWarning from '@/components/PoolOverrideWarning.vue'
 import { usePoolStore } from '@/stores/xen-api/pool.store.ts'
 import UiButtonIcon from '@core/components/ui/button-icon/UiButtonIcon.vue'
 import UiLogoText from '@core/components/ui/logo-text/UiLogoText.vue'

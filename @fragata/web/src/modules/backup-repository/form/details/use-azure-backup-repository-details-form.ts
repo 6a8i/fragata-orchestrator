@@ -3,9 +3,9 @@ import type { BackupRepositoryDetailsPayload } from '@/modules/backup-repository
 import { buildAzureBackupRepositoryDetailsPayload } from '@/modules/backup-repository/utils/xo-backup-repository-details-payload.util.ts'
 import { required } from '@core/packages/form-validation'
 import { toComputed } from '@core/utils/to-computed.util.ts'
+import type { BackupRepositoryType } from 'fragata-remote-parser'
 import { type MaybeRefOrGetter, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { BackupRepositoryType } from 'fragata-remote-parser'
 
 export type AzureBackupRepositoryDetailsForm = ReturnType<typeof useAzureBackupRepositoryDetailsForm>
 

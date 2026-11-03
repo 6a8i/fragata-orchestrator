@@ -4,8 +4,8 @@ import type { EditBackupRepositoryPayload } from '@/modules/backup-repository/jo
 import type { FrontXoBackupRepository } from '@/modules/backup-repository/remote-resources/use-xo-backup-repository-collection.ts'
 import { getBackupRepositoryDetailsInitialData } from '@/modules/backup-repository/utils/xo-backup-repository-details-initial-data.util.ts'
 import { isBackupRepositoryEncrypted } from '@/modules/backup-repository/utils/xo-backup-repository.util.ts'
-import { reactive } from 'vue'
 import { parse as parseBackupRepositoryUrl } from 'fragata-remote-parser'
+import { reactive } from 'vue'
 
 export function useEditBackupRepositoryForm(br: FrontXoBackupRepository) {
   const parsedUrl = parseBackupRepositoryUrl(br.url)

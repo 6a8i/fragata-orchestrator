@@ -9,8 +9,8 @@ import type { useXoProxyCollection } from '@/modules/proxy/remote-resources/use-
 import { createGlobalTestConfig } from '@/test/global-test-config.ts'
 import { mountComposable } from '@/test/mount-composable.ts'
 import { mount, type VueWrapper } from '@vue/test-utils'
-import { ref } from 'vue'
 import type { BackupRepositoryType } from 'fragata-remote-parser'
+import { ref } from 'vue'
 
 vi.mock(import('@/modules/proxy/remote-resources/use-xo-proxy-collection.ts'), () => ({
   useXoProxyCollection: (() => ({ proxies: ref([]) })) as unknown as typeof useXoProxyCollection,

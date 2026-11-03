@@ -71,9 +71,9 @@ import VtsCopyButton from '@core/components/copy-button/VtsCopyButton.vue'
 import VtsStatus from '@core/components/status/VtsStatus.vue'
 import UiPanelCard from '@core/components/ui/panel-card/UiPanelCard.vue'
 import UiPanelCardTitle from '@core/components/ui/panel-card-title/UiPanelCardTitle.vue'
+import type { ParsedS3BackupRepositoryUrl } from 'fragata-remote-parser'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { ParsedS3BackupRepositoryUrl } from 'fragata-remote-parser'
 
 const { s3 } = defineProps<{
   s3: ParsedS3BackupRepositoryUrl

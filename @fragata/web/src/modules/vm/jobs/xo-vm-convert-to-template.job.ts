@@ -1,6 +1,6 @@
+import type { FrontXoTask } from '@/modules/task/remote-resources/use-xo-task-collection.ts'
 import { xoVmArg } from '@/modules/vm/jobs/xo-vm-args.ts'
 import type { FrontXoVm } from '@/modules/vm/remote-resources/use-xo-vm-collection.ts'
-import type { FrontXoTask } from '@/modules/task/remote-resources/use-xo-task-collection.ts'
 import { useXoTaskUtils } from '@/shared/composables/xo-task-utils.composable.ts'
 import { fetchPost } from '@/shared/utils/fetch.util.ts'
 import { defineJob, JobError, JobRunningError } from '@core/packages/job'

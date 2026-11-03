@@ -58,9 +58,9 @@ import VtsIcon from '@core/components/icon/VtsIcon.vue'
 import VtsStatus from '@core/components/status/VtsStatus.vue'
 import UiPanelCard from '@core/components/ui/panel-card/UiPanelCard.vue'
 import UiPanelCardTitle from '@core/components/ui/panel-card-title/UiPanelCardTitle.vue'
+import type { ParsedBackupRepositoryUrl } from 'fragata-remote-parser'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { ParsedBackupRepositoryUrl } from 'fragata-remote-parser'
 
 const { br, parsedBrUrl } = defineProps<{
   br: FrontXoBackupRepository

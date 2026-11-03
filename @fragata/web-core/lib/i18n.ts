@@ -1,6 +1,6 @@
-import en from './locales/en.json'
 import type { WritableComputedRef } from 'vue'
 import { createI18n } from 'vue-i18n'
+import en from './locales/en.json'
 
 interface Locales {
   [key: string]: {

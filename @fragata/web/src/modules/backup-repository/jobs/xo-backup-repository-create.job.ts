@@ -4,8 +4,8 @@ import type { FrontXoBackupRepository } from '@/modules/backup-repository/remote
 import { checkBackupRepositoryHealth } from '@/modules/backup-repository/utils/xo-backup-repository-health.util.ts'
 import { fetchPost } from '@/shared/utils/fetch.util.ts'
 import { defineJob, JobError, JobRunningError } from '@core/packages/job'
-import { useI18n } from 'vue-i18n'
 import { parse as parseBackupRepositoryUrl } from 'fragata-remote-parser'
+import { useI18n } from 'vue-i18n'
 
 export type NewBackupRepositoryPayload = BackupRepositoryPayload
 

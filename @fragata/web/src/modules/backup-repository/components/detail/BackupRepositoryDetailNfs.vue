@@ -18,9 +18,9 @@ import VtsTabularKeyValueList from '@core/components/tabular-key-value-list/VtsT
 import VtsTabularKeyValueRow from '@core/components/tabular-key-value-row/VtsTabularKeyValueRow.vue'
 import UiCard from '@core/components/ui/card/UiCard.vue'
 import UiTitle from '@core/components/ui/title/UiTitle.vue'
+import type { ParsedNfsBackupRepositoryUrl } from 'fragata-remote-parser'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { ParsedNfsBackupRepositoryUrl } from 'fragata-remote-parser'
 
 const { options } = defineProps<{
   nfs: ParsedNfsBackupRepositoryUrl

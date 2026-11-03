@@ -18,8 +18,8 @@ import VtsCardRowKeyValue from '@core/components/card/VtsCardRowKeyValue.vue'
 import VtsCopyButton from '@core/components/copy-button/VtsCopyButton.vue'
 import UiPanelCard from '@core/components/ui/panel-card/UiPanelCard.vue'
 import UiPanelCardTitle from '@core/components/ui/panel-card-title/UiPanelCardTitle.vue'
-import { useI18n } from 'vue-i18n'
 import type { ParsedFileBackupRepositoryUrl } from 'fragata-remote-parser'
+import { useI18n } from 'vue-i18n'
 
 defineProps<{
   file: ParsedFileBackupRepositoryUrl

@@ -6,8 +6,8 @@ import { isBackupRepositoryEncrypted } from '@/modules/backup-repository/utils/x
 import type { FrontXoProxy } from '@/modules/proxy/remote-resources/use-xo-proxy-collection.ts'
 import { fetchPatch } from '@/shared/utils/fetch.util.ts'
 import { defineJob, JobError, JobRunningError } from '@core/packages/job'
-import { useI18n } from 'vue-i18n'
 import { parse as parseBackupRepositoryUrl } from 'fragata-remote-parser'
+import { useI18n } from 'vue-i18n'
 
 export type EditBackupRepositoryPayload = {
   name: string

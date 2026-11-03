@@ -6,8 +6,8 @@ import {
   isBackupRepositoryEncrypted,
 } from '@/modules/backup-repository/utils/xo-backup-repository.util.ts'
 import { useXoProxyCollection } from '@/modules/proxy/remote-resources/use-xo-proxy-collection.ts'
-import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 import type { ParsedBackupRepositoryUrl } from 'fragata-remote-parser'
+import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 
 export function useXoBackupRepositoryUtils(
   rawBr: MaybeRefOrGetter<FrontXoBackupRepository>,

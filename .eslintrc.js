@@ -236,6 +236,7 @@ module.exports = {
               'Fragata',
               'Fragata Appliance',
               'Fragata Deck',
+              'Fragata Host',
               'XCP-ng',
               'Fragata Classic',
               '404',
@@ -246,6 +247,7 @@ module.exports = {
         '@intlify/vue-i18n/no-v-html': 'error',
         '@intlify/vue-i18n/valid-message-syntax': 'error',
         '@intlify/vue-i18n/no-duplicate-keys-in-locale': 'error',
+        // Fragata keeps en and pt-BR complete
         '@intlify/vue-i18n/no-missing-keys-in-other-locales': [
           'error',
           {
@@ -259,7 +261,7 @@ module.exports = {
               'ru',
               'uk',
               'nl',
-              'pt-BR',
+              'fr',
               'da',
               'ko',
               'nb-NO',

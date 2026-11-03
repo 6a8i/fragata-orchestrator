@@ -1,7 +1,7 @@
 import { useAzureBackupRepositoryDetailsForm } from '@/modules/backup-repository/form/details/use-azure-backup-repository-details-form.ts'
 import { mountComposable } from '@/test/mount-composable.ts'
-import { nextTick, ref } from 'vue'
 import type { BackupRepositoryType } from 'fragata-remote-parser'
+import { nextTick, ref } from 'vue'
 
 type AzureFormData = ReturnType<typeof useAzureBackupRepositoryDetailsForm>['formData']
 

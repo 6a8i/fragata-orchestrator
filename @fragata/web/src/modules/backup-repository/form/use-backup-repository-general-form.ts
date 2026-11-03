@@ -4,9 +4,9 @@ import { type FrontXoProxy, useXoProxyCollection } from '@/modules/proxy/remote-
 import type { InputType } from '@core/components/ui/input/UiInput.vue'
 import { type FormValidationConfig, mergeValidationConfigs, required, requiredIf } from '@core/packages/form-validation'
 import { useValidatedForm } from '@core/packages/validated-form'
+import { BACKUP_REPOSITORY_TYPE, type BackupRepositoryType, type BackupRepositoryUrlOptions } from 'fragata-remote-parser'
 import { computed, reactive, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { BACKUP_REPOSITORY_TYPE, type BackupRepositoryType, type BackupRepositoryUrlOptions } from 'fragata-remote-parser'
 
 export type BackupRepositoryGeneralFormData = {
   name: string

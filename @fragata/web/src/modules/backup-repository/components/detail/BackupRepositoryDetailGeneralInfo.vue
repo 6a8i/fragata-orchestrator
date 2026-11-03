@@ -37,8 +37,8 @@ import VtsTabularKeyValueList from '@core/components/tabular-key-value-list/VtsT
 import VtsTabularKeyValueRow from '@core/components/tabular-key-value-row/VtsTabularKeyValueRow.vue'
 import UiCard from '@core/components/ui/card/UiCard.vue'
 import UiTitle from '@core/components/ui/title/UiTitle.vue'
-import { useI18n } from 'vue-i18n'
 import type { ParsedBackupRepositoryUrl } from 'fragata-remote-parser'
+import { useI18n } from 'vue-i18n'
 
 const { br, parsedBrUrl } = defineProps<{
   br: FrontXoBackupRepository

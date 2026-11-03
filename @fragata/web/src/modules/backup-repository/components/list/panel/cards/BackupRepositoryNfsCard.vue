@@ -43,9 +43,9 @@ import VtsCardRowKeyValue from '@core/components/card/VtsCardRowKeyValue.vue'
 import VtsCopyButton from '@core/components/copy-button/VtsCopyButton.vue'
 import UiPanelCard from '@core/components/ui/panel-card/UiPanelCard.vue'
 import UiPanelCardTitle from '@core/components/ui/panel-card-title/UiPanelCardTitle.vue'
+import type { ParsedNfsBackupRepositoryUrl } from 'fragata-remote-parser'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { ParsedNfsBackupRepositoryUrl } from 'fragata-remote-parser'
 
 const { options } = defineProps<{
   nfs: ParsedNfsBackupRepositoryUrl

@@ -1,6 +1,6 @@
 import type { FrontXoBackupRepository } from '@/modules/backup-repository/remote-resources/use-xo-backup-repository-collection.ts'
-import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 import { parse as parseBackupRepositoryUrl } from 'fragata-remote-parser'
+import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 
 export function useXoBackupRepositoryParsedUrl(rawBr: MaybeRefOrGetter<FrontXoBackupRepository | undefined>) {
   return computed(() => {

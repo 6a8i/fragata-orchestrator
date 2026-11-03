@@ -17,6 +17,7 @@
 import type { FrontXoPool } from '@/modules/pool/remote-resources/use-xo-pool-collection.ts'
 import StorageRepositorySidePanel from '@/modules/storage-repository/components/list/panel/StorageRepositorySidePanel.vue'
 import StorageRepositoriesTable from '@/modules/storage-repository/components/list/StorageRepositoriesTable.vue'
+import { useNewSrDrawer } from '@/modules/storage-repository/composables/use-new-sr-drawer.composable.ts'
 import {
   useXoSrCollection,
   type FrontXoSr,
@@ -24,11 +25,10 @@ import {
 import VtsContentSidePanel from '@core/components/layout/VtsContentSidePanel.vue'
 import UiButton from '@core/components/ui/button/UiButton.vue'
 import UiCard from '@core/components/ui/card/UiCard.vue'
-import { useNewSrDrawer } from '@/modules/storage-repository/composables/use-new-sr-drawer.composable.ts'
-import { useI18n } from 'vue-i18n'
 import { useRouteQuery } from '@core/composables/route-query.composable.ts'
 import { SR_SCOPE_TYPE, type SrScope } from '@core/types/storage-repository.type.ts'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const { pool } = defineProps<{
   pool: FrontXoPool

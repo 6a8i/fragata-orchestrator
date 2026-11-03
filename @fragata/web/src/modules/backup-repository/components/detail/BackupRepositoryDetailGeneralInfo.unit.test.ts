@@ -7,8 +7,8 @@ import { createGlobalTestConfig } from '@/test/global-test-config.ts'
 import { t } from '@/test/i18n.ts'
 import type { XoProxy } from '@fragata/types'
 import { mount } from '@vue/test-utils'
-import { computed } from 'vue'
 import { parse as parseBackupRepositoryUrl } from 'fragata-remote-parser'
+import { computed } from 'vue'
 
 const { useGetProxyById } = vi.hoisted(() => ({
   useGetProxyById: vi.fn(),

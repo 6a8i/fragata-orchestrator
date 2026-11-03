@@ -1,7 +1,7 @@
 import { useMapper } from '@core/packages/mapper'
+import type { ParsedBackupRepositoryUrl } from 'fragata-remote-parser'
 import { type MaybeRefOrGetter, toValue } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { ParsedBackupRepositoryUrl } from 'fragata-remote-parser'
 
 type BackupRepositoryStorageMode = 'block' | 'file' | 'unknown'
 

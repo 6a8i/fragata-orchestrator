@@ -9,13 +9,13 @@ import type { FrontXoBackupRepository } from '@/modules/backup-repository/remote
 import { getBackupRepositoryDetailsInitialData } from '@/modules/backup-repository/utils/xo-backup-repository-details-initial-data.util.ts'
 import { buildBackupRepositoryDetailsPayload } from '@/modules/backup-repository/utils/xo-backup-repository-details-payload.util.ts'
 import { mergeValues, omitMixedValues } from '@/modules/backup-repository/utils/xo-backup-repository-multi-edit.util.ts'
-import { reactive } from 'vue'
-import { useI18n } from 'vue-i18n'
 import {
   format as formatBackupRepositoryUrl,
   type ParsedBackupRepositoryUrl,
   parse as parseBackupRepositoryUrl,
 } from 'fragata-remote-parser'
+import { reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 type InitialBr = {
   br: FrontXoBackupRepository
