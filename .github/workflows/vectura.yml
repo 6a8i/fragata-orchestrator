@@ -68,6 +68,14 @@ jobs:
       - name: The binary in git is the build of these sources
         run: |
           cmp "$RUNNER_TEMP/build/vectura" vectura || {
-            echo '::error::vectura is not the build of these sources: run scripts/build.sh . in vectura/ and commit the binary'
+            echo '::error::vectura is not the build of these sources: run scripts/build.sh . in vectura/ and commit the binary (or the one of the vectura artifact of this run)'
             exit 1
           }
+      # the build, to commit it without a local zig toolchain
+      # https://github.com/actions/upload-artifact
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vectura
+          path: ${{ runner.temp }}/build/vectura
+          if-no-files-found: ignore

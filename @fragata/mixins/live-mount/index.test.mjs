@@ -347,7 +347,7 @@ describe('mountDisk', () => {
     assert.equal(result.vdiUuid, 'vdi-uuid')
     assert.equal(result.address, '192.168.1.8')
     assert.equal(result.port, 34567)
-    assert.match(result.iqn, /^iqn\.2026-07\.tech\.vates\.xo:live-mount-[0-9a-f]{32}$/)
+    assert.match(result.iqn, /^iqn\.2026-10\.io\.fragata:live-mount-[0-9a-f]{32}$/)
 
     // the chain is opened with its block allocation tables
     assert.equal(disk.params.path, 'xo-vm-backups/vm/vdis/job/vdi/20260731T120000Z.vhd')
