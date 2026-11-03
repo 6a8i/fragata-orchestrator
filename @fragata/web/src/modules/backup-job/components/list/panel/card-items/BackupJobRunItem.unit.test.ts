@@ -87,7 +87,7 @@ describe('schedule', () => {
     // the copy button of the row has its own icon
     const iconNames = findScheduleRow(wrapper)
       ?.findAllComponents(VtsIcon)
-      .map(icon => icon.props('name'))
+      .map((icon: { props: (name: 'name') => unknown }) => icon.props('name'))
     expect(iconNames).not.toContain('object:backup-schedule')
   })
 })
