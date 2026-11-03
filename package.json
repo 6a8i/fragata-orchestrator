@@ -63,7 +63,7 @@
   },
   "private": true,
   "scripts": {
-    "build": "TURBO_TELEMETRY_DISABLED=1 turbo run build --filter fragata-server --filter fragata-server-'*' --filter @fragata/web --filter @fragata/backup-archive && yarn build:doc",
+    "build": "TURBO_TELEMETRY_DISABLED=1 turbo run build --filter fragata-server --filter fragata-server-'*' --filter @fragata/web --filter @fragata/backup-archive --filter fragata-lib && yarn build:doc",
     "build:doc": "yarn --cwd docs install && yarn --cwd docs build:fragata-server",
     "build:xo-lite": "turbo run build --filter @fragata/lite",
     "clean": "scripts/run-script.js --parallel clean",
