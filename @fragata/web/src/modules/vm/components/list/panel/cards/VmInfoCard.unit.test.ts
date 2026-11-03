@@ -183,7 +183,8 @@ it('shows the name of the user who created the VM, linked to the user management
   const wrapper = mountInfoCard()
 
   expect(findCardLabelledValues(wrapper)).toMatchObject({ [t('created-by')]: 'alice' })
-  expect(wrapper.get('a').attributes('href')).toBe('/admin/user-management/users?id=user-1')
+  // the first link of the card is the VM itself
+  expect(wrapper.findAll('a').map(link => link.attributes('href'))).toContain('/admin/user-management/users?id=user-1')
 })
 
 it('falls back to the email of the user who created the VM', () => {

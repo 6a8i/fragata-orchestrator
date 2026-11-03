@@ -84,7 +84,11 @@ describe('schedule', () => {
     const wrapper = mountRun(createBackupLog())
 
     expect(findCardLabelledValues(wrapper)[t('schedule')]).toBe('schedule-789')
-    expect(findScheduleRow(wrapper)?.findComponent(VtsIcon).exists()).toBe(false)
+    // the copy button of the row has its own icon
+    const iconNames = findScheduleRow(wrapper)
+      ?.findAllComponents(VtsIcon)
+      .map(icon => icon.props('name'))
+    expect(iconNames).not.toContain('object:backup-schedule')
   })
 })
 
