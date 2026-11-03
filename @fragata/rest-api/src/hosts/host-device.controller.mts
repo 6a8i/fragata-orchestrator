@@ -1,6 +1,7 @@
 import {
   Body,
   Example,
+  Extension,
   Get,
   Middlewares,
   Path,
@@ -15,7 +16,7 @@ import {
 import { inject } from 'inversify'
 import { provide } from 'inversify-binding-decorators'
 import { json } from 'express'
-import { invalidParameters } from 'fragata-common/api-errors.js'
+import { incorrectState, invalidParameters } from 'fragata-common/api-errors.js'
 import type { XoHost } from '@fragata/types'
 
 import { acl } from '../middlewares/acl.middleware.mjs'
@@ -23,12 +24,14 @@ import {
   asynchronousActionResp,
   badRequestResp,
   forbiddenOperationResp,
+  internalServerErrorResp,
   invalidParameters as invalidParametersResp,
   noContentResp,
   notFoundResp,
   unauthorizedResp,
 } from '../open-api/common/response.common.mjs'
 import { taskLocation } from '../open-api/oa-examples/task.oa-example.mjs'
+import { parseBlockDevices, type HostBlockDevice } from './host-block-devices.helper.mjs'
 import { RestApi } from '../rest-api/rest-api.mjs'
 import { XapiXoController } from '../abstract-classes/xapi-xo-controller.mjs'
 import type { CreateActionReturnType } from '../abstract-classes/base-controller.mjs'
@@ -70,7 +73,7 @@ export type SetUsbPassthroughBody = {
 }
 
 /**
- * Passthrough setup of the PCI and USB devices of a host.
+ * Devices of a host: passthrough setup of its PCI and USB devices, and its block devices.
  */
 @Route('hosts')
 @Security('*')
@@ -122,6 +125,50 @@ export class HostDeviceController extends XapiXoController<XoHost> {
         }
       })
     )
+  }
+
+  /**
+   * Block devices (disks and what is built on them: partitions, LVM volumes, RAID arrays...) of the host, from the
+   * `lsblk.py` host plugin. Used to choose the disks of a XOSTOR SR: a disk can be used when its `type` is `disk` or
+   * `raid*`, it has no `children`, no `mountpoint`, is not `readOnly` and is not a `td*` (tapdisk) device.
+   *
+   * Required privilege:
+   * - resource: host, action: probe:block-devices
+   *
+   * @example id "b61a5c92-700e-4966-a13b-00633f03eea8"
+   */
+  @Example<HostBlockDevice[]>([
+    {
+      name: 'sdb',
+      path: '/dev/sdb',
+      type: 'disk',
+      size: 107374182400,
+      mountpoint: '',
+      readOnly: false,
+      children: [],
+    },
+  ])
+  @Extension('x-mcp-exposure', 'allow')
+  @Get('{id}/block_devices')
+  @Middlewares(acl({ resource: 'host', action: 'probe:block-devices', objectId: 'params.id' }))
+  @Response(forbiddenOperationResp.status, forbiddenOperationResp.description)
+  @Response(notFoundResp.status, notFoundResp.description)
+  @Response(internalServerErrorResp.status, internalServerErrorResp.description)
+  async getHostBlockDevices(@Path() id: string): Promise<HostBlockDevice[]> {
+    // a halted host cannot run the plugin
+    const { power_state } = this.getObject(id as XoHost['id'])
+    if (power_state !== 'Running') {
+      throw incorrectState({ actual: power_state, expected: 'Running', object: id, property: 'power_state' })
+    }
+    const host = this.getXapiObject(id as XoHost['id'])
+    const output = await host.$xapi.callAsync<string>(
+      'host.call_plugin',
+      host.$ref,
+      'lsblk.py',
+      'list_block_devices',
+      {}
+    )
+    return parseBlockDevices(output)
   }
 
   /**

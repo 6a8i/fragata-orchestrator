@@ -832,7 +832,8 @@ export default class Xapi extends XapiBase {
           nodeStream, // tar-stream stream are not node stream
           table.grainLogicalAddressList,
           table.grainFileOffsetList,
-          compression[entry.name] === 'gzip',
+          // the compression of the disk is in the OVF, it is known before reading the entry
+          diskMetadata.compression === 'gzip',
           entry.size
         )
 

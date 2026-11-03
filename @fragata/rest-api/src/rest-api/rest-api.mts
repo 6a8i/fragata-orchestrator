@@ -99,4 +99,23 @@ export class RestApi {
   runWithApiContext(...args: Parameters<XoApp['runWithApiContext']>) {
     return this.#xoApp.runWithApiContext(...args)
   }
+
+  /**
+   * Calls a JSON-RPC API method on behalf of the current user: the method keeps its own permission (e.g. `admin`)
+   * and object resolution checks, as if the user had called it over the JSON-RPC API.
+   */
+  async callApiMethod<T = unknown>(
+    name: string,
+    params: Record<string, unknown> = {},
+    { remoteAddress = '' }: { remoteAddress?: string } = {}
+  ): Promise<T> {
+    const user = this.getCurrentUser()
+    const connection = this.#xoApp.createApiConnection(remoteAddress)
+    try {
+      connection.set('user_id', user.id)
+      return (await this.#xoApp.callApiMethod(connection, name, params)) as T
+    } finally {
+      connection.close()
+    }
+  }
 }

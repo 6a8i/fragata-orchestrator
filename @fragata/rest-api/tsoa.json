@@ -35,6 +35,21 @@
             }
           }
         },
+        "/pools/{id}/actions/import_ova": {
+          "post": {
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/octet-stream": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
         "/hosts/{id}/supplemental_pack": {
           "post": {
             "requestBody": {

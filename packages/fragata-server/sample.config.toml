@@ -229,3 +229,16 @@ port = 80
 # Default: true
 [mcp]
 #enabled = true
+
+#=====================================================================
+
+# Import of OVA files (REST `POST /pools/{id}/actions/import_ova`)
+#
+# The uploaded OVA is written to a temporary file while it is read, it
+# needs as much free space as the size of the OVA.
+#[ovaImport]
+#
+# Directory of the temporary files
+#
+# Default: the temporary directory of the system
+#tmpDir = '/var/tmp'

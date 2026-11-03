@@ -34,7 +34,6 @@ import {
   invalidParameters as invalidParametersResp,
   noContentResp,
   notFoundResp,
-  notImplementedResp,
   unauthorizedResp,
   type Unbrand,
 } from '../open-api/common/response.common.mjs'
@@ -119,7 +118,8 @@ export class SrController extends XapiXoController<XoSr> {
    *
    * `shared` is computed from `SR_type`: network/SAN backed SRs are shared, local ones are not.
    *
-   * XOSTOR (`SR_type: "linstor"`) creation is not supported yet: such requests fail with `501 Not Implemented`.
+   * XOSTOR (`SR_type: "linstor"`) SRs span several hosts and are created with
+   * `POST /pools/{id}/actions/create_xostor`: such requests fail with `422 Invalid parameters`.
    *
    * Required privilege:
    * - resource: sr, action: create
@@ -135,7 +135,6 @@ export class SrController extends XapiXoController<XoSr> {
   @Response(notFoundResp.status, notFoundResp.description)
   @Response(invalidParametersResp.status, invalidParametersResp.description)
   @Response(internalServerErrorResp.status, internalServerErrorResp.description)
-  @Response(notImplementedResp.status, notImplementedResp.description)
   async createSr(@Body() body: CreateSrBody): Promise<{ id: string }> {
     const id = await this.#srService.create(body)
     this.setHeader('Location', `${BASE_URL}/srs/${id}`)

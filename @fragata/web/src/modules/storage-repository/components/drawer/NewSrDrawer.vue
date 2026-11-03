@@ -9,7 +9,8 @@
         <div class="section">
           <UiTitle>{{ t('general-information') }}</UiTitle>
           <div class="row">
-            <VtsInputWrapper :label="t('host')" :message="errorFor('host')">
+            <!-- XOSTOR spans the hosts of the pool: they are picked with their disks below -->
+            <VtsInputWrapper v-if="srKind !== 'linstor'" :label="t('host')" :message="errorFor('host')">
               <VtsSelect :id="hostSelectId" accent="brand" />
             </VtsInputWrapper>
             <VtsInputWrapper :label="t('type')">
@@ -201,6 +202,62 @@
           </div>
         </div>
 
+        <!-- XOSTOR (LINSTOR replicated over the disks of several hosts) -->
+        <div v-if="srKind === 'linstor'" class="section">
+          <UiTitle>{{ t('sr-form:xostor-disks') }}</UiTitle>
+          <UiAlert accent="warning">{{ t('sr-form:xostor-warning') }}</UiAlert>
+          <UiAlert v-if="isHaEnabled" accent="danger">{{ t('sr-form:xostor-ha-enabled') }}</UiAlert>
+          <div class="xostor-toolbar">
+            <span class="typo-body-regular-small">{{ t('sr-form:xostor-disks-hint') }}</span>
+            <UiButton
+              accent="brand"
+              variant="secondary"
+              size="medium"
+              left-icon="fa:magnifying-glass"
+              :busy="isProbing"
+              :disabled="hosts.length === 0"
+              @click="discoverXostorDisks()"
+            >
+              {{ t('sr-form:discover') }}
+            </UiButton>
+          </div>
+          <div v-for="{ host, disks, error } in xostorHosts" :key="host.id" class="xostor-host">
+            <span class="typo-body-bold">{{ host.name_label }}</span>
+            <UiAlert v-if="error !== undefined" accent="danger">{{ error }}</UiAlert>
+            <template v-else-if="disks !== undefined">
+              <span v-if="disks.length === 0" class="typo-body-regular-small">
+                {{ t('sr-form:xostor-no-disk') }}
+              </span>
+              <UiCheckbox
+                v-for="disk in disks"
+                :key="disk.path"
+                accent="brand"
+                :model-value="isDiskSelected(host.id, disk.path)"
+                @update:model-value="toggleDisk(host.id, disk.path, $event === true)"
+              >
+                {{ `${disk.path} (${formatSize(disk.size, 1)})` }}
+              </UiCheckbox>
+            </template>
+          </div>
+          <UiAlert v-if="submitted && missingFields.has('disks')" accent="danger">
+            {{ t('job:xostor-create:disks-required') }}
+          </UiAlert>
+          <div class="row">
+            <VtsInputWrapper :label="t('provisioning')">
+              <VtsSelect :id="provisioningSelectId" accent="brand" />
+            </VtsInputWrapper>
+            <VtsInputWrapper :label="t('xostor:replication')" :message="replicationMessage">
+              <VtsSelect :id="replicationSelectId" accent="brand" />
+            </VtsInputWrapper>
+          </div>
+          <UiCheckbox v-model="ignoreFileSystems" accent="brand">
+            {{ t('sr-form:xostor-ignore-file-systems') }}
+          </UiCheckbox>
+          <span v-if="xostorUsableSize > 0" class="typo-body-regular-small">
+            {{ t('sr-form:xostor-usable-size', { size: formatSize(xostorUsableSize, 1) }) }}
+          </span>
+        </div>
+
         <UiAlert v-if="probeError !== undefined" accent="danger">{{ probeError }}</UiAlert>
       </div>
     </template>
@@ -214,7 +271,9 @@
 
 <script lang="ts" setup>
 import { type FrontXoHost, useXoHostCollection } from '@/modules/host/remote-resources/use-xo-host-collection.ts'
+import { type FrontXoPool, useXoPoolCollection } from '@/modules/pool/remote-resources/use-xo-pool-collection.ts'
 import type { NewSrPayload } from '@/modules/storage-repository/jobs/xo-sr-create.job.ts'
+import type { NewXostorPayload } from '@/modules/storage-repository/jobs/xo-xostor-create.job.ts'
 import {
   type IscsiIqn,
   type IscsiLun,
@@ -226,6 +285,13 @@ import {
   probeNfs,
   probeZfs,
 } from '@/modules/storage-repository/utils/sr-probe.util.ts'
+import {
+  getHostBlockDevices,
+  getXostorUsableSize,
+  type HostBlockDevice,
+  isXostorCompatibleDisk,
+  type XostorProvisioning,
+} from '@/modules/storage-repository/utils/xostor.util.ts'
 import type { InputWrapperMessage } from '@core/components/input-wrapper/VtsInputWrapper.vue'
 import VtsInputWrapper from '@core/components/input-wrapper/VtsInputWrapper.vue'
 import VtsOverlayCancelButton from '@core/components/overlay/VtsOverlayCancelButton.vue'
@@ -233,6 +299,7 @@ import VtsOverlayConfirmButton from '@core/components/overlay/VtsOverlayConfirmB
 import VtsSelect from '@core/components/select/VtsSelect.vue'
 import UiAlert from '@core/components/ui/alert/UiAlert.vue'
 import UiButton from '@core/components/ui/button/UiButton.vue'
+import UiCheckbox from '@core/components/ui/checkbox/UiCheckbox.vue'
 import UiDrawer from '@core/components/ui/drawer/UiDrawer.vue'
 import UiInput from '@core/components/ui/input/UiInput.vue'
 import UiTitle from '@core/components/ui/title/UiTitle.vue'
@@ -241,9 +308,9 @@ import { formatSize } from '@core/utils/size.util.ts'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-type SrKind = 'nfs' | 'smb' | 'lvmoiscsi' | 'lvmohba' | 'lvm' | 'ext' | 'zfs' | 'iso'
+type SrKind = 'nfs' | 'smb' | 'lvmoiscsi' | 'lvmohba' | 'lvm' | 'ext' | 'zfs' | 'iso' | 'linstor'
 type IsoSource = 'nfs' | 'smb' | 'local'
-type Field = 'host' | 'name' | 'server' | 'path' | 'iqn' | 'lun' | 'device'
+type Field = 'host' | 'name' | 'server' | 'path' | 'iqn' | 'lun' | 'device' | 'disks' | 'replication'
 
 const { poolId, hostId: fixedHostId } = defineProps<{
   poolId: string
@@ -252,15 +319,19 @@ const { poolId, hostId: fixedHostId } = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  confirm: [payload: NewSrPayload]
+  confirm: [payload: NewSrPayload | NewXostorPayload]
   cancel: []
 }>()
 
 const { t } = useI18n()
 
 const { hostsByPool } = useXoHostCollection()
+const { useGetPoolById } = useXoPoolCollection()
 
 const hosts = computed<FrontXoHost[]>(() => hostsByPool.value.get(poolId as FrontXoHost['$pool']) ?? [])
+const pool = useGetPoolById(() => poolId as FrontXoPool['id'])
+// XOSTOR installs packages and restarts the toolstacks, which HA does not allow
+const isHaEnabled = computed(() => pool.value?.HA_enabled === true)
 
 const hostId = ref<string | undefined>(fixedHostId)
 const srKind = ref<SrKind>('nfs')
@@ -285,6 +356,14 @@ const zfsPools = ref<{ name: string; mountpoint: string }[]>([])
 const isProbing = ref(false)
 const probeError = ref<string>()
 const submitted = ref(false)
+
+// XOSTOR: the block devices of each host, the disks picked on each host (device paths)
+const blockDevicesByHost = ref<Record<string, HostBlockDevice[]>>({})
+const diskErrorByHost = ref<Record<string, string>>({})
+const selectedDisksByHost = ref<Record<string, string[]>>({})
+const provisioning = ref<XostorProvisioning>('thin')
+const replication = ref<string>('')
+const ignoreFileSystems = ref(false)
 
 // a different target makes previous discoveries meaningless
 watch([server, srKind, isoSource, hostId], () => {
@@ -314,6 +393,7 @@ const typeOptions = computed(() => [
   { id: 'ext', label: t('sr-type:local-ext'), value: 'ext' as const },
   { id: 'zfs', label: t('sr-type:zfs'), value: 'zfs' as const },
   { id: 'iso', label: t('sr-type:iso'), value: 'iso' as const },
+  { id: 'linstor', label: t('sr-type:xostor'), value: 'linstor' as const },
 ])
 
 const { id: typeSelectId } = useFormSelect(typeOptions, {
@@ -386,6 +466,112 @@ const { id: zfsSelectId } = useFormSelect(zfsPools, {
   option: { id: 'name', label: pool => `${pool.name} (${pool.mountpoint})`, value: 'mountpoint' },
 })
 
+const provisioningOptions = computed(() => [
+  { id: 'thin', label: t('xostor:provisioning-thin'), value: 'thin' as const },
+  { id: 'thick', label: t('xostor:provisioning-thick'), value: 'thick' as const },
+])
+
+const { id: provisioningSelectId } = useFormSelect(provisioningOptions, {
+  model: provisioning,
+  required: true,
+  option: { label: 'label', value: 'value' },
+})
+
+// 1 to the number of hosts of the pool; the disks picked must then be on at least that many hosts
+const replicationOptions = computed(() =>
+  Array.from({ length: Math.max(hosts.value.length, 1) }, (_, index) => {
+    const value = String(index + 1)
+    return { id: value, label: value, value }
+  })
+)
+
+watch(
+  () => hosts.value.length,
+  nHosts => {
+    if (replication.value === '' || Number(replication.value) > Math.max(nHosts, 1)) {
+      replication.value = String(Math.max(Math.min(2, nHosts), 1))
+    }
+  },
+  { immediate: true }
+)
+
+const { id: replicationSelectId } = useFormSelect(replicationOptions, {
+  model: replication,
+  required: true,
+  option: { label: 'label', value: 'value' },
+})
+
+const xostorHosts = computed(() =>
+  hosts.value.map(host => ({
+    host,
+    disks: blockDevicesByHost.value[host.id]?.filter(isXostorCompatibleDisk),
+    error: diskErrorByHost.value[host.id],
+  }))
+)
+
+const xostorDisksByHost = computed(() => {
+  const disksByHost: Record<string, string[]> = {}
+  for (const { host, disks } of xostorHosts.value) {
+    const available = new Set(disks?.map(disk => disk.path))
+    const selected = (selectedDisksByHost.value[host.id] ?? []).filter(path => available.has(path))
+    if (selected.length > 0) {
+      disksByHost[host.id] = selected
+    }
+  }
+  return disksByHost
+})
+
+const nXostorHosts = computed(() => Object.keys(xostorDisksByHost.value).length)
+
+const xostorUsableSize = computed(() =>
+  getXostorUsableSize(
+    xostorHosts.value.map(({ host, disks }) => {
+      const selected = new Set(xostorDisksByHost.value[host.id] ?? [])
+      return (disks ?? []).filter(disk => selected.has(disk.path)).reduce((total, disk) => total + disk.size, 0)
+    }),
+    Number(replication.value)
+  )
+)
+
+function isDiskSelected(hostId: string, path: string) {
+  return selectedDisksByHost.value[hostId]?.includes(path) ?? false
+}
+
+function toggleDisk(hostId: string, path: string, selected: boolean) {
+  const current = (selectedDisksByHost.value[hostId] ?? []).filter(candidate => candidate !== path)
+  selectedDisksByHost.value = { ...selectedDisksByHost.value, [hostId]: selected ? [...current, path] : current }
+}
+
+function discoverXostorDisks() {
+  return probe(async () => {
+    const devicesByHost: Record<string, HostBlockDevice[]> = {}
+    const errorByHost: Record<string, string> = {}
+    await Promise.all(
+      hosts.value.map(async host => {
+        // a halted host cannot list its disks
+        if (host.power_state !== 'Running') {
+          errorByHost[host.id] = t('host:status:halted')
+          return
+        }
+        try {
+          devicesByHost[host.id] = await getHostBlockDevices(host.id)
+        } catch (error) {
+          errorByHost[host.id] = t('sr-form:discovery-failed', { error: (error as Error).message })
+        }
+      })
+    )
+    blockDevicesByHost.value = devicesByHost
+    diskErrorByHost.value = errorByHost
+  })
+}
+
+// list the disks as soon as XOSTOR is chosen
+watch(srKind, kind => {
+  if (kind === 'linstor' && Object.keys(blockDevicesByHost.value).length === 0 && !isProbing.value) {
+    discoverXostorDisks()
+  }
+})
+
 async function probe(fn: () => Promise<void>) {
   isProbing.value = true
   probeError.value = undefined
@@ -453,10 +639,10 @@ function iscsiTarget() {
 
 const missingFields = computed<Set<Field>>(() => {
   const missing = new Set<Field>()
-  if (hostId.value === undefined) missing.add('host')
+  const kind = srKind.value
+  if (hostId.value === undefined && kind !== 'linstor') missing.add('host')
   if (name.value === '') missing.add('name')
 
-  const kind = srKind.value
   const source = isoSource.value
   if (kind === 'nfs' || kind === 'smb' || kind === 'lvmoiscsi' || (kind === 'iso' && source !== 'local')) {
     if (server.value === '') missing.add('server')
@@ -469,14 +655,40 @@ const missingFields = computed<Set<Field>>(() => {
   if ((kind === 'lvm' || kind === 'ext') && device.value === '') missing.add('device')
   if (kind === 'lvmohba' && lun.value === undefined) missing.add('lun')
   if (kind === 'zfs' && path.value === '') missing.add('path')
+  if (kind === 'linstor') {
+    if (nXostorHosts.value === 0) missing.add('disks')
+    else if (Number(replication.value) > nXostorHosts.value) missing.add('replication')
+  }
 
   return missing
+})
+
+const replicationMessage = computed<InputWrapperMessage | undefined>(() => {
+  if (submitted.value && missingFields.value.has('replication')) {
+    return { content: t('xostor:replication-too-high'), accent: 'danger' }
+  }
+  if (replication.value === '1') {
+    return { content: t('xostor:replication-1-warning'), accent: 'warning' }
+  }
+  return undefined
 })
 
 function errorFor(field: Field): InputWrapperMessage | undefined {
   return submitted.value && missingFields.value.has(field)
     ? { content: t('field-required'), accent: 'danger' }
     : undefined
+}
+
+function buildXostorPayload(): NewXostorPayload {
+  return {
+    poolId,
+    name_label: name.value,
+    ...(description.value !== '' && { name_description: description.value }),
+    disksByHost: xostorDisksByHost.value,
+    provisioning: provisioning.value,
+    replication: Number(replication.value),
+    ...(ignoreFileSystems.value && { ignoreFileSystems: true }),
+  }
 }
 
 function buildPayload(): NewSrPayload {
@@ -544,6 +756,9 @@ function buildPayload(): NewSrPayload {
 
       return { ...base, SR_type: 'iso', content_type: 'iso', device_config: deviceConfig }
     }
+    case 'linstor':
+      // created with its own route, see buildXostorPayload()
+      throw new Error('XOSTOR SRs are not created with POST /srs')
   }
 }
 
@@ -551,6 +766,13 @@ function handleConfirm() {
   submitted.value = true
 
   if (missingFields.value.size > 0) {
+    return
+  }
+
+  if (srKind.value === 'linstor') {
+    if (!isHaEnabled.value) {
+      emit('confirm', buildXostorPayload())
+    }
     return
   }
 
@@ -570,6 +792,19 @@ function handleConfirm() {
     display: flex;
     flex-direction: column;
     gap: 1.6rem;
+  }
+
+  .xostor-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.6rem;
+  }
+
+  .xostor-host {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
   }
 
   .row {

@@ -1,4 +1,10 @@
-import { baseName, diskFormatFromName } from '@/modules/import/utils/import.util.ts'
+import {
+  baseName,
+  diskFormatFromName,
+  errorMessageFromResponse,
+  isOvaFile,
+  ovaImportEndpoint,
+} from '@/modules/import/utils/import.util.ts'
 import { describe, expect, it } from 'vitest'
 
 describe('diskFormatFromName', () => {
@@ -19,5 +25,40 @@ describe('baseName', () => {
     expect(baseName('a.b.vhd')).toBe('a.b')
     expect(baseName('.hidden')).toBe('.hidden')
     expect(baseName('disk')).toBe('disk')
+  })
+})
+
+describe('isOvaFile', () => {
+  it('reads the extension', () => {
+    expect(isOvaFile('appliance.ova')).toBe(true)
+    expect(isOvaFile('APPLIANCE.OVA')).toBe(true)
+    expect(isOvaFile('appliance.ovf')).toBe(false)
+    expect(isOvaFile('vm.xva')).toBe(false)
+  })
+})
+
+describe('ovaImportEndpoint', () => {
+  it('passes the SR and the optional choices as query parameters', () => {
+    expect(ovaImportEndpoint('pool-1', { sr: 'sr-1' })).toBe('pools/pool-1/actions/import_ova?sr=sr-1')
+    expect(
+      ovaImportEndpoint('pool-1', { sr: 'sr-1', network: 'net-1', nameLabel: 'my VM', fileName: 'a b.ova' })
+    ).toBe('pools/pool-1/actions/import_ova?sr=sr-1&network=net-1&name_label=my+VM&filename=a+b.ova')
+  })
+
+  it('leaves an empty name to the OVF', () => {
+    expect(ovaImportEndpoint('pool-1', { sr: 'sr-1', nameLabel: '' })).toBe('pools/pool-1/actions/import_ova?sr=sr-1')
+  })
+})
+
+describe('errorMessageFromResponse', () => {
+  it('reads the error of the JSON answer', () => {
+    expect(errorMessageFromResponse('{"error":"no OVF descriptor in this OVA"}', 'Unprocessable Entity')).toBe(
+      'no OVF descriptor in this OVA'
+    )
+  })
+
+  it('falls back to the status text', () => {
+    expect(errorMessageFromResponse('<html>', 'Bad Gateway')).toBe('Bad Gateway')
+    expect(errorMessageFromResponse('', '')).toBe('upload failed')
   })
 })

@@ -310,7 +310,6 @@ export interface XostorSmartPayload {
  */
 export const XOSTOR_UPDATE_PACKAGES: ReadonlySet<string> = new Set([
   'xcp-ng-linstor',
-  'xcp-ng-release-linstor',
   'linstor-satellite',
   'linstor-controller',
   'xcp-ng-xapi-plugins',

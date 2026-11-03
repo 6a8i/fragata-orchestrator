@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
-import { SrService, type CreateSrBody } from './sr.service.mjs'
-import { ApiError } from '../helpers/error.helper.mjs'
+import { invalidParameters, noSuchObject } from 'fragata-common/api-errors.js'
+import type { XoPool, XoSr } from '@fragata/types'
+
+import { SrService, type CreateSrBody, type CreateXostorBody } from './sr.service.mjs'
 import type { RestApi } from '../rest-api/rest-api.mjs'
 
 describe('SrService.create', () => {
@@ -103,7 +105,8 @@ describe('SrService.create', () => {
     assert.equal(srCreateCalls[2].content_type, 'iso')
   })
 
-  it('rejects linstor (XOSTOR) SR creation with 501', async () => {
+
+  it('rejects linstor (XOSTOR) SRs, which have their own route', async () => {
     const service = new SrService({} as RestApi)
     const body = {
       hostId: 'host-uuid',
@@ -112,10 +115,135 @@ describe('SrService.create', () => {
       device_config: {},
     } as CreateSrBody
 
-    await assert.rejects(service.create(body), (error: unknown) => {
-      assert.ok(error instanceof ApiError)
-      assert.equal(error.status, 501)
-      return true
+    await assert.rejects(service.create(body), (error: unknown) => invalidParameters.is(error))
+  })
+})
+
+describe('SrService XOSTOR creation', () => {
+  const POOL_ID = 'pool-1'
+  const objects: Record<string, { id: string; type: string; $pool: string }> = {
+    [POOL_ID]: { id: POOL_ID, type: 'pool', $pool: POOL_ID },
+    'host-1': { id: 'host-1', type: 'host', $pool: POOL_ID },
+    'host-2': { id: 'host-2', type: 'host', $pool: POOL_ID },
+    'host-3': { id: 'host-3', type: 'host', $pool: POOL_ID },
+    'host-other': { id: 'host-other', type: 'host', $pool: 'pool-2' },
+    'network-1': { id: 'network-1', type: 'network', $pool: POOL_ID },
+  }
+
+  function makeService() {
+    const calls: { name: string; params: Record<string, unknown>; opts: unknown }[] = []
+    const restApi = {
+      getObject: (id: string, type: string) => {
+        const object = objects[id]
+        if (object === undefined || object.type !== type) {
+          noSuchObject(id, type)
+        }
+        return object
+      },
+      callApiMethod: async (name: string, params: Record<string, unknown>, opts: unknown) => {
+        calls.push({ name, params, opts })
+        return 'sr-uuid-xostor'
+      },
+    } as unknown as RestApi
+    return { calls, service: new SrService(restApi) }
+  }
+
+  const validBody = (): CreateXostorBody => ({
+    name_label: ' XOSTOR ',
+    disksByHost: { 'host-1': ['/dev/sdb'], 'host-2': ['/dev/sdb', '/dev/sdc'], 'host-3': [] },
+    provisioning: 'thin',
+    replication: 2,
+  })
+
+  it('maps the body to the xostor.create params and calls the API method as the current user', async () => {
+    const { calls, service } = makeService()
+
+    const params = service.prepareXostorCreation(POOL_ID as XoPool['id'], {
+      ...validBody(),
+      name_description: 'replicated',
+      ignoreFileSystems: true,
+      preferredInterface: { networkId: 'network-1', name: ' storage ' },
     })
+    const id = await service.createXostor(params, { remoteAddress: '10.0.0.2' })
+
+    assert.equal(id, 'sr-uuid-xostor')
+    assert.deepEqual(calls, [
+      {
+        name: 'xostor.create',
+        params: {
+          // hosts without disks are left out, no license is involved
+          disksByHost: { 'host-1': ['/dev/sdb'], 'host-2': ['/dev/sdb', '/dev/sdc'] },
+          name: 'XOSTOR',
+          description: 'replicated',
+          provisioning: 'thin',
+          replication: 2,
+          ignoreFileSystems: true,
+          preferredInterface: { networkId: 'network-1', name: 'storage' },
+        },
+        opts: { remoteAddress: '10.0.0.2' },
+      },
+    ])
+  })
+
+  it('leaves the optional params out when they are not given', () => {
+    const { service } = makeService()
+    const params = service.prepareXostorCreation(POOL_ID as XoPool['id'], validBody())
+    assert.deepEqual(Object.keys(params).sort(), ['disksByHost', 'name', 'provisioning', 'replication'])
+  })
+
+  it('rejects invalid requests before calling the API method', () => {
+    const { calls, service } = makeService()
+    const prepare = (patch: Partial<CreateXostorBody>) => () =>
+      service.prepareXostorCreation(POOL_ID as XoPool['id'], { ...validBody(), ...patch })
+    const isInvalid = (error: unknown) => invalidParameters.is(error)
+
+    // no host with disks
+    assert.throws(prepare({ disksByHost: { 'host-1': [] } }), isInvalid)
+    // host of another pool
+    assert.throws(prepare({ disksByHost: { 'host-other': ['/dev/sdb'] }, replication: 1 }), isInvalid)
+    // not a device path, or one the lvm plugin cannot receive
+    assert.throws(prepare({ disksByHost: { 'host-1': ['sdb'] }, replication: 1 }), isInvalid)
+    assert.throws(prepare({ disksByHost: { 'host-1': ['/dev/sdb,/dev/sdc'] }, replication: 1 }), isInvalid)
+    // duplicate disk
+    assert.throws(prepare({ disksByHost: { 'host-1': ['/dev/sdb', '/dev/sdb'] }, replication: 1 }), isInvalid)
+    // replication higher than the number of hosts with disks, or not a positive integer
+    assert.throws(prepare({ replication: 3 }), isInvalid)
+    assert.throws(prepare({ replication: 0 }), isInvalid)
+    assert.throws(prepare({ replication: 1.5 }), isInvalid)
+    // provisioning and name
+    assert.throws(prepare({ provisioning: 'fat' as CreateXostorBody['provisioning'] }), isInvalid)
+    assert.throws(prepare({ name_label: '  ' }), isInvalid)
+    // preferred interface without a name
+    assert.throws(prepare({ preferredInterface: { networkId: 'network-1', name: ' ' } }), isInvalid)
+
+    // unknown pool, host or network
+    const isNoSuchObject = (error: unknown) => noSuchObject.is(error)
+    assert.throws(() => service.prepareXostorCreation('pool-unknown' as XoPool['id'], validBody()), isNoSuchObject)
+    assert.throws(prepare({ disksByHost: { 'host-unknown': ['/dev/sdb'] }, replication: 1 }), isNoSuchObject)
+    assert.throws(prepare({ preferredInterface: { networkId: 'network-unknown', name: 'storage' } }), isNoSuchObject)
+
+    assert.equal(calls.length, 0)
+  })
+})
+
+describe('SrService.delete', () => {
+  it('deletes a XOSTOR SR and its volume groups, without any license step', async () => {
+    const xostorDeleteCalls: unknown[] = []
+    const xapi = {
+      xostor_delete: async (ref: unknown) => {
+        xostorDeleteCalls.push(ref)
+      },
+      destroySr: async () => assert.fail('destroySr must not be called for a XOSTOR SR'),
+    }
+    const restApi = {
+      getObject: () => ({ id: 'sr-1', SR_type: 'linstor' }),
+      getXapiObject: () => ({ $ref: 'OpaqueRef:sr-1', $xapi: xapi }),
+      // the license APIs are not available
+      xoApp: {},
+    } as unknown as RestApi
+
+    await new SrService(restApi).delete('sr-1' as XoSr['id'])
+
+    assert.deepEqual(xostorDeleteCalls, ['OpaqueRef:sr-1'])
   })
 })

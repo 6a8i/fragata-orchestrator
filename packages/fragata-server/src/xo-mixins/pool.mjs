@@ -3,10 +3,8 @@ import flatten from 'lodash/flatten.js'
 import isEmpty from 'lodash/isEmpty.js'
 import keyBy from 'lodash/keyBy.js'
 import semver from 'semver'
-import some from 'lodash/some.js'
 import stubTrue from 'lodash/stubTrue.js'
 import uniq from 'lodash/uniq.js'
-import { asyncEach } from '@fragata/async-each'
 import { createLogger } from '@fragata/log'
 import { decorateMethodsWith } from '@fragata/decorate-with'
 import { defer } from 'golike-defer'
@@ -25,46 +23,6 @@ import {
 } from '../_rpuRecovery.mjs'
 
 const log = createLogger('xo:xo-mixins:pool')
-
-async function enforceHostsHaveLicense($defer, app, productType, hostIds) {
-  const now = Date.now()
-  const licenses = await app.getLicenses({ productType })
-  const licenseByBoundObjectId = keyBy(licenses, 'boundObjectId')
-  const hostIdsWithoutLicense = hostIds.filter(id => {
-    const license = licenseByBoundObjectId[id]
-    return license === undefined || (license.expires !== undefined && license.expires < now)
-  })
-
-  if (hostIdsWithoutLicense > 0) {
-    const nNewHosts = hostIdsWithoutLicense.length
-    const availableLicenses = licenses.filter(
-      ({ boundObjectId, expires }) => boundObjectId === undefined && (expires === undefined || expires > now)
-    )
-    const nAvailableLicenses = availableLicenses.length
-    if (nNewHosts > nAvailableLicenses) {
-      throw new Error(
-        `Not enough ${productType.toUpperCase()} Licenses. Expected: ${nNewHosts}, actual: ${nAvailableLicenses}`
-      )
-    }
-
-    await asyncEach(
-      hostIdsWithoutLicense,
-      async hostId => {
-        const license = availableLicenses.pop()
-        await app.bindLicense({
-          licenseId: license.id,
-          boundObjectId: hostId,
-        })
-        $defer.onFailure(() =>
-          app.unbindLicense({ licenseId: license.id, productId: license.productId, boundObjectId: hostId })
-        )
-      },
-      {
-        stopOnError: false,
-      }
-    )
-  }
-}
 
 export default class Pools {
   constructor(app) {
@@ -201,11 +159,6 @@ export default class Pools {
       }
       sources.push(source)
       sourcePatches[sourceId] = sourceHost.patches
-    }
-
-    const hasLinstorSr = some(_app.objects.all, { SR_type: 'linstor', $pool: target.uuid })
-    if (hasLinstorSr) {
-      await enforceHostsHaveLicense($defer, _app, 'xostor', sourceIds)
     }
 
     // Find missing patches on the target.

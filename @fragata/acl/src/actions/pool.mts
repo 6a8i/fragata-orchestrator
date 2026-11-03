@@ -2,6 +2,7 @@ export default {
   'add-host': true,
   create: {
     network: true,
+    sr: true,
     vm: true,
   },
   'emergency-shutdown': true,

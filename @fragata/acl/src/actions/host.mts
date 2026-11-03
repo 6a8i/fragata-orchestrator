@@ -36,6 +36,7 @@ export default {
     tags: true,
   },
   probe: {
+    'block-devices': true,
     nfs: true,
     zfs: true,
     hba: true,

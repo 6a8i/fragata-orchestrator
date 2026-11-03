@@ -340,6 +340,15 @@ export type XoApp = EventEmitter & {
     description?: XoAclRole['description']
     privileges?: Omit<XoAclBasePrivilege, 'id' | 'roleId'>[]
   }): Promise<XoAclRole>
+  /**
+   * Calls a JSON-RPC API method as the user bound to `connection` (`user_id`), with the method's own permission
+   * and resolve checks
+   */
+  callApiMethod(
+    connection: ReturnType<XoApp['createApiConnection']>,
+    name: string,
+    params?: Record<string, unknown>
+  ): Promise<unknown>
   createApiConnection(remoteAddress: string): EventEmitter & {
     close(): void
     get<T = unknown>(key: string, defaultValue: unknown): T
@@ -522,6 +531,25 @@ export type XoApp = EventEmitter & {
     template: XoVmTemplate['id']
     stopSource?: boolean
   }): Promise<string>
+  /** writes an OVA stream to a temporary file, `dispose` removes it */
+  storeOvaInTmp(stream: Readable, opts?: { fileName?: string }): Promise<{ path: string; dispose(): Promise<void> }>
+  /** imports the VM of a local OVA file, resolves to the UUID of the new VM */
+  importOvaFile(
+    path: string,
+    opts: {
+      sr: XoSr['id']
+      /** network of all the VIFs of the OVF, the management network of the pool by default */
+      network?: XoNetwork['id']
+      /** one network per VIF, replaces the VIFs of the OVF */
+      networks?: XoNetwork['id'][]
+      nameLabel?: string
+      descriptionLabel?: string
+      nCpus?: number
+      /** bytes */
+      memory?: number
+      fileName?: string
+    }
+  ): Promise<string>
   updateXenServer(
     id: XoServer['id'],
     props: {

@@ -559,7 +559,7 @@ These metrics describe LINSTOR-backed XOSTOR clusters and only appear when the F
 | `xcp_xostor_updates_up`               | gauge | Update-check status per host (1 = `updater.py` replied, 0 = call failed or repo unreachable)             |
 | `xcp_xostor_package_update_available` | gauge | Pending XOSTOR-related package update on a host (always 1; emitted only when an update is pending)       |
 
-Packages watched by `xcp_xostor_package_update_available`: `xcp-ng-linstor`, `xcp-ng-release-linstor`, `linstor-satellite`, `linstor-controller`, `xcp-ng-xapi-plugins`.
+Packages watched by `xcp_xostor_package_update_available`: `xcp-ng-linstor`, `linstor-satellite`, `linstor-controller`, `xcp-ng-xapi-plugins`.
 
 All XOSTOR metrics carry `sr_uuid`, `pool_id` and `pool_name`. Per-host metrics also expose `host_uuid` and `host_name`; per-node metrics add the LINSTOR `node_name` (the host's hostname) plus `role` and `state`.
 

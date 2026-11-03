@@ -11,8 +11,9 @@ const LV_NAME = 'thin_device'
 const PROVISIONING = Object.values(ENUM_PROVISIONING)
 const VG_NAME = 'linstor_group'
 const MAIN_XOSTOR_DEPENDENCY = 'xcp-ng-linstor'
-// xcp-ng-release-linstor package is used to install the linstor repo, in airgap repos are blocked
-const XOSTOR_DEPENDENCIES = ['xcp-ng-release-linstor', MAIN_XOSTOR_DEPENDENCY]
+// Fragata Host hosts get the LINSTOR packages (xcp-ng-linstor and its dependencies) from their own channel,
+// the upstream release package that adds the vendor repository must not be installed
+const XOSTOR_DEPENDENCIES = [MAIN_XOSTOR_DEPENDENCY]
 
 function checkIfLinstorSr(sr) {
   if (sr.SR_type !== 'linstor') {
@@ -118,9 +119,9 @@ export async function formatDisks({ disks, force, host, ignoreFileSystems, provi
       } catch (error) {
         if (error.code === 'LVM_ERROR(5)') {
           error.params = error.params.concat([
-            "[XO] This error can be triggered if one of the disks is a 'tapdev' disk.",
-            '[XO] This error can be triggered if at least one the disks has children.',
-            '[XO] This error can be triggered if at least one the disks has a file system.',
+            "[Fragata] This error can be triggered if one of the disks is a 'tapdev' disk.",
+            '[Fragata] This error can be triggered if at least one the disks has children.',
+            '[Fragata] This error can be triggered if at least one the disks has a file system.',
           ])
         }
         throw error
@@ -133,7 +134,7 @@ export async function formatDisks({ disks, force, host, ignoreFileSystems, provi
       } catch (error) {
         if (error.code === 'LVM_ERROR(5)') {
           error.params = error.params.concat([
-            "[XO] This error can be triggered if a VG 'linstor_group' is already present on the host.",
+            "[Fragata] This error can be triggered if a VG 'linstor_group' is already present on the host.",
           ])
         }
         throw error
@@ -190,56 +191,6 @@ export const create = defer(async function (
     const poolHostIds = Object.keys(xapi.objects.indexes.type.host)
     const poolHosts = poolHostIds.map(id => this.getObject(id, 'host'))
 
-    await Task.run({ properties: { name: 'licenses check' } }, async () => {
-      const now = Date.now()
-      const nPoolHosts = poolHostIds.length
-
-      const xostorLicenses = await this.getLicenses({ productType: 'xostor' })
-      let availableLicenses = xostorLicenses.filter(
-        ({ boundObjectId, expires }) => boundObjectId === undefined && (expires === undefined || expires > now)
-      )
-      const nAvailableLicenses = availableLicenses.length
-
-      if (nAvailableLicenses === 0) {
-        availableLicenses = await Task.run(
-          { properties: { name: 'Creating trial licenses', quantity: nPoolHosts } },
-          async () => {
-            try {
-              return await this.createXostorTrialLicenses({
-                quantity: nPoolHosts,
-              })
-            } catch (error) {
-              const trialAlreadyCreated = xostorLicenses.some(license => license.tags?.includes('TRIAL'))
-              // In case trial licenses have been already created, the updater receive an error 500
-              if (error.message === 'unknown error from the peer' && trialAlreadyCreated) {
-                throw new Error('XOSTOR trial licenses can only be created once')
-              }
-              throw error
-            }
-          }
-        )
-      } else if (nAvailableLicenses < nPoolHosts) {
-        throw new Error(`Not enough XOSTOR licenses. Expected: ${nPoolHosts}, actual: ${nAvailableLicenses}`)
-      }
-
-      await asyncEach(
-        poolHostIds,
-        async hostId => {
-          const license = availableLicenses.pop()
-          await this.bindLicense({
-            licenseId: license.id,
-            boundObjectId: hostId,
-          })
-          $defer.onFailure(() =>
-            this.unbindLicense({ licenseId: license.id, productId: 'xostor', boundObjectId: hostId })
-          )
-        },
-        {
-          stopOnError: false,
-        }
-      )
-    })
-
     const handleHostsDependencies = defer(async ($defer, hosts) => {
       const boundInstallDependencies = installDependencies.bind(this)
       const pool = Object.values(xapi.objects.indexes.type.pool)[0]
@@ -253,7 +204,6 @@ export const create = defer(async function (
             needInstallPackages =
               JSON.parse(
                 await pluginCall(xapi, host, 'updater.py', 'query_installed', {
-                  // Only check xcp-ng-linstor because xcp-ng-release-linstor will not be present in an airgap environment
                   packages: MAIN_XOSTOR_DEPENDENCY,
                 })
               )[MAIN_XOSTOR_DEPENDENCY] === ''
@@ -318,7 +268,7 @@ export const create = defer(async function (
 create.description = 'Create a XOSTOR storage'
 create.permission = 'admin'
 create.params = {
-  description: { type: 'string', optional: true, default: 'From XO-server' },
+  description: { type: 'string', optional: true, default: 'From Fragata' },
   disksByHost: { type: 'object' },
   force: { type: 'boolean', optional: true, default: false },
   ignoreFileSystems: { type: 'boolean', optional: true, default: false },
@@ -349,14 +299,6 @@ export async function destroy({ sr }) {
 
     await Task.run({ properties: { name: 'deletion of the storage', objectId: sr.uuid } }, () =>
       xapi.destroySr(sr._xapiId)
-    )
-    await Task.run({ properties: { name: 'unbind attached licenses' } }, () =>
-      asyncEach(hosts, host => {
-        this.unbindLicense({
-          boundObjectId: host.id,
-          productId: 'xostor',
-        })
-      })
     )
     await Task.run({ properties: { name: `destroy volume group on ${hosts.length} hosts` } }, () =>
       asyncEach(hosts, host => destroyVolumeGroup(xapi, host, true), { stopOnError: false })

@@ -1300,8 +1300,9 @@ export { export_ as export }
  *    - grainLogicalAddressList : uint32 LE in VMDK blocks
  *    - grainFileOffsetList : uint32 LE in sectors, limits the biggest VMDK size to 2^41B (2^32 * 512B)
  *  - the last part is the ova file.
+ * Without `data`, the OVA (raw body or `file` part) is parsed by the server.
  */
-async function handleVmImport(req, res, { data, srId, type, xapi }) {
+async function handleVmImport(req, res, { app, data, srId, srXoId, type, xapi }) {
   // Timeout seems to be broken in Node 4.
   // See https://github.com/nodejs/node/issues/3319
   req.setTimeout(43200000) // 12 hours
@@ -1312,6 +1313,12 @@ async function handleVmImport(req, res, { data, srId, type, xapi }) {
   if (!isNaN(contentLength)) {
     req.length = contentLength
   }
+
+  // an OVA sent without its parsed data is parsed by the server
+  const importStream =
+    type === 'ova' && data === undefined
+      ? stream => app.importOva(stream, { sr: srXoId }).then(id => ({ $id: id }))
+      : stream => xapi.importVm(stream, { data, srId, type })
 
   // expect "multipart/form-data; boundary=something"
   const contentType = req.headers['content-type']
@@ -1342,7 +1349,7 @@ async function handleVmImport(req, res, { data, srId, type, xapi }) {
               await Promise.all(promises)
               // XVA files are directly sent to xcp-ng who wants a content-length
               part.length = part.byteCount
-              resolve(xapi.importVm(part, { data, srId, type }))
+              resolve(importStream(part))
             }
           } catch (e) {
             // multiparty is not promise-aware, we have to chain errors ourselves.
@@ -1351,7 +1358,7 @@ async function handleVmImport(req, res, { data, srId, type, xapi }) {
         })
         form.parse(req)
       })
-    : xapi.importVm(req, { data, srId, type }))
+    : importStream(req))
   res.end(format.response(0, vm.$id))
 }
 
@@ -1390,7 +1397,7 @@ async function import_({ data, sr, type = 'xva', url }) {
       'vm.import',
       this.apiContext.connection,
       handleVmImport,
-      { data, srId, type, xapi },
+      { app: this, data, srId, srXoId: sr.id, type, xapi },
       { exposeAllErrors: true }
     ),
   }
