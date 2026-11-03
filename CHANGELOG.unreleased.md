@@ -31,6 +31,6 @@
 
 <!--packages-start-->
 
-- @xen-orchestra/web-core minor
+- @fragata/web-core minor
 
 <!--packages-end-->
