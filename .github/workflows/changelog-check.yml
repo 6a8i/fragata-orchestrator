@@ -1,12 +1,12 @@
 name: Changelog
 
-# only pull requests targeting `master`: the check compares the branch to
-# `origin/master`, it would report unrelated packages on a PR based on another
+# only pull requests targeting `main`: the check compares the branch to
+# `origin/main`, it would report unrelated packages on a PR based on another
 # branch
 on:
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   changed-packages:
@@ -17,7 +17,7 @@ jobs:
       # https://github.com/actions/checkout
       - uses: actions/checkout@v4
         with:
-          # the whole history is required to compute the merge base with `master`
+          # the whole history is required to compute the merge base with `main`
           fetch-depth: 0
 
           # the check only needs commits and trees: `git diff --name-only

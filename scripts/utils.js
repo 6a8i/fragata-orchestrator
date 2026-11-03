@@ -21,7 +21,7 @@ const _getPackages = scope => {
 }
 
 exports.getPackages = (readPackageJson = false) => {
-  const p = Promise.all([_getPackages(), _getPackages('@vates'), _getPackages('@xen-orchestra')]).then(pkgs => {
+  const p = Promise.all([_getPackages(), _getPackages('@fragata')]).then(pkgs => {
     pkgs = [].concat(...pkgs) // flatten
     return readPackageJson
       ? Promise.all(

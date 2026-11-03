@@ -3,7 +3,7 @@
 // Fail if a package modified by the current branch is not listed in the
 // `Packages to release` section of `CHANGELOG.unreleased.md`.
 //
-// Meant to run in the CI, on a branch already rebased on `master`.
+// Meant to run in the CI, on a branch already rebased on `main`.
 //
 // Only depends on Node builtins so that it can run without `yarn install`.
 
@@ -17,9 +17,9 @@ const { CHANGELOG_PATH, readChangelogPackages } = require('./_readChangelogPacka
 
 const ROOT_DIR = joinPath(__dirname, '..')
 
-// branches are rebased before being merged, the merge base with `master` is
+// branches are rebased before being merged, the merge base with `main` is
 // therefore the commit the branch starts from
-const BASE_REF = 'origin/master'
+const BASE_REF = 'origin/main'
 
 // how many changed files are shown per package in the error report
 const MAX_REPORTED_FILES = 5
@@ -95,7 +95,7 @@ function getChangedPackages(changedFiles, packageNamesByDir) {
 function getPackageNamesByDir() {
   const packageNamesByDir = new Map()
 
-  for (const scope of [undefined, '@vates', '@xen-orchestra']) {
+  for (const scope of [undefined, '@fragata']) {
     const scopeDir = scope ?? 'packages'
 
     for (const entry of readdirSync(joinPath(ROOT_DIR, scopeDir))) {
